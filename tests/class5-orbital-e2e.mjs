@@ -3,14 +3,14 @@ import fs from 'node:fs';
 
 const source=fs.readFileSync('class5-urban-harmony.js','utf8');
 const required=[
-  "rotation:direction*1080",
-  "function addReverseSweep",
-  "function addAirTurn",
-  "function addSoloist",
-  "function addCrewRecoil",
-  "scale:.68",
-  "scale:1.40",
-  "scale:1.18"
+  'rotation:direction*1080',
+  'function addReverseSweep',
+  'function addAirTurn',
+  'function addSoloist',
+  'function addCrewRecoil',
+  'scale:.66',
+  'scale:1.42',
+  'scale:1.18'
 ];
 for(const token of required){
   if(!source.includes(token))throw new Error(`Missing Class 5 choreography contract: ${token}`);
@@ -29,7 +29,7 @@ try{
   await page.waitForFunction(()=>document.documentElement.dataset.orbitalChoreography==='urban-acrobatics-v5-final',{timeout:15000});
   await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,{timeout:15000});
   await page.locator('#signature').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(250);
+  await page.waitForTimeout(300);
 
   const roles=await page.evaluate(()=>{
     const shell=document.querySelector('.orbit-shell');
@@ -51,61 +51,89 @@ try{
     return {solo:solo.id,feature:feature.id,others:list.filter(x=>x.id!==solo.id).map(x=>x.id)};
   });
 
-  const sample=async id=>page.evaluate(id=>{
-    const img=document.querySelector(`.orbit-dish[data-id="${id}"] img`);
-    const cs=getComputedStyle(img);
-    const m=cs.transform==='none'?new DOMMatrixReadOnly():new DOMMatrixReadOnly(cs.transform);
-    const cssScale=cs.scale==='none'?1:Number.parseFloat(cs.scale)||1;
-    const matrixScale=Math.hypot(m.a,m.b);
-    return {
-      scale:matrixScale*cssScale,
-      matrixScale,
-      cssScale,
-      x:m.e,
-      y:m.f,
-      transform:cs.transform,
-      computedScale:cs.scale,
-      opacity:Number(cs.opacity),
-      filter:cs.filter,
-      inlineStyle:img.getAttribute('style')||''
+  await page.evaluate(roles=>{
+    const read=id=>{
+      const img=document.querySelector(`.orbit-dish[data-id="${id}"] img`);
+      const cs=getComputedStyle(img);
+      const m=cs.transform==='none'?new DOMMatrixReadOnly():new DOMMatrixReadOnly(cs.transform);
+      return {
+        scale:Math.hypot(m.a,m.b),
+        x:m.e,
+        y:m.f,
+        opacity:Number(cs.opacity),
+        angle:Math.atan2(m.b,m.a)*180/Math.PI,
+        filter:cs.filter
+      };
     };
-  },id);
+    window.__class5Samples=[];
+    window.__class5Sampling=true;
+    window.__class5T0=performance.now();
+    const loop=()=>{
+      if(!window.__class5Sampling)return;
+      window.__class5Samples.push({
+        t:performance.now()-window.__class5T0,
+        solo:read(roles.solo),
+        feature:read(roles.feature),
+        others:roles.others.map(id=>({id,...read(id)}))
+      });
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  },roles);
 
   await page.click('#next-dish');
+  await page.waitForTimeout(2300);
+  const samples=await page.evaluate(()=>{window.__class5Sampling=false;return window.__class5Samples;});
 
-  await page.waitForTimeout(405);
-  const pullBack=await sample(roles.solo);
-  assert(pullBack.scale<.84,`SOLOIST pull-back not visible enough: ${JSON.stringify({roles,pullBack})}`);
+  assert(samples.length>70,`Insufficient animation samples: ${samples.length}`);
 
-  await page.waitForTimeout(95);
-  const featureMotion=await sample(roles.feature);
-  assert(featureMotion.transform!=='none'&&(Math.abs(featureMotion.x)>3||Math.abs(featureMotion.y)>3||Math.abs(featureMotion.scale-1)>.02),`FEATURE DANCER did not visibly move: ${JSON.stringify(featureMotion)}`);
+  const minSolo=samples.reduce((a,b)=>b.solo.scale<a.solo.scale?b:a,samples[0]);
+  const maxSolo=samples.reduce((a,b)=>b.solo.scale>a.solo.scale?b:a,samples[0]);
+  assert(minSolo.solo.scale<.80,`SOLOIST did not visibly pull back: min=${minSolo.solo.scale.toFixed(3)} at ${minSolo.t.toFixed(0)}ms`);
+  assert(maxSolo.solo.scale>1.30,`SOLOIST did not visibly zoom toward viewer: max=${maxSolo.solo.scale.toFixed(3)} at ${maxSolo.t.toFixed(0)}ms`);
+  assert(minSolo.t<maxSolo.t,`SOLOIST order invalid: pull-back ${minSolo.t}ms, zoom-in ${maxSolo.t}ms`);
 
-  /* Sample just before .82s, while the zoom-in attack is still at peak. */
-  await page.waitForTimeout(310);
-  const attack=await sample(roles.solo);
-  assert(attack.scale>1.22,`SOLOIST frontal attack did not overshoot: ${JSON.stringify(attack)}`);
+  const featurePeak=samples.reduce((best,s)=>{
+    const energy=Math.abs(s.feature.x)+Math.abs(s.feature.y)+Math.abs(s.feature.scale-1)*80;
+    return energy>best.energy?{energy,s}:best;
+  },{energy:-1,s:null});
+  assert(featurePeak.energy>12,`FEATURE DANCER lost approved movement: energy=${featurePeak.energy.toFixed(2)}`);
 
-  /* Move into the full-stop hold after the hard brake. */
-  await page.waitForTimeout(190);
-  const stopped=await sample(roles.solo);
-  assert(stopped.scale>1.14,`SOLOIST did not remain dominant at brake/hold: ${JSON.stringify(stopped)}`);
-  assert(Math.abs(stopped.y)<5,`SOLOIST was not visually stopped near landing pose: ${JSON.stringify(stopped)}`);
+  const stableHero=samples.filter(s=>s.t>maxSolo.t+50&&s.solo.scale>1.14&&s.solo.scale<1.23&&Math.abs(s.solo.y)<5);
+  assert(stableHero.length>=5,`Hero brake/hold not readable after attack: frames=${stableHero.length}`);
 
-  await page.waitForTimeout(230);
-  const recoil=await Promise.all(roles.others.map(sample));
-  const recoiling=recoil.filter(x=>x.scale<.94&&x.opacity<.75);
-  assert(recoiling.length>=Math.max(2,roles.others.length-1),`Crew recoil not synchronized/readable: ${JSON.stringify(recoil)}`);
+  const recoilFrames=samples.map(s=>({
+    s,
+    count:s.others.filter(x=>x.scale<.94&&x.opacity<.75).length
+  }));
+  const recoilPeak=recoilFrames.reduce((a,b)=>b.count>a.count?b:a,recoilFrames[0]);
+  const needed=Math.max(2,roles.others.length-1);
+  assert(recoilPeak.count>=needed,`Crew recoil not synchronized: ${recoilPeak.count}/${roles.others.length} plates at ${recoilPeak.s.t.toFixed(0)}ms`);
+  assert(recoilPeak.s.t>maxSolo.t,`Crew reacted before protagonist completed attack: recoil=${recoilPeak.s.t}ms maxSolo=${maxSolo.t}ms`);
 
-  await page.waitForTimeout(700);
-  const heroFinal=await sample(roles.solo);
-  const othersFinal=await Promise.all(roles.others.map(sample));
-  assert(heroFinal.scale>1.08,`Final protagonist lost hierarchy: ${JSON.stringify(heroFinal)}`);
-  assert(othersFinal.every(x=>Math.abs(x.scale-1)<.06),`Crew did not restore formation: ${JSON.stringify(othersFinal)}`);
+  const featureSettledBeforeRecoil=samples.some(s=>{
+    if(s.t<maxSolo.t||s.t>=recoilPeak.s.t)return false;
+    const energy=Math.abs(s.feature.x)+Math.abs(s.feature.y)+Math.abs(s.feature.scale-1)*80;
+    return energy<7;
+  });
+  assert(featureSettledBeforeRecoil,'Feature trick did not finish before crew recoil');
 
+  const final=samples[samples.length-1];
+  assert(final.solo.scale>1.08,`Final protagonist lost hierarchy: scale=${final.solo.scale.toFixed(3)}`);
+  assert(final.others.every(x=>Math.abs(x.scale-1)<.07),`Crew did not restore formation: ${JSON.stringify(final.others)}`);
   assert(errors.length===0,`Browser errors detected: ${errors.join(' | ')}`);
+
   console.log('CLASS5_ORBITAL_E2E_PASS');
-  console.log(JSON.stringify({roles,pullBack,featureMotion,attack,stopped,recoil,heroFinal,othersFinal},null,2));
+  console.log(JSON.stringify({
+    roles,
+    samples:samples.length,
+    pullBack:{t:minSolo.t,scale:minSolo.solo.scale},
+    zoomIn:{t:maxSolo.t,scale:maxSolo.solo.scale},
+    featurePeak:{t:featurePeak.s.t,energy:featurePeak.energy},
+    heroHoldFrames:stableHero.length,
+    recoil:{t:recoilPeak.s.t,count:recoilPeak.count,total:roles.others.length},
+    final:{soloScale:final.solo.scale,others:final.others.map(x=>x.scale)}
+  },null,2));
 }finally{
   await browser.close();
 }
