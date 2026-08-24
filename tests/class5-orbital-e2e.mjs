@@ -42,8 +42,8 @@ try{
     });
     const score=x=>Math.abs(x.dx)+Math.abs(x.dy)*.18;
     const outgoing=[...list].sort((a,b)=>score(a)-score(b))[0];
-    const side=list.filter(x=>x!==outgoing&&x.dx>8).sort((a,b)=>score(a)-score(b));
-    const solo=side[0]||list.filter(x=>x!==outgoing).sort((a,b)=>score(a)-score(b))[0];
+    const side=list.filter(x=>x.id!==outgoing.id&&x.dx>8).sort((a,b)=>score(a)-score(b));
+    const solo=side[0]||list.filter(x=>x.id!==outgoing.id).sort((a,b)=>score(a)-score(b))[0];
     const rest=list.filter(x=>x.id!==outgoing.id&&x.id!==solo.id);
     const rear=rest.filter(x=>Math.abs(x.dy)>35).sort((a,b)=>Math.abs(b.dy)-Math.abs(a.dy));
     const preferred=rear.filter(x=>x.dx>0);
@@ -55,14 +55,27 @@ try{
     const img=document.querySelector(`.orbit-dish[data-id="${id}"] img`);
     const cs=getComputedStyle(img);
     const m=cs.transform==='none'?new DOMMatrixReadOnly():new DOMMatrixReadOnly(cs.transform);
-    return {scale:Math.hypot(m.a,m.b),x:m.e,y:m.f,transform:cs.transform,opacity:Number(cs.opacity),filter:cs.filter};
+    const cssScale=cs.scale==='none'?1:Number.parseFloat(cs.scale)||1;
+    const matrixScale=Math.hypot(m.a,m.b);
+    return {
+      scale:matrixScale*cssScale,
+      matrixScale,
+      cssScale,
+      x:m.e,
+      y:m.f,
+      transform:cs.transform,
+      computedScale:cs.scale,
+      opacity:Number(cs.opacity),
+      filter:cs.filter,
+      inlineStyle:img.getAttribute('style')||''
+    };
   },id);
 
   await page.click('#next-dish');
 
   await page.waitForTimeout(300);
   const pullBack=await sample(roles.solo);
-  assert(pullBack.scale<.90,`SOLOIST pull-back not visible enough: scale=${pullBack.scale}`);
+  assert(pullBack.scale<.90,`SOLOIST pull-back not visible enough: ${JSON.stringify({roles,pullBack})}`);
 
   await page.waitForTimeout(200);
   const featureMotion=await sample(roles.feature);
@@ -70,12 +83,12 @@ try{
 
   await page.waitForTimeout(280);
   const attack=await sample(roles.solo);
-  assert(attack.scale>1.20,`SOLOIST frontal attack did not overshoot: scale=${attack.scale}`);
+  assert(attack.scale>1.20,`SOLOIST frontal attack did not overshoot: ${JSON.stringify(attack)}`);
 
   await page.waitForTimeout(200);
   const stopped=await sample(roles.solo);
-  assert(stopped.scale>1.12,`SOLOIST did not remain dominant at brake/hold: scale=${stopped.scale}`);
-  assert(Math.abs(stopped.y)<6,`SOLOIST was not visually stopped near landing pose: y=${stopped.y}`);
+  assert(stopped.scale>1.12,`SOLOIST did not remain dominant at brake/hold: ${JSON.stringify(stopped)}`);
+  assert(Math.abs(stopped.y)<6,`SOLOIST was not visually stopped near landing pose: ${JSON.stringify(stopped)}`);
 
   await page.waitForTimeout(220);
   const recoil=await Promise.all(roles.others.map(sample));
@@ -85,7 +98,7 @@ try{
   await page.waitForTimeout(700);
   const heroFinal=await sample(roles.solo);
   const othersFinal=await Promise.all(roles.others.map(sample));
-  assert(heroFinal.scale>1.08,`Final protagonist lost hierarchy: scale=${heroFinal.scale}`);
+  assert(heroFinal.scale>1.08,`Final protagonist lost hierarchy: ${JSON.stringify(heroFinal)}`);
   assert(othersFinal.every(x=>Math.abs(x.scale-1)<.06),`Crew did not restore formation: ${JSON.stringify(othersFinal)}`);
 
   assert(errors.length===0,`Browser errors detected: ${errors.join(' | ')}`);
