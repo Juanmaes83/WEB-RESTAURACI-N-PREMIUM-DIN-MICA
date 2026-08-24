@@ -1,0 +1,17 @@
+/* CLASS 05 — Motion Direction Premium */
+.studio-nav{flex-wrap:wrap}
+.motion-panel{padding-bottom:4rem}
+.motion-panel .panel-intro{margin-bottom:1.25rem}
+.motion-card,.motion-grid .motion-card{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.035);padding:1rem;border-radius:16px;display:grid;gap:.75rem}
+.motion-card-featured{border-color:rgba(216,255,79,.35);background:linear-gradient(145deg,rgba(216,255,79,.08),rgba(255,255,255,.025));margin-bottom:1rem}
+.motion-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.motion-card-head{display:flex;justify-content:space-between;align-items:center;gap:.8rem}.motion-card-head>div{display:flex;align-items:center;gap:.6rem}
+.motion-number{font-size:.68rem;letter-spacing:.14em;opacity:.5}.motion-badge{font-size:.62rem;letter-spacing:.16em;border:1px solid rgba(216,255,79,.42);border-radius:99px;padding:.25rem .45rem;color:var(--accent)}
+.motion-card p{margin:0;opacity:.66;line-height:1.45;font-size:.82rem}.motion-card label{display:grid;gap:.38rem;font-size:.72rem;letter-spacing:.04em;opacity:.92}
+.motion-card select{width:100%;border:1px solid rgba(255,255,255,.14);background:#141412;color:#f1ede4;border-radius:10px;padding:.72rem .8rem;font:inherit}
+.motion-preview{border:1px solid rgba(255,255,255,.13);background:transparent;color:#f2eee5;border-radius:99px;padding:.68rem .85rem;text-align:left;cursor:pointer;transition:border-color .25s ease,background .25s ease}.motion-preview:hover{border-color:rgba(216,255,79,.45);background:rgba(216,255,79,.06)}
+.motion-help{margin-top:1rem}
+html[data-orbital-motion="urban"] .orbit-ring{opacity:.72}html[data-orbital-motion="elegant"] .orbit-ring{opacity:.58}
+html[data-motion-reduced="true"] .page-progress{transition:none!important}
+@media(max-width:760px){.motion-grid{grid-template-columns:1fr}.motion-card{border-radius:13px}.motion-preview{padding:.75rem}.studio-nav{gap:.25rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important}.cursor{display:none!important}.section-media-element,.media-host-fill{transform:none!important;filter:none!important;clip-path:none!important}}
