@@ -47,7 +47,7 @@
     if(reduced.matches){gsap.set(media,{clearProps:'transform,filter,clipPath,opacity'});return}
     const preset=mediaPreset(key),short=mobile();
     if(preset==='still'){gsap.set(media,{clearProps:'transform,filter,clipPath,opacity'});return}
-    if(preset==='mask'){gsap.fromTo(media,{clipPath:'inset(0 0 100% 0)',scale:1.035},{clipPath:'inset(0 0 0% 0)',scale:1,duration:short?.7:1.05,ease:'power4.out',overwrite:true});return}
+    if(preset==='mask'){gsap.fromTo(media,{clipPath:'inset(0 0 100% 0)',scale:1.035},{clipPath:'inset(0 0 0% 0)',scale:1,duration:short ? .7 : 1.05,ease:'power4.out',overwrite:true});return}
     if(preset==='cinematic'){gsap.fromTo(media,{scale:short?1.035:1.075,filter:'brightness(.68)'},{scale:1,filter:'brightness(.88)',duration:short ? .9 : 1.5,ease:'power3.out',overwrite:true});return}
     if(preset==='slowZoom'){gsap.fromTo(media,{scale:1},{scale:short?1.025:1.06,duration:short?5:8,ease:'sine.inOut',yoyo:true,repeat:-1,overwrite:true});return}
     if(preset==='parallax'){
