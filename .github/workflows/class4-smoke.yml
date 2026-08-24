@@ -2,7 +2,7 @@ name: Class 04 smoke checks
 
 on:
   push:
-    branches: [feat/class-04-restaurant-studio]
+    branches: [main, fix/class-04-restore-class3-engine]
   pull_request:
     branches: [main]
 
@@ -22,6 +22,7 @@ jobs:
           node --check class4-store.js
           node --check class4-config.js
           node --check app-v4.js
+          node --check class4-cinematic-restore.js
       - name: Static DOM contract
         run: node scripts/class4-static-check.mjs
       - name: JSON preset validation
