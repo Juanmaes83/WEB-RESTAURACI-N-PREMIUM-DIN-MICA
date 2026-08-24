@@ -1,8 +1,8 @@
-/* CLASS 04 — browser-local project + media persistence inspired by Escaparates Pro */
+/* CLASS 04 — durable browser-local project + media persistence, aligned with Escaparates Pro patterns */
 (function(){
   'use strict';
   const DB_NAME='restaurant-premium-studio';
-  const DB_VERSION=1;
+  const DB_VERSION=2;
   const PROJECTS='projects';
   const MEDIA='media';
   let dbPromise;
@@ -17,40 +17,90 @@
         if(!db.objectStoreNames.contains(MEDIA)) db.createObjectStore(MEDIA,{keyPath:'slot'});
       };
       req.onsuccess=()=>resolve(req.result);
-      req.onerror=()=>reject(req.error);
+      req.onerror=()=>reject(req.error||new Error('IndexedDB open failed'));
+      req.onblocked=()=>reject(new Error('IndexedDB upgrade blocked by another tab'));
     });
     return dbPromise;
   }
 
-  function request(store,mode,action){
+  function tx(store,mode,action){
     return open().then(db=>new Promise((resolve,reject)=>{
-      const tx=db.transaction(store,mode);
-      const s=tx.objectStore(store);
-      let req;
-      try{ req=action(s); }catch(err){ reject(err); return; }
-      req.onsuccess=()=>resolve(req.result);
-      req.onerror=()=>reject(req.error);
+      const transaction=db.transaction(store,mode);
+      const objectStore=transaction.objectStore(store);
+      let request=null;
+      let requestResult;
+      try{ request=action(objectStore); }catch(err){ reject(err); return; }
+      if(request){
+        request.onsuccess=()=>{ requestResult=request.result; };
+        request.onerror=()=>{ reject(request.error||new Error('IndexedDB request failed')); };
+      }
+      transaction.oncomplete=()=>resolve(requestResult);
+      transaction.onerror=()=>reject(transaction.error||new Error('IndexedDB transaction failed'));
+      transaction.onabort=()=>reject(transaction.error||new Error('IndexedDB transaction aborted'));
     }));
   }
 
   function normalizeProject(project){
     const now=new Date().toISOString();
-    return Object.assign({id:'restaurant-class4',schemaVersion:4,status:'draft',createdAt:now,updatedAt:now},project||{}, {updatedAt:now});
+    const incoming=project||{};
+    return Object.assign({
+      id:'restaurant-class4',
+      schemaVersion:4,
+      status:'draft',
+      createdAt:incoming.createdAt||now,
+      updatedAt:now,
+      lastOpenedAt:now,
+      persistenceMode:'indexeddb'
+    },incoming,{updatedAt:now,lastOpenedAt:now,persistenceMode:'indexeddb'});
   }
 
-  function saveProject(project){ return request(PROJECTS,'readwrite',s=>s.put(normalizeProject(project))).then(()=>normalizeProject(project)); }
-  function loadProject(id='restaurant-class4'){ return request(PROJECTS,'readonly',s=>s.get(id)); }
-  function clearProject(id='restaurant-class4'){ return request(PROJECTS,'readwrite',s=>s.delete(id)); }
-  function saveMedia(slot,file){ return request(MEDIA,'readwrite',s=>s.put({slot,file,name:file.name,type:file.type,size:file.size,updatedAt:new Date().toISOString()})); }
-  function loadMedia(slot){ return request(MEDIA,'readonly',s=>s.get(slot)); }
-  function deleteMedia(slot){ return request(MEDIA,'readwrite',s=>s.delete(slot)); }
-  function listMedia(){ return request(MEDIA,'readonly',s=>s.getAll()); }
-  function clearMedia(){ return open().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction(MEDIA,'readwrite');tx.objectStore(MEDIA).clear();tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);})); }
-  function exportJSON(project){ return JSON.stringify({schemaVersion:4,exportedAt:new Date().toISOString(),project},null,2); }
+  async function saveProject(project){
+    const normalized=normalizeProject(project);
+    await tx(PROJECTS,'readwrite',s=>s.put(normalized));
+    return normalized;
+  }
+  function loadProject(id='restaurant-class4'){ return tx(PROJECTS,'readonly',s=>s.get(id)); }
+  function clearProject(id='restaurant-class4'){ return tx(PROJECTS,'readwrite',s=>s.delete(id)); }
 
-  window.RestaurantStore={open,saveProject,loadProject,clearProject,saveMedia,loadMedia,deleteMedia,listMedia,clearMedia,exportJSON};
+  async function saveMedia(slot,file,meta={}){
+    if(!slot) throw new Error('Media slot is required');
+    if(!(file instanceof Blob)) throw new Error('Media must be a Blob/File');
+    const record={
+      slot,
+      file,
+      name:file.name||meta.name||slot,
+      type:file.type||meta.type||'application/octet-stream',
+      size:file.size||0,
+      updatedAt:new Date().toISOString(),
+      kind:(file.type||'').startsWith('video/')?'video':'image',
+      fit:meta.fit||'cover',
+      position:meta.position||'50% 50%'
+    };
+    await tx(MEDIA,'readwrite',s=>s.put(record));
+    return record;
+  }
+  function loadMedia(slot){ return tx(MEDIA,'readonly',s=>s.get(slot)); }
+  function deleteMedia(slot){ return tx(MEDIA,'readwrite',s=>s.delete(slot)); }
+  function listMedia(){ return tx(MEDIA,'readonly',s=>s.getAll()); }
+  function clearMedia(){ return tx(MEDIA,'readwrite',s=>s.clear()); }
 
-  /* Studio shell is bound synchronously and owns open/close. Capture phase prevents app-v4 GSAP handlers from fighting the CSS state machine. */
+  async function verifyPersistence(){
+    const probeId='__class4_probe__';
+    const probe={id:probeId,schemaVersion:4,status:'probe',config:{ok:true,stamp:Date.now()}};
+    await saveProject(probe);
+    const loaded=await loadProject(probeId);
+    await clearProject(probeId);
+    if(!loaded||loaded.config?.ok!==true) throw new Error('Project persistence self-test failed');
+    return true;
+  }
+
+  function exportJSON(project){
+    return JSON.stringify({schemaVersion:4,exportedAt:new Date().toISOString(),project},null,2);
+  }
+
+  window.RestaurantStore={open,saveProject,loadProject,clearProject,saveMedia,loadMedia,deleteMedia,listMedia,clearMedia,verifyPersistence,exportJSON};
+
+  /* Studio shell is bound synchronously. CSS owns open/close; application code must not animate this transform. */
   const studio=document.getElementById('studio');
   const backdrop=document.getElementById('studio-backdrop');
   if(studio&&backdrop){
@@ -67,11 +117,9 @@
       studio.setAttribute('aria-hidden','true');
       document.body.classList.remove('studio-open');
     };
-    const guardedOpen=(event)=>{event.preventDefault();event.stopImmediatePropagation();openStudioShell();};
-    const guardedClose=(event)=>{event?.preventDefault?.();event?.stopImmediatePropagation?.();closeStudioShell();};
-    document.querySelectorAll('.studio-open').forEach(button=>button.addEventListener('click',guardedOpen,true));
-    document.getElementById('studio-close')?.addEventListener('click',guardedClose,true);
-    backdrop.addEventListener('click',guardedClose,true);
+    document.querySelectorAll('.studio-open').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();openStudioShell();},true));
+    document.getElementById('studio-close')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();closeStudioShell();},true);
+    backdrop.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();closeStudioShell();},true);
     document.addEventListener('keydown',event=>{if(event.key==='Escape'&&studio.getAttribute('aria-hidden')==='false')closeStudioShell();},true);
     window.RestaurantStudioShell={open:openStudioShell,close:closeStudioShell};
   }
