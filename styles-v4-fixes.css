@@ -1,2 +1,10 @@
-/* CLASS 04 runtime hardening after first integration review */
-.media-host-fill{position:absolute;inset:0;overflow:hidden}.media-host-fill .section-media-element{width:100%;height:100%;display:block}.upload-btn input[type=file]{display:none}.studio[aria-hidden="true"]{visibility:hidden;pointer-events:none}.studio[aria-hidden="false"]{visibility:visible;pointer-events:auto}.studio-backdrop{pointer-events:none}.studio-open .studio-backdrop{pointer-events:auto}
+/* CLASS 04 runtime hardening after live review */
+.media-host-fill{position:absolute;inset:0;overflow:hidden}.media-host-fill .section-media-element{width:100%;height:100%;display:block}.upload-btn input[type=file]{display:none}
+
+/* Studio shell must work without GSAP or the main app. */
+#studio{transform:translateX(102%) !important;transition:transform .42s cubic-bezier(.22,.8,.22,1);visibility:hidden;pointer-events:none}
+#studio.is-open{transform:translateX(0) !important;visibility:visible;pointer-events:auto}
+#studio[aria-hidden="false"]{visibility:visible;pointer-events:auto}
+#studio-backdrop{pointer-events:none;opacity:0;visibility:hidden;transition:opacity .25s ease}
+#studio-backdrop.is-open{pointer-events:auto;opacity:1;visibility:visible}
+body.studio-open{overflow:hidden}
