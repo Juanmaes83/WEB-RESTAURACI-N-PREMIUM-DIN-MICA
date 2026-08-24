@@ -9,18 +9,18 @@ page.on('console',m=>{if(m.type()==='error')errors.push(`console: ${m.text()}`)}
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg)};
 
 async function ready(){
-  await page.waitForFunction(()=>document.documentElement.dataset.class6==='product-final',{timeout:15000});
-  await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=6,{timeout:15000});
-  await page.waitForFunction(()=>document.querySelector('.studio-nav [data-panel="class6"]')&&document.querySelector('#class6-language'),{timeout:15000});
+  await page.waitForFunction(()=>document.documentElement.dataset.class6==='product-final',null,{timeout:15000});
+  await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:15000});
+  await page.waitForFunction(()=>document.querySelector('.studio-nav [data-panel="class6"]')&&document.querySelector('#class6-language'),null,{timeout:15000});
   await page.waitForTimeout(450);
 }
 async function openPanel(name){
   await page.click('.studio-open');
-  await page.waitForFunction(()=>document.getElementById('studio')?.getAttribute('aria-hidden')==='false',{timeout:4000});
+  await page.waitForFunction(()=>document.getElementById('studio')?.getAttribute('aria-hidden')==='false',null,{timeout:4000});
   await page.click(`.studio-nav [data-panel="${name}"]`);
   await page.waitForFunction(n=>!document.querySelector(`.studio-panel[data-panel="${n}"]`)?.hidden,name,{timeout:2500});
 }
-async function closeStudio(){await page.click('#studio-close');await page.waitForFunction(()=>document.getElementById('studio')?.getAttribute('aria-hidden')==='true',{timeout:3000})}
+async function closeStudio(){await page.click('#studio-close');await page.waitForFunction(()=>document.getElementById('studio')?.getAttribute('aria-hidden')==='true',null,{timeout:3000})}
 
 try{
   await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded',timeout:30000});
@@ -40,8 +40,8 @@ try{
   assert((await page.locator('#hero-body').textContent()).includes('Mediterranean produce'),'English public copy did not apply');
   await page.locator('#signature').scrollIntoViewIfNeeded();
   await page.click('#explore-dish');
-  await page.waitForFunction(()=>document.getElementById('dish-detail')?.getAttribute('aria-hidden')==='false',{timeout:3000});
-  await page.waitForFunction(()=>document.getElementById('class6-story-text')?.textContent?.length>80,{timeout:3000});
+  await page.waitForFunction(()=>document.getElementById('dish-detail')?.getAttribute('aria-hidden')==='false',null,{timeout:3000});
+  await page.waitForFunction(()=>document.getElementById('class6-story-text')?.textContent?.length>80,null,{timeout:3000});
   const enStory=await page.locator('#class6-story-text').textContent();
   assert(enStory.includes('Santa Pola')||enStory.includes('Mediterranean'),'English emotional story is not populated');
   assert((await page.locator('#class6-elaboration-text').textContent()).length>70,'Elaboration block is missing');
@@ -66,7 +66,7 @@ try{
   /* Class 05 regression: Urban remains operational with approved hero trajectory. */
   await openPanel('motion');
   await page.selectOption('#motion-orbital-style','urban');
-  await page.waitForFunction(()=>document.documentElement.dataset.orbitalMotion==='urban',{timeout:2500});
+  await page.waitForFunction(()=>document.documentElement.dataset.orbitalMotion==='urban',null,{timeout:2500});
   await closeStudio();
   await page.locator('#signature').scrollIntoViewIfNeeded();
   const role=await page.evaluate(()=>{const shell=document.querySelector('.orbit-shell'),sr=shell.getBoundingClientRect(),cx=sr.left+sr.width/2,cy=sr.top+sr.height/2;const list=[...document.querySelectorAll('.orbit-dish')].map(el=>{const r=el.getBoundingClientRect();return{id:el.dataset.id,dx:r.left+r.width/2-cx,dy:r.top+r.height/2-cy}});const score=x=>Math.abs(x.dx)+Math.abs(x.dy)*.18;const out=[...list].sort((a,b)=>score(a)-score(b))[0];const solo=list.filter(x=>x.id!==out.id&&x.dx>8).sort((a,b)=>score(a)-score(b))[0];return solo?.id});
@@ -78,16 +78,15 @@ try{
 
   /* Second restaurant proof: import MAREA without touching code. */
   await openPanel('project');
+  page.once('dialog',d=>d.accept());
   await page.setInputFiles('#import-config','presets/MAREA-CLASS06.json');
   await page.waitForTimeout(1000);
-  page.once('dialog',d=>d.accept());
-  await page.waitForTimeout(250);
   assert((await page.locator('#studio-project-name').textContent())==='MAREA','Second restaurant preset did not import');
   await closeStudio();
   await page.waitForTimeout(350);
   assert((await page.locator('.brand-visual').textContent()).includes('MAREA'),'Second restaurant branding did not reach public site');
 
-  /* Reduced motion + keyboard navigation remain functional. */
+  /* Reduced motion + keyboard navigation remain functional with the 3-dish imported restaurant. */
   await page.emulateMedia({reducedMotion:'reduce'});await page.reload({waitUntil:'domcontentloaded'});await ready();
   await page.locator('#signature').scrollIntoViewIfNeeded();const before=await page.locator('#dish-counter').textContent();await page.locator('.orbit-shell').focus();await page.keyboard.press('ArrowRight');await page.waitForTimeout(800);const after=await page.locator('#dish-counter').textContent();assert(before!==after,`Reduced motion keyboard navigation failed: ${before} -> ${after}`);
 
