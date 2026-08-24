@@ -1,0 +1,38 @@
+name: Class 06 Product Final
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  class6:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax and data validation
+        run: |
+          node --check class5-studio-motion.js
+          node --check class6-product.js
+          node --check class5-motion-director.js
+          node --check class5-elegant-orbit.js
+          node --check class5-urban-harmony.js
+          node --check tests/class6-product-e2e.mjs
+          node -e "const p=require('./presets/MAREA-CLASS06.json'); if(p.schemaVersion!==6||p.config.brand.name!=='MAREA'||p.config.dishes.length<3) process.exit(1)"
+      - name: Install browser test runtime
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run Class 06 product E2E
+        run: |
+          python3 -m http.server 4173 >/tmp/class6-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node tests/class6-product-e2e.mjs
