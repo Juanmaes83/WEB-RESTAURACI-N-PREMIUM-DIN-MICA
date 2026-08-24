@@ -1,5 +1,6 @@
-/* CLASS 05 — URBAN ACROBATICS V3 · THE ORBITAL MENU ONLY
-   One master beat. One soloist. One feature trick. One synchronized ensemble.
+/* CLASS 05 — URBAN ACROBATICS V4 · THE ORBITAL MENU ONLY
+   V3 harmony preserved. V4 changes ONLY protagonist authority:
+   strong pull-back -> attack -> elegant hard brake -> ensemble recoil -> identity.
    The approved Class 04 orbit keeps ownership of geometry and interaction state. */
 (() => {
   'use strict';
@@ -12,7 +13,7 @@
   const stage = $('#orbit-stage');
   if (!shell || !stage) return;
 
-  document.documentElement.dataset.orbitalChoreography = 'urban-acrobatics-v3-harmony';
+  document.documentElement.dataset.orbitalChoreography = 'urban-acrobatics-v4-hero-brake';
 
   let master = null;
   let step = 0;
@@ -67,7 +68,7 @@
       const hero=centre(geometry());
       if(!hero?.img)return;
       breath=gsap.to(hero.img,{scale:1.012,y:-2,duration:1.8,ease:'sine.inOut',yoyo:true,repeat:-1,overwrite:true});
-    },1350);
+    },1450);
   }
 
   function killMaster(){
@@ -120,6 +121,7 @@
       .to(img,{x:0,y:0,rotation:0,scale:1,opacity:.72,filter:'brightness(.74)',duration:.34,ease:'power3.out'},.46);
   }
 
+  /* V3 ensemble beat is deliberately preserved. */
   function addEnsemble(tl,list,solo,outgoing,feature,direction){
     const ensemble=list.filter(x=>x!==solo&&x!==outgoing&&x!==feature);
     ensemble.forEach((item,i)=>{
@@ -133,18 +135,82 @@
     });
   }
 
+  /* V4: after the protagonist brakes, the whole crew yields physical space to it. */
+  function addEnsembleRecoil(tl,list,solo){
+    const others=list.filter(x=>x!==solo);
+    others.forEach((item,i)=>{
+      if(!item.img)return;
+      const side=Math.sign(item.dx)||((i%2)?1:-1);
+      const rear=Math.abs(item.dy)>55;
+      tl.to(item.img,{
+        x:side*(rear?7:11),
+        y:rear?5:8,
+        scale:rear?.88:.91,
+        opacity:rear?.54:.59,
+        filter:`brightness(${rear?.57:.62}) blur(${rear?1.2:.55}px)`,
+        duration:.11,
+        ease:'power3.out',
+        overwrite:true
+      },.91)
+      .to(item.img,{
+        x:0,y:0,scale:1,
+        opacity:.66,
+        filter:'brightness(.68) blur(0px)',
+        duration:.24,
+        ease:'power3.out',
+        overwrite:true
+      },1.09);
+    });
+  }
+
   function addSoloist(tl,item,direction){
     if(!item?.img)return;
     const img=item.img;
-    /* Beat 3: preparation. Beat 5: attack. Beat 7: hero landing. */
     tl.set(img,{transformOrigin:'50% 50%'},0)
-      .to(img,{x:-direction*10,y:5,rotation:direction*3.5,scale:.94,scaleX:.98,scaleY:1.01,opacity:1,filter:'brightness(.92)',duration:.15,ease:'power2.in'},.22)
-      .to(img,{x:direction*4,y:-16,rotation:direction*8,scale:1.01,scaleX:.95,scaleY:1.035,filter:'brightness(1.00)',duration:.23,ease:'power4.inOut'},.37)
-      .to(img,{x:0,y:-14,rotation:-direction*3,scale:1.24,scaleX:1.018,scaleY:.987,filter:'brightness(1.16) drop-shadow(0 20px 24px rgba(0,0,0,.52))',duration:.24,ease:'power4.inOut'},.60)
-      /* perceptible 120ms presentation hold */
-      .to(img,{y:-14,rotation:-direction*1.2,scale:1.24,filter:'brightness(1.16) drop-shadow(0 20px 24px rgba(0,0,0,.52))',duration:.12,ease:'none'},.84)
-      .to(img,{y:3,rotation:direction*.65,scale:1.16,scaleX:1.004,scaleY:.997,filter:'brightness(1.09) drop-shadow(0 13px 18px rgba(0,0,0,.40))',duration:.12,ease:'expo.out'},.96)
-      .to(img,{y:0,rotation:0,scale:1,scaleX:1,scaleY:1,filter:'brightness(1)',duration:.16,ease:'expo.out'},1.08);
+      /* 1 · visible pull-back: the soloist takes distance and gathers energy. */
+      .to(img,{
+        x:-direction*18,y:9,rotation:direction*4.5,
+        scale:.83,scaleX:.975,scaleY:1.018,
+        opacity:.94,filter:'brightness(.79)',
+        duration:.22,ease:'power3.in'
+      },.22)
+      /* 2 · launch: short lift before the frontal attack. */
+      .to(img,{
+        x:direction*5,y:-18,rotation:direction*8,
+        scale:.98,scaleX:.95,scaleY:1.04,
+        opacity:1,filter:'brightness(1.02)',
+        duration:.16,ease:'power4.inOut'
+      },.44)
+      /* 3 · strong zoom-in: it comes clearly toward the viewer. */
+      .to(img,{
+        x:0,y:-12,rotation:-direction*2.4,
+        scale:1.31,scaleX:1.018,scaleY:.985,
+        filter:'brightness(1.19) drop-shadow(0 24px 28px rgba(0,0,0,.58))',
+        duration:.20,ease:'power4.in'
+      },.60)
+      /* 4 · elegant hard brake: no bounce, no elastic continuation. */
+      .to(img,{
+        y:-9,rotation:-direction*.55,
+        scale:1.22,scaleX:1.008,scaleY:.994,
+        filter:'brightness(1.17) drop-shadow(0 20px 24px rgba(0,0,0,.54))',
+        duration:.065,ease:'power4.out'
+      },.80)
+      /* 5 · frozen hero pose: the stop must be perceptible. */
+      .to(img,{
+        y:-9,rotation:-direction*.55,scale:1.22,
+        filter:'brightness(1.17) drop-shadow(0 20px 24px rgba(0,0,0,.54))',
+        duration:.13,ease:'none'
+      },.865)
+      /* 6 · controlled settle, still clearly above the ensemble. */
+      .to(img,{
+        y:0,rotation:0,scale:1.15,scaleX:1,scaleY:1,
+        filter:'brightness(1.10) drop-shadow(0 14px 18px rgba(0,0,0,.42))',
+        duration:.19,ease:'expo.out'
+      },.995)
+      .to(img,{
+        scale:1,filter:'brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0))',
+        duration:.20,ease:'power2.out'
+      },1.23);
   }
 
   function addCopy(tl){
@@ -152,9 +218,10 @@
     const nodes=[$('#dish-title'),$('#dish-meta'),$('#dish-short')].filter(Boolean);
     if(!copy||!nodes.length)return;
     tl.to(copy,{opacity:.12,y:7,duration:.18,ease:'power2.in',overwrite:true},0)
-      .set(nodes,{opacity:0,y:10},.70)
-      .to(copy,{opacity:1,y:0,duration:.12,ease:'power2.out'},1.08)
-      .to(nodes,{opacity:1,y:0,duration:.24,stagger:.045,ease:'power3.out'},1.10);
+      .set(nodes,{opacity:0,y:10},.72)
+      /* Identity arrives only after hero brake + crew recoil. */
+      .to(copy,{opacity:1,y:0,duration:.12,ease:'power2.out'},1.12)
+      .to(nodes,{opacity:1,y:0,duration:.24,stagger:.045,ease:'power3.out'},1.14);
   }
 
   function choreograph(direction=1,source='button'){
@@ -177,12 +244,13 @@
       }
     });
 
-    /* One fixed musical phrase. Roles differ, timing does not. */
-    addOutgoing(master,outgoing,direction);          // beat 1
-    addEnsemble(master,list,solo,outgoing,feature,direction); // beat 2
-    addFeature(master,feature,trick,direction);      // beats 2-6
-    addSoloist(master,solo,direction);               // beats 3-8
-    addCopy(master);                                 // beat 8
+    /* V3 harmony remains. Only the protagonist phrase and reaction are upgraded. */
+    addOutgoing(master,outgoing,direction);
+    addEnsemble(master,list,solo,outgoing,feature,direction);
+    addFeature(master,feature,trick,direction);
+    addSoloist(master,solo,direction);
+    addEnsembleRecoil(master,list,solo);
+    addCopy(master);
   }
 
   function bind(){
@@ -192,7 +260,6 @@
     next?.addEventListener('click',()=>{if(!internalStep)choreograph(1,'button');},true);
     prev?.addEventListener('click',()=>{if(!internalStep)choreograph(-1,'button');},true);
 
-    /* Keyboard gets exactly the same phrase as buttons, without double-triggering the core handler. */
     shell.addEventListener('keydown',e=>{
       if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
       e.preventDefault();
@@ -203,7 +270,6 @@
       choreograph(e.key==='ArrowRight'?1:-1,'keyboard');
     },true);
 
-    /* Wheel is deliberately quantized: one gesture = one complete phrase. No half-dances. */
     shell.addEventListener('wheel',e=>{
       if(Math.abs(e.deltaY)<4)return;
       e.preventDefault();
@@ -218,7 +284,6 @@
       choreograph(direction,'wheel');
     },{passive:false,capture:true});
 
-    /* Drag remains physical. Only the release receives a short synchronized landing phrase. */
     shell.addEventListener('pointerdown',e=>{
       dragStartX=e.clientX;
       dragWasActive=true;
@@ -232,7 +297,6 @@
       dragStartX=null;
       dragWasActive=false;
       if(Math.abs(dx)<18){resetVisuals(.16);beginBreath();return;}
-      /* Let Class 04 inertia choose the destination, then choreograph the final arrival. */
       setTimeout(()=>choreograph(dx<0?1:-1,'drag-release'),90);
     },{passive:true,capture:true});
   }
