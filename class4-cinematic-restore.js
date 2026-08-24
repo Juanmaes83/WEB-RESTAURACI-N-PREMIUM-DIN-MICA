@@ -2,8 +2,10 @@
 (() => {
   'use strict';
   const loadGuard=()=>{if(document.querySelector('script[data-class4-guard]'))return;const s=document.createElement('script');s.src='class4-runtime-guard.js';s.dataset.class4Guard='1';document.body.appendChild(s);};
+  const loadUrban=()=>{if(document.querySelector('script[data-class5-urban]'))return;const s=document.createElement('script');s.src='class5-urban-acrobatics.js';s.dataset.class5Urban='1';document.body.appendChild(s);};
   const ready=()=>{
     loadGuard();
+    loadUrban();
     if(!window.gsap||!window.ScrollTrigger)return;
     gsap.registerPlugin(ScrollTrigger);
 
