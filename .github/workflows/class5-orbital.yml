@@ -1,4 +1,4 @@
-name: Class 05 orbital choreography
+name: Class 05 Motion Studio
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  orbital:
+  class5:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,16 +16,21 @@ jobs:
         with:
           node-version: 22
       - name: JavaScript syntax
-        run: node --check class5-urban-harmony.js
+        run: |
+          node --check class5-studio-motion.js
+          node --check class5-motion-director.js
+          node --check class5-elegant-orbit.js
+          node --check class5-urban-harmony.js
+          node --check tests/class5-complete-e2e.mjs
       - name: Install browser test runtime
         run: |
           test -f package.json || npm init -y >/dev/null 2>&1
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Run Class 05 orbital E2E
+      - name: Run Class 05 complete E2E
         run: |
           python3 -m http.server 4173 >/tmp/class5-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID || true' EXIT
           sleep 2
-          node tests/class5-orbital-e2e.mjs
+          node tests/class5-complete-e2e.mjs
