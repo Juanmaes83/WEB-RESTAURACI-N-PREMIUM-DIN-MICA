@@ -6,6 +6,7 @@
   const PROJECTS='projects';
   const MEDIA='media';
   const PROJECT_KEY='restaurant-class4-fallback-project';
+  const PROBE_KEY='restaurant-class4-fallback-probe';
   const MEDIA_META_KEY='restaurant-class4-fallback-media-meta';
   const CACHE_NAME='restaurant-premium-media-v1';
   let dbPromise;
@@ -47,14 +48,8 @@
     return Object.assign({id:'restaurant-class4',schemaVersion:4,status:'draft',createdAt:incoming.createdAt||now},incoming,{updatedAt:now,lastOpenedAt:now,persistenceMode:mode});
   }
 
-  function fallbackProjectSave(project){
-    const normalized=normalizeProject(project);normalized.persistenceMode='localStorage';
-    localStorage.setItem(PROJECT_KEY,JSON.stringify(normalized));
-    return normalized;
-  }
-  function fallbackProjectLoad(id='restaurant-class4'){
-    try{const raw=localStorage.getItem(PROJECT_KEY);const data=raw?JSON.parse(raw):null;return data?.id===id?data:null;}catch{return null;}
-  }
+  function fallbackProjectSave(project){const normalized=normalizeProject(project);normalized.persistenceMode='localStorage';localStorage.setItem(PROJECT_KEY,JSON.stringify(normalized));return normalized;}
+  function fallbackProjectLoad(id='restaurant-class4'){try{const raw=localStorage.getItem(PROJECT_KEY),data=raw?JSON.parse(raw):null;return data?.id===id?data:null;}catch{return null;}}
   function fallbackProjectClear(){localStorage.removeItem(PROJECT_KEY);}
 
   async function saveProject(project){
@@ -64,11 +59,9 @@
   }
   async function loadProject(id='restaurant-class4'){
     try{const value=await tx(PROJECTS,'readonly',s=>s.get(id));mode='indexeddb';return value||fallbackProjectLoad(id);}
-    catch(err){mode='fallback';return fallbackProjectLoad(id);}
+    catch{mode='fallback';return fallbackProjectLoad(id);}
   }
-  async function clearProject(id='restaurant-class4'){
-    try{await tx(PROJECTS,'readwrite',s=>s.delete(id));}catch{}fallbackProjectClear();
-  }
+  async function clearProject(id='restaurant-class4'){try{await tx(PROJECTS,'readwrite',s=>s.delete(id));}catch{}fallbackProjectClear();}
 
   function mediaUrl(slot){return `${location.origin}/__restaurant_studio_media__/${encodeURIComponent(slot)}`;}
   function readMeta(){try{return JSON.parse(localStorage.getItem(MEDIA_META_KEY)||'{}');}catch{return {};}}
@@ -83,7 +76,7 @@
   async function cacheLoadMedia(slot){
     if(!('caches' in window)) return null;
     const cache=await caches.open(CACHE_NAME),res=await cache.match(mediaUrl(slot));if(!res)return null;
-    const all=readMeta(),m=all[slot]||{};const blob=await res.blob();
+    const all=readMeta(),m=all[slot]||{},blob=await res.blob();
     return {...m,slot,file:blob,type:m.type||blob.type,kind:m.kind||((blob.type||'').startsWith('video/')?'video':'image')};
   }
 
@@ -94,32 +87,19 @@
     try{await tx(MEDIA,'readwrite',s=>s.put(record));mode='indexeddb';return record;}
     catch(err){mode='fallback';console.warn('IndexedDB media save failed; using Cache Storage fallback',err);return cacheSaveMedia(slot,file,meta);}
   }
-  async function loadMedia(slot){
-    try{const rec=await tx(MEDIA,'readonly',s=>s.get(slot));if(rec)return rec;}catch{mode='fallback';}
-    return cacheLoadMedia(slot);
-  }
-  async function deleteMedia(slot){
-    try{await tx(MEDIA,'readwrite',s=>s.delete(slot));}catch{}
-    if('caches' in window){const cache=await caches.open(CACHE_NAME);await cache.delete(mediaUrl(slot));}
-    const all=readMeta();delete all[slot];writeMeta(all);
-  }
-  async function listMedia(){
-    try{return await tx(MEDIA,'readonly',s=>s.getAll());}catch{return [];}
-  }
-  async function clearMedia(){
-    try{await tx(MEDIA,'readwrite',s=>s.clear());}catch{}
-    if('caches' in window)await caches.delete(CACHE_NAME);localStorage.removeItem(MEDIA_META_KEY);
-  }
+  async function loadMedia(slot){try{const rec=await tx(MEDIA,'readonly',s=>s.get(slot));if(rec)return rec;}catch{mode='fallback';}return cacheLoadMedia(slot);}
+  async function deleteMedia(slot){try{await tx(MEDIA,'readwrite',s=>s.delete(slot));}catch{}if('caches' in window){const cache=await caches.open(CACHE_NAME);await cache.delete(mediaUrl(slot));}const all=readMeta();delete all[slot];writeMeta(all);}
+  async function listMedia(){try{return await tx(MEDIA,'readonly',s=>s.getAll());}catch{return [];}}
+  async function clearMedia(){try{await tx(MEDIA,'readwrite',s=>s.clear());}catch{}if('caches' in window)await caches.delete(CACHE_NAME);localStorage.removeItem(MEDIA_META_KEY);}
 
   async function verifyPersistence(){
     const probe={id:'__class4_probe__',schemaVersion:4,status:'probe',config:{ok:true,stamp:Date.now()}};
     try{await tx(PROJECTS,'readwrite',s=>s.put(probe));const loaded=await tx(PROJECTS,'readonly',s=>s.get(probe.id));await tx(PROJECTS,'readwrite',s=>s.delete(probe.id));if(loaded?.config?.ok===true){mode='indexeddb';return {ok:true,mode};}}catch{}
-    try{const normalized=fallbackProjectSave({...probe,id:'restaurant-class4'});const loaded=fallbackProjectLoad('restaurant-class4');fallbackProjectClear();if(loaded?.config?.ok===true){mode='fallback';return {ok:true,mode};}}catch{}
+    try{localStorage.setItem(PROBE_KEY,JSON.stringify(probe));const loaded=JSON.parse(localStorage.getItem(PROBE_KEY)||'null');localStorage.removeItem(PROBE_KEY);if(loaded?.config?.ok===true){mode='fallback';return {ok:true,mode};}}catch{}
     return {ok:false,mode:'memory'};
   }
   function getMode(){return mode;}
   function exportJSON(project){return JSON.stringify({schemaVersion:4,exportedAt:new Date().toISOString(),project},null,2);}
-
   window.RestaurantStore={open,saveProject,loadProject,clearProject,saveMedia,loadMedia,deleteMedia,listMedia,clearMedia,verifyPersistence,getMode,exportJSON};
 
   const studio=document.getElementById('studio'),backdrop=document.getElementById('studio-backdrop');
