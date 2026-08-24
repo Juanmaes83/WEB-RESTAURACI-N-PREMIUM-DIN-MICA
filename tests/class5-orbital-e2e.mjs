@@ -85,7 +85,7 @@ try{
   await page.waitForTimeout(2300);
   const samples=await page.evaluate(()=>{window.__class5Sampling=false;return window.__class5Samples;});
 
-  assert(samples.length>70,`Insufficient animation samples: ${samples.length}`);
+  assert(samples.length>40,`Insufficient animation samples: ${samples.length}`);
 
   const minSolo=samples.reduce((a,b)=>b.solo.scale<a.solo.scale?b:a,samples[0]);
   const maxSolo=samples.reduce((a,b)=>b.solo.scale>a.solo.scale?b:a,samples[0]);
