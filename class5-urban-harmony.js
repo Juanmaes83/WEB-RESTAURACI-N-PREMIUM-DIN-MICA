@@ -66,9 +66,10 @@
     breathTimer=setTimeout(()=>{
       const hero=centre(geometry());
       if(!hero?.img)return;
-      gsap.set(hero.img,{scale:1.12,y:0,rotation:0,filter:'brightness(1.07) drop-shadow(0 12px 18px rgba(0,0,0,.36))'});
-      breath=gsap.to(hero.img,{scale:1.145,y:-2,duration:1.8,ease:'sine.inOut',yoyo:true,repeat:-1,overwrite:true});
-    },320);
+      gsap.to(hero.img,{scale:1.14,y:0,rotation:0,filter:'brightness(1.07) drop-shadow(0 12px 18px rgba(0,0,0,.36))',duration:.18,ease:'power2.out',overwrite:true,onComplete(){
+        breath=gsap.to(hero.img,{scale:1.165,y:-2,duration:1.8,ease:'sine.inOut',yoyo:true,repeat:-1,overwrite:true});
+      }});
+    },260);
   }
 
   function killMaster(){
@@ -136,20 +137,21 @@
     });
   }
 
-  /* V5 SOLOIST: unmistakable depth pull-back -> frontal attack -> hard elegant brake -> hold. */
+  /* V5 SOLOIST: clear depth pull-back -> attack -> hard brake -> complete stop. */
   function addSoloist(tl,item,direction){
     if(!item?.img)return;
     const img=item.img;
     tl.set(img,{transformOrigin:'50% 50%'},0)
       .to(img,{x:-direction*24,y:18,rotation:direction*5.5,scale:.68,scaleX:.97,scaleY:1.025,opacity:.86,filter:'brightness(.68) blur(1.4px)',duration:.24,ease:'power3.in'},.18)
       .to(img,{x:-direction*8,y:8,rotation:direction*7.5,scale:.78,scaleX:.95,scaleY:1.04,opacity:.94,filter:'brightness(.82) blur(.55px)',duration:.16,ease:'power2.inOut'},.42)
-      .to(img,{x:0,y:-18,rotation:-direction*2.2,scale:1.38,scaleX:1.02,scaleY:.985,opacity:1,filter:'brightness(1.22) blur(0px) drop-shadow(0 26px 30px rgba(0,0,0,.60))',duration:.24,ease:'power4.in'},.58)
-      .to(img,{y:-11,rotation:-direction*.45,scale:1.25,scaleX:1.006,scaleY:.995,filter:'brightness(1.18) drop-shadow(0 21px 25px rgba(0,0,0,.55))',duration:.07,ease:'power4.out'},.82)
-      .to(img,{y:-11,rotation:-direction*.45,scale:1.25,filter:'brightness(1.18) drop-shadow(0 21px 25px rgba(0,0,0,.55))',duration:.17,ease:'none'},.89)
-      .to(img,{y:0,rotation:0,scale:1.14,scaleX:1,scaleY:1,filter:'brightness(1.08) drop-shadow(0 14px 19px rgba(0,0,0,.40))',duration:.22,ease:'expo.out'},1.06);
+      .to(img,{x:0,y:-18,rotation:-direction*2.2,scale:1.40,scaleX:1.02,scaleY:.985,opacity:1,filter:'brightness(1.22) blur(0px) drop-shadow(0 27px 31px rgba(0,0,0,.62))',duration:.24,ease:'power4.in'},.58)
+      /* Brake to the final hero pose. No movement follows before crew reaction. */
+      .to(img,{y:0,rotation:0,scale:1.18,scaleX:1,scaleY:1,filter:'brightness(1.10) drop-shadow(0 15px 20px rgba(0,0,0,.43))',duration:.08,ease:'power4.out'},.82)
+      /* Full stop: the audience reads the hero before anyone reacts. */
+      .to(img,{y:0,rotation:0,scale:1.18,filter:'brightness(1.10) drop-shadow(0 15px 20px rgba(0,0,0,.43))',duration:.22,ease:'none'},.90);
   }
 
-  /* V5 REACTION: starts only after every approved feature trick has finished and hero has braked. */
+  /* V5 REACTION: all V3 tricks end <= .99s. Recoil starts at 1.14s, after hero is fully stopped. */
   function addCrewRecoil(tl,list,solo){
     const others=list.filter(x=>x!==solo);
     others.forEach((item,i)=>{
@@ -163,9 +165,12 @@
       const retreatBrightness=rear ? .52 : .60;
       const retreatBlur=rear ? 1.7 : .9;
 
-      tl.to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.12,ease:'power4.out'},1.10)
-        .to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.10,ease:'none'},1.22)
-        .to(item.img,{x:0,y:0,rotation:0,scale:1,scaleX:1,scaleY:1,opacity:1,filter:'brightness(1) blur(0px)',duration:.28,ease:'power3.out'},1.32);
+      /* Synchronized sharp step back. */
+      tl.to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.12,ease:'power4.out'},1.14)
+        /* Reaction hold makes it readable. */
+        .to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.12,ease:'none'},1.26)
+        /* Then the crew restores formation. */
+        .to(item.img,{x:0,y:0,rotation:0,scale:1,scaleX:1,scaleY:1,opacity:1,filter:'brightness(1) blur(0px)',duration:.30,ease:'power3.out'},1.38);
     });
   }
 
@@ -175,8 +180,8 @@
     if(!copy||!nodes.length)return;
     tl.to(copy,{opacity:.10,y:7,duration:.18,ease:'power2.in',overwrite:true},0)
       .set(nodes,{opacity:0,y:10},.72)
-      .to(copy,{opacity:1,y:0,duration:.14,ease:'power2.out'},1.40)
-      .to(nodes,{opacity:1,y:0,duration:.25,stagger:.045,ease:'power3.out'},1.43);
+      .to(copy,{opacity:1,y:0,duration:.14,ease:'power2.out'},1.48)
+      .to(nodes,{opacity:1,y:0,duration:.25,stagger:.045,ease:'power3.out'},1.51);
   }
 
   function choreograph(direction=1,source='button'){
@@ -199,7 +204,7 @@
           if(img===hero?.img)return;
           gsap.set(img,{x:0,y:0,rotation:0,scale:1,scaleX:1,scaleY:1,opacity:1,filter:'brightness(1) blur(0px)'});
         });
-        if(hero?.img)gsap.set(hero.img,{x:0,y:0,rotation:0,scale:1.12,scaleX:1,scaleY:1,opacity:1,filter:'brightness(1.07) drop-shadow(0 12px 18px rgba(0,0,0,.36))'});
+        if(hero?.img)gsap.set(hero.img,{x:0,y:0,rotation:0,scale:1.18,scaleX:1,scaleY:1,opacity:1,filter:'brightness(1.10) drop-shadow(0 15px 20px rgba(0,0,0,.43))'});
         beginHeroBreath();
       }
     });
