@@ -31,6 +31,10 @@
     const id=activeDishId();return !!id&&dish.dataset.id===id;
   };
 
+  function ensureStyles(){
+    if(document.querySelector('link[data-class6-styles]'))return;
+    const link=document.createElement('link');link.rel='stylesheet';link.href='styles-v6.css';link.dataset.class6Styles='1';document.head.appendChild(link);
+  }
   async function loadConfig(){
     try{const saved=await window.RestaurantStore?.loadProject?.();if(saved?.config)config=merge(clone(defaults),saved.config)}catch(err){console.warn('Class 06 config fallback',err)}
     const q=new URLSearchParams(location.search).get('lang');
@@ -122,6 +126,7 @@
   function openOwnedDetail(dish){
     if(!dish||ownedDetailSource||!dish.closest('#orbit-stage'))return;
     const detail=$('#dish-detail'),visual=$('#detail-visual');if(!detail||!visual)return;
+    document.documentElement.dataset.class6LastHeroClick=dish.dataset.id||'unknown';
     ownedDetailSource={node:dish,parent:dish.parentNode,next:dish.nextSibling};
     const state=window.Flip?Flip.getState(dish):null;
     visual.appendChild(dish);detail.classList.add('is-open');detail.setAttribute('aria-hidden','false');document.body.classList.add('detail-open');
@@ -133,19 +138,22 @@
     if(!ownedDetailSource)return false;
     const detail=$('#dish-detail'),source=ownedDetailSource.node,state=window.Flip?Flip.getState(source):null,record=ownedDetailSource;
     if(record.next&&record.next.parentNode===record.parent)record.parent.insertBefore(source,record.next);else record.parent.appendChild(source);
-    const done=()=>{detail.classList.remove('is-open');detail.setAttribute('aria-hidden','true');document.body.classList.remove('detail-open');ownedDetailSource=null;publishDetailState(detail);scheduleApply(40)};
+    const done=()=>{detail.classList.remove('is-open');detail.setAttribute('aria-hidden','true');document.body.classList.remove('detail-open');ownedDetailSource=null;publishDetailState(detail);scheduleApply(40);bindDishButtons()};
     if(state&&window.Flip)Flip.from(state,{duration:.62,ease:'power3.inOut',absolute:true,scale:true,onComplete:done});else done();
     return true;
   }
 
+  function bindDishButtons(){
+    $$('#orbit-stage .orbit-dish').forEach(dish=>{if(dish.dataset.class6DetailBound==='1')return;dish.dataset.class6DetailBound='1';dish.addEventListener('click',e=>{if(!isVisualHero(dish))return;e.preventDefault();e.stopImmediatePropagation();openOwnedDetail(dish)},true)});
+  }
+
   function bind(){
-    ensureLanguageSwitch();ensureStoryUI();
+    ensureLanguageSwitch();ensureStoryUI();bindDishButtons();
+    const stage=$('#orbit-stage');if(stage)new MutationObserver(bindDishButtons).observe(stage,{childList:true});
     document.addEventListener('input',e=>{if(e.target.closest('#studio'))setTimeout(refreshConfig,520)},true);document.addEventListener('change',e=>{if(e.target.closest('#studio'))setTimeout(refreshConfig,520)},true);
     ['#next-dish','#prev-dish'].forEach(sel=>$(sel)?.addEventListener('click',()=>{scheduleApply(80);scheduleApply(760)},true));
     $('.orbit-shell')?.addEventListener('wheel',()=>{scheduleApply(120);scheduleApply(780)},{passive:true,capture:true});
     $('.orbit-shell')?.addEventListener('pointerup',()=>{scheduleApply(180);scheduleApply(850)},{passive:true,capture:true});
-    /* Class 06 owns the emotional detail lifecycle so direct hero click never depends on a private Class 04 binding. */
-    $('#orbit-stage')?.addEventListener('click',e=>{const dish=e.target.closest('.orbit-dish');if(!dish||!isVisualHero(dish))return;e.preventDefault();e.stopImmediatePropagation();openOwnedDetail(dish)},true);
     $('#explore-dish')?.addEventListener('click',e=>{if(ownedDetailSource)return;e.preventDefault();e.stopImmediatePropagation();const id=activeDishId(),dish=id?$(`#orbit-stage .orbit-dish[data-id="${id}"]`):null;if(dish)openOwnedDetail(dish)},true);
     $('.orbit-shell')?.addEventListener('keydown',e=>{if(e.key!=='Enter'||ownedDetailSource)return;const id=activeDishId(),dish=id?$(`#orbit-stage .orbit-dish[data-id="${id}"]`):null;if(!dish)return;e.preventDefault();e.stopImmediatePropagation();openOwnedDetail(dish)},true);
     $('#detail-close')?.addEventListener('click',e=>{if(!ownedDetailSource)return;e.preventDefault();e.stopImmediatePropagation();closeOwnedDetail()},true);
@@ -163,6 +171,6 @@
     dish.click();setTimeout(()=>{const candidate=$(`#orbit-stage .orbit-dish[data-id="${id}"]`);if(candidate&&isVisualHero(candidate))openOwnedDetail(candidate)},920);
   }
 
-  async function boot(){await loadConfig();bind();applyGlobals();document.documentElement.dataset.class6='product-final';document.documentElement.dataset.dishDetail='closed';}
+  async function boot(){ensureStyles();await loadConfig();bind();applyGlobals();document.documentElement.dataset.class6='product-final';document.documentElement.dataset.dishDetail='closed';}
   boot();
 })();
