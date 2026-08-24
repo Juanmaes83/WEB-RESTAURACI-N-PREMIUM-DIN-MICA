@@ -5,6 +5,17 @@
   'use strict';
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+
+  /* Class 07 entrypoint lives here because Class 04 guard always loads this bridge
+     after the Class 06 product runtime. This keeps main/Class 06 untouched while the
+     class7 branch gains a guaranteed executable Dish Journey layer. */
+  if(!document.querySelector('link[data-class7-styles]')){
+    const l=document.createElement('link');l.rel='stylesheet';l.href='styles-v7.css';l.dataset.class7Styles='1';document.head.appendChild(l);
+  }
+  if(!document.querySelector('script[data-class7-dish-journey]')){
+    const s=document.createElement('script');s.src='class7-dish-journey.js';s.dataset.class7DishJourney='1';document.body.appendChild(s);
+  }
+
   const shell=$('.orbit-shell');
   const stage=$('#orbit-stage');
   if(!shell||!stage)return;
@@ -30,12 +41,10 @@
 
   function openHero(hero){
     if(!hero?.el)return;
-    /* Class 06 owns the public detail. Request its explicit API when present. */
     if(typeof window.RestaurantClass6Detail?.open==='function'){
       window.RestaurantClass6Detail.open(hero.el);
       return;
     }
-    /* Safe fallback for older Class 06 runtime: use the public Explore action. */
     $('#explore-dish')?.click();
   }
 
