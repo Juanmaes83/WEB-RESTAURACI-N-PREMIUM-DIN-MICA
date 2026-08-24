@@ -1,84 +1,99 @@
 # WEB RESTAURACIÓN PREMIUM DINÁMICA
 
-## CLASE 03 — Orbital Restaurant Experience Engine
+## CLASE 04 — Restaurant Studio Platform
 
-La Clase 03 corrige el principal límite de la versión anterior: el carrusel discreto. La demo evoluciona a una experiencia gastronómica premium con **órbita continua de platos, profundidad perceptiva 2.5D, fichas inmersivas, parallax y personalización desde un Restaurant Studio**.
+Clase 04 corrige el principal fallo de Clase 03: el Studio era un mini editor y no una plataforma real de personalización.
 
-## Demo
+La web mantiene el **Orbital Menu 2.5D** de Clase 03, pero ahora separa claramente:
 
-- GitHub Pages: `https://juanmaes83.github.io/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/`
-- Preview alternativo: `https://raw.githack.com/Juanmaes83/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/main/index.html`
+```text
+ENGINE
+CONTENT
+MEDIA
+PROJECT STATE
+```
 
-## Qué cambia en Clase 03
+El objetivo ya no es editar LÚMINA. El objetivo es demostrar que el mismo motor puede convertirse en otro restaurante sin tocar código.
 
-### 1. Dirección de arte propia
+## Qué incorpora Clase 04
 
-Se han generado expresamente seis platos premium con un contrato visual común:
+### Restaurant Studio real
 
-- 1:1;
-- fondo carbón oscuro uniforme;
-- plato marfil centrado;
-- misma escala aparente (~72% del lienzo);
-- misma perspectiva cenital/casi cenital;
-- misma dirección de luz y sombra;
-- gastronomía distinta pero coherente.
+El panel se reorganiza en:
 
-Platos: Wild Red Prawn, Bluefin / Blood Orange, Charred Artichoke, Wild Sea Bass, Iberian Presa y Burnt Honey Citrus.
+- Marca
+- Contenido
+- Media
+- Platos
+- Visita
+- Proyecto
 
-También se han producido interior, chef y materia prima dentro del mismo universo Mediterranean Dark Editorial.
+Cada zona explica qué parte de la web modifica y ofrece accesos directos de preview.
 
-### 2. Orbital Menu
+### Marca
 
-Los platos ya no cambian entre izquierda/centro/derecha. Cada plato se mueve continuamente sobre una elipse y su posición gobierna:
+- nombre del restaurante
+- logo / wordmark
+- color acento
+- fondo oscuro
+- fondo editorial
 
-- X/Y;
-- escala;
-- opacidad;
-- blur;
-- brillo;
-- rotación sutil;
-- z-index.
+### Contenido
 
-El plato central se adelanta visualmente y vuelve a hundirse en la órbita cuando cede el foco al siguiente.
+Los textos principales dejan de ser fuente de verdad en HTML y pasan a `class4-config.js`.
 
-### 3. Interacción
+Se editan Hero, Philosophy, Origin, Atmosphere, Chef, reserva y footer.
 
-- wheel / trackpad;
-- drag;
-- swipe;
-- botones;
-- teclado;
-- snap al plato más cercano.
+### Media slots
 
-### 4. Dish Detail inmersivo
+Las secciones editoriales admiten imagen o vídeo:
 
-`Explore dish +` mueve el mismo plato desde la órbita a una ficha premium mediante GSAP Flip. La ficha incluye precio, ingredientes, origen, técnica, maridaje, chef note y alérgenos. Al cerrar, el plato vuelve a su lugar orbital.
+- Hero
+- Origin
+- Atmosphere
+- Chef
 
-### 5. Motion System
+Cada slot incluye descripción de uso, preview y formato recomendado.
 
-GSAP 3.13:
+El menú orbital mantiene imágenes 1:1 para preservar el contrato visual 2.5D: mismo encuadre, distancia, perspectiva y fondo oscuro.
 
-- Core;
-- ScrollTrigger;
-- Observer;
-- Flip.
+### Gestor de platos
 
-Se utiliza para la órbita, transición plato/ficha, parallax, reveals, progreso de scroll y cursor contextual.
+- añadir
+- duplicar
+- reordenar
+- ocultar
+- eliminar
+- sustituir imagen
+- editar ficha gastronómica completa
 
-### 6. Restaurant Studio
+Campos: nombre, meta, descripción, precio, ingredientes, origen, técnica, maridaje, alérgenos y chef note.
 
-El botón `Studio` demuestra que la web puede funcionar como plantilla:
+### Persistencia
 
-- editar nombre del restaurante;
-- cambiar color de acento;
-- editar nombre/precio/descripción de platos;
-- sustituir imagen por URL;
-- subir imagen local;
-- normalizar upload a 1024×1024 WebP sobre fondo oscuro;
-- exportar/importar configuración JSON;
-- resetear la demo.
+Clase 03 usaba `localStorage`. Clase 04 usa IndexedDB:
 
-**Límite consciente:** la persistencia actual es `localStorage`. Es un CMS local de demostración, no un backend remoto multiusuario. La siguiente capa productiva sería Supabase/Postgres + Storage + Auth o CMS equivalente.
+- store `projects`
+- store `media`
+
+Los archivos se guardan como Blob/File y se rehidratan al volver a abrir el proyecto.
+
+También existen:
+
+- autosave
+- Undo / Redo
+- import JSON
+- export JSON
+- reset
+- preview desktop/tablet/mobile
+
+### Segundo restaurante de prueba
+
+`presets/NAMI-CLASS04.json`
+
+Importar este archivo desde **Studio → Proyecto → Importar JSON** transforma marca, copy, paleta, carta, contacto y narrativa sin modificar código.
+
+Éste es el examen principal de Clase 04.
 
 ## Arquitectura
 
@@ -86,28 +101,63 @@ El botón `Studio` demuestra que la web puede funcionar como plantilla:
 /
 ├── index.html
 ├── styles-v3.css
-├── app-v3.js
-├── README.md
+├── styles-v4.css
+├── styles-v4-fixes.css
+├── class4-config.js
+├── class4-store.js
+├── app-v4.js
+├── presets/
+│   └── NAMI-CLASS04.json
+├── scripts/
+│   └── class4-static-check.mjs
 ├── docs/
+│   ├── CLASS-04-RESTAURANT-STUDIO.md
+│   ├── CLASS-04-ERRORS-SOLUTIONS.md
 │   ├── CLASS-03-ORBITAL-PREMIUM.md
-│   ├── CLASS-03-ERRORS-SOLUTIONS.md
-│   └── IMPLEMENTATION-LOG.md
-└── .github/workflows/pages.yml
+│   └── CLASS-03-ERRORS-SOLUTIONS.md
+└── .github/workflows/
+    ├── class4-smoke.yml
+    └── pages.yml
 ```
 
-## Criterio de éxito
+## QA de Clase 04
 
-La experiencia debe dejar de percibirse como un slider y empezar a sentirse como un objeto manipulable. La fotografía homogénea y el movimiento continuo trabajan juntos.
+El workflow `Class 04 smoke checks` comprueba:
 
-## Producción comercial pendiente
+- sintaxis JavaScript
+- IDs críticos de Studio y Orbital Menu
+- contratos de media slots
+- validez JSON del preset NAMI
 
-- persistencia remota multiusuario;
-- auth y permisos;
-- storage/CDN propio;
-- motor de reservas real;
-- analytics/consentimiento;
-- SEO local y schema completo;
-- optimización final de media/Core Web Vitals;
-- tests automáticos cross-browser.
+La validación visual sigue siendo obligatoria antes de declarar la clase cerrada.
 
-LÚMINA sigue siendo una marca ficticia de demostración docente. El activo reutilizable es el **Restaurant Experience Engine**.
+## Qué queda para Clase 05
+
+Clase 04 prioriza producto y personalización. Clase 05 será la **Motion Direction premium**:
+
+- apertura cinematográfica
+- reveals diferentes por sección
+- zoom/focal hover
+- transiciones entre secciones
+- cursor contextual completo
+- coreografía de entrada del Orbital Menu
+- presets de intensidad de movimiento
+
+## Qué queda para Clase 06
+
+- QA final cross-browser/device
+- performance
+- SEO estructurado
+- publicación validada
+- evolución hacia backend remoto multiusuario si procede
+
+## Historia del curso
+
+- Clase 01 — lectura y reconstrucción del componente visual
+- Clase 02 — integración en web completa
+- Clase 03 — Orbital Menu, 2.5D y fichas inmersivas
+- **Clase 04 — plataforma editable / Restaurant Studio**
+- Clase 05 — Motion Direction premium
+- Clase 06 — QA, producto y publicación
+
+LÚMINA sigue siendo una marca docente. El activo real es el **Restaurant Experience Engine + Restaurant Studio**.
