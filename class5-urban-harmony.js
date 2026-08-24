@@ -145,9 +145,9 @@
       tl.to(item.img,{
         x:side*(rear?7:11),
         y:rear?5:8,
-        scale:rear?.88:.91,
-        opacity:rear?.54:.59,
-        filter:`brightness(${rear?.57:.62}) blur(${rear?1.2:.55}px)`,
+        scale:rear ? .88 : .91,
+        opacity:rear ? .54 : .59,
+        filter:`brightness(${rear ? .57 : .62}) blur(${rear ? 1.2 : .55}px)`,
         duration:.11,
         ease:'power3.out',
         overwrite:true
@@ -167,50 +167,13 @@
     if(!item?.img)return;
     const img=item.img;
     tl.set(img,{transformOrigin:'50% 50%'},0)
-      /* 1 · visible pull-back: the soloist takes distance and gathers energy. */
-      .to(img,{
-        x:-direction*18,y:9,rotation:direction*4.5,
-        scale:.83,scaleX:.975,scaleY:1.018,
-        opacity:.94,filter:'brightness(.79)',
-        duration:.22,ease:'power3.in'
-      },.22)
-      /* 2 · launch: short lift before the frontal attack. */
-      .to(img,{
-        x:direction*5,y:-18,rotation:direction*8,
-        scale:.98,scaleX:.95,scaleY:1.04,
-        opacity:1,filter:'brightness(1.02)',
-        duration:.16,ease:'power4.inOut'
-      },.44)
-      /* 3 · strong zoom-in: it comes clearly toward the viewer. */
-      .to(img,{
-        x:0,y:-12,rotation:-direction*2.4,
-        scale:1.31,scaleX:1.018,scaleY:.985,
-        filter:'brightness(1.19) drop-shadow(0 24px 28px rgba(0,0,0,.58))',
-        duration:.20,ease:'power4.in'
-      },.60)
-      /* 4 · elegant hard brake: no bounce, no elastic continuation. */
-      .to(img,{
-        y:-9,rotation:-direction*.55,
-        scale:1.22,scaleX:1.008,scaleY:.994,
-        filter:'brightness(1.17) drop-shadow(0 20px 24px rgba(0,0,0,.54))',
-        duration:.065,ease:'power4.out'
-      },.80)
-      /* 5 · frozen hero pose: the stop must be perceptible. */
-      .to(img,{
-        y:-9,rotation:-direction*.55,scale:1.22,
-        filter:'brightness(1.17) drop-shadow(0 20px 24px rgba(0,0,0,.54))',
-        duration:.13,ease:'none'
-      },.865)
-      /* 6 · controlled settle, still clearly above the ensemble. */
-      .to(img,{
-        y:0,rotation:0,scale:1.15,scaleX:1,scaleY:1,
-        filter:'brightness(1.10) drop-shadow(0 14px 18px rgba(0,0,0,.42))',
-        duration:.19,ease:'expo.out'
-      },.995)
-      .to(img,{
-        scale:1,filter:'brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0))',
-        duration:.20,ease:'power2.out'
-      },1.23);
+      .to(img,{x:-direction*18,y:9,rotation:direction*4.5,scale:.83,scaleX:.975,scaleY:1.018,opacity:.94,filter:'brightness(.79)',duration:.22,ease:'power3.in'},.22)
+      .to(img,{x:direction*5,y:-18,rotation:direction*8,scale:.98,scaleX:.95,scaleY:1.04,opacity:1,filter:'brightness(1.02)',duration:.16,ease:'power4.inOut'},.44)
+      .to(img,{x:0,y:-12,rotation:-direction*2.4,scale:1.31,scaleX:1.018,scaleY:.985,filter:'brightness(1.19) drop-shadow(0 24px 28px rgba(0,0,0,.58))',duration:.20,ease:'power4.in'},.60)
+      .to(img,{y:-9,rotation:-direction*.55,scale:1.22,scaleX:1.008,scaleY:.994,filter:'brightness(1.17) drop-shadow(0 20px 24px rgba(0,0,0,.54))',duration:.065,ease:'power4.out'},.80)
+      .to(img,{y:-9,rotation:-direction*.55,scale:1.22,filter:'brightness(1.17) drop-shadow(0 20px 24px rgba(0,0,0,.54))',duration:.13,ease:'none'},.865)
+      .to(img,{y:0,rotation:0,scale:1.15,scaleX:1,scaleY:1,filter:'brightness(1.10) drop-shadow(0 14px 18px rgba(0,0,0,.42))',duration:.19,ease:'expo.out'},.995)
+      .to(img,{scale:1,filter:'brightness(1) drop-shadow(0 0 0 rgba(0,0,0,0))',duration:.20,ease:'power2.out'},1.23);
   }
 
   function addCopy(tl){
@@ -219,7 +182,6 @@
     if(!copy||!nodes.length)return;
     tl.to(copy,{opacity:.12,y:7,duration:.18,ease:'power2.in',overwrite:true},0)
       .set(nodes,{opacity:0,y:10},.72)
-      /* Identity arrives only after hero brake + crew recoil. */
       .to(copy,{opacity:1,y:0,duration:.12,ease:'power2.out'},1.12)
       .to(nodes,{opacity:1,y:0,duration:.24,stagger:.045,ease:'power3.out'},1.14);
   }
@@ -244,7 +206,6 @@
       }
     });
 
-    /* V3 harmony remains. Only the protagonist phrase and reaction are upgraded. */
     addOutgoing(master,outgoing,direction);
     addEnsemble(master,list,solo,outgoing,feature,direction);
     addFeature(master,feature,trick,direction);
