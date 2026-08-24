@@ -58,4 +58,10 @@
   }
 
   window.RestaurantStore={open,saveProject,loadProject,clearProject,saveMedia,loadMedia,deleteMedia,listMedia,clearMedia,exportJSON};
+
+  /* Load the tiny Studio shell immediately. It is intentionally independent from IndexedDB and app-v4. */
+  const shell=document.createElement('script');
+  shell.src='studio-shell.js';
+  shell.defer=false;
+  document.head.appendChild(shell);
 })();
