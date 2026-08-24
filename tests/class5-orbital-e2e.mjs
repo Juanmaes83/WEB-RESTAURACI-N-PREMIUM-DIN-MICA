@@ -73,26 +73,31 @@ try{
 
   await page.click('#next-dish');
 
-  await page.waitForTimeout(300);
+  /* Near the end of the power3.in pull-back, the depth change must be unmistakable. */
+  await page.waitForTimeout(405);
   const pullBack=await sample(roles.solo);
-  assert(pullBack.scale<.90,`SOLOIST pull-back not visible enough: ${JSON.stringify({roles,pullBack})}`);
+  assert(pullBack.scale<.84,`SOLOIST pull-back not visible enough: ${JSON.stringify({roles,pullBack})}`);
 
-  await page.waitForTimeout(200);
+  /* First transition is Triple Spin; sample while the feature dancer is still airborne. */
+  await page.waitForTimeout(95);
   const featureMotion=await sample(roles.feature);
   assert(featureMotion.transform!=='none'&&(Math.abs(featureMotion.x)>3||Math.abs(featureMotion.y)>3||Math.abs(featureMotion.scale-1)>.02),`FEATURE DANCER did not visibly move: ${JSON.stringify(featureMotion)}`);
 
-  await page.waitForTimeout(280);
+  /* Attack reaches its peak around .82s and then brakes immediately. */
+  await page.waitForTimeout(330);
   const attack=await sample(roles.solo);
-  assert(attack.scale>1.20,`SOLOIST frontal attack did not overshoot: ${JSON.stringify(attack)}`);
+  assert(attack.scale>1.22,`SOLOIST frontal attack did not overshoot: ${JSON.stringify(attack)}`);
 
-  await page.waitForTimeout(200);
+  /* Hero must already be stopped in the final dominant pose before the crew reacts. */
+  await page.waitForTimeout(165);
   const stopped=await sample(roles.solo);
-  assert(stopped.scale>1.12,`SOLOIST did not remain dominant at brake/hold: ${JSON.stringify(stopped)}`);
-  assert(Math.abs(stopped.y)<6,`SOLOIST was not visually stopped near landing pose: ${JSON.stringify(stopped)}`);
+  assert(stopped.scale>1.14,`SOLOIST did not remain dominant at brake/hold: ${JSON.stringify(stopped)}`);
+  assert(Math.abs(stopped.y)<5,`SOLOIST was not visually stopped near landing pose: ${JSON.stringify(stopped)}`);
 
-  await page.waitForTimeout(220);
+  /* Recoil starts at 1.14s. Sample inside the reaction hold, after all V3 tricks have ended. */
+  await page.waitForTimeout(230);
   const recoil=await Promise.all(roles.others.map(sample));
-  const recoiling=recoil.filter(x=>x.scale<.96&&x.opacity<.8);
+  const recoiling=recoil.filter(x=>x.scale<.94&&x.opacity<.75);
   assert(recoiling.length>=Math.max(2,roles.others.length-1),`Crew recoil not synchronized/readable: ${JSON.stringify(recoil)}`);
 
   await page.waitForTimeout(700);
