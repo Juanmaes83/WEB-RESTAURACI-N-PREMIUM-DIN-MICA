@@ -23,6 +23,7 @@ jobs:
           node --check class4-config.js
           node --check app-v4.js
           node --check class4-cinematic-restore.js
+          node --check class4-runtime-guard.js
       - name: Static DOM contract
         run: node scripts/class4-static-check.mjs
       - name: JSON preset validation
