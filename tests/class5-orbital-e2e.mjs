@@ -73,28 +73,25 @@ try{
 
   await page.click('#next-dish');
 
-  /* Near the end of the power3.in pull-back, the depth change must be unmistakable. */
   await page.waitForTimeout(405);
   const pullBack=await sample(roles.solo);
   assert(pullBack.scale<.84,`SOLOIST pull-back not visible enough: ${JSON.stringify({roles,pullBack})}`);
 
-  /* First transition is Triple Spin; sample while the feature dancer is still airborne. */
   await page.waitForTimeout(95);
   const featureMotion=await sample(roles.feature);
   assert(featureMotion.transform!=='none'&&(Math.abs(featureMotion.x)>3||Math.abs(featureMotion.y)>3||Math.abs(featureMotion.scale-1)>.02),`FEATURE DANCER did not visibly move: ${JSON.stringify(featureMotion)}`);
 
-  /* Attack reaches its peak around .82s and then brakes immediately. */
-  await page.waitForTimeout(330);
+  /* Sample just before .82s, while the zoom-in attack is still at peak. */
+  await page.waitForTimeout(310);
   const attack=await sample(roles.solo);
   assert(attack.scale>1.22,`SOLOIST frontal attack did not overshoot: ${JSON.stringify(attack)}`);
 
-  /* Hero must already be stopped in the final dominant pose before the crew reacts. */
-  await page.waitForTimeout(165);
+  /* Move into the full-stop hold after the hard brake. */
+  await page.waitForTimeout(190);
   const stopped=await sample(roles.solo);
   assert(stopped.scale>1.14,`SOLOIST did not remain dominant at brake/hold: ${JSON.stringify(stopped)}`);
   assert(Math.abs(stopped.y)<5,`SOLOIST was not visually stopped near landing pose: ${JSON.stringify(stopped)}`);
 
-  /* Recoil starts at 1.14s. Sample inside the reaction hold, after all V3 tricks have ended. */
   await page.waitForTimeout(230);
   const recoil=await Promise.all(roles.others.map(sample));
   const recoiling=recoil.filter(x=>x.scale<.94&&x.opacity<.75);
