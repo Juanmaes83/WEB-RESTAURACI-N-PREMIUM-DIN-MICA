@@ -137,21 +137,22 @@
     });
   }
 
-  /* V5 SOLOIST: clear depth pull-back -> attack -> hard brake -> complete stop. */
+  /* V5 SOLOIST: readable depth pull-back -> sustained frontal attack -> hard brake -> complete stop. */
   function addSoloist(tl,item,direction){
     if(!item?.img)return;
     const img=item.img;
     tl.set(img,{transformOrigin:'50% 50%'},0)
-      .to(img,{x:-direction*24,y:18,rotation:direction*5.5,scale:.68,scaleX:.97,scaleY:1.025,opacity:.86,filter:'brightness(.68) blur(1.4px)',duration:.24,ease:'power3.in'},.18)
-      .to(img,{x:-direction*8,y:8,rotation:direction*7.5,scale:.78,scaleX:.95,scaleY:1.04,opacity:.94,filter:'brightness(.82) blur(.55px)',duration:.16,ease:'power2.inOut'},.42)
-      .to(img,{x:0,y:-18,rotation:-direction*2.2,scale:1.40,scaleX:1.02,scaleY:.985,opacity:1,filter:'brightness(1.22) blur(0px) drop-shadow(0 27px 31px rgba(0,0,0,.62))',duration:.24,ease:'power4.in'},.58)
-      /* Brake to the final hero pose. No movement follows before crew reaction. */
-      .to(img,{y:0,rotation:0,scale:1.18,scaleX:1,scaleY:1,filter:'brightness(1.10) drop-shadow(0 15px 20px rgba(0,0,0,.43))',duration:.08,ease:'power4.out'},.82)
-      /* Full stop: the audience reads the hero before anyone reacts. */
-      .to(img,{y:0,rotation:0,scale:1.18,filter:'brightness(1.10) drop-shadow(0 15px 20px rgba(0,0,0,.43))',duration:.22,ease:'none'},.90);
+      .to(img,{x:-direction*26,y:19,rotation:direction*5.5,scale:.66,scaleX:.97,scaleY:1.025,opacity:.84,filter:'brightness(.66) blur(1.5px)',duration:.24,ease:'power2.inOut'},.16)
+      .to(img,{x:-direction*9,y:9,rotation:direction*7.5,scale:.75,scaleX:.95,scaleY:1.04,opacity:.93,filter:'brightness(.80) blur(.6px)',duration:.14,ease:'power2.inOut'},.40)
+      /* The attack is deliberately long enough to be perceived, not a one-frame spike. */
+      .to(img,{x:0,y:-19,rotation:-direction*2.2,scale:1.42,scaleX:1.02,scaleY:.985,opacity:1,filter:'brightness(1.23) blur(0px) drop-shadow(0 28px 32px rgba(0,0,0,.63))',duration:.32,ease:'power2.inOut'},.54)
+      /* Hard elegant brake into the hero pose. */
+      .to(img,{y:0,rotation:0,scale:1.18,scaleX:1,scaleY:1,filter:'brightness(1.10) drop-shadow(0 15px 20px rgba(0,0,0,.43))',duration:.10,ease:'power4.out'},.86)
+      /* Complete stop before the crew reacts. */
+      .to(img,{y:0,rotation:0,scale:1.18,filter:'brightness(1.10) drop-shadow(0 15px 20px rgba(0,0,0,.43))',duration:.22,ease:'none'},.96);
   }
 
-  /* V5 REACTION: all V3 tricks end <= .99s. Recoil starts at 1.14s, after hero is fully stopped. */
+  /* All approved V3 feature tricks finish by ~1.02s. Recoil follows the fully stopped hero. */
   function addCrewRecoil(tl,list,solo){
     const others=list.filter(x=>x!==solo);
     others.forEach((item,i)=>{
@@ -165,12 +166,9 @@
       const retreatBrightness=rear ? .52 : .60;
       const retreatBlur=rear ? 1.7 : .9;
 
-      /* Synchronized sharp step back. */
-      tl.to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.12,ease:'power4.out'},1.14)
-        /* Reaction hold makes it readable. */
-        .to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.12,ease:'none'},1.26)
-        /* Then the crew restores formation. */
-        .to(item.img,{x:0,y:0,rotation:0,scale:1,scaleX:1,scaleY:1,opacity:1,filter:'brightness(1) blur(0px)',duration:.30,ease:'power3.out'},1.38);
+      tl.to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.12,ease:'power4.out'},1.20)
+        .to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.12,ease:'none'},1.32)
+        .to(item.img,{x:0,y:0,rotation:0,scale:1,scaleX:1,scaleY:1,opacity:1,filter:'brightness(1) blur(0px)',duration:.30,ease:'power3.out'},1.44);
     });
   }
 
@@ -180,8 +178,8 @@
     if(!copy||!nodes.length)return;
     tl.to(copy,{opacity:.10,y:7,duration:.18,ease:'power2.in',overwrite:true},0)
       .set(nodes,{opacity:0,y:10},.72)
-      .to(copy,{opacity:1,y:0,duration:.14,ease:'power2.out'},1.48)
-      .to(nodes,{opacity:1,y:0,duration:.25,stagger:.045,ease:'power3.out'},1.51);
+      .to(copy,{opacity:1,y:0,duration:.14,ease:'power2.out'},1.54)
+      .to(nodes,{opacity:1,y:0,duration:.25,stagger:.045,ease:'power3.out'},1.57);
   }
 
   function choreograph(direction=1,source='button'){
@@ -239,7 +237,7 @@
       e.preventDefault();
       e.stopImmediatePropagation();
       const now=performance.now();
-      if(now-lastWheelAt<620)return;
+      if(now-lastWheelAt<680)return;
       lastWheelAt=now;
       const direction=e.deltaY>=0?1:-1;
       internalStep=true;
