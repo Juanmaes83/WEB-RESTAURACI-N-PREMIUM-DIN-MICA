@@ -10,7 +10,12 @@ window.RestaurantDefaults={
   atmosphere:{index:'04 / Atmosphere',title:'Dinner becomes memory.',caption:'Dining room · Alicante',body:'Materia, temperatura, luz y sonido se diseñan con la misma intención que el plato.',cta:'Reserve your table →'},
   chef:{index:'05 / Chef',title:'Precision without noise.',quote:'“La técnica desaparece cuando el plato parece inevitable.”',badges:['Seasonal menu','Local producers','Fire-led kitchen']},
   visit:{kicker:'Alicante · Tue — Sat',title:'Take your seat.',cta:'Reservar mesa',addressLabel:'Address',address:'Muelle 08 · Alicante',serviceLabel:'Service',service:'19:30 — 00:30',contactLabel:'Contact',contact:'hello@lumina.demo',bookingUrl:'#'},
-  footer:{left:'LÚMINA',center:'Class 04 · Restaurant Studio Platform',right:'Educational prototype'},
+  footer:{left:'LÚMINA',center:'Class 05 · Motion Direction Premium',right:'Educational prototype'},
+  motion:{
+    orbitalStyle:'elegant',
+    text:{hero:'cinematic',philosophy:'line',origin:'soft',atmosphere:'editorial',chef:'mask',visit:'rise'},
+    media:{hero:'cinematic',origin:'parallax',atmosphere:'slowZoom',chef:'parallax'}
+  },
   media:{
     hero:{type:'image',url:'https://d8j0ntlcm91z4.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/hf_20260824_104220_2a0413f3-7a7a-45a4-9fc3-1d63d737b488.png',fit:'cover',position:'50% 50%'},
     origin:{type:'image',url:'https://d8j0ntlcm91z4.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/hf_20260824_104220_5e88ce28-a269-420c-ac0f-fbaf6f0c7573.png',fit:'cover',position:'50% 50%'},
