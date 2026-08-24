@@ -7,7 +7,7 @@
   const defaults=window.RestaurantDefaults;if(!defaults)return;
   const clone=o=>JSON.parse(JSON.stringify(o));
   const merge=(base,over)=>{if(Array.isArray(base))return Array.isArray(over)?over:base;if(base&&typeof base==='object'){const out={...base};Object.keys(over||{}).forEach(k=>out[k]=k in base?merge(base[k],over[k]):over[k]);return out}return over===undefined?base:over};
-  let config=clone(defaults),locale='es',applyTimer=null;
+  let config=clone(defaults),locale='es',applyTimer=null,detailOpenState=false;
 
   const publicMap={
     'hero-kicker':'hero.kicker','hero-line1':'hero.line1','hero-line2':'hero.line2','hero-body':'hero.body','hero-cta':'hero.cta','hero-stamp':'hero.stamp','scroll-hint':'hero.scroll',
@@ -23,7 +23,11 @@
   const activeDishId=()=>{
     const inDetail=$('#detail-visual .orbit-dish')?.dataset.id;if(inDetail)return inDetail;
     const shell=$('.orbit-shell');if(!shell)return null;const sr=shell.getBoundingClientRect(),cx=sr.left+sr.width/2,cy=sr.top+sr.height/2;
-    return $$('.orbit-dish','#orbit-stage' in document?document:document).map(el=>{const r=el.getBoundingClientRect();return{el,score:Math.abs(r.left+r.width/2-cx)+Math.abs(r.top+r.height/2-cy)*.18}}).sort((a,b)=>a.score-b.score)[0]?.el.dataset.id||null;
+    return $$('#orbit-stage .orbit-dish').map(el=>{const r=el.getBoundingClientRect();return{el,score:Math.abs(r.left+r.width/2-cx)+Math.abs(r.top+r.height/2-cy)*.18}}).sort((a,b)=>a.score-b.score)[0]?.el.dataset.id||null;
+  };
+  const isVisualHero=dish=>{
+    if(!dish||!dish.closest('#orbit-stage'))return false;
+    const id=activeDishId();return !!id&&dish.dataset.id===id;
   };
 
   async function loadConfig(){
@@ -106,6 +110,13 @@
 
   async function refreshConfig(){try{const saved=await window.RestaurantStore?.loadProject?.();if(saved?.config)config=merge(clone(defaults),saved.config)}catch{}applyGlobals()}
   function scheduleApply(delay=70){clearTimeout(applyTimer);applyTimer=setTimeout(()=>{applyGlobals()},delay)}
+  function publishDetailState(detail){
+    const open=detail?.getAttribute('aria-hidden')==='false'||detail?.classList.contains('is-open');
+    if(open===detailOpenState)return;detailOpenState=open;
+    document.documentElement.dataset.dishDetail=open?'open':'closed';
+    window.dispatchEvent(new CustomEvent(open?'restaurant:dish-detail-open':'restaurant:dish-detail-close',{detail:{id:open?$('#detail-visual .orbit-dish')?.dataset.id||null:null}}));
+    if(open){requestAnimationFrame(()=>{applyDetail();const copy=$('#dish-detail .detail-copy');if(copy)copy.scrollTop=0})}
+  }
 
   function bind(){
     ensureLanguageSwitch();ensureStoryUI();
@@ -113,7 +124,9 @@
     ['#next-dish','#prev-dish'].forEach(sel=>$(sel)?.addEventListener('click',()=>{scheduleApply(80);scheduleApply(760)},true));
     $('.orbit-shell')?.addEventListener('wheel',()=>{scheduleApply(120);scheduleApply(780)},{passive:true,capture:true});
     $('.orbit-shell')?.addEventListener('pointerup',()=>{scheduleApply(180);scheduleApply(850)},{passive:true,capture:true});
-    const detail=$('#dish-detail');if(detail)new MutationObserver(()=>scheduleApply(35)).observe(detail,{attributes:true,attributeFilter:['aria-hidden'],subtree:false});
+    /* Direct plate interaction: the visually central dish is the hero, regardless of stale internal active state. */
+    $('#orbit-stage')?.addEventListener('click',e=>{const dish=e.target.closest('.orbit-dish');if(!dish||!isVisualHero(dish))return;e.preventDefault();e.stopImmediatePropagation();$('#explore-dish')?.click()},true);
+    const detail=$('#dish-detail');if(detail){publishDetailState(detail);new MutationObserver(()=>{publishDetailState(detail);scheduleApply(35)}).observe(detail,{attributes:true,attributeFilter:['aria-hidden','class'],subtree:false})}
     const title=$('#dish-title');if(title)new MutationObserver(()=>scheduleApply(20)).observe(title,{childList:true,characterData:true,subtree:true});
     window.addEventListener('restaurant:locale-request',e=>setLocale(e.detail?.lang||'es',true));
     window.addEventListener('restaurant:class6-open-dish',e=>openDish(e.detail?.id,e.detail?.lang));
@@ -125,6 +138,6 @@
     dish.click();setTimeout(()=>{const moved=$(`.orbit-dish[data-id="${id}"]`);if(moved&&!moved.closest('#detail-visual'))moved.click();setTimeout(applyDetail,120)},920);
   }
 
-  async function boot(){await loadConfig();bind();applyGlobals();document.documentElement.dataset.class6='product-final';}
+  async function boot(){await loadConfig();bind();applyGlobals();document.documentElement.dataset.class6='product-final';document.documentElement.dataset.dishDetail='closed';}
   boot();
 })();
