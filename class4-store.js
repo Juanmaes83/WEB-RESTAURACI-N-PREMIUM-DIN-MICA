@@ -35,13 +35,7 @@
 
   function normalizeProject(project){
     const now=new Date().toISOString();
-    return Object.assign({
-      id:'restaurant-class4',
-      schemaVersion:4,
-      status:'draft',
-      createdAt:now,
-      updatedAt:now
-    },project||{}, {updatedAt:now});
+    return Object.assign({id:'restaurant-class4',schemaVersion:4,status:'draft',createdAt:now,updatedAt:now},project||{}, {updatedAt:now});
   }
 
   function saveProject(project){ return request(PROJECTS,'readwrite',s=>s.put(normalizeProject(project))).then(()=>normalizeProject(project)); }
@@ -52,14 +46,11 @@
   function deleteMedia(slot){ return request(MEDIA,'readwrite',s=>s.delete(slot)); }
   function listMedia(){ return request(MEDIA,'readonly',s=>s.getAll()); }
   function clearMedia(){ return open().then(db=>new Promise((resolve,reject)=>{const tx=db.transaction(MEDIA,'readwrite');tx.objectStore(MEDIA).clear();tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);})); }
-
-  function exportJSON(project){
-    return JSON.stringify({schemaVersion:4,exportedAt:new Date().toISOString(),project},null,2);
-  }
+  function exportJSON(project){ return JSON.stringify({schemaVersion:4,exportedAt:new Date().toISOString(),project},null,2); }
 
   window.RestaurantStore={open,saveProject,loadProject,clearProject,saveMedia,loadMedia,deleteMedia,listMedia,clearMedia,exportJSON};
 
-  /* Studio shell is bound synchronously here so opening the editor never depends on GSAP, IndexedDB hydration or app-v4 boot. */
+  /* Studio shell is bound synchronously and owns open/close. Capture phase prevents app-v4 GSAP handlers from fighting the CSS state machine. */
   const studio=document.getElementById('studio');
   const backdrop=document.getElementById('studio-backdrop');
   if(studio&&backdrop){
@@ -76,10 +67,12 @@
       studio.setAttribute('aria-hidden','true');
       document.body.classList.remove('studio-open');
     };
-    document.querySelectorAll('.studio-open').forEach(button=>button.addEventListener('click',openStudioShell));
-    document.getElementById('studio-close')?.addEventListener('click',closeStudioShell);
-    backdrop.addEventListener('click',closeStudioShell);
-    document.addEventListener('keydown',event=>{if(event.key==='Escape'&&studio.getAttribute('aria-hidden')==='false')closeStudioShell();});
+    const guardedOpen=(event)=>{event.preventDefault();event.stopImmediatePropagation();openStudioShell();};
+    const guardedClose=(event)=>{event?.preventDefault?.();event?.stopImmediatePropagation?.();closeStudioShell();};
+    document.querySelectorAll('.studio-open').forEach(button=>button.addEventListener('click',guardedOpen,true));
+    document.getElementById('studio-close')?.addEventListener('click',guardedClose,true);
+    backdrop.addEventListener('click',guardedClose,true);
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'&&studio.getAttribute('aria-hidden')==='false')closeStudioShell();},true);
     window.RestaurantStudioShell={open:openStudioShell,close:closeStudioShell};
   }
 })();
