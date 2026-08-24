@@ -7,7 +7,7 @@
   const defaults=window.RestaurantDefaults;if(!defaults)return;
   const clone=o=>JSON.parse(JSON.stringify(o));
   const merge=(base,over)=>{if(Array.isArray(base))return Array.isArray(over)?over:base;if(base&&typeof base==='object'){const out={...base};Object.keys(over||{}).forEach(k=>out[k]=k in base?merge(base[k],over[k]):over[k]);return out}return over===undefined?base:over};
-  let config=clone(defaults),locale='es',applyTimer=null,detailOpenState=false;
+  let config=clone(defaults),locale='es',applyTimer=null,detailOpenState=false,ownedDetailSource=null;
 
   const publicMap={
     'hero-kicker':'hero.kicker','hero-line1':'hero.line1','hero-line2':'hero.line2','hero-body':'hero.body','hero-cta':'hero.cta','hero-stamp':'hero.stamp','scroll-hint':'hero.scroll',
@@ -20,6 +20,7 @@
   const pathGet=(obj,path)=>path.split('.').reduce((a,k)=>a?.[k],obj);
   const langData=()=>config.i18n?.[locale]||defaults.i18n?.[locale]||{};
   const dishData=id=>langData().dishes?.[id]||config.i18n?.en?.dishes?.[id]||{};
+  const baseDish=id=>config.dishes?.find(d=>d.id===id)||defaults.dishes?.find(d=>d.id===id)||{};
   const activeDishId=()=>{
     const inDetail=$('#detail-visual .orbit-dish')?.dataset.id;if(inDetail)return inDetail;
     const shell=$('.orbit-shell');if(!shell)return null;const sr=shell.getBoundingClientRect(),cx=sr.left+sr.width/2,cy=sr.top+sr.height/2;
@@ -73,8 +74,8 @@
   }
 
   function applyDetail(){
-    ensureStoryUI();const id=$('#detail-visual .orbit-dish')?.dataset.id;if(!id)return;const d=dishData(id),ui=langData().ui||{};
-    setText('detail-meta',d.meta);setText('detail-title',d.name);setText('detail-description',d.short);setText('detail-ingredients',d.ingredients);setText('detail-origin',d.origin);setText('detail-technique',d.technique);setText('detail-pairing',d.pairing);setText('detail-note',`“${d.note||''}”`);setText('detail-allergens',`${ui.allergens||'Allergens'} · ${d.allergens||''}`);
+    ensureStoryUI();const id=$('#detail-visual .orbit-dish')?.dataset.id;if(!id)return;const d=dishData(id),raw=baseDish(id),ui=langData().ui||{};
+    setText('detail-meta',d.meta);setText('detail-title',d.name);setText('detail-price',raw.price||'');setText('detail-description',d.short);setText('detail-ingredients',d.ingredients);setText('detail-origin',d.origin);setText('detail-technique',d.technique);setText('detail-pairing',d.pairing);setText('detail-note',`“${d.note||''}”`);setText('detail-allergens',`${ui.allergens||'Allergens'} · ${d.allergens||''}`);
     setText('class6-story-label',ui.story||'The story');setText('class6-story-text',d.story);setText('class6-elaboration-label',ui.elaboration||'Preparation');setText('class6-elaboration-text',d.elaboration);
     const labels=[ui.ingredients,ui.origin,ui.technique,ui.pairing];$$('.detail-columns h4').forEach((h,i)=>{if(labels[i])h.textContent=labels[i]});
     const noteLabel=$('.detail-note span');if(noteLabel)noteLabel.textContent=ui.chefNote||"Chef's note";
@@ -118,14 +119,37 @@
     if(open){requestAnimationFrame(()=>{applyDetail();const copy=$('#dish-detail .detail-copy');if(copy)copy.scrollTop=0})}
   }
 
+  function openOwnedDetail(dish){
+    if(!dish||ownedDetailSource||!dish.closest('#orbit-stage'))return;
+    const detail=$('#dish-detail'),visual=$('#detail-visual');if(!detail||!visual)return;
+    ownedDetailSource={node:dish,parent:dish.parentNode,next:dish.nextSibling};
+    const state=window.Flip?Flip.getState(dish):null;
+    visual.appendChild(dish);detail.classList.add('is-open');detail.setAttribute('aria-hidden','false');document.body.classList.add('detail-open');
+    applyDetail();publishDetailState(detail);
+    if(state&&window.Flip)Flip.from(state,{duration:.82,ease:'power4.inOut',absolute:true,scale:true});
+    requestAnimationFrame(()=>$('#detail-close')?.focus());
+  }
+  function closeOwnedDetail(){
+    if(!ownedDetailSource)return false;
+    const detail=$('#dish-detail'),source=ownedDetailSource.node,state=window.Flip?Flip.getState(source):null,record=ownedDetailSource;
+    if(record.next&&record.next.parentNode===record.parent)record.parent.insertBefore(source,record.next);else record.parent.appendChild(source);
+    const done=()=>{detail.classList.remove('is-open');detail.setAttribute('aria-hidden','true');document.body.classList.remove('detail-open');ownedDetailSource=null;publishDetailState(detail);scheduleApply(40)};
+    if(state&&window.Flip)Flip.from(state,{duration:.62,ease:'power3.inOut',absolute:true,scale:true,onComplete:done});else done();
+    return true;
+  }
+
   function bind(){
     ensureLanguageSwitch();ensureStoryUI();
     document.addEventListener('input',e=>{if(e.target.closest('#studio'))setTimeout(refreshConfig,520)},true);document.addEventListener('change',e=>{if(e.target.closest('#studio'))setTimeout(refreshConfig,520)},true);
     ['#next-dish','#prev-dish'].forEach(sel=>$(sel)?.addEventListener('click',()=>{scheduleApply(80);scheduleApply(760)},true));
     $('.orbit-shell')?.addEventListener('wheel',()=>{scheduleApply(120);scheduleApply(780)},{passive:true,capture:true});
     $('.orbit-shell')?.addEventListener('pointerup',()=>{scheduleApply(180);scheduleApply(850)},{passive:true,capture:true});
-    /* Direct plate interaction: the visually central dish is the hero, regardless of stale internal active state. */
-    $('#orbit-stage')?.addEventListener('click',e=>{const dish=e.target.closest('.orbit-dish');if(!dish||!isVisualHero(dish))return;e.preventDefault();e.stopImmediatePropagation();$('#explore-dish')?.click()},true);
+    /* Class 06 owns the emotional detail lifecycle so direct hero click never depends on a private Class 04 binding. */
+    $('#orbit-stage')?.addEventListener('click',e=>{const dish=e.target.closest('.orbit-dish');if(!dish||!isVisualHero(dish))return;e.preventDefault();e.stopImmediatePropagation();openOwnedDetail(dish)},true);
+    $('#explore-dish')?.addEventListener('click',e=>{if(ownedDetailSource)return;e.preventDefault();e.stopImmediatePropagation();const id=activeDishId(),dish=id?$(`#orbit-stage .orbit-dish[data-id="${id}"]`):null;if(dish)openOwnedDetail(dish)},true);
+    $('.orbit-shell')?.addEventListener('keydown',e=>{if(e.key!=='Enter'||ownedDetailSource)return;const id=activeDishId(),dish=id?$(`#orbit-stage .orbit-dish[data-id="${id}"]`):null;if(!dish)return;e.preventDefault();e.stopImmediatePropagation();openOwnedDetail(dish)},true);
+    $('#detail-close')?.addEventListener('click',e=>{if(!ownedDetailSource)return;e.preventDefault();e.stopImmediatePropagation();closeOwnedDetail()},true);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ownedDetailSource){e.preventDefault();closeOwnedDetail()}},true);
     const detail=$('#dish-detail');if(detail){publishDetailState(detail);new MutationObserver(()=>{publishDetailState(detail);scheduleApply(35)}).observe(detail,{attributes:true,attributeFilter:['aria-hidden','class'],subtree:false})}
     const title=$('#dish-title');if(title)new MutationObserver(()=>scheduleApply(20)).observe(title,{childList:true,characterData:true,subtree:true});
     window.addEventListener('restaurant:locale-request',e=>setLocale(e.detail?.lang||'es',true));
@@ -134,8 +158,9 @@
   }
 
   function openDish(id,lang){
-    if(lang)setLocale(lang,true);const dish=$(`.orbit-dish[data-id="${id}"]`);if(!dish)return;
-    dish.click();setTimeout(()=>{const moved=$(`.orbit-dish[data-id="${id}"]`);if(moved&&!moved.closest('#detail-visual'))moved.click();setTimeout(applyDetail,120)},920);
+    if(lang)setLocale(lang,true);const dish=$(`#orbit-stage .orbit-dish[data-id="${id}"]`);if(!dish)return;
+    if(isVisualHero(dish)){openOwnedDetail(dish);return}
+    dish.click();setTimeout(()=>{const candidate=$(`#orbit-stage .orbit-dish[data-id="${id}"]`);if(candidate&&isVisualHero(candidate))openOwnedDetail(candidate)},920);
   }
 
   async function boot(){await loadConfig();bind();applyGlobals();document.documentElement.dataset.class6='product-final';document.documentElement.dataset.dishDetail='closed';}
