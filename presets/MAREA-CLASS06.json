@@ -1,0 +1,49 @@
+{
+  "id": "marea-class06",
+  "schemaVersion": 6,
+  "config": {
+    "brand": {"name":"MAREA","logoText":"MAREA","accent":"#e8d8b7","ink":"#081113","paper":"#eee7dc","fontDisplay":"Italiana","fontBody":"DM Sans"},
+    "locale": "es",
+    "hero": {"kicker":"Dénia · Cocina de costa","line1":"MAREA","line2":"frente al mar.","body":"Sal, fuego y temporada. Una cocina construida desde la costa hacia la mesa.","cta":"Entrar en la carta","stamp":"MAREA · COSTA ·","scroll":"DESLIZA PARA ENTRAR"},
+    "visit": {"kicker":"Dénia · Mié — Dom","title":"La mesa mira al mar.","cta":"Reservar mesa","addressLabel":"Dirección","address":"Puerto · Dénia","serviceLabel":"Servicio","service":"13:30 — 23:30","contactLabel":"Contacto","contact":"hola@marea.demo","bookingUrl":"#"},
+    "footer": {"left":"MAREA","center":"Class 06 · Second Restaurant Proof","right":"Reusable Restaurant Studio"},
+    "motion": {"orbitalStyle":"elegant","text":{"hero":"cinematic","philosophy":"soft","origin":"mask","atmosphere":"editorial","chef":"soft","visit":"rise"},"media":{"hero":"slowZoom","origin":"parallax","atmosphere":"slowZoom","chef":"still"}},
+    "i18n": {
+      "es": {
+        "hero":{"kicker":"Dénia · Cocina de costa","line1":"MAREA","line2":"frente al mar.","body":"Sal, fuego y temporada. Una cocina construida desde la costa hacia la mesa.","cta":"Entrar en la carta","stamp":"MAREA · COSTA ·","scroll":"DESLIZA PARA ENTRAR"},
+        "philosophy":{"index":"01 / Filosofía","title":"Cocinar la costa sin convertirla en postal.","body1":"MAREA trabaja con la lonja, la huerta y el fuego como un mismo paisaje.","body2":"El producto llega primero. La técnica sólo ordena lo que ya existe."},
+        "orbital":{"index":"02 / Carta","kicker":"Arrastra · rueda · desliza · flechas","title":"La carta de MAREA","explore":"Descubrir plato"},
+        "origin":{"index":"03 / Territorio","title":"Cada plato empieza fuera de la cocina.","body":"Puerto, huerta y temporada deciden el menú antes que nosotros.","caption":"Dénia · 06:40"},
+        "atmosphere":{"index":"04 / Sala","title":"Comer con el ritmo del agua.","caption":"Puerto · Dénia","body":"Luz natural al mediodía y una sala más lenta al caer la noche.","cta":"Reserva tu mesa →"},
+        "chef":{"index":"05 / Cocina","title":"Pocas cosas. Muy precisas.","quote":"“Si el producto necesita una explicación demasiado larga, hemos llegado tarde.”","badges":["Lonja local","Huerta cercana","Temporada real"]},
+        "visit":{"kicker":"Dénia · Mié — Dom","title":"La mesa mira al mar.","cta":"Reservar mesa","addressLabel":"Dirección","serviceLabel":"Servicio","contactLabel":"Contacto"},
+        "ui":{"reserve":"Reservar","story":"La historia","elaboration":"Elaboración","ingredients":"Ingredientes","origin":"Origen","technique":"Técnica","pairing":"Maridaje","chefNote":"Nota del chef","allergens":"Alérgenos","close":"Cerrar ficha","language":"Idioma"},
+        "dishes": {
+          "dish-01":{"name":"Gamba blanca y agua de tomate","meta":"Dénia · Crudo · Salino","short":"Gamba blanca, agua de tomate, hinojo y aceite verde.","story":"Un plato que quiere parecer recién salido del puerto: frío, directo y casi transparente.","elaboration":"La gamba se limpia al momento y se sirve apenas templada sobre agua de tomate clarificada.","ingredients":"Gamba blanca · tomate · hinojo · aceite de oliva","origin":"Lonja de Dénia","technique":"Limpieza en crudo · templado breve","pairing":"Blanco mediterráneo","note":"El mar primero; el resto acompaña.","allergens":"Crustáceos"},
+          "dish-02":{"name":"Arroz seco de sepia","meta":"Dénia · Arroz · Brasa","short":"Arroz seco, sepia, caldo tostado y allioli ligero.","story":"El arroz es paisaje y memoria. Aquí llega seco, fino y con el fondo más importante que cualquier adorno.","elaboration":"Caldo concentrado de pescado y sepia, cocción en capa fina y reposo corto antes de servir.","ingredients":"Arroz · sepia · pescado de roca · ajo","origin":"Marina Alta","technique":"Paella fina · reposo","pairing":"Cerveza artesana seca","note":"El socarrat debe aparecer al final, no dominar el primer bocado.","allergens":"Moluscos · pescado"},
+          "dish-03":{"name":"Limón, almendra y salvia","meta":"Marina Alta · Cítrico · Fresco","short":"Crema de limón, almendra, salvia y aceite de oliva.","story":"Un final que sabe a huerto después de comer frente al mar.","elaboration":"Limón trabajado en distintas acideces, crema de almendra y aceite de oliva al servicio.","ingredients":"Limón · almendra · salvia · aceite de oliva","origin":"Marina Alta","technique":"Crema · granizado · praliné","pairing":"Moscatel seco","note":"Terminar limpio para querer volver a empezar.","allergens":"Frutos secos"}
+        }
+      },
+      "en": {
+        "hero":{"kicker":"Dénia · Coastal dining","line1":"MAREA","line2":"by the sea.","body":"Salt, fire and season. A kitchen built from the coast towards the table.","cta":"Enter the menu","stamp":"MAREA · COAST ·","scroll":"SCROLL TO ENTER"},
+        "philosophy":{"index":"01 / Philosophy","title":"Cooking the coast without turning it into a postcard.","body1":"MAREA treats the fish market, the garden and fire as one landscape.","body2":"Produce comes first. Technique only gives order to what is already there."},
+        "orbital":{"index":"02 / Menu","kicker":"Drag · wheel · swipe · arrows","title":"The MAREA menu","explore":"Explore dish"},
+        "origin":{"index":"03 / Territory","title":"Every dish begins outside the kitchen.","body":"Harbour, garden and season decide the menu before we do.","caption":"Dénia · 06:40"},
+        "atmosphere":{"index":"04 / Dining room","title":"Eat at the rhythm of the water.","caption":"Harbour · Dénia","body":"Natural light at lunch and a slower room after sunset.","cta":"Reserve your table →"},
+        "chef":{"index":"05 / Kitchen","title":"Few things. Very precise.","quote":"“If the produce needs a long explanation, we arrived too late.”","badges":["Local fish market","Nearby growers","True seasonality"]},
+        "visit":{"kicker":"Dénia · Wed — Sun","title":"A table facing the sea.","cta":"Reserve a table","addressLabel":"Address","serviceLabel":"Service","contactLabel":"Contact"},
+        "ui":{"reserve":"Reserve","story":"The story","elaboration":"Preparation","ingredients":"Ingredients","origin":"Origin","technique":"Technique","pairing":"Pairing","chefNote":"Chef's note","allergens":"Allergens","close":"Close dish","language":"Language"},
+        "dishes": {
+          "dish-01":{"name":"White prawn & tomato water","meta":"Dénia · Raw · Saline","short":"White prawn, tomato water, fennel and green olive oil.","story":"A dish designed to feel as if it has just left the harbour: cold, direct and almost transparent.","elaboration":"The prawn is cleaned to order and served barely warm over clarified tomato water.","ingredients":"White prawn · tomato · fennel · olive oil","origin":"Dénia fish market","technique":"Raw preparation · brief warming","pairing":"Mediterranean white","note":"Sea first; everything else follows.","allergens":"Shellfish"},
+          "dish-02":{"name":"Dry rice with cuttlefish","meta":"Dénia · Rice · Ember","short":"Dry rice, cuttlefish, roasted stock and light allioli.","story":"Rice is landscape and memory. Here it arrives dry, thin and with the stock more important than decoration.","elaboration":"Concentrated fish and cuttlefish stock, cooked in a thin layer and rested briefly before serving.","ingredients":"Rice · cuttlefish · rock fish · garlic","origin":"Marina Alta","technique":"Thin paella · rest","pairing":"Dry craft beer","note":"Socarrat should arrive at the end, not dominate the first bite.","allergens":"Molluscs · fish"},
+          "dish-03":{"name":"Lemon, almond & sage","meta":"Marina Alta · Citrus · Fresh","short":"Lemon cream, almond, sage and olive oil.","story":"A finish that tastes like the garden after eating in front of the sea.","elaboration":"Lemon worked at different levels of acidity, almond cream and olive oil added at service.","ingredients":"Lemon · almond · sage · olive oil","origin":"Marina Alta","technique":"Cream · granita · praline","pairing":"Dry Moscatel","note":"Finish clean enough to want to begin again.","allergens":"Nuts"}
+        }
+      }
+    },
+    "dishes": [
+      {"id":"dish-01","name":"Gamba blanca y agua de tomate","meta":"Dénia · Crudo · Salino","short":"Gamba blanca, agua de tomate, hinojo y aceite verde.","price":"€24","image":"https://d8j0ntlcm91z4.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/hf_20260824_104106_bdf81ca0-1bf9-428a-86f9-97a68aed9cfb.png","ingredients":"Gamba blanca · tomate · hinojo · aceite","origin":"Lonja de Dénia","technique":"Crudo · templado breve","pairing":"Blanco mediterráneo","note":"El mar primero.","allergens":"Crustáceos","enabled":true},
+      {"id":"dish-02","name":"Arroz seco de sepia","meta":"Dénia · Arroz · Brasa","short":"Arroz seco, sepia, caldo tostado y allioli ligero.","price":"€27","image":"https://d8j0ntlcm91z4.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/hf_20260824_104106_5aa3ae73-18a3-40e5-a05d-6c99799facb3.png","ingredients":"Arroz · sepia · pescado de roca · ajo","origin":"Marina Alta","technique":"Paella fina · reposo","pairing":"Cerveza artesana seca","note":"El fondo manda.","allergens":"Moluscos · pescado","enabled":true},
+      {"id":"dish-03","name":"Limón, almendra y salvia","meta":"Marina Alta · Cítrico · Fresco","short":"Crema de limón, almendra, salvia y aceite de oliva.","price":"€14","image":"https://d8j0ntlcm91z4.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/hf_20260824_104106_1e54d625-3cab-4d8a-be7d-87b1d92c824b.png","ingredients":"Limón · almendra · salvia · aceite","origin":"Marina Alta","technique":"Crema · granizado · praliné","pairing":"Moscatel seco","note":"Terminar limpio.","allergens":"Frutos secos","enabled":true}
+    ]
+  }
+}
