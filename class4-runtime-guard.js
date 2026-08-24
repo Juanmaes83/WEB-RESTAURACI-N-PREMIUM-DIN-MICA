@@ -5,6 +5,18 @@
   const clone=o=>JSON.parse(JSON.stringify(o));
   const merge=(base,over)=>{if(Array.isArray(base))return Array.isArray(over)?over:base;if(base&&typeof base==='object'){const out={...base};Object.keys(over||{}).forEach(k=>out[k]=k in base?merge(base[k],over[k]):over[k]);return out;}return over===undefined?base:over;};
 
+  /* Class 06 guaranteed entrypoint. index.html always loads this guard, so the final
+     product layer can no longer exist in the repository without being executed. */
+  function loadClass6(){
+    if(!document.querySelector('link[data-class6-styles]')){
+      const l=document.createElement('link');l.rel='stylesheet';l.href='styles-v6.css';l.dataset.class6Styles='1';document.head.appendChild(l);
+    }
+    const load=(src,key)=>{if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.dataset[key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]='1';document.body.appendChild(s);};
+    load('class6-product.js','class6-product-runtime');
+    load('class6-detail-bridge.js','class6-detail-bridge');
+  }
+  loadClass6();
+
   async function install(){
     const nextBtn=$('#next-dish'),prevBtn=$('#prev-dish'),shell=$('.orbit-shell');
     if(!nextBtn||!prevBtn||!shell)return;

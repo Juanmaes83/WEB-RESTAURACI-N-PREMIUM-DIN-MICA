@@ -3,9 +3,11 @@
   'use strict';
   const loadGuard=()=>{if(document.querySelector('script[data-class4-guard]'))return;const s=document.createElement('script');s.src='class4-runtime-guard.js';s.dataset.class4Guard='1';document.body.appendChild(s);};
   const loadUrbanHarmony=()=>{if(document.querySelector('script[data-urban-harmony]'))return;const s=document.createElement('script');s.src='class5-urban-harmony.js';s.dataset.urbanHarmony='1';document.body.appendChild(s);};
+  const loadClass6DetailBridge=()=>{if(document.querySelector('script[data-class6-detail-bridge]'))return;const s=document.createElement('script');s.src='class6-detail-bridge.js';s.dataset.class6DetailBridge='1';document.body.appendChild(s);};
   const ready=()=>{
     loadGuard();
     loadUrbanHarmony();
+    loadClass6DetailBridge();
     if(!window.gsap||!window.ScrollTrigger)return;
     gsap.registerPlugin(ScrollTrigger);
 
