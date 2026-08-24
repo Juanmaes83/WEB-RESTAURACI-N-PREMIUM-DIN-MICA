@@ -59,9 +59,27 @@
 
   window.RestaurantStore={open,saveProject,loadProject,clearProject,saveMedia,loadMedia,deleteMedia,listMedia,clearMedia,exportJSON};
 
-  /* Load the tiny Studio shell immediately. It is intentionally independent from IndexedDB and app-v4. */
-  const shell=document.createElement('script');
-  shell.src='studio-shell.js';
-  shell.defer=false;
-  document.head.appendChild(shell);
+  /* Studio shell is bound synchronously here so opening the editor never depends on GSAP, IndexedDB hydration or app-v4 boot. */
+  const studio=document.getElementById('studio');
+  const backdrop=document.getElementById('studio-backdrop');
+  if(studio&&backdrop){
+    const openStudioShell=()=>{
+      studio.setAttribute('aria-hidden','false');
+      studio.classList.add('is-open');
+      backdrop.classList.add('is-open');
+      document.body.classList.add('studio-open');
+      setTimeout(()=>document.getElementById('studio-close')?.focus(),100);
+    };
+    const closeStudioShell=()=>{
+      studio.classList.remove('is-open');
+      backdrop.classList.remove('is-open');
+      studio.setAttribute('aria-hidden','true');
+      document.body.classList.remove('studio-open');
+    };
+    document.querySelectorAll('.studio-open').forEach(button=>button.addEventListener('click',openStudioShell));
+    document.getElementById('studio-close')?.addEventListener('click',closeStudioShell);
+    backdrop.addEventListener('click',closeStudioShell);
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'&&studio.getAttribute('aria-hidden')==='false')closeStudioShell();});
+    window.RestaurantStudioShell={open:openStudioShell,close:closeStudioShell};
+  }
 })();
