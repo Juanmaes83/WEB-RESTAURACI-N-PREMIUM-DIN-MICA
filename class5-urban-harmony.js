@@ -141,46 +141,12 @@
     if(!item?.img)return;
     const img=item.img;
     tl.set(img,{transformOrigin:'50% 50%'},0)
-      /* Pull far back while the outer orbital geometry is still travelling. */
-      .to(img,{
-        x:-direction*24,y:18,rotation:direction*5.5,
-        scale:.68,scaleX:.97,scaleY:1.025,
-        opacity:.86,filter:'brightness(.68) blur(1.4px)',
-        duration:.24,ease:'power3.in'
-      },.18)
-      /* Compact preparation: still behind the formation. */
-      .to(img,{
-        x:-direction*8,y:8,rotation:direction*7.5,
-        scale:.78,scaleX:.95,scaleY:1.04,
-        opacity:.94,filter:'brightness(.82) blur(.55px)',
-        duration:.16,ease:'power2.inOut'
-      },.42)
-      /* Frontal attack. Outer orbit is almost at centre, so inner scale now reads as camera depth. */
-      .to(img,{
-        x:0,y:-18,rotation:-direction*2.2,
-        scale:1.38,scaleX:1.02,scaleY:.985,
-        opacity:1,filter:'brightness(1.22) blur(0px) drop-shadow(0 26px 30px rgba(0,0,0,.60))',
-        duration:.24,ease:'power4.in'
-      },.58)
-      /* Hard elegant brake: short deceleration, no bounce. */
-      .to(img,{
-        y:-11,rotation:-direction*.45,
-        scale:1.25,scaleX:1.006,scaleY:.995,
-        filter:'brightness(1.18) drop-shadow(0 21px 25px rgba(0,0,0,.55))',
-        duration:.07,ease:'power4.out'
-      },.82)
-      /* Hero freeze. Nothing else reacts until this pose has been read. */
-      .to(img,{
-        y:-11,rotation:-direction*.45,scale:1.25,
-        filter:'brightness(1.18) drop-shadow(0 21px 25px rgba(0,0,0,.55))',
-        duration:.17,ease:'none'
-      },.89)
-      /* Controlled landing; hero remains dominant instead of immediately returning to neutral. */
-      .to(img,{
-        y:0,rotation:0,scale:1.14,scaleX:1,scaleY:1,
-        filter:'brightness(1.08) drop-shadow(0 14px 19px rgba(0,0,0,.40))',
-        duration:.22,ease:'expo.out'
-      },1.06);
+      .to(img,{x:-direction*24,y:18,rotation:direction*5.5,scale:.68,scaleX:.97,scaleY:1.025,opacity:.86,filter:'brightness(.68) blur(1.4px)',duration:.24,ease:'power3.in'},.18)
+      .to(img,{x:-direction*8,y:8,rotation:direction*7.5,scale:.78,scaleX:.95,scaleY:1.04,opacity:.94,filter:'brightness(.82) blur(.55px)',duration:.16,ease:'power2.inOut'},.42)
+      .to(img,{x:0,y:-18,rotation:-direction*2.2,scale:1.38,scaleX:1.02,scaleY:.985,opacity:1,filter:'brightness(1.22) blur(0px) drop-shadow(0 26px 30px rgba(0,0,0,.60))',duration:.24,ease:'power4.in'},.58)
+      .to(img,{y:-11,rotation:-direction*.45,scale:1.25,scaleX:1.006,scaleY:.995,filter:'brightness(1.18) drop-shadow(0 21px 25px rgba(0,0,0,.55))',duration:.07,ease:'power4.out'},.82)
+      .to(img,{y:-11,rotation:-direction*.45,scale:1.25,filter:'brightness(1.18) drop-shadow(0 21px 25px rgba(0,0,0,.55))',duration:.17,ease:'none'},.89)
+      .to(img,{y:0,rotation:0,scale:1.14,scaleX:1,scaleY:1,filter:'brightness(1.08) drop-shadow(0 14px 19px rgba(0,0,0,.40))',duration:.22,ease:'expo.out'},1.06);
   }
 
   /* V5 REACTION: starts only after every approved feature trick has finished and hero has braked. */
@@ -190,33 +156,16 @@
       if(!item.img)return;
       const side=Math.sign(item.dx)||((i%2)?1:-1);
       const rear=Math.abs(item.dy)>55;
-      const retreatScale=rear?.82:.86;
-      const retreatX=side*(rear?10:17);
-      const retreatY=rear?9:12;
-      const retreatOpacity=rear?.48:.56;
-      const retreatBrightness=rear?.52:.60;
-      const retreatBlur=rear?1.7:.9;
+      const retreatScale=rear ? .82 : .86;
+      const retreatX=side*(rear ? 10 : 17);
+      const retreatY=rear ? 9 : 12;
+      const retreatOpacity=rear ? .48 : .56;
+      const retreatBrightness=rear ? .52 : .60;
+      const retreatBlur=rear ? 1.7 : .9;
 
-      /* One synchronized step back. */
-      tl.to(item.img,{
-        x:retreatX,y:retreatY,scale:retreatScale,
-        opacity:retreatOpacity,
-        filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,
-        duration:.12,ease:'power4.out'
-      },1.10)
-      /* Hold: reaction must be readable, not a vibration. */
-      .to(item.img,{
-        x:retreatX,y:retreatY,scale:retreatScale,
-        opacity:retreatOpacity,
-        filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,
-        duration:.10,ease:'none'
-      },1.22)
-      /* Recover the approved formation after acknowledging the protagonist. */
-      .to(item.img,{
-        x:0,y:0,rotation:0,scale:1,scaleX:1,scaleY:1,
-        opacity:1,filter:'brightness(1) blur(0px)',
-        duration:.28,ease:'power3.out'
-      },1.32);
+      tl.to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.12,ease:'power4.out'},1.10)
+        .to(item.img,{x:retreatX,y:retreatY,scale:retreatScale,opacity:retreatOpacity,filter:`brightness(${retreatBrightness}) blur(${retreatBlur}px)`,duration:.10,ease:'none'},1.22)
+        .to(item.img,{x:0,y:0,rotation:0,scale:1,scaleX:1,scaleY:1,opacity:1,filter:'brightness(1) blur(0px)',duration:.28,ease:'power3.out'},1.32);
     });
   }
 
@@ -226,7 +175,6 @@
     if(!copy||!nodes.length)return;
     tl.to(copy,{opacity:.10,y:7,duration:.18,ease:'power2.in',overwrite:true},0)
       .set(nodes,{opacity:0,y:10},.72)
-      /* Identity waits until brake + recoil are both readable. */
       .to(copy,{opacity:1,y:0,duration:.14,ease:'power2.out'},1.40)
       .to(nodes,{opacity:1,y:0,duration:.25,stagger:.045,ease:'power3.out'},1.43);
   }
@@ -246,7 +194,6 @@
     master=gsap.timeline({
       defaults:{overwrite:'auto'},
       onComplete(){
-        /* Do NOT neutralize the hero. The new protagonist keeps visual authority. */
         const hero=centre(geometry());
         imgs().forEach(img=>{
           if(img===hero?.img)return;
@@ -257,12 +204,12 @@
       }
     });
 
-    addOutgoing(master,outgoing,direction);                         // approved V3
-    addEnsemble(master,list,solo,outgoing,feature,direction);      // approved V3
-    addFeature(master,feature,trick,direction);                     // approved V3: ends <= 1.00s
-    addSoloist(master,solo,direction);                              // V5 hero phrase
-    addCrewRecoil(master,list,solo);                                // V5 reaction after hero brake
-    addCopy(master);                                                // identity after reaction
+    addOutgoing(master,outgoing,direction);
+    addEnsemble(master,list,solo,outgoing,feature,direction);
+    addFeature(master,feature,trick,direction);
+    addSoloist(master,solo,direction);
+    addCrewRecoil(master,list,solo);
+    addCopy(master);
   }
 
   function bind(){
