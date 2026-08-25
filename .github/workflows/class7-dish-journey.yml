@@ -50,3 +50,11 @@ jobs:
           trap 'kill $SERVER_PID || true' EXIT
           sleep 2
           node tests/class7-dish-journey-e2e.mjs
+      - name: Upload Class 07 visual QA
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: class7-premium-visual-qa
+          path: qa-artifacts/*.png
+          if-no-files-found: error
+          retention-days: 14
