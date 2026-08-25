@@ -38,15 +38,15 @@ jobs:
           node tests/class5-complete-e2e.mjs
       - name: Run Class 06 regression
         run: |
-          python3 -m http.server 4174 >/tmp/class6-http.log 2>&1 &
+          python3 -m http.server 4173 >/tmp/class6-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID || true' EXIT
           sleep 2
-          CLASS6_BASE_URL=http://127.0.0.1:4174 node tests/class6-product-e2e.mjs
+          node tests/class6-product-e2e.mjs
       - name: Run Class 07 Dish Journey E2E
         run: |
-          python3 -m http.server 4175 >/tmp/class7-http.log 2>&1 &
+          python3 -m http.server 4173 >/tmp/class7-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID || true' EXIT
           sleep 2
-          CLASS7_BASE_URL=http://127.0.0.1:4175 node tests/class7-dish-journey-e2e.mjs
+          node tests/class7-dish-journey-e2e.mjs
