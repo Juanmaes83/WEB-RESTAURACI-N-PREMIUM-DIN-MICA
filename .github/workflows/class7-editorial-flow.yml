@@ -1,0 +1,27 @@
+name: Class 07 Editorial Flow checks
+
+on:
+  push:
+    branches:
+      - feat/third-orbital-editorial-flow
+  pull_request:
+    paths:
+      - 'class5-elegant-orbit.js'
+      - 'class7-editorial-flow.js'
+      - 'tests/class7-editorial-flow-static.mjs'
+      - 'docs/CLASS-07-THIRD-CHOREOGRAPHY-EDITORIAL-FLOW.md'
+
+jobs:
+  editorial-flow-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax check
+        run: |
+          node --check class5-elegant-orbit.js
+          node --check class7-editorial-flow.js
+      - name: Contract checks
+        run: node tests/class7-editorial-flow-static.mjs
