@@ -1,16 +1,18 @@
-# CLASE 07 — TERCER MOTOR · EDITORIAL FLOW
+# CLASE 07 — TERCER MOTOR · EDITORIAL FLOW V2
 
 ## Origen
 
-Reconstrucción funcional a partir del vídeo de referencia `PRUEBA WEB 4.mp4` (20,2 s · 30 fps · 2558×1438).
+Reconstrucción funcional a partir del vídeo de referencia `PRUEBA WEB 4.mp4`.
 
-No se copia la interfaz del vídeo. Se extrae su gramática de movimiento y se adapta al Restaurant Experience Engine existente usando las imágenes/platos del proyecto.
+La V1 consiguió integrar visualmente el tercer lenguaje, pero la comparación con el vídeo detectó tres errores de arquitectura: el titular usaba un único color global, el cambio tipográfico reaccionaba después del cambio del plato y los platos se desplazaban entre slots demasiado discretos.
+
+La V2 corrige esos tres puntos sin reescribir `app-v4.js` ni degradar Elegant Orbit o Urban Acrobatics.
 
 ## Regla heredada
 
 `CLASE 07 = CLASE 06 APROBADA + TERCER LENGUAJE DE COREOGRAFÍA`
 
-No se reescribe `app-v4.js`, no se reemplaza el Orbital Engine y no se degrada:
+No se degrada:
 
 - Studio;
 - persistencia;
@@ -23,203 +25,187 @@ No se reescribe `app-v4.js`, no se reemplaza el Orbital Engine y no se degrada:
 - responsive;
 - reduced motion.
 
-## Lectura del vídeo
+## Lectura correcta del vídeo
 
-La referencia no utiliza una órbita circular ni una actuación acrobática.
+La referencia funciona como una **cinta vertical-diagonal continua**. Varios platos atraviesan simultáneamente la escena y existe una zona de lectura central.
 
-Su gramática es una **cinta vertical-diagonal ascendente** situada en el lateral visual. Varios platos están simultáneamente presentes y atraviesan una zona de lectura/foco. El plato que alcanza esa zona se convierte en protagonista y provoca el relevo del titular.
+El cambio no es `índice cambia → después animamos`.
 
-### Roles visibles
-
-Cada plato ocupa temporalmente uno de estos roles:
-
-1. `EXIT TOP` — abandona por la parte superior, pequeño, lejano y con poca opacidad.
-2. `PREVIOUS` — plato anterior, por encima del foco, menor escala y contraste.
-3. `HERO / READING ZONE` — plato protagonista, máxima escala, nitidez y jerarquía.
-4. `NEXT` — siguiente plato, por debajo del foco, preparado para entrar.
-5. `ENTRY BOTTOM` — entrada inferior, pequeña y más lejana.
-
-Se mantienen además posiciones de continuidad fuera del viewport para que el ciclo no parezca teletransportarse.
-
-## Coreografía reconstruida
-
-Cuando cambia el plato activo:
+La secuencia correcta es:
 
 ```text
-EXIT TOP        ↑ sale y pierde presencia
-PREVIOUS        ↑ ocupa la salida próxima
-HERO            ↑ abandona la zona de lectura
-NEXT            ↑ entra en la zona HERO
-ENTRY BOTTOM    ↑ ocupa la posición NEXT
-NEW ENTRY       ↑ aparece desde profundidad inferior
+plato actual inicia salida
+↓
+término dinámico actual comienza a salir
+↓
+platos avanzan de forma continua
+↓
+el Orbital Engine cruza su índice real de activación
+↓  CUE
+nuevo término + nuevo color entran
+↓
+plato entrante termina de alcanzar HERO
+↓
+plato + titular quedan asentados juntos
 ```
 
-Todos los elementos se desplazan durante el mismo beat con easing `power3.inOut` y una duración aproximada de 0,86 s.
+El crossover real del motor existente se usa como **cue intermedio de una timeline ya en marcha**, no como disparador tardío de toda la coreografía.
 
-La trayectoria no es una línea vertical perfecta. La coordenada X oscila ligeramente por slot para reproducir la sensación diagonal/editorial de la referencia.
+## Roles visibles
 
-## Profundidad
+1. `EXIT TOP` — abandona arriba, pequeño y lejano.
+2. `PREVIOUS` — plato anterior, por encima del foco.
+3. `HERO / READING ZONE` — protagonista, máxima nitidez y jerarquía.
+4. `NEXT` — siguiente plato, por debajo del foco.
+5. `ENTRY BOTTOM` — nuevo plato que entra desde profundidad inferior.
 
-La jerarquía se construye mediante:
+## Trayectoria continua
 
-- posición Y;
-- desplazamiento X;
-- escala;
-- opacidad;
-- brillo;
-- blur;
-- z-index;
-- sombra del plato.
+La V1 animaba de slot a slot. La V2 conserva esos puntos únicamente como **puntos de control**.
 
-El HERO queda aproximadamente en escala `1.10`, brillo `1.06` y blur `0`.
+`sampleTrack(distance)` interpola posición, escala, opacidad y blur entre los puntos. Durante la transición un `progress` continuo gobierna a todos los platos.
 
-Los platos alejados reducen escala/opacidad y aumentan blur de forma progresiva.
+Resultado:
 
-## Relevo del titular
+`CONVEYOR / SPLINE FEEL` en lugar de `POSICIÓN A → POSICIÓN B`.
 
-El vídeo de referencia vincula el plato protagonista y el titular.
+La rotación se reduce a aproximadamente ±0,55° fuera del HERO y 0° en el protagonista. Este motor no debe parecer acrobático.
 
-Editorial Flow conserva la fuente de verdad del Orbital Engine (`dish-title`, `dish-meta`, `dish-short`, `dish-counter`) y añade un relevo tipográfico:
+## Master timeline visible
 
-1. se conserva momentáneamente el titular anterior como ghost;
-2. el titular anterior asciende y desaparece;
-3. el nuevo titular entra desde abajo;
-4. meta y descripción siguen con stagger corto;
-5. el titular activo usa el color de acento del restaurante.
+Editorial Flow V2 posee la transición visible.
 
-Por tanto:
+Duración objetivo aproximada: `0,90 s`.
 
-`CAMBIO DE PLATO = CAMBIO DE HERO VISUAL + CAMBIO DE COPY`
-
-No existen dos estados independientes.
-
-## Arquitectura
-
-Archivo nuevo:
-
-- `class7-editorial-flow.js`
-
-Cambio mínimo en:
-
-- `class5-elegant-orbit.js`
-
-### Aislamiento de motores
-
-Antes:
-
-```js
-isElegant = orbitalMotion !== 'urban'
+```text
+0.00  outgoing + track empiezan
+0.00  término dinámico actual sale
+0.02  se inicia en paralelo el step oculto del Orbital Engine
+~0.35 crossover real del active index
+      → COMMIT CUE
+      → nuevo término
+      → nuevo color
+      → meta / descripción del motor base
+0.90  nuevo plato alcanza HERO y termina el beat
 ```
 
-Esto habría provocado que cualquier tercer valor ejecutara Elegant accidentalmente.
+Existe un fallback de seguridad si el crossover no se notifica, pero el camino principal usa el cambio real de `dish-counter`.
 
-Ahora:
+## Arquitectura del titular
 
-```js
-isElegant = orbitalMotion === 'elegant'
-isUrban    = orbitalMotion === 'urban'
-isFlow     = orbitalMotion === 'editorial-flow'
+La V1 animaba `dish-title`, `dish-meta` y `dish-short` como un bloque completo.
+
+La V2 crea una arquitectura semejante a la referencia:
+
+```text
+Discover
+[DYNAMIC TERM]
+Signature plates in motion.
 ```
 
-Cada coreografía posee un único dueño.
+Sólo `[DYNAMIC TERM]` cambia y se anima.
 
-## Estrategia de compatibilidad
+`dish-meta` y `dish-short` siguen perteneciendo al Orbital Engine y cambian en el mismo crossover de estado.
 
-Editorial Flow **no sustituye el estado del Orbital Engine**.
+El `dish-title` original se oculta únicamente mientras Editorial Flow está activo; Elegant y Urban continúan usando el copy original.
 
-El Orbital Engine continúa funcionando debajo como autoridad para:
+## Color por plato
 
-- plato activo;
-- contador;
-- copy;
-- navegación;
-- detalle;
-- configuración;
-- persistencia.
+El color ya no usa `brand.accent` como valor único.
 
-Cuando Editorial Flow está seleccionado, el stage orbital original se oculta visualmente y se crea un stage de presentación independiente con clones visuales de las mismas imágenes.
+Cada plato dispone de:
 
-Esto evita reescribir el motor aprobado y reduce el riesgo de regresión.
+```json
+{
+  "editorialFlow": {
+    "headline": "Bluefin / Blood Orange",
+    "color": "#9270dc"
+  }
+}
+```
+
+Cuando cambia el HERO:
+
+`PLATO → HEADLINE → COLOR`
+
+pertenecen al mismo estado.
+
+La paleta inicial sólo funciona como fallback. El restaurante puede personalizar titular y color por plato.
 
 ## Studio
 
-El selector queda ampliado a:
+El selector Motion mantiene tres lenguajes:
 
 - Elegant Orbit
 - Urban Acrobatics
 - Editorial Flow
 
-Valor persistido:
+En **Studio → Platos → Ficha del plato** se añaden dos campos:
 
-```json
-{
-  "motion": {
-    "orbitalStyle": "editorial-flow"
-  }
-}
-```
+- `Editorial Flow · Título dinámico`
+- `Editorial Flow · Color`
 
-El preset pertenece al proyecto completo, exactamente igual que Elegant y Urban.
+Estos datos se persisten dentro del propio plato. Un wrapper de persistencia conserva esos metadatos también cuando el Studio guarda posteriormente otros campos del proyecto.
 
-## Interacción
+## Interacción: ownership
 
-Editorial Flow conserva los controles existentes porque escucha el estado producido por el Orbital Engine:
+Cuando `editorial-flow` está activo, Editorial Flow captura y dirige:
 
 - next / prev;
 - wheel;
-- drag / swipe;
 - teclado;
-- click de plato;
-- detail open / close.
+- drag / swipe;
+- autoplay;
+- click en platos visuales.
 
-Los platos visuales del Flow delegan el click en el plato real correspondiente para conservar el detalle inmersivo existente.
+El step real del Orbital Engine se ejecuta internamente en paralelo para mantener:
 
-## Autoplay de referencia
+- active dish real;
+- contador;
+- detalle;
+- meta;
+- descripción;
+- persistencia y resto del producto.
 
-El vídeo demuestra una secuencia autónoma. Para reproducir esa cualidad, Editorial Flow puede avanzar automáticamente mientras el menú está suficientemente visible.
+Elegant y Urban no intervienen porque cada motor posee un `orbitalMotion` exclusivo.
 
-Contrato:
+## Autoplay
 
-- empieza sólo cuando la sección entra en viewport;
-- pausa al salir del viewport;
+- sólo con la sección visible;
+- pausa fuera del viewport;
 - pausa con detalle abierto;
-- pausa tras interacción del usuario;
-- reanuda después de un periodo de inactividad;
-- se desactiva con `prefers-reduced-motion`.
+- pausa tras interacción;
+- reanuda después de inactividad;
+- desactivado con `prefers-reduced-motion`.
 
-El intervalo objetivo es aproximadamente 2,3 s entre relevos.
+## Reduced motion
 
-## Mobile
+Con movimiento reducido:
 
-El sistema mantiene la misma gramática, con:
+- no hay autoplay;
+- los relevos se resuelven prácticamente de forma inmediata;
+- el contenido y navegación siguen operativos;
+- la asociación plato / headline / color permanece correcta.
 
-- platos más pequeños;
-- menor amplitud horizontal;
-- posiciones adaptadas al viewport vertical;
-- misma relación HERO → NEXT → ENTRY;
-- sin añadir filtros más caros.
+## Criterios V2
 
-## Criterio de aprobación visual
+Antes de aprobar visualmente:
 
-La implementación sólo debe declararse final cuando en navegador se compruebe:
+1. Editorial Flow es claramente distinto de Elegant y Urban.
+2. El término dinámico cambia de color con cada plato.
+3. El término anterior sale antes del relevo.
+4. El término nuevo entra en el crossover del plato.
+5. El nuevo plato termina de llegar después del cue, no antes.
+6. El track se percibe continuo y no como saltos de slot.
+7. Wheel, buttons, keyboard y drag usan la misma coreografía.
+8. Autoplay usa exactamente el mismo `step()`.
+9. El HERO abre el detalle real.
+10. El Studio permite editar headline y color por plato.
+11. Los metadatos persisten tras reload y futuras ediciones.
+12. Elegant y Urban no sufren regresiones.
 
-1. selector visible en Studio;
-2. Elegant sigue intacto;
-3. Urban sigue intacto;
-4. Editorial Flow tiene trayectoria vertical-diagonal claramente distinta;
-5. no aparecen dos coreografías simultáneas;
-6. el nuevo plato llega al foco y el titular cambia sincronizado;
-7. autoplay no lucha contra interacción manual;
-8. click en plato protagonista abre detalle;
-9. retorno desde detalle reconstruye el Flow;
-10. reload restaura `editorial-flow`;
-11. mobile mantiene lectura y jerarquía;
-12. reduced motion conserva navegación sin autoplay.
-
-## Estado
-
-Implementación inicial construida en rama:
+## Rama de validación
 
 `feat/third-orbital-editorial-flow`
 
-No fusionar a `main` hasta validación visual.
+No fusionar a `main` hasta aprobación visual del usuario.
