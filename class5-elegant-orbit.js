@@ -4,7 +4,7 @@
   if(!window.gsap||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const shell=document.querySelector('.orbit-shell'),stage=document.querySelector('#orbit-stage');
   if(!shell||!stage)return;
-  const isElegant=()=>document.documentElement.dataset.orbitalMotion!=='urban';
+  const isElegant=()=>document.documentElement.dataset.orbitalMotion==='elegant';
   const detailIsOpen=()=>document.documentElement.dataset.dishDetail==='open';
   let lastDance=0,dragStartX=null,breathTween=null,breathTimer=null;
   const dishes=()=>[...stage.querySelectorAll('.orbit-dish')];
@@ -21,4 +21,14 @@
   window.addEventListener('restaurant:dish-detail-close',()=>{if(isElegant())setTimeout(startBreathing,120)});
   const wait=()=>{if(dishes().length){bind();activate();return}const o=new MutationObserver(()=>{if(dishes().length){o.disconnect();bind();activate()}});o.observe(stage,{childList:true});setTimeout(()=>o.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(wait,240));else setTimeout(wait,240);
+})();
+
+/* Load the third choreography as an additive capability without changing the proven entrypoint. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-editorial-flow-runtime]'))return;
+    const s=document.createElement('script');s.src='class7-editorial-flow.js';s.dataset.editorialFlowRuntime='1';document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,40));else setTimeout(load,40);
 })();
