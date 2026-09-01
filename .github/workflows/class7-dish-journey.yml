@@ -1,0 +1,60 @@
+name: Class 07 Dish Journey
+
+on:
+  push:
+    branches: [class7-dish-journey, class7-dish-journey-premium]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  class7:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax validation
+        run: |
+          node --check class7-dish-journey.js
+          node --check class6-detail-bridge.js
+          node --check tests/class7-dish-journey-e2e.mjs
+          node --check tests/class6-product-e2e.mjs
+          node --check tests/class5-complete-e2e.mjs
+      - name: Install browser test runtime
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run Class 05 regression
+        run: |
+          python3 -m http.server 4173 >/tmp/class5-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node tests/class5-complete-e2e.mjs
+      - name: Run Class 06 regression
+        run: |
+          python3 -m http.server 4173 >/tmp/class6-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node tests/class6-product-e2e.mjs
+      - name: Run Class 07 Dish Journey E2E
+        run: |
+          python3 -m http.server 4173 >/tmp/class7-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node tests/class7-dish-journey-e2e.mjs
+      - name: Upload Class 07 visual QA
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: class7-premium-visual-qa
+          path: qa-artifacts/*.png
+          if-no-files-found: error
+          retention-days: 14
