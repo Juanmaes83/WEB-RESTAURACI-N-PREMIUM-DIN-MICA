@@ -4,11 +4,14 @@
 > Regla vigente: `CLASE N+1 = CLASE N APROBADA + NUEVA CAPACIDAD`.
 > Este documento no aprueba nada. Aprueban Juanma + ChatGPT tras revisión visual.
 >
-> **Este documento tiene dos partes.** Las secciones A–K describen la **V1**, que la
-> revisión humana puntuó en ~40% del resultado visual esperado. La sección
-> [VISUAL DIRECTION V2](#visual-direction-v2), al final, es el estado vigente y
-> **sustituye** lo que V1 dice sobre assets, capas, track, lettering y fondo. La
-> arquitectura de estado descrita en A–E sigue siendo exacta y no se ha reconstruido.
+> **Este documento tiene tres partes, en orden cronológico.**
+> Secciones A–K = **V1** (~40% en revisión humana).
+> **VISUAL DIRECTION V2** (~60–65%).
+> **VISUAL DIRECTION V3 — FINAL ART DIRECTION PASS**, al final, es el estado vigente.
+>
+> Cada sección **sustituye** a la anterior en lo relativo a assets, capas, track,
+> lettering, fondo, decor y copy. La arquitectura de estado descrita en A–E sigue
+> siendo exacta: no se ha reconstruido en ninguna iteración.
 
 ---
 
@@ -795,3 +798,340 @@ Sin cambios respecto a V1, más dos puntos que V2 hace evidentes:
    la capa común: Anchor Swap y Dish Stage necesitan exactamente lo mismo.
 10. El **Scene Background Engine** es reutilizable tal cual por los cinco presets y
     debería extraerse antes de escribir Project 02.
+
+---
+---
+
+# VISUAL DIRECTION V3 — FINAL ART DIRECTION PASS
+
+> Estado: **LAB V3, pendiente de revisión humana final.**
+> Baseline revisado: `f7a4a3c`. Arquitectura V1/V2 conservada, no reconstruida.
+
+## V3.1 — Punto de partida
+
+| Iteración | Valoración humana |
+|---|---|
+| V1 | ~40% |
+| V2 | ~60–65% |
+| V3 | objetivo 80–90% |
+
+La V2 resolvió la identidad (adiós al lenguaje Orbital), los mundos cromáticos, el
+lettering grande, el track asimétrico y el drag continuo. La revisión humana señaló
+siete problemas perceptivos. Esta sección documenta qué se hizo con cada uno.
+
+---
+
+## V3.2 — Problema 01 · Los productos seguían siendo platos redondos
+
+**Diagnóstico correcto de la revisión:** no era un problema de CSS. El pipeline V2
+quitaba la card, el fondo y la sombra de contenedor, pero conservaba **el plato
+cenital completo**. La silueta seguía siendo un círculo.
+
+### Asset Pass V3
+
+`scripts/build-depth-assets-v3.mjs` segmenta **la comida separándola de la
+porcelana** y la exporta con su relación de aspecto real.
+
+```text
+dish.image (2048x2048)
+  1  localizar la PORCELANA (masa clara y desaturada), no el marco
+  2  percentil 70 de luminancia dentro del disco = referencia del plato
+     — un promedio hace que media vajilla se lea como comida por su viñeteado
+  3  comida = saturación > .24  OR  luminancia < porcelana - .22
+     nunca "más brillante que la media", que es el propio brillo del plato
+  4  cierre morfológico (dilate+erode r=2) -> el emplatado es UNA composición
+  5  componentes conexos; se descartan los arcos del borde interior del plato
+     (bounding box enorme, relleno < 14%)
+  6  recorte al bounding box real + feather de 2px
+  7  WebP con alpha, lado máximo 900px, SIN forzar cuadrado
+```
+
+Resultado: **seis siluetas realmente distintas.**
+
+| Plato | Silueta | Ratio |
+|---|---|---:|
+| Gamba roja | gambas en S sobre crema, irregular | 0.94 |
+| Atún rojo | cinta curva vertical | **0.67** |
+| Alcachofa | racimo radial de bordes rotos | 1.00 |
+| Lubina | filete + puerros, horizontal | 1.03 |
+| Presa ibérica | láminas + cebolleta, horizontal | 1.01 |
+| Miel quemada | racimo cítrico compacto | 1.10 |
+
+`.dc-plate img` usa `object-fit: contain`, así que una cinta alta se dibuja alta y
+un filete ancho se dibuja ancho. Ya no hay seis discos.
+
+`assets/depth-carousel/_preview-v3.png` es la hoja de contactos sobre fondo de color
+con la que se juzgaron los bordes alpha. Los recortes de plato de la V2 se conservan
+en el repositorio como comparación.
+
+**Lo que sigue sin resolverse desde código:** la fotografía de origen es cenital.
+Alcachofa y postre siguen siendo composiciones aproximadamente redondas porque el
+emplatado lo es. Un bowl en tres cuartos o una copa darían otro salto — el contrato
+ya los acepta sin tocar el motor.
+
+---
+
+## V3.3 — Problema 02 · Barro cromático en el crossfade
+
+Se sustituye la mezcla por transparencia por **dos mundos puros y una invasión
+espacial**.
+
+```text
+.dc-bg-a   mundo A, a sangre, sin recortar
+.dc-bg-b   mundo B, encima, recortado por el gesto
+
+t = 0.00   ████████████████████ A
+t = 0.30   ██████████████░░░░░░ A | B
+t = 0.50   ██████████░░░░░░░░░░ A | B
+t = 1.00   ░░░░░░░░░░░░░░░░░░░░ B
+```
+
+`clip-path: polygon()` con arista inclinada (7% de skew) y una fina línea de acento
+sobre la costura (`.dc-wipe-edge`) que sólo aparece durante la transición. Ambos
+colores conservan su saturación en todo momento: nunca se mezclan.
+
+**Dirección**: B es siempre el plato `floor(pos)+1`. Al arrastrar hacia adelante B
+entra por la derecha; al arrastrar hacia atrás la costura retrocede y A se revela
+desde la izquierda. La continuidad espacial sale gratis del modelo.
+
+**Acento sin barro** (Option A del brief): se mantiene el acento de A y se cruza a B
+con `smoothstep(0.44, 0.56)`. Durante el 88% del recorrido el color es puro; el
+cruce dura un 12% y queda tapado por la propia transición.
+
+---
+
+## V3.4 — Problemas 03 y 04 · Lettering tapado y transición con agujero
+
+**Posición.** La palabra sube a `top: -7%` del shell, es decir a la banda superior
+de la escena, con `font-size: clamp(120px, 20vw, 300px)` y opacidad 0.50. Los
+objetos la cruzan por abajo: oclusión medida en los tests, exigida por debajo del
+55% del área de la palabra.
+
+**Transición enmascarada.** La V2 apagaba una palabra antes de encender la otra —
+limpio pero con un agujero. Ahora **ambas palabras existen a plena fuerza**, cada una
+recortada a un lado de la **misma costura** que separa los dos mundos cromáticos:
+
+```text
+t = 0.00   FIRE ────────────────────────
+t = 0.50   FIRE ──────┤├────── BLUEFIN
+t = 1.00   ──────────────────── BLUEFIN
+```
+
+Nunca hay sopa (ocupan regiones espaciales disjuntas) y nunca hay agujero (la suma de
+sus fracciones visibles es 1 en todo momento; el test lo comprueba). Además se
+separan horizontalmente con `sin(π·t)·0.09·W`, máximo a mitad de gesto y cero en los
+extremos, para que se lean como dos palabras y no como una rota.
+
+**El campo `word` es curado, no derivado.** FIRE, BLUEFIN, EMBER, SEA, IBERIAN,
+HONEY viven en `dish.depthCarousel.word`. El fallback a la primera palabra del nombre
+sigue existiendo para proyectos que no lo definan.
+
+---
+
+## V3.5 — Problema 05 · Falta de profundidad Z real
+
+El track incorpora `z` (translateZ) dentro de `perspective: 1500px`:
+
+| slot | x (pantalla) | y | escala | z | tamaño aparente |
+|---|---:|---:|---:|---:|---:|
+| -2 | 9% | 16% | .56 | -560 | .41 |
+| -1 | 43% | 28% | .74 | -250 | .63 |
+| **0** | **62%** | **62%** | **1.16** | **+150** | **1.29** |
+| +1 | 83% | 20% | .72 | -210 | .63 |
+| +2 | 104% | 76% | .60 | -500 | .45 |
+
+El héroe es **2.05x** su vecino y esa diferencia viene de la distancia a cámara, no
+de un sprite mayor. El orden de pintado sale de `z`, así que cuando el objeto
+saliente retrocede por debajo del entrante **intercambian plano y se cruzan**; el
+test lo comprueba comparando el orden en `position 0` y `position 1`.
+
+**Corrección importante:** con perspectiva, un objeto con Z negativa se proyecta
+*hacia el punto de fuga*. La tabla V2 describía coordenadas pre-perspectiva y la
+composición se comprimía hacia el centro — ningún objeto llegaba al borde del cuadro.
+Ahora `x`/`y` son **posiciones de pantalla** y `renderAt()` divide por
+`P/(P-z)` antes de posicionar. La tabla dice lo que se ve.
+
+---
+
+## V3.6 — Problema 06 · Objetos secundarios declarados pero no usados
+
+`foregroundDecor` y `backgroundDecor` ahora se renderizan.
+
+El mismo pipeline extrae, en una **segunda pasada sobre la máscara sin cerrar**, los
+componentes individuales del emplatado: hierbas, flores, gajos de cítrico, quenelles
+de salsa. Se rankean por saturación ponderada por tamaño (un ingrediente con color
+vale más que un punto de salsa beige) y se exportan aparte. 15 recortes disponibles;
+la asignación por plato es dirección de arte, no automática, y dos platos toman
+prestada una guarnición de un plato hermano porque su emplatado segmenta como una
+sola masa.
+
+| Capa | Rate | Tratamiento |
+|---|---:|---|
+| `.dc-decor-back` | 0.32 | pequeño, `blur(4px) brightness(.62)`, opacidad 0.42 |
+| `.dc-decor-front` | **1.30** | grande, `blur(.9px)` + sombra proyectada, opacidad plena |
+
+La capa delantera **va más rápido que los productos** (1.30 vs 1.00): durante una
+transición entra por un borde, cruza por delante del héroe y sale por el otro. Es lo
+que produce la sensación de cámara física. El test lo verifica midiendo que recorre
+al menos un 15% más que un plato en el mismo intervalo.
+
+---
+
+## V3.7 — Problema 07 · Copy legible y mejor situado
+
+- El copy pasa a **posición absoluta en la sección**: `left: 6vw`, `top: 31%`,
+  ancho `min(350px, 25vw)`. Sube y participa en la composición.
+- `.dc-scrim` es una caída de luz sobre el tercio izquierdo, dentro del backdrop:
+  garantiza contraste sin dibujar una caja.
+- **El track respeta al copy, no al revés.** El héroe vive en el 62% y el vecino
+  izquierdo en el 43%. Un test mide el solapamiento real entre la caja del copy y
+  todo plato con opacidad > 0.5, y exige que no supere el 25%.
+- `.dish-copy` mantiene `z-index` superior al de los productos. §40: el copy es
+  interfaz y tiene que seguir siendo usable.
+- Curva de atenuación durante la transición: `1 − smoothstep(0.10, 0.42, |frac|)·0.9`.
+  A mitad de gesto el copy baja al 10%, el motor base hace el relevo tapado por esa
+  atenuación, y a 0.75 ya ha vuelto. Un solo bloque, nunca dos superpuestos.
+
+---
+
+## V3.8 — Cursor
+
+En modo Depth Carousel el cursor heredado se reestiliza con `--dc-accent`: contorno
+sobre fondo transparente con la etiqueta `DRAG`, y **relleno sólido en color de
+acento con la etiqueta `VIEW`** cuando está sobre el héroe, que es donde el click
+abre la ficha. Cambia de color con cada mundo cromático.
+
+---
+
+## V3.9 — Errores encontrados en V3
+
+### V3-E1 — El click sobre el objeto no abría la ficha
+
+**Síntoma.** `document.elementFromPoint()` en el centro exacto del héroe devolvía
+`.orbit-shell`. Ningún objeto era seleccionable con el ratón; sólo funcionaba el CTA.
+
+**Causa.** Los objetos viven en un contexto `transform-style: preserve-3d` cuyo
+ancestro `.dc-scene` es `pointer-events: none`. Reactivar `pointer-events: auto` en
+el hijo — e incluso en el contenedor — no los hace hit-testables en Chromium cuando
+además llevan `translateZ` y `filter`.
+
+**Solución.** Selección **geométrica**, el mismo enfoque que ya usaba
+`class6-detail-bridge`: el objeto visible bajo el puntero, el más cercano a cámara
+por su `z`. El `closest('.dc-plate')` del DOM se mantiene como vía rápida. El cursor
+usa el mismo test, así que `VIEW` y la apertura coinciden siempre.
+
+**Validación.** `clicking the hero object opens the dish`, y el vídeo desktop termina
+abriendo la ficha de Clase 06 desde el propio producto.
+
+---
+
+### V3-E2 — La perspectiva comprimía la composición
+
+Descrito en V3.5. Ningún objeto alcanzaba el borde del cuadro porque la tabla estaba
+en coordenadas pre-perspectiva. Detectado por el test
+`the collection continues past the frame`, que pasó de 0 objetos recortados a
+cumplirse tras convertir la tabla a coordenadas de pantalla.
+
+---
+
+### V3-E3 — Segmentación inicial que conservaba plato y bajoplato
+
+Dos iteraciones fallidas antes de acertar:
+1. el guard radial usaba el disco equivocado y conservaba el bajoplato oscuro;
+2. usar la luminancia media de la porcelana como referencia hacía que su propio
+   viñeteado se leyera como comida, conservando el plato entero.
+
+Resueltos con detección explícita de la porcelana, percentil 70 como referencia y
+un criterio de comida basado en saturación **o** oscuridad real, nunca en brillo.
+
+---
+
+### V3-E4 — Errores del harness
+
+- Las aserciones de lettering leían `getComputedStyle().clipPath` buscando
+  porcentajes; el navegador lo resuelve a **píxeles**. Toda medida de la palabra
+  daba 1.00 y las comprobaciones eran falsos positivos. El helper ahora acepta
+  ambas unidades y calcula la fracción visible real.
+- La aserción heredada exigía que la palabra estuviese contenida en el nombre del
+  plato. En V3 la palabra es una etiqueta curada, así que se compara contra
+  `dish.depthCarousel.word`.
+
+---
+
+## V3.10 — Mobile
+
+No es una reducción del desktop:
+
+- shell `46vh`, objeto base `clamp(190px, 58vw, 300px)`, héroe a 1.14 con z +140 →
+  domina el cuadro;
+- exactamente **dos** secundarios perceptibles (`±1`), fuertemente solapados con el
+  héroe y recortados por los bordes;
+- `±2` sólo insinuados;
+- lettering a 40vw, `top: -4%`, recortado por ambos lados;
+- scrim reorientado a 6° (caída inferior) porque el copy va debajo, no a la izquierda;
+- copy y controles en flujo normal, a ancho completo y plenamente legibles;
+- `dragUnit` a 0.34 del ancho para que un swipe corto de pulgar no salte tres platos.
+
+---
+
+## V3.11 — Resultados Playwright
+
+**110/110** en desktop 1440×900, móvil 390×844 y reduced motion.
+
+Nuevas comprobaciones V3: dos mundos cromáticos coexistiendo a plena opacidad · la
+costura del wipe sigue al gesto (100% → 50% → 0%) · `translateZ` reparte la colección
+en profundidad y el héroe lee como el objeto más cercano · los objetos intercambian
+plano al cruzarse · las capas de decor están renderizadas y visibles · el decor
+delantero viaja más rápido que los productos · el lettering sigue legible bajo la
+oclusión · la zona segura del copy se respeta · el cursor pertenece a esta escena ·
+el click sobre el objeto abre la ficha · lettering enmascarado continuo, sin sopa y
+sin agujero.
+
+Se conservan todas las comprobaciones V1/V2, incluidas la sincronía título/precio en
+vuelo y la restauración íntegra del preset Orbital.
+
+Regresión verificada: `class5-complete-e2e`, `class6-product-e2e`,
+`class7-editorial-flow-static`, Studio, ficha, persistencia y preset restaurado.
+
+**Evidencia de movimiento**: `tests/video/depth-carousel-v3-desktop.webm` (16.8s) y
+`tests/video/depth-carousel-v3-mobile.webm` (17.6s). El guion incluye parada sobre la
+costura al 50%, arrastre inverso, cambio de producto y apertura de la ficha desde el
+propio objeto. El vídeo móvil usa toques reales vía CDP.
+
+---
+
+## V3.12 — Limitaciones que siguen abiertas
+
+1. **La fotografía es cenital.** El asset pass elimina el plato, pero alcachofa y
+   postre siguen siendo composiciones redondas porque el emplatado lo es. El motor ya
+   acepta escorzo, bowls y copas; falta producirlos.
+2. **Studio sólo expone el preset.** `asset`, `word`, `accent`, fondos y decor viven
+   en el modelo y se exportan con el proyecto, pero no hay campos en el panel. La
+   misión V3 prohíbe expresamente ampliarlo.
+3. **La asignación de decor es manual.** El pipeline genera 15 recortes; cuál va a
+   cada escena es una decisión de arte escrita en `class4-config.js`. Dos platos
+   toman prestada una guarnición de un plato hermano.
+4. **Un solo decor por capa y plato.** El contrato acepta la cadena; no hay soporte
+   todavía para varios assets por capa.
+5. **El héroe no pasa por delante del copy.** Decisión de UX (§40): invertirlo
+   pondría texto detrás de un producto.
+6. **Sin medición de FPS en dispositivo real.** Las decisiones están razonadas y las
+   capas caras eliminadas (`mix-blend-mode` fuera desde V2, blur acotado, sombras
+   sólo en objetos visibles), pero no hay traza capturada.
+7. **Sin autoplay** y **sin varios idiomas para `word`**: la palabra es única por
+   plato, no bilingüe como el resto del copy de Clase 06.
+
+---
+
+## V3.13 — Qué falta para el Restaurant Motion Engine
+
+A lo ya listado en V1 y V2 se añade:
+
+11. El **asset pipeline** (`build-depth-assets-v3.mjs`) es una capacidad de producto,
+    no un script de laboratorio: debería poder ejecutarse sobre la fotografía que
+    suba un restaurante desde Studio.
+12. El **wipe A/B** y el **lettering enmascarado** comparten una única arista. Esa
+    arista es un primitivo reutilizable: Anchor Swap (Project 02) es exactamente el
+    mismo mecanismo con un ancla encima.
+13. Las **capas de decor con rate propio** son genéricas y deberían subir a la capa
+    común antes de escribir Project 02.
