@@ -1,0 +1,51 @@
+name: Project 01 Depth Carousel
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ['feat/depth-carousel-lab']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  depth-carousel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check class8-depth-carousel.js
+          node --check class4-runtime-guard.js
+          node --check tests/class8-depth-carousel-e2e.mjs
+          node --check tests/static-server.mjs
+      - name: Additive contract — index.html must stay untouched
+        run: |
+          grep -q 'class4-runtime-guard.js' index.html
+          ! grep -q 'class8-depth-carousel.js' index.html
+          grep -q "s.src='class8-depth-carousel.js'" class4-runtime-guard.js
+      - name: Install browser test runtime
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Depth Carousel E2E (desktop + mobile + reduced motion)
+        run: node tests/class8-depth-carousel-e2e.mjs
+      - name: Regression — Class 05 and Class 06 contracts
+        run: |
+          node tests/class7-editorial-flow-static.mjs
+          node -e "import('./tests/static-server.mjs').then(m=>m.startServer(4173))" &
+          sleep 3
+          node tests/class5-complete-e2e.mjs
+          node tests/class6-product-e2e.mjs
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: depth-carousel-screenshots
+          path: tests/screenshots/
