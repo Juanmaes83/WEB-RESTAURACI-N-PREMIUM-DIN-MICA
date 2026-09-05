@@ -53,3 +53,16 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,500));else setTimeout(install,500);
 })();
+/* CLASS 08 · PROJECT 01 — load the Depth Carousel preset additively.
+   index.html stays untouched: the guard is the guaranteed entrypoint. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-depth-carousel-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class8-depth-carousel.js';s.dataset.depthCarouselRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,60));
+  else setTimeout(load,60);
+})();
