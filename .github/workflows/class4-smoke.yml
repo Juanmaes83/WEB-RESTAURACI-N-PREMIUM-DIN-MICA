@@ -27,4 +27,5 @@ jobs:
       - name: Static DOM contract
         run: node scripts/class4-static-check.mjs
       - name: JSON preset validation
-        run: node -e "JSON.parse(require('fs').readFileSync('presets/NAMI-CLASS04.json','utf8')); console.log('NAMI preset: PASS')"
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('presets/NAMI-CLASS04.json','utf8')); console.log('NAMI preset: PASS')"
