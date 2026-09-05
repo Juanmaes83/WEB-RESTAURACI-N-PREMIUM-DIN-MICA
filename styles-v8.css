@@ -1,0 +1,67 @@
+/* CLASS 08 · PROJECT 01 — CINEMATIC DEPTH CAROUSEL
+   Layer contract (z-order inside .orbit-shell):
+   0 wash · 1 giant lettering · 2 back plates · 3 active plate · 4 front plates
+   .dish-copy (z 20) and .orbit-controls (z 20) stay above the scene, as in the baseline. */
+
+html[data-orbital-motion="depth-carousel"] #orbit-stage{visibility:hidden;pointer-events:none}
+html[data-orbital-motion="depth-carousel"] .orbit-ring{opacity:.05}
+html[data-orbital-motion="depth-carousel"] .orbit-center-mark{opacity:0}
+html[data-orbital-motion="depth-carousel"] .orbit-glow{opacity:0}
+html[data-orbital-motion="depth-carousel"] .orbital-section{background:#050504}
+html[data-orbital-motion="depth-carousel"] .orbit-shell{height:min(60vw,700px);min-height:560px}
+html[data-orbital-motion="depth-carousel"] .orbital-heading{padding-right:0}
+
+/* ---------- scene ---------- */
+.dc-scene{position:absolute;inset:0;pointer-events:none;z-index:6;contain:layout style}
+.dc-scene[hidden]{display:none}
+
+/* 0 — atmospheric wash, parallax rate .18 */
+.dc-wash{position:absolute;left:50%;top:50%;width:150%;height:150%;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse 42% 46% at 50% 52%,var(--dc-accent,#d8ff4f) 0,transparent 62%);
+  opacity:.26;filter:blur(56px);will-change:transform,opacity;transition:opacity .5s ease}
+
+/* 1 — giant lettering, parallax rate .40 */
+.dc-word{position:absolute;left:50%;top:19%;transform:translate(-50%,-50%);white-space:nowrap;
+  font-family:var(--font-display,Italiana,serif);font-size:clamp(80px,13.5vw,218px);line-height:.8;
+  letter-spacing:-.02em;color:var(--dc-accent,#d8ff4f);opacity:.2;user-select:none;
+  will-change:transform,opacity;text-transform:uppercase}
+
+/* 2/3/4 — plates. z-index is assigned per frame by the engine. */
+.dc-plates{position:absolute;inset:0}
+.dc-plate{position:absolute;left:0;top:0;width:clamp(168px,23vw,400px);aspect-ratio:1;border:0;padding:0;
+  background:transparent;border-radius:50%;pointer-events:auto;cursor:pointer;
+  transform-origin:50% 50%;will-change:transform,opacity,filter}
+.dc-plate img{width:100%;height:100%;display:block;border-radius:50%;object-fit:cover;
+  user-select:none;-webkit-user-drag:none;box-shadow:0 32px 64px rgba(0,0,0,.55)}
+.dc-plate::after{content:'';position:absolute;inset:3%;border-radius:50%;
+  box-shadow:inset 0 0 34px rgba(0,0,0,.18);pointer-events:none}
+.dc-plate.is-hero img{box-shadow:0 42px 90px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.05)}
+
+/* ---------- scene copy (price · ingredients) ---------- */
+.dc-copy{display:none;margin:14px auto 0;max-width:560px}
+html[data-orbital-motion="depth-carousel"] .dc-copy{display:block}
+.dc-price{display:block;font-family:var(--font-display,Italiana,serif);font-size:clamp(26px,3vw,40px);
+  line-height:1;color:var(--dc-accent,#d8ff4f)}
+.dc-ingredients{display:block;margin-top:8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8b8981}
+
+/* ---------- position indicators ---------- */
+.dc-dots{display:none;align-items:center;gap:9px}
+html[data-orbital-motion="depth-carousel"] .dc-dots{display:flex}
+.dc-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#3a3a35;cursor:pointer;
+  transition:background .28s ease,width .28s ease,transform .28s ease}
+.dc-dot[aria-current="true"]{width:22px;border-radius:4px;background:var(--dc-accent,#d8ff4f)}
+
+/* ---------- mobile ---------- */
+@media(max-width:700px){
+  html[data-orbital-motion="depth-carousel"] .orbit-shell{height:58vh;min-height:420px}
+  .dc-plate{width:clamp(168px,50vw,250px)}
+  .dc-word{font-size:clamp(54px,16vw,104px);top:20%}
+  .dc-price{font-size:clamp(22px,7vw,30px)}
+  .dc-ingredients{font-size:10px;letter-spacing:.1em}
+}
+
+/* ---------- reduced motion ---------- */
+@media(prefers-reduced-motion:reduce){
+  .dc-plate{will-change:auto}
+  .dc-wash{transition:none}
+}
