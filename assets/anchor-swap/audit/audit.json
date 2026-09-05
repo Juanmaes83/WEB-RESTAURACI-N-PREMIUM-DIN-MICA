@@ -1,0 +1,60 @@
+{
+  "stats": {
+    "master": {
+      "name": "master",
+      "w": 1122,
+      "h": 1402,
+      "bounds": {
+        "minX": 81,
+        "minY": 208,
+        "maxX": 1050,
+        "maxY": 1401,
+        "bw": 970,
+        "bh": 1194
+      },
+      "coverage": 0.2793,
+      "semiEdgePx": 9136,
+      "hasAlpha": true
+    },
+    "back": {
+      "name": "back",
+      "w": 1122,
+      "h": 1402,
+      "bounds": {
+        "minX": 79,
+        "minY": 265,
+        "maxX": 940,
+        "maxY": 1401,
+        "bw": 862,
+        "bh": 1137
+      },
+      "coverage": 0.2379,
+      "semiEdgePx": 6835,
+      "hasAlpha": true
+    },
+    "front": {
+      "name": "front",
+      "w": 1122,
+      "h": 1402,
+      "bounds": {
+        "minX": 203,
+        "minY": 207,
+        "maxX": 1052,
+        "maxY": 709,
+        "bw": 850,
+        "bh": 503
+      },
+      "coverage": 0.0583,
+      "semiEdgePx": 4735,
+      "hasAlpha": true
+    }
+  },
+  "composite": {
+    "sameCanvas": true,
+    "meanError": 5.26,
+    "diffRatio": 0.0238,
+    "coverageMaster": 0.2787,
+    "coverageComposite": 0.2763,
+    "iou": 0.9642
+  }
+}
