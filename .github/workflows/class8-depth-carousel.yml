@@ -1,10 +1,10 @@
-name: Project 01 Depth Carousel
+name: Motion Engine — Depth Carousel + Anchor Swap
 
 on:
   pull_request:
     branches: [main]
   push:
-    branches: ['feat/depth-carousel-lab']
+    branches: ['feat/depth-carousel-lab','feat/anchor-swap-lab']
   workflow_dispatch:
 
 permissions:
@@ -46,13 +46,21 @@ jobs:
       - name: Asset contract
         run: |
           node -e "global.window={};require('./class4-config.js');const fs=require('fs');const d=window.RestaurantDefaults.dishes;const free=d.filter(x=>x.depthCarousel&&x.depthCarousel.asset);if(free.length<3)throw new Error('fewer than 3 free-object assets: '+free.length);const decor=d.filter(x=>x.depthCarousel&&[].concat(x.depthCarousel.foregroundDecor||[]).length&&x.depthCarousel.backgroundDecor);if(decor.length<free.length)throw new Error('dishes without decor: '+(free.length-decor.length));const files=d.flatMap(x=>[x.depthCarousel.asset].concat(x.depthCarousel.foregroundDecor||[],x.depthCarousel.backgroundDecor||[])).filter(Boolean);for(const f of files)if(!fs.existsSync(f))throw new Error('missing asset '+f);console.log('free objects '+free.length+', dishes with decor '+decor.length+', files '+files.length)"
+      - name: Project 02 Anchor Swap E2E
+        run: node tests/class9-anchor-swap-e2e.mjs
+      - name: Anchor hand asset audit
+        run: |
+          node scripts/audit-anchor-hand.mjs
+          node -e "const a=require('./assets/anchor-swap/audit/audit.json');if(!a.composite.sameCanvas)throw new Error('back/front are not the master canvas');if(a.composite.iou<0.9)throw new Error('recomposition IoU too low: '+a.composite.iou);console.log('anchor audit IoU '+a.composite.iou)"
       - name: Record motion evidence
-        run: node tests/record-depth-carousel-video.mjs
+        run: |
+          node tests/record-depth-carousel-video.mjs
+          node tests/record-anchor-swap-video.mjs
       - name: Upload visual evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: depth-carousel-v2-evidence
+          name: motion-engine-evidence
           path: |
             tests/screenshots/
             tests/video/
