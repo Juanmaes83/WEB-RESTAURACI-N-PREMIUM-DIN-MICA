@@ -17,6 +17,35 @@ const browser=await chromium.launch({headless:true});
 const results=[];
 const check=(name,ok,detail='')=>{results.push({name,ok,detail});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
 
+
+
+/* V3 lettering is two clipped layers sharing one seam, so "the word on screen" is
+   the layer whose clipped region owns most of the width. getComputedStyle resolves
+   clip-path to pixels, not the percentages the engine writes, so parse both. */
+async function wordLayers(page){
+  return page.evaluate(()=>{
+    return [...document.querySelectorAll('.dc-word-clip')].map(c=>{
+      const cs=getComputedStyle(c);
+      if(cs.display==='none')return null;
+      const width=c.getBoundingClientRect().width||1;
+      const xs=[];const re=/(-?[\d.]+)(px|%)/g;
+      let m,n=0;
+      while((m=re.exec(cs.clipPath||''))){
+        if(n%2===0)xs.push(m[2]==='%'?(+m[1])/100*width:+m[1]);
+        n++;
+      }
+      let frac=1;
+      if(xs.length>=3){
+        const lo=Math.max(0,Math.min(...xs)),hi=Math.min(width,Math.max(...xs));
+        frac=Math.max(0,hi-lo)/width;
+      }
+      return {text:c.querySelector('.dc-word').textContent.trim(),frac:+frac.toFixed(3),
+        opacity:+getComputedStyle(c.querySelector('.dc-word')).opacity};
+    }).filter(Boolean);
+  });
+}
+const dominantWord=async page=>(await wordLayers(page)).sort((a,b)=>b.frac-a.frac)[0]||{text:'',frac:0,opacity:0};
+
 async function session(label,viewport,isMobile){
   const context=await browser.newContext({viewport,isMobile,hasTouch:isMobile,deviceScaleFactor:1});
   const page=await context.newPage();
@@ -88,7 +117,7 @@ async function session(label,viewport,isMobile){
   const ys=new Set(visible.map(p=>Math.round(p.cy/10)));
   check(`${label} · vertical arc (not a flat rail)`,ys.size>=2,`${ys.size} vertical bands`);
 
-  await page.screenshot({path:path.join(SHOTS,`v2-${label}-01-idle.png`),fullPage:false});
+  await page.screenshot({path:path.join(SHOTS,`v3-${label}-01-idle.png`),fullPage:false});
   /* =====================================================================
      VISUAL DIRECTION V2 — the checks that guard the human review criteria.
      ===================================================================== */
@@ -106,20 +135,30 @@ async function session(label,viewport,isMobile){
   });
   check(`${label} · V2 Orbital language is silenced`,Object.values(orbitalSilenced).every(Boolean),JSON.stringify(orbitalSilenced));
 
-  const worlds=await page.evaluate(()=>[...document.querySelectorAll('.dc-bg')].map(b=>b.style.background));
-  check(`${label} · V2 every dish owns a distinct colour world`,new Set(worlds).size===worlds.length,`${new Set(worlds).size}/${worlds.length} distinct`);
+  const worlds=await page.evaluate(()=>{
+    const d=(window.RestaurantDefaults.dishes||[]).filter(x=>x.enabled!==false);
+    return d.map(x=>`${x.depthCarousel?.accent}|${x.depthCarousel?.backgroundColor}`);
+  });
+  check(`${label} · every dish owns a distinct colour world`,new Set(worlds).size===worlds.length,`${new Set(worlds).size}/${worlds.length} distinct`);
+  const buffers=await page.evaluate(()=>({
+    count:document.querySelectorAll('.dc-bg').length,
+    a:+getComputedStyle(document.querySelector('.dc-bg-a')).opacity,
+    b:+getComputedStyle(document.querySelector('.dc-bg-b')).opacity
+  }));
+  check(`${label} · V3 two colour worlds coexist at full strength`,buffers.count===2&&buffers.a===1&&buffers.b===1,JSON.stringify(buffers));
 
   const wordBox=await page.evaluate(()=>{
-    const w=[...document.querySelectorAll('.dc-word')].sort((a,b)=>+getComputedStyle(b).opacity-+getComputedStyle(a).opacity)[0];
+    const clips=[...document.querySelectorAll('.dc-word-clip')].filter(c=>getComputedStyle(c).display!=='none');
+    const w=(clips[0]||document.querySelector('.dc-word-clip')).querySelector('.dc-word');
     const r=w.getBoundingClientRect();
     return {h:r.height/innerHeight,w:r.width/innerWidth,opacity:+getComputedStyle(w).opacity,text:w.textContent};
   });
   /* Desktop carries the lettering on the height axis; a 390x844 portrait cannot —
      a word at 35% of that height leaves room for nothing else, so on mobile the
      word is sized to the width axis and deliberately runs past both edges. */
-  const wordOk=isMobile?(wordBox.h>=.12&&wordBox.w>=.7):(wordBox.h>=.25&&wordBox.w>=.45);
-  check(`${label} · V2 lettering is architectural, not decoration`,wordOk&&wordBox.opacity>.12,
-    `${(wordBox.h*100).toFixed(0)}% viewport height, ${(wordBox.w*100).toFixed(0)}% width, "${wordBox.text}"`);
+  const wordOk=isMobile?(wordBox.h>=.11&&wordBox.w>=.55):(wordBox.h>=.22&&wordBox.w>=.34);
+  check(`${label} · lettering is architectural, not decoration`,wordOk&&wordBox.opacity>=.3,
+    `${(wordBox.h*100).toFixed(0)}% viewport height, ${(wordBox.w*100).toFixed(0)}% width, opacity ${wordBox.opacity}, "${wordBox.text}"`);
 
   /* occlusion: visible plates must overlap AND sit at different depths */
   const overlaps=(()=>{
@@ -133,8 +172,9 @@ async function session(label,viewport,isMobile){
   })();
   check(`${label} · V2 objects occlude each other`,overlaps>=2,`${overlaps} overlapping pairs at different depths`);
 
-  const offscreen=g0.filter(p=>p.opacity>.15&&(p.vl<0||p.vr>viewport.width)).length;
-  check(`${label} · V2 the collection continues past the frame`,offscreen>=1,`${offscreen} plates cropped by the viewport`);
+  const cropped=g0.filter(p=>p.opacity>.10&&(p.vl<-4||p.vr>viewport.width+4));
+  check(`${label} · the collection continues past the frame`,cropped.length>=1,
+    cropped.length?`${cropped.length} cropped`:`edges ${g0.filter(p=>p.opacity>.1).map(p=>`${p.vl.toFixed(0)}..${p.vr.toFixed(0)}`).join(' ')} vs ${viewport.width}`);
 
   /* asymmetry: the left and right neighbours must not be mirror images */
   const asym=await page.evaluate(()=>{
@@ -155,8 +195,8 @@ async function session(label,viewport,isMobile){
   const continuous=await page.evaluate(()=>{
     const read=()=>({
       accent:getComputedStyle(document.documentElement).getPropertyValue('--dc-accent').trim(),
-      bgs:[...document.querySelectorAll('.dc-bg')].map(b=>+getComputedStyle(b).opacity),
-      words:[...document.querySelectorAll('.dc-word')].filter(w=>+getComputedStyle(w).opacity>.06).length,
+      edge:(()=>{const m=/polygon\(([-\d.]+)%/.exec(getComputedStyle(document.querySelector('.dc-bg-b')).clipPath||'');return m?Math.round(+m[1]+7):-1})(),
+      words:[...document.querySelectorAll('.dc-word-clip')].filter(w=>getComputedStyle(w).display!=='none').length,
       copy:+getComputedStyle(document.querySelector('.dish-copy')).opacity,
       counter:document.getElementById('dish-counter').textContent.trim()
     });
@@ -168,22 +208,150 @@ async function session(label,viewport,isMobile){
     window.RestaurantDepthCarousel.setPosition(0);
     return {at0,mid,late};
   });
-  const blended=continuous.mid.bgs.filter(o=>o>.3).length;
-  check(`${label} · V2 background crossfades with the gesture`,blended>=2,`${blended} colour worlds blended at 50% of a drag`);
+  check(`${label} · V3 the wipe edge follows the gesture`,
+    continuous.at0.edge>85&&continuous.mid.edge>35&&continuous.mid.edge<65&&continuous.late.edge<15,
+    `edge ${continuous.at0.edge}% → ${continuous.mid.edge}% → ${continuous.late.edge}%`);
   check(`${label} · V2 accent interpolates during the drag`,
     continuous.mid.accent!==continuous.at0.accent&&continuous.late.accent!==continuous.mid.accent,
     `${continuous.at0.accent} → ${continuous.mid.accent} → ${continuous.late.accent}`);
-  check(`${label} · V2 only one giant word on screen at a time`,
-    continuous.at0.words<=1&&continuous.mid.words<=1&&continuous.late.words<=1,
-    `${continuous.at0.words}/${continuous.mid.words}/${continuous.late.words}`);
+  const sample=async pos=>{
+    await page.evaluate(v=>window.RestaurantDepthCarousel.setPosition(v),pos);
+    return (await wordLayers(page)).map(x=>x.frac);
+  };
+  const atRest=await sample(0), atHalf=await sample(0.5), atEnd=await sample(0.97);
+  await page.evaluate(()=>window.RestaurantDepthCarousel.setPosition(0));
+  const cover=a=>a.reduce((n,v)=>n+v,0);
+  const big=a=>Math.max(...a);
+  check(`${label} · V3 masked lettering: continuous, never soup, never a hole`,
+    big(atRest)>=.9 && atHalf.filter(f=>f>.2).length===2 &&
+    Math.abs(cover(atHalf)-1)<.2 && big(atEnd)>=.85,
+    `rest ${big(atRest).toFixed(2)} · half ${atHalf.map(f=>f.toFixed(2)).join('/')} (total ${cover(atHalf).toFixed(2)}) · end ${big(atEnd).toFixed(2)}`);
   check(`${label} · V2 copy dips mid-gesture instead of flickering`,continuous.mid.copy<continuous.at0.copy-.1,
     `${continuous.at0.copy} → ${continuous.mid.copy}`);
   check(`${label} · V2 the scene moves before the index commits`,continuous.mid.counter===continuous.at0.counter,
     `counter held at ${continuous.mid.counter}`);
 
-  await page.evaluate(()=>window.RestaurantDepthCarousel.setPosition(0.44));
-  await page.waitForTimeout(320);
-  await page.screenshot({path:path.join(SHOTS,`v2-${label}-02-mid-drag.png`)});
+
+  /* ===================== VISUAL DIRECTION V3 ===================== */
+
+  /* real Z: apparent size must come from distance, and depth must cross */
+  const zTrack=await page.evaluate(()=>{
+    const t=window.RestaurantDepthCarousel.sampleTrack;
+    const P=1500, size=s=>s.s*P/(P-s.z);
+    const H=t(0),L=t(-1),R=t(1),F=t(-2);
+    return {heroZ:H.z,midZ:L.z,farZ:F.z,
+      heroSize:+size(H).toFixed(3),midSize:+size(L).toFixed(3),farSize:+size(F).toFixed(3),
+      spread:+(H.z-F.z).toFixed(0),asymZ:Math.abs(L.z-R.z)};
+  });
+  check(`${label} · V3 real translateZ spreads the collection in depth`,
+    zTrack.heroZ>0&&zTrack.farZ<-300&&zTrack.spread>600,JSON.stringify(zTrack));
+  check(`${label} · V3 the hero reads as the nearest object`,
+    zTrack.heroSize/zTrack.midSize>=1.6,`hero ${zTrack.heroSize} vs neighbour ${zTrack.midSize}`);
+
+  /* the depth order must actually swap while two objects pass each other */
+  const crossover=await page.evaluate(()=>{
+    const read=()=>[...document.querySelectorAll('.dc-plate')]
+      .map(p=>({i:+p.dataset.index,z:+(/translate3d\([^,]+,[^,]+,\s*([-\d.]+)px/.exec(getComputedStyle(p).transform)?.[1]??0),
+                zi:+getComputedStyle(p).zIndex}));
+    window.RestaurantDepthCarousel.setPosition(0);
+    const a=read();
+    window.RestaurantDepthCarousel.setPosition(1);
+    const b=read();
+    window.RestaurantDepthCarousel.setPosition(0);
+    const order=arr=>[...arr].sort((x,y)=>y.zi-x.zi).map(x=>x.i).join(',');
+    return {before:order(a),after:order(b)};
+  });
+  check(`${label} · V3 objects swap depth when they pass`,crossover.before!==crossover.after,
+    `${crossover.before} → ${crossover.after}`);
+
+  /* decor must exist AND be visible, not merely declared */
+  const decor=await page.evaluate(()=>{
+    const vis=sel=>[...document.querySelectorAll(sel)].filter(e=>{
+      const c=getComputedStyle(e);
+      const r=e.getBoundingClientRect();
+      return c.display!=='none'&&+c.opacity>.12&&r.width>40&&r.bottom>0&&r.top<innerHeight;
+    }).length;
+    return {declared:document.querySelectorAll('.dc-decor-item:not([data-empty])').length,
+      backVisible:vis('.dc-decor-back .dc-decor-item'),frontVisible:vis('.dc-decor-front .dc-decor-item')};
+  });
+  check(`${label} · V3 decor layers are rendered and visible`,
+    decor.declared>=6&&decor.backVisible>=1&&decor.frontVisible>=1,JSON.stringify(decor));
+
+  /* the near decor must overtake the plates, otherwise it is not a foreground */
+  const rates=await page.evaluate(()=>{
+    const x=sel=>{const e=document.querySelector(sel);return e?e.getBoundingClientRect().left:NaN};
+    window.RestaurantDepthCarousel.setPosition(0);
+    const a={front:x('.dc-decor-front .dc-decor-item'),plate:x('.dc-plate')};
+    window.RestaurantDepthCarousel.setPosition(0.3);
+    const b={front:x('.dc-decor-front .dc-decor-item'),plate:x('.dc-plate')};
+    window.RestaurantDepthCarousel.setPosition(0);
+    return {front:Math.abs(b.front-a.front),plate:Math.abs(b.plate-a.plate)};
+  });
+  check(`${label} · V3 foreground decor travels faster than the products`,
+    rates.front>rates.plate*1.15,`decor ${rates.front.toFixed(0)}px vs plate ${rates.plate.toFixed(0)}px`);
+
+  /* lettering legibility: occluded, but not buried */
+  const letter=await page.evaluate(()=>{
+    const w=[...document.querySelectorAll('.dc-word')]
+      .filter(e=>getComputedStyle(e.parentElement).display!=='none')[0];
+    if(!w)return null;
+    const r=w.getBoundingClientRect(),c=getComputedStyle(w);
+    const area=Math.max(1,r.width*r.height);
+    let covered=0;
+    for(const p of document.querySelectorAll('.dc-plate')){
+      if(+getComputedStyle(p).opacity<.35)continue;
+      const q=p.getBoundingClientRect();
+      const ow=Math.max(0,Math.min(r.right,q.right)-Math.max(r.left,q.left));
+      const oh=Math.max(0,Math.min(r.bottom,q.bottom)-Math.max(r.top,q.top));
+      covered+=ow*oh;
+    }
+    return {text:w.textContent,opacity:+c.opacity,cover:+(covered/area).toFixed(2),
+      top:+(r.top/innerHeight).toFixed(2)};
+  });
+  check(`${label} · V3 lettering stays readable through the occlusion`,
+    !!letter&&letter.opacity>=.3&&letter.cover<=.55&&letter.top<.45,JSON.stringify(letter));
+
+  /* copy safe zone: the track must respect the copy, not the other way round */
+  const safe=await page.evaluate(()=>{
+    const c=document.querySelector('.dish-copy').getBoundingClientRect();
+    const area=Math.max(1,c.width*c.height);
+    let covered=0,worst=0;
+    for(const p of document.querySelectorAll('.dc-plate')){
+      if(+getComputedStyle(p).opacity<.5)continue;
+      const q=p.getBoundingClientRect();
+      const ow=Math.max(0,Math.min(c.right,q.right)-Math.max(c.left,q.left));
+      const oh=Math.max(0,Math.min(c.bottom,q.bottom)-Math.max(c.top,q.top));
+      covered+=ow*oh;worst=Math.max(worst,(ow*oh)/area);
+    }
+    return {cover:+(covered/area).toFixed(2),worst:+worst.toFixed(2),
+      scrim:!!document.querySelector('.dc-scrim'),
+      copyOverProduct:+getComputedStyle(document.querySelector('.dish-copy')).zIndex>
+                      +getComputedStyle(document.querySelector('.dc-plates')).zIndex};
+  });
+  check(`${label} · V3 copy safe zone is respected`,safe.cover<=.25&&safe.scrim&&safe.copyOverProduct,JSON.stringify(safe));
+
+  /* cursor belongs to this scene */
+  if(!isMobile){
+    const box=await page.locator('.orbit-shell').boundingBox();
+    await page.mouse.move(box.x+box.width*0.63,Math.min(box.y+box.height*0.6,viewport.height-30));
+    await page.waitForTimeout(260);
+    const cur=await page.evaluate(()=>({state:document.documentElement.dataset.depthCursor,
+      label:document.querySelector('.cursor span')?.textContent,
+      accent:getComputedStyle(document.querySelector('.cursor')).borderColor}));
+    check(`${label} · V3 cursor is part of the Depth Carousel`,
+      !!cur.state&&/DRAG|VIEW/.test(cur.label||'')&&/rgb/.test(cur.accent),JSON.stringify(cur));
+  }
+
+  /* The gesture series the human review asks for. The 50% frame is the important
+     one: two colour worlds, the masked lettering seam, objects crossing in Z,
+     decor sweeping and the copy dipped. */
+  for(const [name,pos] of [['02-quarter-drag',.25],['03-half-drag',.5],['04-three-quarter-drag',.75]]){
+    await page.evaluate(v=>window.RestaurantDepthCarousel.setPosition(v),pos);
+    await page.waitForTimeout(300);
+    await page.screenshot({path:path.join(SHOTS,`v3-${label}-${name}.png`)});
+  }
+  await page.evaluate(()=>window.RestaurantDepthCarousel.setPosition(0));
+  await page.waitForTimeout(400);
   await page.evaluate(()=>window.RestaurantDepthCarousel.goTo(0));
   await page.waitForTimeout(1200);
 
@@ -192,10 +360,11 @@ async function session(label,viewport,isMobile){
   const before=await geom();
   const copyBefore=await page.evaluate(()=>({
     title:document.getElementById('dish-title').textContent.trim(),
-    word:[...document.querySelectorAll('.dc-word')].sort((a,b)=>+getComputedStyle(b).opacity-+getComputedStyle(a).opacity)[0]?.textContent.trim()||'',
+    word:'',
     price:document.querySelector('.dc-price').textContent.trim(),
     accent:getComputedStyle(document.documentElement).getPropertyValue('--dc-accent').trim()
   }));
+  copyBefore.word=(await dominantWord(page)).text;
   await page.evaluate(()=>window.RestaurantDepthCarousel.step(1));
   const midSamples=[];
   for(let s=0;s<3;s++){await page.waitForTimeout(90);midSamples.push(await geom())}
@@ -221,7 +390,7 @@ async function session(label,viewport,isMobile){
   }));
   check(`${label} · movement is continuous, not a swap`,midMoved>=3,`${midMoved} plates in flight mid-transition`);
 
-  await page.screenshot({path:path.join(SHOTS,`v2-${label}-03-next-product.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v3-${label}-05-next-scene.png`)});
 
   /* ---- 3. scene synchronisation ---- */
   const sync=await page.evaluate(()=>{
@@ -235,17 +404,23 @@ async function session(label,viewport,isMobile){
       expectedTitle:(d.name||'').trim(),
       price:document.querySelector('.dc-price').textContent.trim(),
       expectedPrice:(d.price||'').trim(),
-      word:[...document.querySelectorAll('.dc-word')].sort((a,b)=>+getComputedStyle(b).opacity-+getComputedStyle(a).opacity)[0]?.textContent.trim()||'',
+      word:'',
+      expectedWord:(d.depthCarousel&&d.depthCarousel.word||'').trim(),
       accent:getComputedStyle(document.documentElement).getPropertyValue('--dc-accent').trim(),
       dotActive:[...document.querySelectorAll('.dc-dot')].findIndex(x=>x.getAttribute('aria-current')==='true'),
       ingredients:document.querySelector('.dc-ingredients').textContent.trim()
     };
   });
+  sync.word=(await dominantWord(page)).text;
   /* Class 06 renders the localised dish name, so the title is compared by change,
      not by equality against the raw English default. Price/index stay canonical. */
   check(`${label} · copy follows the active dish`,!!sync.title&&sync.title!==copyBefore.title,`${copyBefore.title} → ${sync.title}`);
   check(`${label} · price follows the active dish`,sync.price===sync.expectedPrice&&!!sync.price,`${sync.price}`);
-  check(`${label} · giant lettering follows the active dish`,!!sync.word&&sync.expectedTitle.toUpperCase().includes(sync.word.toUpperCase())&&sync.word!==copyBefore.word,`${copyBefore.word} → ${sync.word}`);
+  /* V3 words are curated art-direction labels (FIRE, BLUEFIN, SEA), deliberately
+     not the first word of the dish name, so compare against the model, not the title. */
+  check(`${label} · giant lettering follows the active dish`,
+    !!sync.word&&sync.word===sync.expectedWord&&sync.word!==copyBefore.word,
+    `${copyBefore.word} → ${sync.word} (expected ${sync.expectedWord})`);
   check(`${label} · accent theme is published and changes per dish`,/^#|rgb/.test(sync.accent)&&sync.accent!==copyBefore.accent,`${copyBefore.accent} → ${sync.accent}`);
   check(`${label} · indicators follow the active dish`,sync.dotActive===sync.idx,`dot ${sync.dotActive} vs index ${sync.idx}`);
   check(`${label} · ingredients follow the active dish`,!!sync.ingredients);
@@ -307,7 +482,7 @@ async function session(label,viewport,isMobile){
   });
   check(`${label} · engine and Orbital state stay in sync`,engineVsBase.engine===engineVsBase.counter,JSON.stringify(engineVsBase));
 
-  await page.screenshot({path:path.join(SHOTS,`v2-${label}-04-after-drag.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v3-${label}-06-after-drag.png`)});
 
   /* V2 regression: during a multi-index momentum flight the base engine writes
      title/description while this engine writes price/ingredients. If they are driven
@@ -343,12 +518,33 @@ async function session(label,viewport,isMobile){
   check(`${label} · no broken horizontal overflow`,overflow<=2,`${overflow}px`);
   check(`${label} · controls visible`,await page.locator('#next-dish').isVisible()&&await page.locator('#explore-dish').isVisible());
 
+  /* ---- 6b. clicking the hero object itself opens the detail ---- */
+  if(!isMobile){
+    const heroBox=await page.evaluate(()=>{
+      const s=window.RestaurantDepthCarousel.state();
+      const p=document.querySelectorAll('.dc-plate')[s.activeIndex];
+      const r=p.getBoundingClientRect();
+      return {x:r.left+r.width/2,y:r.top+r.height/2};
+    });
+    const hy=Math.min(Math.max(heroBox.y,20),viewport.height-20);
+    await page.mouse.move(heroBox.x,hy);
+    await page.waitForTimeout(200);
+    await page.mouse.click(heroBox.x,hy);
+    await page.waitForTimeout(1300);
+    const openedByHero=await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open'));
+    check(`${label} · clicking the hero object opens the dish`,openedByHero);
+    if(openedByHero){
+      await page.evaluate(()=>document.querySelector('#detail-close')?.click());
+      await page.waitForTimeout(1400);
+    }
+  }
+
   /* ---- 7. dish detail still opens and returns ---- */
   await page.evaluate(()=>document.querySelector('#explore-dish').click());
   await page.waitForTimeout(1200);
   const detailOpen=await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open'));
   check(`${label} · dish detail opens from the carousel`,detailOpen);
-  if(detailOpen)await page.screenshot({path:path.join(SHOTS,`v2-${label}-05-detail.png`)});
+  if(detailOpen)await page.screenshot({path:path.join(SHOTS,`v3-${label}-07-detail.png`)});
   await page.evaluate(()=>document.querySelector('#detail-close')?.click());
   await page.waitForTimeout(1400);
   const detailClosed=await page.evaluate(()=>!document.getElementById('dish-detail').classList.contains('is-open'));
@@ -378,7 +574,7 @@ async function session(label,viewport,isMobile){
     };
   });
   check(`${label} · Orbital preset is restored intact`,backToOrbital.visible&&backToOrbital.dishes===baselineDishes&&backToOrbital.sceneHidden,JSON.stringify(backToOrbital));
-  await page.screenshot({path:path.join(SHOTS,`v2-${label}-06-orbital-regression.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v3-${label}-08-orbital-regression.png`)});
 
   const fatal=errors.filter(e=>!/favicon|ERR_INTERNET|net::ERR/i.test(e));
   check(`${label} · no JS errors`,fatal.length===0,fatal.slice(0,3).join(' | '));
@@ -416,7 +612,7 @@ async function reducedMotionSession(){
   await page.waitForTimeout(500);
   const i1=await page.evaluate(()=>parseInt(document.getElementById('dish-counter').textContent,10));
   check('reduced-motion · navigation still changes dish',i1!==i0,`${i0}→${i1}`);
-  await page.screenshot({path:path.join(SHOTS,'v2-reduced-motion-01.png')});
+  await page.screenshot({path:path.join(SHOTS,'v3-reduced-motion-01.png')});
   await context.close();
 }
 

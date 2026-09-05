@@ -43,9 +43,9 @@ jobs:
           sleep 3
           node tests/class5-complete-e2e.mjs
           node tests/class6-product-e2e.mjs
-      - name: V2 asset contract
+      - name: V3 asset contract
         run: |
-          node -e "global.window={};require('./class4-config.js');const d=window.RestaurantDefaults.dishes;const free=d.filter(x=>x.depthCarousel&&x.depthCarousel.asset);if(free.length<3)throw new Error('fewer than 3 free-object assets: '+free.length);const fs=require('fs');for(const x of free)if(!fs.existsSync(x.depthCarousel.asset))throw new Error('missing asset '+x.depthCarousel.asset);console.log('free-object assets: '+free.length)"
+          node -e "global.window={};require('./class4-config.js');const fs=require('fs');const d=window.RestaurantDefaults.dishes;const free=d.filter(x=>x.depthCarousel&&x.depthCarousel.asset);if(free.length<3)throw new Error('fewer than 3 free-object assets: '+free.length);const decor=d.filter(x=>x.depthCarousel&&x.depthCarousel.foregroundDecor&&x.depthCarousel.backgroundDecor);if(decor.length<3)throw new Error('fewer than 3 dishes with decor: '+decor.length);const files=d.flatMap(x=>[x.depthCarousel&&x.depthCarousel.asset,x.depthCarousel&&x.depthCarousel.foregroundDecor,x.depthCarousel&&x.depthCarousel.backgroundDecor]).filter(Boolean);for(const f of files)if(!fs.existsSync(f))throw new Error('missing asset '+f);console.log('free objects '+free.length+', decor pairs '+decor.length+', files '+files.length)"
       - name: Record motion evidence
         run: node tests/record-depth-carousel-video.mjs
       - name: Upload visual evidence

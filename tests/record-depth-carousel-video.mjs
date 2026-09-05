@@ -1,10 +1,11 @@
-/* PROJECT 01 V2 — motion evidence.
+/* PROJECT 01 V3 — motion evidence.
    Screenshots cannot show choreography, so this records the real interaction:
-   idle → slow drag → mid-transition → release → momentum → snap → next → side pick.
+   idle → slow drag → hold at the 50% seam → continue → snap → reverse drag →
+   product change → hero click. Screenshots cannot show any of that.
 
    Usage: node tests/record-depth-carousel-video.mjs
-   Output: tests/video/depth-carousel-v2-desktop.webm
-           tests/video/depth-carousel-v2-mobile.webm
+   Output: tests/video/depth-carousel-v3-desktop.webm
+           tests/video/depth-carousel-v3-mobile.webm
 */
 import {chromium} from 'playwright';
 import fs from 'node:fs';
@@ -64,56 +65,67 @@ async function record(name,viewport,mobile,script){
 
 /* Desktop: a slow deliberate drag so the intermediate state is readable, then a
    flick to show momentum, then a button step and a side pick. */
-await record('depth-carousel-v2-desktop',{width:1440,height:900},false,async page=>{
+await record('depth-carousel-v3-desktop',{width:1440,height:900},false,async page=>{
   const box=await page.locator('.orbit-shell').boundingBox();
   const cx=box.x+box.width/2, cy=Math.min(box.y+box.height*.5,880);
-  await page.waitForTimeout(1400);
+  await page.waitForTimeout(1800);
 
+  /* slow drag, then hold exactly on the seam so the two worlds are both readable */
   await page.mouse.move(cx,cy);
   await page.mouse.down();
-  for(let i=1;i<=26;i++){await page.mouse.move(cx-i*15,cy);await page.waitForTimeout(26)}
-  await page.waitForTimeout(500);                       /* hold mid-transition */
+  for(let i=1;i<=18;i++){await page.mouse.move(cx-i*10,cy);await page.waitForTimeout(30)}
+  await page.waitForTimeout(1400);
+  for(let i=19;i<=30;i++){await page.mouse.move(cx-i*10,cy);await page.waitForTimeout(30)}
   await page.mouse.up();
-  await page.waitForTimeout(1800);
+  await page.waitForTimeout(1900);
 
-  await page.mouse.move(cx,cy);                         /* flick → momentum */
+  /* reverse drag: world B recedes and A is revealed from the left */
+  await page.mouse.move(cx,cy);
   await page.mouse.down();
-  for(let i=1;i<=10;i++){await page.mouse.move(cx-i*40,cy);await page.waitForTimeout(9)}
+  for(let i=1;i<=16;i++){await page.mouse.move(cx+i*16,cy);await page.waitForTimeout(20)}
   await page.mouse.up();
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(1900);
 
-  await page.click('#next-dish');                       /* button step */
-  await page.waitForTimeout(1800);
+  await page.click('#next-dish');
+  await page.waitForTimeout(1900);
 
-  const plates=await page.locator('.dc-plate').all();   /* pick a side object */
-  for(const p of plates){
-    const b=await p.boundingBox();
-    if(b&&b.x>box.x+box.width*.62&&b.y>0&&b.y<820){await p.click({force:true});break}
-  }
-  await page.waitForTimeout(2200);
+  /* the hero opens the real dish detail */
+  const hero=await page.evaluate(()=>{
+    const s=window.RestaurantDepthCarousel.state();
+    const p=document.querySelectorAll('.dc-plate')[s.activeIndex];
+    const r=p.getBoundingClientRect();
+    return {x:r.left+r.width/2,y:r.top+r.height/2};
+  });
+  await page.mouse.move(hero.x,Math.min(hero.y,880));
+  await page.waitForTimeout(700);
+  await page.mouse.click(hero.x,Math.min(hero.y,880));
+  await page.waitForTimeout(2600);
 });
 
 /* Mobile: two real touch swipes through CDP, so the recording shows genuine
    touch behaviour and not a synthetic mouse drag. */
-await record('depth-carousel-v2-mobile',{width:390,height:844},true,async(page,context)=>{
+await record('depth-carousel-v3-mobile',{width:390,height:844},true,async(page,context)=>{
   const cdp=await context.newCDPSession(page);
   const box=await page.locator('.orbit-shell').boundingBox();
   const cx=box.x+box.width/2, cy=Math.min(box.y+box.height*.5,780);
-  await page.waitForTimeout(1600);
+  await page.waitForTimeout(1900);
 
-  const swipe=async(distance,steps,delay)=>{
+  const swipe=async(distance,steps,delay,hold)=>{
     await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:cx,y:cy}]});
     for(let i=1;i<=steps;i++){
       await page.waitForTimeout(delay);
       await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:cx-(distance*i)/steps,y:cy}]});
+      if(hold&&i===Math.round(steps/2))await page.waitForTimeout(hold);
     }
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   };
 
-  await swipe(190,18,30);          /* slow, readable */
-  await page.waitForTimeout(2200);
-  await swipe(230,8,10);           /* fast flick → momentum */
-  await page.waitForTimeout(2400);
+  await swipe(150,16,34,1300);   /* slow, with a hold on the seam */
+  await page.waitForTimeout(2100);
+  await swipe(-150,12,26,0);     /* back the other way */
+  await page.waitForTimeout(2100);
+  await swipe(220,8,10,0);       /* flick → momentum */
+  await page.waitForTimeout(2300);
   await page.click('#next-dish');
   await page.waitForTimeout(2200);
 });
