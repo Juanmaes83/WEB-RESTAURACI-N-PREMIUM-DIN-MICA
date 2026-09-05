@@ -1,8 +1,12 @@
 # PROJECT 01 — CINEMATIC DEPTH CAROUSEL
 
-> Rama: `feat/depth-carousel-lab`.
+> **STATUS: APPROVED / CLOSED**
+> **HUMAN APPROVAL:** Juanma
+> **FINAL APPROVED BASELINE:** `532133496e2c861fa24dc905f5b09b8dfc6f1ade`
+> **DATE:** 2026-09-05
+>
+> Rama de desarrollo: `feat/depth-carousel-lab`.
 > Regla vigente: `CLASE N+1 = CLASE N APROBADA + NUEVA CAPACIDAD`.
-> Este documento no aprueba nada. Aprueban Juanma + ChatGPT tras revisión visual.
 >
 > **Este documento tiene tres partes, en orden cronológico.**
 > Secciones A–K = **V1** (~40% en revisión humana).
@@ -1241,3 +1245,124 @@ aplicaba. La lección para el Motion Engine: en escenas 3D, una aserción geomé
 sustituye a mirar el fotograma. Las comprobaciones nuevas de esta micro-iteración
 miden tamaños relativos y escalones, no sólo presencia en el DOM, y `geom()` lee ahora
 opacidad y filtro de la imagen, que es donde viven.
+
+---
+---
+
+# PROJECT 01 — FINAL CLOSURE
+
+**STATUS: APPROVED / CLOSED** · aprobado por **Juanma** el **2026-09-05**
+**Baseline aprobado:** `532133496e2c861fa24dc905f5b09b8dfc6f1ade`
+**Rama de desarrollo:** `feat/depth-carousel-lab` → integrada en `main`
+
+---
+
+## Resultado final aprobado
+
+Depth Carousel es la primera capacidad completa del **Restaurant Motion Engine**: un
+preset de navegación de producto que convive con Orbital, Elegant, Urban y Editorial
+Flow sin sustituir a ninguno, seleccionable desde Studio → Motion.
+
+Lo que entrega, verificado en la revisión humana:
+
+- **Cinco productos simultáneos** en desktop, con anchos 158/230/**439**/220/178,
+  tres escalones de tamaño y héroe 2.8× los lejanos.
+- **Profundidad Z real**: `translateZ` por slot dentro de una perspectiva compartida,
+  con intercambio de plano cuando dos objetos se cruzan.
+- **Assets recortados**: la comida segmentada de la porcelana, con siluetas
+  irregulares y relación de aspecto real. No son seis discos.
+- **Dos mundos cromáticos puros** con **spatial wipe**: B invade a A por una arista
+  inclinada gobernada por el gesto. Sin barro RGB.
+- **Masked lettering**: las dos palabras a plena fuerza a lados opuestos de esa misma
+  arista. Continuo, sin sopa y sin agujero.
+- **Copy safe zone** con caída de luz propia: el track respeta al copy, no al revés.
+- **Ecosistema decorativo por plato**: dos ingredientes en primer plano, uno de fondo
+  y una atmósfera teñida con el acento del plato.
+- **Parallax diferencial** por capas: fondo 0.20 · decor de fondo 0.34 · lettering
+  0.52 · productos 1.00 · decor delantero 1.35.
+- Desktop, mobile con composición propia, reduced motion, ficha de plato real,
+  Studio, persistencia y restauración íntegra del preset Orbital.
+
+## Evidencia de cierre
+
+| | |
+|---|---|
+| Playwright | **114/114** (desktop 1440×900 · móvil 390×844 · reduced motion) |
+| Regresión | `class5-complete-e2e`, `class6-product-e2e`, `class7-editorial-flow-static` en verde |
+| CI | `Project 01 Depth Carousel` verde en el baseline aprobado |
+| Capturas | `tests/screenshots/v3b-*` (idle, ¼, ½, ¾, next-scene, detalle, regresión Orbital) |
+| Vídeo | `tests/video/depth-carousel-v3b-desktop.webm` (18.2s) · `…-mobile.webm` (17.8s) |
+| URL | https://juanmaes83.github.io/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/ |
+
+## La lección que nos llevamos
+
+El defecto más caro del proyecto no fue de diseño: fue de **método de verificación**.
+
+Durante tres iteraciones los slots `±2` se pintaron fuera del cuadro y nadie lo vio en
+los tests, porque **todas las aserciones medían `getBoundingClientRect()`**. Ese
+método aplicaba la proyección de perspectiva que el pintado **no** estaba aplicando
+—la `perspective` estaba declarada en un ancestro que no era el padre directo— de modo
+que cada medición confirmaba un objeto que en pantalla no existía. Los tests estaban
+verdes sobre una composición incompleta.
+
+> **En escenas 3D, una aserción geométrica no es prueba visual.**
+> Medir el DOM demuestra que el elemento existe, no que se ve. Toda capacidad del
+> Motion Engine necesita, además de tests: captura, vídeo y revisión humana del
+> fotograma.
+
+Las comprobaciones actuales miden tamaños relativos y escalones, no mera presencia, y
+`geom()` lee opacidad y filtro de la imagen, que es donde viven desde el arreglo.
+
+## Limitaciones conocidas que NO bloquean el cierre
+
+1. **La fotografía de origen es cenital.** El plato ha desaparecido de las siluetas,
+   pero alcachofa y postre siguen siendo composiciones redondas porque el emplatado lo
+   es. El contrato ya acepta escorzo, bowls y copas sin tocar el motor: es producción
+   de assets, no ingeniería.
+2. **Studio expone el preset, no sus parámetros.** `asset`, `word`, `accent`, fondos y
+   decor viven en el modelo y se exportan con el proyecto, pero no hay campos en el
+   panel.
+3. **La asignación de decor es manual**, escrita en `class4-config.js`. Dos platos
+   toman prestada una guarnición de un plato hermano.
+4. **Un solo asset por capa de fondo**; el primer plano ya acepta lista.
+5. **El héroe no pasa por delante del copy** — decisión de UX: el copy es interfaz.
+6. **Sin traza de FPS en dispositivo real.** Las decisiones están razonadas y las capas
+   caras eliminadas, pero no medidas.
+7. **Sin autoplay** y `word` no es bilingüe, a diferencia del resto del copy de Clase 06.
+
+## Regresiones preexistentes, ajenas a este proyecto
+
+- `scripts/class4-static-check.mjs` falla en `main` desde antes de Project 01: exige
+  que `class4-store.js` cargue `studio-shell.js`, que ya no existe y es código muerto.
+  El comportamiento que protegía sigue funcionando. Diagnóstico completo en V2.9.
+- `tests/class5-orbital-e2e.mjs` espera `urban-acrobatics-v5-final` sin seleccionar el
+  preset Urban.
+
+Ninguna se ha tocado: pertenecen a Clase 04 y Clase 05.
+
+## Declaración
+
+> **Project 01 queda congelado como capacidad aprobada del Restaurant Motion Engine.**
+
+No se reabre para rediseño. Cualquier evolución futura entra como preset nuevo o como
+extracción de sus primitivos a la capa común, nunca como otra iteración visual sobre
+esta.
+
+## Qué hereda el Motion Engine
+
+Primitivos ya probados que Project 02 y siguientes deben reutilizar en lugar de
+reescribir:
+
+1. **Contrato de motor aditivo**: el motor base conserva el estado autoritativo del
+   producto; el preset posee sólo la coreografía visible y confirma navegando el DOM
+   real. Ni segundo índice, ni segundo modelo de plato, ni ficha duplicada.
+2. **Propiedad exclusiva del puntero** en fase de captura, con guarda por modo.
+3. **Selección geométrica** del objeto bajo el cursor: en contextos 3D el hit-testing
+   del DOM no es fiable.
+4. **Arista única compartida** entre el wipe de fondo y el relevo de lettering.
+5. **Grupos de decor con rate propio**, y el aviso de que el raíl delantero, al ir más
+   rápido que los productos, barre la zona del copy si su ventana de visibilidad es
+   demasiado ancha.
+6. **Pipeline de recorte de assets** sobre la fotografía existente.
+7. **Latch de sincronización** con el contador del motor base, que barre índices
+   intermedios durante su tween.
