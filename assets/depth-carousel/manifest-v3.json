@@ -1,0 +1,204 @@
+{
+  "params": {
+    "SAT": 0.24,
+    "LUM": 0.22,
+    "CLOSE": 2,
+    "FEATHER": 2,
+    "MAX_EDGE": 900,
+    "PAD": 0.02,
+    "MIN_AREA": 0.0016,
+    "DECOR_MIN": 0.00012,
+    "DECOR_MAX": 0.05
+  },
+  "assets": [
+    {
+      "id": "dish-01",
+      "name": "Wild Red Prawn",
+      "hero": {
+        "rel": "assets/depth-carousel/dish-01-food.webp",
+        "kb": 176,
+        "ratio": 0.94,
+        "w": 850,
+        "h": 900
+      },
+      "decor": [
+        {
+          "rel": "assets/depth-carousel/dish-01-decor-a.webp",
+          "kb": 1,
+          "ratio": 1.2,
+          "w": 53,
+          "h": 44
+        }
+      ],
+      "components": 1
+    },
+    {
+      "id": "dish-02",
+      "name": "Bluefin / Blood Orange",
+      "hero": {
+        "rel": "assets/depth-carousel/dish-02-food.webp",
+        "kb": 130,
+        "ratio": 0.67,
+        "w": 600,
+        "h": 900
+      },
+      "decor": [
+        {
+          "rel": "assets/depth-carousel/dish-02-decor-a.webp",
+          "kb": 7,
+          "ratio": 1.1,
+          "w": 111,
+          "h": 101
+        },
+        {
+          "rel": "assets/depth-carousel/dish-02-decor-b.webp",
+          "kb": 1,
+          "ratio": 1,
+          "w": 34,
+          "h": 34
+        }
+      ],
+      "components": 1
+    },
+    {
+      "id": "dish-03",
+      "name": "Charred Artichoke",
+      "hero": {
+        "rel": "assets/depth-carousel/dish-03-food.webp",
+        "kb": 202,
+        "ratio": 1,
+        "w": 900,
+        "h": 900
+      },
+      "decor": [
+        {
+          "rel": "assets/depth-carousel/dish-03-decor-a.webp",
+          "kb": 6,
+          "ratio": 2.17,
+          "w": 287,
+          "h": 132
+        },
+        {
+          "rel": "assets/depth-carousel/dish-03-decor-b.webp",
+          "kb": 3,
+          "ratio": 1.07,
+          "w": 92,
+          "h": 86
+        },
+        {
+          "rel": "assets/depth-carousel/dish-03-decor-c.webp",
+          "kb": 3,
+          "ratio": 0.76,
+          "w": 154,
+          "h": 203
+        }
+      ],
+      "components": 2
+    },
+    {
+      "id": "dish-04",
+      "name": "Wild Sea Bass",
+      "hero": {
+        "rel": "assets/depth-carousel/dish-04-food.webp",
+        "kb": 232,
+        "ratio": 1.03,
+        "w": 900,
+        "h": 873
+      },
+      "decor": [
+        {
+          "rel": "assets/depth-carousel/dish-04-decor-a.webp",
+          "kb": 8,
+          "ratio": 0.86,
+          "w": 178,
+          "h": 208
+        },
+        {
+          "rel": "assets/depth-carousel/dish-04-decor-b.webp",
+          "kb": 2,
+          "ratio": 0.98,
+          "w": 61,
+          "h": 62
+        },
+        {
+          "rel": "assets/depth-carousel/dish-04-decor-c.webp",
+          "kb": 3,
+          "ratio": 0.67,
+          "w": 61,
+          "h": 91
+        }
+      ],
+      "components": 2
+    },
+    {
+      "id": "dish-05",
+      "name": "Iberian Presa",
+      "hero": {
+        "rel": "assets/depth-carousel/dish-05-food.webp",
+        "kb": 230,
+        "ratio": 1.01,
+        "w": 900,
+        "h": 888
+      },
+      "decor": [
+        {
+          "rel": "assets/depth-carousel/dish-05-decor-a.webp",
+          "kb": 11,
+          "ratio": 1.27,
+          "w": 218,
+          "h": 171
+        },
+        {
+          "rel": "assets/depth-carousel/dish-05-decor-b.webp",
+          "kb": 9,
+          "ratio": 0.91,
+          "w": 154,
+          "h": 169
+        },
+        {
+          "rel": "assets/depth-carousel/dish-05-decor-c.webp",
+          "kb": 3,
+          "ratio": 1,
+          "w": 83,
+          "h": 83
+        }
+      ],
+      "components": 3
+    },
+    {
+      "id": "dish-06",
+      "name": "Burnt Honey Citrus",
+      "hero": {
+        "rel": "assets/depth-carousel/dish-06-food.webp",
+        "kb": 175,
+        "ratio": 1.1,
+        "w": 900,
+        "h": 818
+      },
+      "decor": [
+        {
+          "rel": "assets/depth-carousel/dish-06-decor-a.webp",
+          "kb": 7,
+          "ratio": 0.86,
+          "w": 202,
+          "h": 236
+        },
+        {
+          "rel": "assets/depth-carousel/dish-06-decor-b.webp",
+          "kb": 4,
+          "ratio": 0.76,
+          "w": 84,
+          "h": 111
+        },
+        {
+          "rel": "assets/depth-carousel/dish-06-decor-c.webp",
+          "kb": 4,
+          "ratio": 3.55,
+          "w": 291,
+          "h": 82
+        }
+      ],
+      "components": 1
+    }
+  ]
+}
