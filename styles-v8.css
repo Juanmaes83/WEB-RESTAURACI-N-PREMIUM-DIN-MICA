@@ -1,67 +1,109 @@
-/* CLASS 08 · PROJECT 01 — CINEMATIC DEPTH CAROUSEL
-   Layer contract (z-order inside .orbit-shell):
-   0 wash · 1 giant lettering · 2 back plates · 3 active plate · 4 front plates
-   .dish-copy (z 20) and .orbit-controls (z 20) stay above the scene, as in the baseline. */
+/* CLASS 08 · PROJECT 01 — CINEMATIC DEPTH CAROUSEL · VISUAL DIRECTION V2
 
+   Layer contract:
+     0  .dc-bg        colour world per dish, full section      rate .20
+     1  .dc-vignette  cinematic falloff
+     2  .dc-word      giant lettering, one rail per dish       rate .55
+     3-6 .dc-plate    far / mid / hero / near, z by apparent size   rate 1.00
+     7  .dish-copy    meta, title, price, ingredients, CTA
+     8  .orbit-controls
+
+   Everything here is scoped to html[data-orbital-motion="depth-carousel"], so the
+   Orbital presets are untouched when the preset is off.
+*/
+
+/* ---------- silence the Orbital language while Depth Carousel is on ---------- */
 html[data-orbital-motion="depth-carousel"] #orbit-stage{visibility:hidden;pointer-events:none}
-html[data-orbital-motion="depth-carousel"] .orbit-ring{opacity:.05}
-html[data-orbital-motion="depth-carousel"] .orbit-center-mark{opacity:0}
-html[data-orbital-motion="depth-carousel"] .orbit-glow{opacity:0}
-html[data-orbital-motion="depth-carousel"] .orbital-section{background:#050504}
-html[data-orbital-motion="depth-carousel"] .orbit-shell{height:min(60vw,700px);min-height:560px}
-html[data-orbital-motion="depth-carousel"] .orbital-heading{padding-right:0}
+html[data-orbital-motion="depth-carousel"] .orbit-ring,
+html[data-orbital-motion="depth-carousel"] .orbit-center-mark,
+html[data-orbital-motion="depth-carousel"] .orbit-glow{display:none}
+html[data-orbital-motion="depth-carousel"] .orbital-top{display:none}
+html[data-orbital-motion="depth-carousel"] .orbital-section{background:#06060a;padding:calc(8vh + 78px) 0 7vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center}
+html[data-orbital-motion="depth-carousel"] .orbit-shell{position:relative;z-index:2;height:min(58vw,660px);min-height:520px;margin:0;perspective:1500px}
 
-/* ---------- scene ---------- */
-.dc-scene{position:absolute;inset:0;pointer-events:none;z-index:6;contain:layout style}
+/* ---------- 0 · scene background engine ---------- */
+.dc-backdrop{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.dc-backdrop[hidden]{display:none}
+.dc-bg{position:absolute;inset:-8%;opacity:0;will-change:transform,opacity;transform-origin:50% 45%}
+.dc-vignette{position:absolute;inset:0;opacity:1;
+  background:radial-gradient(ellipse 82% 76% at 50% 44%,transparent 0%,rgba(4,4,8,.38) 74%,rgba(3,3,6,.74) 100%)}
+
+/* ---------- section identity ---------- */
+.dc-eyebrow{display:none}
+html[data-orbital-motion="depth-carousel"] .dc-eyebrow{
+  display:flex;align-items:baseline;gap:18px;position:relative;z-index:3;
+  margin:0 0 2.4vh;padding:0 6vw;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#cfcbc2}
+.dc-eyebrow > span:first-child{color:var(--dc-accent,#d8ff4f)}
+.dc-eyebrow-hint{letter-spacing:.2em;opacity:.42}
+
+/* ---------- 2 · giant lettering ---------- */
+.dc-scene{position:absolute;inset:0;pointer-events:none;z-index:1}
 .dc-scene[hidden]{display:none}
+/* no overflow clip here: the lettering is allowed to run past the shell and is
+   cropped by .orbital-section instead, which is what makes it feel architectural */
+.dc-words{position:absolute;inset:0;z-index:1}
+.dc-word{position:absolute;left:50%;top:38%;white-space:nowrap;opacity:0;
+  font-family:var(--font-display,Italiana,serif);font-size:clamp(140px,26vw,410px);line-height:.76;
+  letter-spacing:-.045em;text-transform:uppercase;color:var(--dc-accent,#d8ff4f);
+  will-change:transform,opacity;user-select:none}
 
-/* 0 — atmospheric wash, parallax rate .18 */
-.dc-wash{position:absolute;left:50%;top:50%;width:150%;height:150%;transform:translate(-50%,-50%);
-  background:radial-gradient(ellipse 42% 46% at 50% 52%,var(--dc-accent,#d8ff4f) 0,transparent 62%);
-  opacity:.26;filter:blur(56px);will-change:transform,opacity;transition:opacity .5s ease}
-
-/* 1 — giant lettering, parallax rate .40 */
-.dc-word{position:absolute;left:50%;top:19%;transform:translate(-50%,-50%);white-space:nowrap;
-  font-family:var(--font-display,Italiana,serif);font-size:clamp(80px,13.5vw,218px);line-height:.8;
-  letter-spacing:-.02em;color:var(--dc-accent,#d8ff4f);opacity:.2;user-select:none;
-  will-change:transform,opacity;text-transform:uppercase}
-
-/* 2/3/4 — plates. z-index is assigned per frame by the engine. */
-.dc-plates{position:absolute;inset:0}
-.dc-plate{position:absolute;left:0;top:0;width:clamp(168px,23vw,400px);aspect-ratio:1;border:0;padding:0;
-  background:transparent;border-radius:50%;pointer-events:auto;cursor:pointer;
+/* ---------- 3-6 · free objects ---------- */
+.dc-plates{position:absolute;inset:0;z-index:2;transform-style:preserve-3d}
+.dc-plate{position:absolute;left:0;top:0;width:clamp(200px,30vw,520px);aspect-ratio:1;
+  border:0;padding:0;background:transparent;cursor:pointer;
   transform-origin:50% 50%;will-change:transform,opacity,filter}
-.dc-plate img{width:100%;height:100%;display:block;border-radius:50%;object-fit:cover;
-  user-select:none;-webkit-user-drag:none;box-shadow:0 32px 64px rgba(0,0,0,.55)}
-.dc-plate::after{content:'';position:absolute;inset:3%;border-radius:50%;
-  box-shadow:inset 0 0 34px rgba(0,0,0,.18);pointer-events:none}
-.dc-plate.is-hero img{box-shadow:0 42px 90px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.05)}
+.dc-plate img{width:100%;height:100%;display:block;object-fit:contain;user-select:none;-webkit-user-drag:none}
+/* free object: the silhouette IS the product. No radius, no container shadow —
+   the engine applies drop-shadow() to the real alpha edge. */
+.dc-plate.is-free img{border-radius:0;box-shadow:none;background:transparent}
+/* fallback for projects without a transparent asset: the original 1:1 orbital
+   photography still needs its circular mask or its dark square would show. */
+.dc-plate.is-framed img{border-radius:50%;object-fit:cover}
 
-/* ---------- scene copy (price · ingredients) ---------- */
-.dc-copy{display:none;margin:14px auto 0;max-width:560px}
+/* ---------- 7 · copy, repositioned into the scene ---------- */
+html[data-orbital-motion="depth-carousel"] .dish-copy{
+  position:relative;z-index:7;text-align:left;
+  max-width:min(430px,32vw);margin:-34vh 0 0 6vw;pointer-events:none}
+html[data-orbital-motion="depth-carousel"] .dish-copy h3{font-size:clamp(38px,4.4vw,68px);margin:6px 0 12px}
+html[data-orbital-motion="depth-carousel"] .dish-copy > p:not(.kicker){margin:0;max-width:400px}
+html[data-orbital-motion="depth-carousel"] .dish-copy .kicker{color:var(--dc-accent,#d8ff4f)}
+html[data-orbital-motion="depth-carousel"] .explore{border-bottom-color:var(--dc-accent,#d8ff4f)}
+html[data-orbital-motion="depth-carousel"] .explore span{color:var(--dc-accent,#d8ff4f)}
+
+.dc-copy{display:none;margin:16px 0 0}
 html[data-orbital-motion="depth-carousel"] .dc-copy{display:block}
-.dc-price{display:block;font-family:var(--font-display,Italiana,serif);font-size:clamp(26px,3vw,40px);
+.dc-price{display:block;font-family:var(--font-display,Italiana,serif);font-size:clamp(30px,3.4vw,46px);
   line-height:1;color:var(--dc-accent,#d8ff4f)}
-.dc-ingredients{display:block;margin-top:8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8b8981}
+.dc-ingredients{display:block;margin-top:10px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#a09d94}
 
-/* ---------- position indicators ---------- */
-.dc-dots{display:none;align-items:center;gap:9px}
+/* ---------- 8 · controls ---------- */
+html[data-orbital-motion="depth-carousel"] .orbit-controls{
+  position:relative;z-index:8;justify-content:flex-start;padding:0 6vw;margin-top:3.4vh}
+.dc-dots{display:none;align-items:center;gap:9px;margin-left:12px}
 html[data-orbital-motion="depth-carousel"] .dc-dots{display:flex}
-.dc-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#3a3a35;cursor:pointer;
-  transition:background .28s ease,width .28s ease,transform .28s ease}
-.dc-dot[aria-current="true"]{width:22px;border-radius:4px;background:var(--dc-accent,#d8ff4f)}
+.dc-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.22);cursor:pointer;
+  transition:background .28s ease,width .28s ease}
+.dc-dot[aria-current="true"]{width:24px;border-radius:4px;background:var(--dc-accent,#d8ff4f)}
+html[data-orbital-motion="depth-carousel"] .circle-btn{border-color:rgba(255,255,255,.22)}
 
-/* ---------- mobile ---------- */
-@media(max-width:700px){
-  html[data-orbital-motion="depth-carousel"] .orbit-shell{height:58vh;min-height:420px}
-  .dc-plate{width:clamp(168px,50vw,250px)}
-  .dc-word{font-size:clamp(54px,16vw,104px);top:20%}
-  .dc-price{font-size:clamp(22px,7vw,30px)}
+html[data-orbital-motion="depth-carousel"][data-depth-drag] .orbit-shell{cursor:grabbing}
+
+/* ---------- mobile: vertical format, hero dominant, neighbours cropped ---------- */
+@media(max-width:820px){
+  html[data-orbital-motion="depth-carousel"] .orbital-section{padding:calc(5vh + 72px) 0 6vh;min-height:100svh}
+  html[data-orbital-motion="depth-carousel"] .orbit-shell{height:52vh;min-height:360px}
+  html[data-orbital-motion="depth-carousel"] .dc-eyebrow{padding:0 7vw;gap:12px;font-size:9px;letter-spacing:.24em}
+  .dc-plate{width:clamp(200px,62vw,330px)}
+  .dc-word{font-size:clamp(130px,46vw,240px);top:33%}
+  html[data-orbital-motion="depth-carousel"] .dish-copy{
+    max-width:none;margin:-4vh 7vw 0;text-align:left}
+  html[data-orbital-motion="depth-carousel"] .dish-copy h3{font-size:clamp(32px,9vw,44px)}
+  html[data-orbital-motion="depth-carousel"] .orbit-controls{padding:0 7vw;margin-top:2.6vh}
+  .dc-price{font-size:clamp(26px,8vw,34px)}
   .dc-ingredients{font-size:10px;letter-spacing:.1em}
 }
 
 /* ---------- reduced motion ---------- */
 @media(prefers-reduced-motion:reduce){
-  .dc-plate{will-change:auto}
-  .dc-wash{transition:none}
+  .dc-plate,.dc-word,.dc-bg{will-change:auto}
 }
