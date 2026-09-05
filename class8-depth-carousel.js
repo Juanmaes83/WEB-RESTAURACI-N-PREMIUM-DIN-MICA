@@ -52,26 +52,26 @@
      not because it is a bigger sprite. Left and right are NOT mirrored.
   --------------------------------------------------------------------------- */
   const TRACK_DESKTOP={
-    '-3':{x:-16,y: 6,s:.46,o:0,  b:2.6,rz:-16,rx:44,z:-760},
-    '-2':{x:  9,y:16,s:.56,o:.48,b:1.8,rz:-11,rx:38,z:-560},
-    '-1':{x: 43,y:28,s:.74,o:.95,b:.6, rz: -6,rx:26,z:-250},
-    '0' :{x: 62,y:62,s:1.16,o:1, b:0,  rz:  0,rx:12,z: 150},
-    '1' :{x: 83,y:20,s:.72,o:.95,b:.7, rz:  9,rx:30,z:-210},
-    '2' :{x:104,y:76,s:.60,o:.52,b:1.6,rz: 15,rx:36,z:-500},
-    '3' :{x:124,y:86,s:.48,o:0,  b:2.6,rz: 20,rx:42,z:-760}
+    '-3':{x:  8,y:-14,s:.46,o:0, b:2.6,rz:-16,rx:44,z:-760},
+    '-2':{x: 28,y:  4,s:.64,o:.70,b:1.4,rz:-11,rx:38,z:-540},
+    '-1':{x: 45,y: 30,s:.76,o:.96,b:.5, rz: -6,rx:26,z:-250},
+    '0' :{x: 63,y: 63,s:1.16,o:1, b:0,  rz:  0,rx:12,z: 150},
+    '1' :{x: 84,y: 22,s:.74,o:.96,b:.6, rz:  9,rx:30,z:-210},
+    '2' :{x: 95,y: 74,s:.70,o:.72,b:1.3,rz: 15,rx:36,z:-470},
+    '3' :{x:118,y: 92,s:.50,o:0,  b:2.6,rz: 20,rx:42,z:-760}
   };
   const TRACK_MOBILE={
-    '-3':{x:-30,y:10,s:.48,o:0,  b:2.4,rz:-17,rx:40,z:-720},
-    '-2':{x: -8,y:18,s:.58,o:.44,b:1.8,rz:-13,rx:36,z:-540},
-    '-1':{x: 18,y:28,s:.76,o:.90,b:.6, rz: -7,rx:26,z:-240},
-    '0' :{x: 52,y:64,s:1.14,o:1, b:0,  rz:  0,rx:11,z: 140},
-    '1' :{x: 88,y:22,s:.74,o:.90,b:.7, rz: 10,rx:28,z:-205},
-    '2' :{x:116,y:76,s:.60,o:.46,b:1.6,rz: 16,rx:34,z:-480},
-    '3' :{x:138,y:88,s:.50,o:0,  b:2.4,rz: 21,rx:40,z:-720}
+    '-3':{x:-26,y: 2,s:.48,o:0,  b:2.4,rz:-17,rx:40,z:-720},
+    '-2':{x: -6,y:10,s:.60,o:.60,b:1.5,rz:-13,rx:36,z:-540},
+    '-1':{x: 18,y:30,s:.78,o:.92,b:.5, rz: -7,rx:26,z:-240},
+    '0' :{x: 53,y:66,s:1.14,o:1, b:0,  rz:  0,rx:11,z: 140},
+    '1' :{x: 90,y:24,s:.76,o:.92,b:.6, rz: 10,rx:28,z:-205},
+    '2' :{x:108,y:78,s:.64,o:.62,b:1.4,rz: 16,rx:34,z:-460},
+    '3' :{x:132,y:94,s:.50,o:0,  b:2.4,rz: 21,rx:40,z:-720}
   };
 
   /* Layer rates. 1.00 is the plate rail. Near decor overtakes it, far layers lag. */
-  const RATE={backdrop:.20,decorBack:.32,word:.52,decorFront:1.30};
+  const RATE={backdrop:.20,decorBack:.34,word:.52,decorFront:1.35};
   const SKEW=7;             /* wipe edge slant, % of width */
   const PERSPECTIVE=1500;   /* must match .orbit-shell perspective in styles-v8.css */
 
@@ -192,12 +192,43 @@
     }else dotsEl=$('.dc-dots',controls||document);
   }
 
-  function decorNode(src,cls,index){
-    const el=document.createElement('div');
-    el.className=cls;el.dataset.index=String(index);
-    if(src)el.style.backgroundImage=`url("${src}")`;
-    else el.dataset.empty='1';
-    return el;
+  const asList=v=>(Array.isArray(v)?v:String(v||'').split('|')).map(x=>String(x).trim()).filter(Boolean);
+
+  /* One group per dish per layer. The group carries the parallax; the ingredients
+     sit inside it at their own anchors, so a whole ecosystem travels together at a
+     rate that is not the product's. */
+  function decorGroup(info,index,layer){
+    const group=document.createElement('div');
+    group.className='dc-decor-group';group.dataset.index=String(index);
+    const even=index%2===0;
+
+    if(layer==='back'){
+      /* Per-dish atmosphere — the smoke / steam / water wash the brief asks for.
+         Derived from the dish accent, so it costs nothing to load and can never
+         be missing for a dish that has no spare ingredient cut-out. */
+      const a=hex2rgb(info.accent);
+      const atmo=document.createElement('div');
+      atmo.className='dc-atmo';
+      atmo.style.background=`radial-gradient(ellipse 58% 50% at 50% 50%, rgba(${a.join(',')},.26) 0%, rgba(${a.map(v=>Math.round(v*.5)).join(',')},.10) 52%, transparent 78%)`;
+      atmo.style.left=even?'58%':'44%';
+      atmo.style.top=even?'46%':'40%';
+      group.appendChild(atmo);
+    }
+
+    const items=asList(layer==='back'?info.backgroundDecor:info.foregroundDecor);
+    const anchors=layer==='back'
+      ? [[even?74:66,even?16:24],[even?24:32,even?22:14]]
+      : [[even?42:36,93],[even?87:82,even?76:83]];
+    items.slice(0,anchors.length).forEach((src,n)=>{
+      const el=document.createElement('div');
+      el.className='dc-decor-item';
+      el.style.backgroundImage=`url("${src}")`;
+      el.style.left=`${anchors[n][0]}%`;
+      el.style.top=`${anchors[n][1]}%`;
+      group.appendChild(el);
+    });
+    if(!items.length&&layer!=='back')group.dataset.empty='1';
+    return group;
   }
 
   function rebuild(){
@@ -231,8 +262,8 @@
       wrap.appendChild(word);
       wordsHost.appendChild(wrap);
 
-      decorBack.appendChild(decorNode(info.backgroundDecor,'dc-decor-item',i));
-      decorFront.appendChild(decorNode(info.foregroundDecor,'dc-decor-item',i));
+      decorBack.appendChild(decorGroup(info,i,'back'));
+      decorFront.appendChild(decorGroup(info,i,'front'));
     });
 
     if(dotsEl){
@@ -303,11 +334,18 @@
         xPercent:-50,yPercent:-50,
         x:sx, y:sy, z:slot.z,
         scale:slot.s, rotation:slot.rz, rotationX:slot.rx,
-        opacity:o,
-        filter:visible?`blur(${slot.b.toFixed(2)}px) brightness(${(0.58+near*0.50).toFixed(3)})${shadow}`:'none',
         zIndex:Math.round(300+slot.z/4),
         pointerEvents:o>.35?'auto':'none'
       });
+      /* opacity and filter go on the IMAGE, never on the button. Both are grouping
+         properties: either one flattens its element out of the preserve-3d context,
+         and Chromium then paints translateZ WITHOUT the ancestor perspective while
+         getBoundingClientRect still reports the projected box. The far slots were
+         being painted off-frame while every measurement said they were on screen.
+         The button keeps only transform, so it stays in the 3D context. */
+      const img=plate.firstElementChild;
+      if(img)gsap.set(img,{opacity:o,
+        filter:visible?`blur(${slot.b.toFixed(2)}px) brightness(${(0.66+near*0.44).toFixed(3)})${shadow}`:'none'});
       plate.classList.toggle('is-hero',Math.abs(d)<.42);
 
       /* --- lettering: A left of the edge, B right of it, both at full strength --- */
@@ -329,19 +367,16 @@
       }
 
       /* --- decor: own rails, near layer overtakes the plates --- */
+      /* Decor groups ride their own rails. The near layer overtakes the products,
+         the far layer lags behind them: that difference is the parallax. */
       const back=decorBack.children[i], front=decorFront.children[i];
-      if(back&&!back.dataset.empty){
-        const bo=clamp(1.1-Math.abs(d)*1.1,0,1);
-        gsap.set(back,{xPercent:-50,yPercent:-50,
-          x:(i%2?.88:.72)*W-d*stepPx*RATE.decorBack, y:(i%2?.14:.30)*H,
-          scale:.9,opacity:bo*.42,rotation:d*6});
-      }
-      if(front&&!front.dataset.empty){
-        const fo=clamp(1.15-Math.abs(d)*1.15,0,1);
-        gsap.set(front,{xPercent:-50,yPercent:-50,
-          x:(i%2?.86:.70)*W-d*stepPx*RATE.decorFront, y:(i%2?.84:.92)*H,
-          scale:1.15,opacity:fo,rotation:-d*14});
-      }
+      /* Only the scene in focus keeps its ecosystem on screen. A wider window looks
+         richer for one frame and then sweeps a neighbour's garnish across the copy
+         and the controls, because the near rail travels faster than the products. */
+      if(back)gsap.set(back,{x:-d*stepPx*RATE.decorBack,
+        opacity:clamp(1-Math.abs(d)*1.45,0,1)*.62,scale:1+Math.abs(d)*.03});
+      if(front&&!front.dataset.empty)gsap.set(front,{x:-d*stepPx*RATE.decorFront,
+        opacity:clamp(1-Math.abs(d)*1.55,0,1),scale:1-Math.abs(d)*.05,rotation:-d*5});
     });
 
     /* --- accent: hold A, cross late and fast, hold B. No long RGB mud. --- */
@@ -616,7 +651,8 @@
     setPosition(p){snapTween?.kill?.();position=p;renderAt(p);trackActive()},
     state:()=>({position,activeIndex,plates:plates().length,mode:root.dataset.orbitalMotion,
       freeObjects:plates().filter(p=>p.classList.contains('is-free')).length,
-      decor:{back:$$('.dc-decor-back .dc-decor-item:not([data-empty])').length,
-             front:$$('.dc-decor-front .dc-decor-item:not([data-empty])').length}})
+      decor:{back:$$('.dc-decor-back .dc-decor-item').length,
+             front:$$('.dc-decor-front .dc-decor-item').length,
+             atmospheres:$$('.dc-atmo').length}})
   };
 })();
