@@ -1,0 +1,149 @@
+/* CLASS 09 · PROJECT 02 — ANCHOR SWAP / SPLIT DROP
+
+   Layer contract:
+     L0 .as-bg-a          old colour world, full section          rate .20
+     L1 .as-bg-b          new colour world, clipped in by progress
+     L2 .as-decor-back    background ingredients + atmosphere      rate .35
+     L3 .as-word          lettering behind the anchor              rate .55
+     L4 .as-anchor-back   the hand, behind the product
+     L5 .as-product-out   outgoing product
+     L6 .as-product-in    incoming product
+     L7 .as-anchor-front  the fingertips, in front of the product
+     L8 .as-decor-front   foreground ingredients                   rate 1.20
+     L9 .dish-copy / .orbit-controls / cursor
+
+   L4 < product < L7 is the whole point of this preset. Everything else supports it.
+   Scoped to html[data-orbital-motion="anchor-swap"], so the other presets are
+   untouched when this one is off.
+*/
+
+/* ---------- silence the other motion languages ---------- */
+html[data-orbital-motion="anchor-swap"] #orbit-stage{visibility:hidden;pointer-events:none}
+html[data-orbital-motion="anchor-swap"] .orbit-ring,
+html[data-orbital-motion="anchor-swap"] .orbit-center-mark,
+html[data-orbital-motion="anchor-swap"] .orbit-glow,
+html[data-orbital-motion="anchor-swap"] .orbital-top{display:none}
+html[data-orbital-motion="anchor-swap"] .orbital-section{
+  background:#06060a;padding:calc(7vh + 78px) 0 6vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+html[data-orbital-motion="anchor-swap"] .orbit-shell{
+  position:relative;z-index:2;height:min(58vw,660px);min-height:520px;margin:0}
+
+/* ---------- L0 / L1 · two worlds, split not blended ---------- */
+.as-backdrop{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.as-backdrop[hidden]{display:none}
+.as-bg{position:absolute;inset:-14% -10%;will-change:transform}
+.as-bg-b{will-change:transform,clip-path}
+.as-vignette{position:absolute;inset:0;
+  background:radial-gradient(ellipse 82% 78% at 56% 46%,transparent 0%,rgba(4,4,8,.34) 74%,rgba(3,3,6,.74) 100%)}
+.as-scrim{position:absolute;inset:0;
+  background:linear-gradient(94deg,rgba(4,4,9,.76) 0%,rgba(4,4,9,.54) 22%,rgba(4,4,9,.14) 38%,transparent 54%)}
+
+/* ---------- section identity ---------- */
+.as-eyebrow{display:none}
+html[data-orbital-motion="anchor-swap"] .as-eyebrow{
+  display:flex;align-items:baseline;gap:18px;position:relative;z-index:9;
+  margin:0 0 1.6vh;padding:0 6vw;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#cfcbc2}
+.as-eyebrow > span:first-child{color:var(--as-accent,#d8ff4f)}
+.as-eyebrow-hint{letter-spacing:.2em;opacity:.42}
+
+/* ---------- scene ---------- */
+.as-scene{position:absolute;inset:0;pointer-events:none;z-index:1}
+.as-scene[hidden]{display:none}
+
+/* ---------- L2 / L8 · decor ---------- */
+.as-decor{position:absolute;inset:0}
+.as-decor-back{z-index:2}
+.as-decor-front{z-index:8}
+.as-decor-group{position:absolute;inset:0;will-change:transform,opacity}
+.as-decor-item{position:absolute;transform:translate(-50%,-50%);background-repeat:no-repeat;
+  background-position:center;background-size:contain}
+/* ambient light, not a blob: wide and very soft, or it lands on the palm */
+.as-atmo{position:absolute;left:60%;top:40%;width:152%;height:124%;transform:translate(-50%,-50%);
+  filter:blur(92px);pointer-events:none}
+/* distant speck, not a smudge: a blurred oil stroke at 110px reads as a stain */
+.as-decor-back .as-decor-item{width:clamp(48px,5vw,84px);height:clamp(48px,5vw,84px);
+  filter:blur(2.2px) brightness(.66) opacity(.8)}
+.as-decor-front .as-decor-item{width:clamp(110px,12vw,205px);height:clamp(110px,12vw,205px);
+  filter:blur(.8px) drop-shadow(0 18px 22px rgba(0,0,0,.5))}
+
+/* ---------- L3 · lettering ---------- */
+.as-word{position:absolute;left:50%;top:16%;transform:translateX(-50%);white-space:nowrap;z-index:3;
+  font-family:var(--font-display,Italiana,serif);font-size:clamp(110px,17vw,260px);line-height:.78;
+  letter-spacing:-.04em;text-transform:uppercase;color:var(--as-accent,#d8ff4f);
+  will-change:transform,opacity;user-select:none}
+
+/* ---------- L4-L7 · the anchor and the product it holds ---------- */
+.as-anchor{position:absolute;z-index:4;
+  /* portrait hand, right of the copy column; height drives the size */
+  height:82%;aspect-ratio:1122/1402;right:11%;bottom:-4%;
+  will-change:transform}
+.as-anchor-back,.as-anchor-front{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;user-select:none;-webkit-user-drag:none;
+  filter:drop-shadow(0 26px 34px rgba(0,0,0,.42))}
+.as-anchor-back{z-index:1}
+.as-anchor-front{z-index:4;filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))}
+/* the cup measured on the real alpha by scripts/anchor-first-proof.mjs */
+.as-product{position:absolute;left:51.5%;top:30.1%;width:52%;
+  transform:translate(-50%,-46%);object-fit:contain;
+  user-select:none;-webkit-user-drag:none;
+  filter:drop-shadow(0 16px 20px rgba(0,0,0,.5));will-change:transform,opacity}
+.as-product-out{z-index:2}
+.as-product-in{z-index:3}
+
+/* ---------- L9 · copy, controls, cursor ---------- */
+html[data-orbital-motion="anchor-swap"] .dish-copy{
+  position:absolute;left:6vw;top:29%;z-index:9;
+  width:min(360px,26vw);margin:0;text-align:left;pointer-events:none}
+html[data-orbital-motion="anchor-swap"] .dish-copy h3{font-size:clamp(38px,4.2vw,64px);margin:6px 0 12px}
+html[data-orbital-motion="anchor-swap"] .dish-copy > p:not(.kicker){margin:0;max-width:340px;color:#b8b5ad}
+html[data-orbital-motion="anchor-swap"] .dish-copy .kicker{color:var(--as-accent,#d8ff4f)}
+html[data-orbital-motion="anchor-swap"] .explore{pointer-events:auto;border-bottom-color:var(--as-accent,#d8ff4f)}
+html[data-orbital-motion="anchor-swap"] .explore span{color:var(--as-accent,#d8ff4f)}
+
+.as-copy{display:none;margin:18px 0 0}
+html[data-orbital-motion="anchor-swap"] .as-copy{display:block}
+.as-price{display:block;font-family:var(--font-display,Italiana,serif);font-size:clamp(30px,3.4vw,46px);
+  line-height:1;color:var(--as-accent,#d8ff4f)}
+.as-ingredients{display:block;margin-top:10px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#a09d94}
+
+html[data-orbital-motion="anchor-swap"] .orbit-controls{
+  position:absolute;left:6vw;bottom:9vh;z-index:10;justify-content:flex-start;margin:0}
+.as-dots{display:none;align-items:center;gap:9px;margin-left:12px}
+html[data-orbital-motion="anchor-swap"] .as-dots{display:flex}
+.as-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.22);cursor:pointer;
+  transition:background .28s ease,width .28s ease}
+.as-dot[aria-current="true"]{width:24px;border-radius:4px;background:var(--as-accent,#d8ff4f)}
+html[data-orbital-motion="anchor-swap"] .circle-btn{border-color:rgba(255,255,255,.24)}
+html[data-orbital-motion="anchor-swap"] .orbit-shell{cursor:grab}
+html[data-orbital-motion="anchor-swap"][data-anchor-drag] .orbit-shell{cursor:grabbing}
+
+html[data-orbital-motion="anchor-swap"] .cursor{
+  background:transparent;border:1px solid var(--as-accent,#d8ff4f);color:var(--as-accent,#d8ff4f)}
+html[data-orbital-motion="anchor-swap"][data-anchor-cursor="view"] .cursor{
+  background:var(--as-accent,#d8ff4f);color:#0a0a08}
+html[data-orbital-motion="anchor-swap"] .cursor span{color:inherit;letter-spacing:.16em}
+
+/* ---------- mobile: the anchor centres, the copy goes below ---------- */
+@media(max-width:820px){
+  html[data-orbital-motion="anchor-swap"] .orbital-section{padding:calc(4vh + 72px) 0 5vh}
+  html[data-orbital-motion="anchor-swap"] .orbit-shell{height:52vh;min-height:380px}
+  html[data-orbital-motion="anchor-swap"] .as-eyebrow{padding:0 7vw;gap:12px;font-size:9px;letter-spacing:.24em}
+  .as-anchor{height:78%;right:auto;left:52%;bottom:-2%;transform:translateX(-50%)}
+  .as-word{font-size:clamp(84px,26vw,150px);top:6%}
+  .as-scrim{background:linear-gradient(6deg,rgba(4,4,9,.86) 0%,rgba(4,4,9,.56) 26%,transparent 54%)}
+  .as-decor-back .as-decor-item{width:clamp(48px,13vw,84px);height:clamp(48px,13vw,84px)}
+  .as-decor-front .as-decor-item{width:clamp(96px,30vw,170px);height:clamp(96px,30vw,170px)}
+  .as-atmo{width:180%;height:96%;filter:blur(64px)}
+  html[data-orbital-motion="anchor-swap"] .dish-copy{
+    position:relative;left:auto;top:auto;width:auto;margin:2vh 7vw 0}
+  html[data-orbital-motion="anchor-swap"] .dish-copy h3{font-size:clamp(32px,9vw,44px)}
+  html[data-orbital-motion="anchor-swap"] .orbit-controls{
+    position:relative;left:auto;bottom:auto;padding:0 7vw;margin-top:2.4vh}
+  .as-price{font-size:clamp(26px,8vw,34px)}
+  .as-ingredients{font-size:10px;letter-spacing:.1em}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .as-product,.as-bg,.as-word,.as-decor-group,.as-anchor{will-change:auto}
+}

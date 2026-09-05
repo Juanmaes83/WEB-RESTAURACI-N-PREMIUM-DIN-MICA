@@ -66,3 +66,17 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,60));
   else setTimeout(load,60);
 })();
+
+/* CLASS 09 · PROJECT 02 — load the Anchor Swap preset additively.
+   Same pattern as Project 01: index.html stays untouched. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-anchor-swap-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class9-anchor-swap.js';s.dataset.anchorSwapRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,70));
+  else setTimeout(load,70);
+})();
