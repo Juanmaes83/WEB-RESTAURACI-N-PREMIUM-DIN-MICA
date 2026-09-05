@@ -35,6 +35,30 @@ async function selectPreset(page){
   await page.waitForTimeout(1500);
 }
 
+/* The shell is taller than the viewport on some runners, so a naive centre point
+   lands outside it: the drag is never delivered, and the release reads as a click
+   that opens the dish. Clamp into the viewport and verify the point really hits. */
+async function grabPoint(page,viewport){
+  const box=await page.locator('.orbit-shell').boundingBox();
+  const x=box.x+box.width/2;
+  for(const f of [0.5,0.42,0.34,0.58,0.66]){
+    const y=Math.min(Math.max(box.y+box.height*f,24),viewport.height-24);
+    const ok=await page.evaluate(([px,py])=>{
+      const el=document.elementFromPoint(px,py);
+      return !!el&&!!el.closest('.orbit-shell');
+    },[x,y]);
+    if(ok)return {box,x,y};
+  }
+  throw new Error('no grabbable point inside .orbit-shell');
+}
+async function ensureDetailClosed(page){
+  const open=await page.evaluate(()=>document.getElementById('dish-detail')?.classList.contains('is-open'));
+  if(!open)return;
+  await page.evaluate(()=>document.querySelector('#detail-close')?.click());
+  await page.waitForFunction(()=>!document.getElementById('dish-detail')?.classList.contains('is-open'),null,{timeout:6000});
+  await page.waitForTimeout(900);
+}
+
 async function record(name,viewport,mobile,script){
   const context=await browser.newContext({
     viewport,isMobile:mobile,hasTouch:mobile,
@@ -66,8 +90,7 @@ async function record(name,viewport,mobile,script){
 /* Desktop: a slow deliberate drag so the intermediate state is readable, then a
    flick to show momentum, then a button step and a side pick. */
 await record('depth-carousel-v3-desktop',{width:1440,height:900},false,async page=>{
-  const box=await page.locator('.orbit-shell').boundingBox();
-  const cx=box.x+box.width/2, cy=Math.min(box.y+box.height*.5,880);
+  const {box,x:cx,y:cy}=await grabPoint(page,{width:1440,height:900});
   await page.waitForTimeout(1800);
 
   /* slow drag, then hold exactly on the seam so the two worlds are both readable */
@@ -86,6 +109,7 @@ await record('depth-carousel-v3-desktop',{width:1440,height:900},false,async pag
   await page.mouse.up();
   await page.waitForTimeout(1900);
 
+  await ensureDetailClosed(page);
   await page.click('#next-dish');
   await page.waitForTimeout(1900);
 
@@ -106,8 +130,7 @@ await record('depth-carousel-v3-desktop',{width:1440,height:900},false,async pag
    touch behaviour and not a synthetic mouse drag. */
 await record('depth-carousel-v3-mobile',{width:390,height:844},true,async(page,context)=>{
   const cdp=await context.newCDPSession(page);
-  const box=await page.locator('.orbit-shell').boundingBox();
-  const cx=box.x+box.width/2, cy=Math.min(box.y+box.height*.5,780);
+  const {x:cx,y:cy}=await grabPoint(page,{width:390,height:844});
   await page.waitForTimeout(1900);
 
   const swipe=async(distance,steps,delay,hold)=>{
@@ -126,6 +149,7 @@ await record('depth-carousel-v3-mobile',{width:390,height:844},true,async(page,c
   await page.waitForTimeout(2100);
   await swipe(220,8,10,0);       /* flick → momentum */
   await page.waitForTimeout(2300);
+  await ensureDetailClosed(page);
   await page.click('#next-dish');
   await page.waitForTimeout(2200);
 });
