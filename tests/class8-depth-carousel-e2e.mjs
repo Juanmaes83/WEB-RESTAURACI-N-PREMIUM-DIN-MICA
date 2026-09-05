@@ -59,6 +59,8 @@ async function session(label,viewport,isMobile){
         cx:+(r.left+r.width/2-sr.left).toFixed(1),
         cy:+(r.top+r.height/2-sr.top).toFixed(1),
         w:+r.width.toFixed(1),
+        vl:+r.left.toFixed(1),vr:+r.right.toFixed(1),
+        free:el.classList.contains('is-free'),
         opacity:+cs.opacity,
         z:+cs.zIndex,
         blur:/blur\(([\d.]+)px\)/.exec(cs.filter)?.[1]??'0'
@@ -86,13 +88,111 @@ async function session(label,viewport,isMobile){
   const ys=new Set(visible.map(p=>Math.round(p.cy/10)));
   check(`${label} · vertical arc (not a flat rail)`,ys.size>=2,`${ys.size} vertical bands`);
 
-  await page.screenshot({path:path.join(SHOTS,`${label}-01-idle.png`),fullPage:false});
+  await page.screenshot({path:path.join(SHOTS,`v2-${label}-01-idle.png`),fullPage:false});
+  /* =====================================================================
+     VISUAL DIRECTION V2 — the checks that guard the human review criteria.
+     ===================================================================== */
+
+  const freeCount=await page.evaluate(()=>document.querySelectorAll('.dc-plate.is-free').length);
+  check(`${label} · V2 free objects (transparent assets, no card)`,freeCount>=3,`${freeCount} free objects`);
+  const framedLeak=await page.evaluate(()=>[...document.querySelectorAll('.dc-plate.is-free img')]
+    .some(i=>{const c=getComputedStyle(i);return c.borderRadius!=='0px'||c.boxShadow!=='none'}));
+  check(`${label} · V2 free objects carry no circular card`,!framedLeak);
+
+  const orbitalSilenced=await page.evaluate(()=>{
+    const gone=s=>[...document.querySelectorAll(s)].every(e=>getComputedStyle(e).display==='none');
+    return {rings:gone('.orbit-ring'),mark:gone('.orbit-center-mark'),glow:gone('.orbit-glow'),
+      heading:gone('.orbital-top'),stage:getComputedStyle(document.getElementById('orbit-stage')).visibility==='hidden'};
+  });
+  check(`${label} · V2 Orbital language is silenced`,Object.values(orbitalSilenced).every(Boolean),JSON.stringify(orbitalSilenced));
+
+  const worlds=await page.evaluate(()=>[...document.querySelectorAll('.dc-bg')].map(b=>b.style.background));
+  check(`${label} · V2 every dish owns a distinct colour world`,new Set(worlds).size===worlds.length,`${new Set(worlds).size}/${worlds.length} distinct`);
+
+  const wordBox=await page.evaluate(()=>{
+    const w=[...document.querySelectorAll('.dc-word')].sort((a,b)=>+getComputedStyle(b).opacity-+getComputedStyle(a).opacity)[0];
+    const r=w.getBoundingClientRect();
+    return {h:r.height/innerHeight,w:r.width/innerWidth,opacity:+getComputedStyle(w).opacity,text:w.textContent};
+  });
+  /* Desktop carries the lettering on the height axis; a 390x844 portrait cannot —
+     a word at 35% of that height leaves room for nothing else, so on mobile the
+     word is sized to the width axis and deliberately runs past both edges. */
+  const wordOk=isMobile?(wordBox.h>=.12&&wordBox.w>=.7):(wordBox.h>=.25&&wordBox.w>=.45);
+  check(`${label} · V2 lettering is architectural, not decoration`,wordOk&&wordBox.opacity>.12,
+    `${(wordBox.h*100).toFixed(0)}% viewport height, ${(wordBox.w*100).toFixed(0)}% width, "${wordBox.text}"`);
+
+  /* occlusion: visible plates must overlap AND sit at different depths */
+  const overlaps=(()=>{
+    const vis=g0.filter(p=>p.opacity>.2);
+    let pairs=0;
+    for(let i=0;i<vis.length;i++)for(let j=i+1;j<vis.length;j++){
+      const a=vis[i],b=vis[j];
+      if(Math.min(a.vr,b.vr)-Math.max(a.vl,b.vl)>18&&a.z!==b.z)pairs++;
+    }
+    return pairs;
+  })();
+  check(`${label} · V2 objects occlude each other`,overlaps>=2,`${overlaps} overlapping pairs at different depths`);
+
+  const offscreen=g0.filter(p=>p.opacity>.15&&(p.vl<0||p.vr>viewport.width)).length;
+  check(`${label} · V2 the collection continues past the frame`,offscreen>=1,`${offscreen} plates cropped by the viewport`);
+
+  /* asymmetry: the left and right neighbours must not be mirror images */
+  const asym=await page.evaluate(()=>{
+    const t=window.RestaurantDepthCarousel.sampleTrack.bind(null);
+    const L=t(-1),R=t(1),L2=t(-2),R2=t(2),H=t(0);
+    return {dyNeighbour:Math.abs(L.y-R.y),dyFar:Math.abs(L2.y-R2.y),
+      dxL:Math.abs(H.x-L.x),dxR:Math.abs(R.x-H.x),dsFar:Math.abs(L2.s-R2.s)};
+  });
+  check(`${label} · V2 composition is asymmetric`,(asym.dyFar>6||asym.dsFar>.02)&&Math.abs(asym.dxL-asym.dxR)>0.5,JSON.stringify(asym));
+
+  /* depth must not come mainly from blur */
+  const heroW=Math.max(...g0.filter(p=>p.opacity>.5).map(p=>p.w));
+  const midBlur=Math.max(...g0.filter(p=>p.opacity>.6&&p.w<heroW*.95).map(p=>+p.blur));
+  const midW=Math.max(...g0.filter(p=>p.opacity>.6&&p.w<heroW*.95).map(p=>p.w));
+  check(`${label} · V2 depth is not carried by blur`,midBlur<=1.4&&heroW/midW>=1.35,`neighbour blur ${midBlur}px, hero/neighbour ${(heroW/midW).toFixed(2)}x`);
+
+  /* the scene reacts to the gesture, not to the committed index */
+  const continuous=await page.evaluate(()=>{
+    const read=()=>({
+      accent:getComputedStyle(document.documentElement).getPropertyValue('--dc-accent').trim(),
+      bgs:[...document.querySelectorAll('.dc-bg')].map(b=>+getComputedStyle(b).opacity),
+      words:[...document.querySelectorAll('.dc-word')].filter(w=>+getComputedStyle(w).opacity>.06).length,
+      copy:+getComputedStyle(document.querySelector('.dish-copy')).opacity,
+      counter:document.getElementById('dish-counter').textContent.trim()
+    });
+    const at0=read();
+    window.RestaurantDepthCarousel.setPosition(0.5);
+    const mid=read();
+    window.RestaurantDepthCarousel.setPosition(0.94);
+    const late=read();
+    window.RestaurantDepthCarousel.setPosition(0);
+    return {at0,mid,late};
+  });
+  const blended=continuous.mid.bgs.filter(o=>o>.3).length;
+  check(`${label} · V2 background crossfades with the gesture`,blended>=2,`${blended} colour worlds blended at 50% of a drag`);
+  check(`${label} · V2 accent interpolates during the drag`,
+    continuous.mid.accent!==continuous.at0.accent&&continuous.late.accent!==continuous.mid.accent,
+    `${continuous.at0.accent} → ${continuous.mid.accent} → ${continuous.late.accent}`);
+  check(`${label} · V2 only one giant word on screen at a time`,
+    continuous.at0.words<=1&&continuous.mid.words<=1&&continuous.late.words<=1,
+    `${continuous.at0.words}/${continuous.mid.words}/${continuous.late.words}`);
+  check(`${label} · V2 copy dips mid-gesture instead of flickering`,continuous.mid.copy<continuous.at0.copy-.1,
+    `${continuous.at0.copy} → ${continuous.mid.copy}`);
+  check(`${label} · V2 the scene moves before the index commits`,continuous.mid.counter===continuous.at0.counter,
+    `counter held at ${continuous.mid.counter}`);
+
+  await page.evaluate(()=>window.RestaurantDepthCarousel.setPosition(0.44));
+  await page.waitForTimeout(320);
+  await page.screenshot({path:path.join(SHOTS,`v2-${label}-02-mid-drag.png`)});
+  await page.evaluate(()=>window.RestaurantDepthCarousel.goTo(0));
+  await page.waitForTimeout(1200);
+
 
   /* ---- 2. every object moves, and they do NOT move the same ---- */
   const before=await geom();
   const copyBefore=await page.evaluate(()=>({
     title:document.getElementById('dish-title').textContent.trim(),
-    word:document.querySelector('.dc-word').textContent.trim(),
+    word:[...document.querySelectorAll('.dc-word')].sort((a,b)=>+getComputedStyle(b).opacity-+getComputedStyle(a).opacity)[0]?.textContent.trim()||'',
     price:document.querySelector('.dc-price').textContent.trim(),
     accent:getComputedStyle(document.documentElement).getPropertyValue('--dc-accent').trim()
   }));
@@ -121,7 +221,7 @@ async function session(label,viewport,isMobile){
   }));
   check(`${label} · movement is continuous, not a swap`,midMoved>=3,`${midMoved} plates in flight mid-transition`);
 
-  await page.screenshot({path:path.join(SHOTS,`${label}-02-after-next.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v2-${label}-03-next-product.png`)});
 
   /* ---- 3. scene synchronisation ---- */
   const sync=await page.evaluate(()=>{
@@ -135,7 +235,7 @@ async function session(label,viewport,isMobile){
       expectedTitle:(d.name||'').trim(),
       price:document.querySelector('.dc-price').textContent.trim(),
       expectedPrice:(d.price||'').trim(),
-      word:document.querySelector('.dc-word').textContent.trim(),
+      word:[...document.querySelectorAll('.dc-word')].sort((a,b)=>+getComputedStyle(b).opacity-+getComputedStyle(a).opacity)[0]?.textContent.trim()||'',
       accent:getComputedStyle(document.documentElement).getPropertyValue('--dc-accent').trim(),
       dotActive:[...document.querySelectorAll('.dc-dot')].findIndex(x=>x.getAttribute('aria-current')==='true'),
       ingredients:document.querySelector('.dc-ingredients').textContent.trim()
@@ -207,7 +307,36 @@ async function session(label,viewport,isMobile){
   });
   check(`${label} · engine and Orbital state stay in sync`,engineVsBase.engine===engineVsBase.counter,JSON.stringify(engineVsBase));
 
-  await page.screenshot({path:path.join(SHOTS,`${label}-03-after-drag.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v2-${label}-04-after-drag.png`)});
+
+  /* V2 regression: during a multi-index momentum flight the base engine writes
+     title/description while this engine writes price/ingredients. If they are driven
+     by different indices they disagree mid-air — visible in the V2 motion recording
+     as "Gamba roja salvaje / €22 / ARTICHOKE". Sample the flight and require that no
+     title is ever shown with two different prices. */
+  const pairs=[];
+  await page.evaluate(()=>window.RestaurantDepthCarousel.goTo(0));
+  await page.waitForTimeout(1500);
+  await page.evaluate(()=>window.RestaurantDepthCarousel.goTo(3));
+  for(let i=0;i<12;i++){
+    pairs.push(await page.evaluate(()=>({
+      title:document.getElementById('dish-title').textContent.trim(),
+      price:document.querySelector('.dc-price').textContent.trim(),
+      ing:document.querySelector('.dc-ingredients').textContent.trim()
+    })));
+    await page.waitForTimeout(120);
+  }
+  await page.waitForTimeout(1400);
+  const mapping=new Map();
+  let conflict=null;
+  for(const p of pairs){
+    if(!p.title)continue;
+    const seen=mapping.get(p.title);
+    if(seen&&seen!==`${p.price}|${p.ing}`)conflict=`${p.title}: "${seen}" vs "${p.price}|${p.ing}"`;
+    mapping.set(p.title,`${p.price}|${p.ing}`);
+  }
+  check(`${label} · V2 title and price never disagree in flight`,!conflict,conflict||`${pairs.length} samples, ${mapping.size} dishes`);
+
 
   /* ---- 6. no horizontal overflow, controls reachable ---- */
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
@@ -219,7 +348,7 @@ async function session(label,viewport,isMobile){
   await page.waitForTimeout(1200);
   const detailOpen=await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open'));
   check(`${label} · dish detail opens from the carousel`,detailOpen);
-  if(detailOpen)await page.screenshot({path:path.join(SHOTS,`${label}-04-detail.png`)});
+  if(detailOpen)await page.screenshot({path:path.join(SHOTS,`v2-${label}-05-detail.png`)});
   await page.evaluate(()=>document.querySelector('#detail-close')?.click());
   await page.waitForTimeout(1400);
   const detailClosed=await page.evaluate(()=>!document.getElementById('dish-detail').classList.contains('is-open'));
@@ -249,7 +378,7 @@ async function session(label,viewport,isMobile){
     };
   });
   check(`${label} · Orbital preset is restored intact`,backToOrbital.visible&&backToOrbital.dishes===baselineDishes&&backToOrbital.sceneHidden,JSON.stringify(backToOrbital));
-  await page.screenshot({path:path.join(SHOTS,`${label}-05-orbital-regression.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v2-${label}-06-orbital-regression.png`)});
 
   const fatal=errors.filter(e=>!/favicon|ERR_INTERNET|net::ERR/i.test(e));
   check(`${label} · no JS errors`,fatal.length===0,fatal.slice(0,3).join(' | '));
@@ -287,7 +416,7 @@ async function reducedMotionSession(){
   await page.waitForTimeout(500);
   const i1=await page.evaluate(()=>parseInt(document.getElementById('dish-counter').textContent,10));
   check('reduced-motion · navigation still changes dish',i1!==i0,`${i0}→${i1}`);
-  await page.screenshot({path:path.join(SHOTS,'reduced-motion-01.png')});
+  await page.screenshot({path:path.join(SHOTS,'v2-reduced-motion-01.png')});
   await context.close();
 }
 
