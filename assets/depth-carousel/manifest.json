@@ -1,0 +1,59 @@
+{
+  "generatedFrom": "class4-config dish.image",
+  "params": {
+    "LO": 0.085,
+    "HI": 0.3,
+    "SIZE": 820,
+    "PAD": 0.03
+  },
+  "assets": [
+    {
+      "id": "dish-01",
+      "name": "Wild Red Prawn",
+      "rel": "assets/depth-carousel/dish-01.webp",
+      "kb": 220,
+      "coverage": 0.542,
+      "trim": "1866x1774 of 2048x2048"
+    },
+    {
+      "id": "dish-02",
+      "name": "Bluefin / Blood Orange",
+      "rel": "assets/depth-carousel/dish-02.webp",
+      "kb": 233,
+      "coverage": 0.552,
+      "trim": "1973x1907 of 2048x2048"
+    },
+    {
+      "id": "dish-03",
+      "name": "Charred Artichoke",
+      "rel": "assets/depth-carousel/dish-03.webp",
+      "kb": 251,
+      "coverage": 0.554,
+      "trim": "1809x1850 of 2048x2048"
+    },
+    {
+      "id": "dish-04",
+      "name": "Wild Sea Bass",
+      "rel": "assets/depth-carousel/dish-04.webp",
+      "kb": 260,
+      "coverage": 0.58,
+      "trim": "2035x1801 of 2048x2048"
+    },
+    {
+      "id": "dish-05",
+      "name": "Iberian Presa",
+      "rel": "assets/depth-carousel/dish-05.webp",
+      "kb": 209,
+      "coverage": 0.654,
+      "trim": "2037x1878 of 2048x2048"
+    },
+    {
+      "id": "dish-06",
+      "name": "Burnt Honey Citrus",
+      "rel": "assets/depth-carousel/dish-06.webp",
+      "kb": 234,
+      "coverage": 0.568,
+      "trim": "2020x2019 of 2048x2048"
+    }
+  ]
+}
