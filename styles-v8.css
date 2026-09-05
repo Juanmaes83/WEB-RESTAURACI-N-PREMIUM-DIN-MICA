@@ -1,0 +1,155 @@
+/* CLASS 08 · PROJECT 01 — CINEMATIC DEPTH CAROUSEL · VISUAL DIRECTION V3
+
+   Layer contract:
+     0  .dc-bg-a        colour world A, full section              rate .20
+     1  .dc-bg-b        colour world B, clipped over A by the gesture
+     1b .dc-wipe-edge   the moving seam between the two worlds
+     2  .dc-decor-back  background ingredient                      rate .32
+     3  .dc-word        giant lettering, A and B either side of the seam   rate .52
+     4-7 .dc-plate      far / mid / hero / near, ordered by translateZ     rate 1.00
+     8  .dc-decor-front near ingredient, crosses in front of the hero      rate 1.30
+     9  .dish-copy      title, description, price, ingredients, CTA
+     10 .orbit-controls + cursor
+
+   Everything is scoped to html[data-orbital-motion="depth-carousel"], so the
+   Orbital presets are untouched when this one is off.
+*/
+
+/* ---------- silence the Orbital language ---------- */
+html[data-orbital-motion="depth-carousel"] #orbit-stage{visibility:hidden;pointer-events:none}
+html[data-orbital-motion="depth-carousel"] .orbit-ring,
+html[data-orbital-motion="depth-carousel"] .orbit-center-mark,
+html[data-orbital-motion="depth-carousel"] .orbit-glow,
+html[data-orbital-motion="depth-carousel"] .orbital-top{display:none}
+html[data-orbital-motion="depth-carousel"] .orbital-section{
+  background:#06060a;padding:calc(7vh + 78px) 0 6vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center}
+html[data-orbital-motion="depth-carousel"] .orbit-shell{
+  position:relative;z-index:2;height:min(56vw,640px);min-height:500px;margin:0}
+
+/* ---------- 0/1 · two pure colour worlds ---------- */
+.dc-backdrop{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.dc-backdrop[hidden]{display:none}
+.dc-bg{position:absolute;inset:-10% -14%;will-change:transform}
+.dc-bg-b{will-change:transform,clip-path}
+.dc-wipe-edge{position:absolute;top:-10%;bottom:-10%;width:2px;transform:translateX(-1px) skewX(-4deg);
+  background:linear-gradient(180deg,transparent,var(--dc-accent,#fff) 28%,var(--dc-accent,#fff) 72%,transparent);
+  opacity:0;filter:blur(1px)}
+.dc-vignette{position:absolute;inset:0;
+  background:radial-gradient(ellipse 84% 78% at 54% 46%,transparent 0%,rgba(4,4,8,.34) 74%,rgba(3,3,6,.72) 100%)}
+/* the copy safe zone gets its own falloff so text never fights the photography */
+.dc-scrim{position:absolute;inset:0;
+  background:linear-gradient(94deg,rgba(4,4,9,.74) 0%,rgba(4,4,9,.52) 22%,rgba(4,4,9,.12) 38%,transparent 52%)}
+
+/* ---------- section identity ---------- */
+.dc-eyebrow{display:none}
+html[data-orbital-motion="depth-carousel"] .dc-eyebrow{
+  display:flex;align-items:baseline;gap:18px;position:relative;z-index:9;
+  margin:0 0 1.6vh;padding:0 6vw;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#cfcbc2}
+.dc-eyebrow > span:first-child{color:var(--dc-accent,#d8ff4f)}
+.dc-eyebrow-hint{letter-spacing:.2em;opacity:.42}
+
+/* ---------- scene ---------- */
+.dc-scene{position:absolute;inset:0;pointer-events:none;z-index:1}
+.dc-scene[hidden]{display:none}
+
+/* ---------- 2/8 · decor ---------- */
+.dc-decor{position:absolute;inset:0}
+.dc-decor-back{z-index:1}
+.dc-decor-front{z-index:8}
+/* one group per dish; the group carries the parallax, the items sit inside it */
+.dc-decor-group{position:absolute;inset:0;opacity:0;will-change:transform,opacity}
+.dc-decor-group[data-empty]{display:none}
+.dc-decor-item{position:absolute;background-repeat:no-repeat;background-position:center;
+  background-size:contain;transform:translate(-50%,-50%)}
+/* per-dish atmosphere: the smoke / steam / water wash, tinted by the dish accent */
+.dc-atmo{position:absolute;width:118%;height:104%;transform:translate(-50%,-50%);
+  filter:blur(64px);pointer-events:none}
+/* sharp enough to read as a distant ingredient rather than a smudge */
+.dc-decor-back .dc-decor-item{width:clamp(74px,8vw,132px);height:clamp(74px,8vw,132px);
+  filter:blur(1.8px) brightness(.82)}
+.dc-decor-front .dc-decor-item{width:clamp(110px,12vw,205px);height:clamp(110px,12vw,205px);
+  filter:blur(.8px) drop-shadow(0 18px 22px rgba(0,0,0,.5))}
+
+/* ---------- 3 · lettering ---------- */
+.dc-words{position:absolute;inset:0;z-index:2}
+.dc-word-clip{position:absolute;inset:0;will-change:transform,clip-path}
+.dc-word{position:absolute;left:50%;top:-7%;transform:translateX(-50%);white-space:nowrap;
+  font-family:var(--font-display,Italiana,serif);font-size:clamp(120px,20vw,300px);line-height:.78;
+  letter-spacing:-.04em;text-transform:uppercase;color:var(--dc-accent,#d8ff4f);opacity:.5;
+  user-select:none}
+
+/* ---------- 4-7 · free objects ---------- */
+/* The perspective lives HERE, not on .orbit-shell: a perspective only projects its
+   DIRECT children, and .dc-plate is a great-grandchild of the shell. With it on the
+   shell the far slots were transformed but never projected, so they painted far
+   outside the frame while getBoundingClientRect reported them on screen. */
+.dc-plates{position:absolute;inset:0;z-index:4;perspective:1500px;perspective-origin:50% 50%}
+.dc-plate{position:absolute;left:0;top:0;width:clamp(190px,23vw,370px);aspect-ratio:1;
+  border:0;padding:0;background:transparent;cursor:pointer;
+  transform-origin:50% 50%;will-change:transform,opacity}
+/* object-fit:contain keeps the real silhouette of a non-square food cut-out:
+   a tall tuna ribbon stays tall, a wide sea bass stays wide. */
+.dc-plate img{width:100%;height:100%;display:block;object-fit:contain;user-select:none;-webkit-user-drag:none;will-change:filter}
+.dc-plate.is-free img{border-radius:0;box-shadow:none;background:transparent}
+/* fallback for projects with no free-object asset: the original 1:1 orbital
+   photography still needs its circular mask or its dark square would show. */
+.dc-plate.is-framed img{border-radius:50%;object-fit:cover}
+
+/* ---------- 9 · copy safe zone ---------- */
+html[data-orbital-motion="depth-carousel"] .dish-copy{
+  position:absolute;left:6vw;top:31%;z-index:9;
+  width:min(350px,25vw);margin:0;text-align:left;pointer-events:none}
+html[data-orbital-motion="depth-carousel"] .dish-copy h3{font-size:clamp(38px,4.2vw,64px);margin:6px 0 12px}
+html[data-orbital-motion="depth-carousel"] .dish-copy > p:not(.kicker){margin:0;max-width:370px;color:#b8b5ad}
+html[data-orbital-motion="depth-carousel"] .dish-copy .kicker{color:var(--dc-accent,#d8ff4f)}
+html[data-orbital-motion="depth-carousel"] .explore{pointer-events:auto;border-bottom-color:var(--dc-accent,#d8ff4f)}
+html[data-orbital-motion="depth-carousel"] .explore span{color:var(--dc-accent,#d8ff4f)}
+
+.dc-copy{display:none;margin:18px 0 0}
+html[data-orbital-motion="depth-carousel"] .dc-copy{display:block}
+.dc-price{display:block;font-family:var(--font-display,Italiana,serif);font-size:clamp(30px,3.4vw,46px);
+  line-height:1;color:var(--dc-accent,#d8ff4f)}
+.dc-ingredients{display:block;margin-top:10px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#a09d94}
+
+/* ---------- 10 · controls + cursor ---------- */
+html[data-orbital-motion="depth-carousel"] .orbit-controls{
+  position:absolute;left:6vw;bottom:9vh;z-index:10;justify-content:flex-start;margin:0}
+.dc-dots{display:none;align-items:center;gap:9px;margin-left:12px}
+html[data-orbital-motion="depth-carousel"] .dc-dots{display:flex}
+.dc-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.22);cursor:pointer;
+  transition:background .28s ease,width .28s ease}
+.dc-dot[aria-current="true"]{width:24px;border-radius:4px;background:var(--dc-accent,#d8ff4f)}
+html[data-orbital-motion="depth-carousel"] .circle-btn{border-color:rgba(255,255,255,.24)}
+html[data-orbital-motion="depth-carousel"][data-depth-drag] .orbit-shell{cursor:grabbing}
+
+html[data-orbital-motion="depth-carousel"] .cursor{
+  background:transparent;border:1px solid var(--dc-accent,#d8ff4f);color:var(--dc-accent,#d8ff4f);
+  mix-blend-mode:normal}
+html[data-orbital-motion="depth-carousel"][data-depth-cursor="view"] .cursor{
+  background:var(--dc-accent,#d8ff4f);color:#0a0a08;border-color:var(--dc-accent,#d8ff4f)}
+html[data-orbital-motion="depth-carousel"] .cursor span{color:inherit;letter-spacing:.16em}
+
+/* ---------- mobile: vertical composition, not a shrunken desktop ---------- */
+@media(max-width:820px){
+  html[data-orbital-motion="depth-carousel"] .orbital-section{padding:calc(4vh + 72px) 0 5vh}
+  html[data-orbital-motion="depth-carousel"] .orbit-shell{height:46vh;min-height:330px}
+  html[data-orbital-motion="depth-carousel"] .dc-eyebrow{padding:0 7vw;gap:12px;font-size:9px;letter-spacing:.24em}
+  .dc-plate{width:clamp(190px,58vw,300px)}
+  .dc-word{font-size:clamp(96px,34vw,190px);top:-4%}
+  .dc-scrim{background:linear-gradient(6deg,rgba(4,4,9,.86) 0%,rgba(4,4,9,.58) 26%,transparent 52%)}
+  .dc-decor-back .dc-decor-item{width:clamp(76px,22vw,130px);height:clamp(76px,22vw,130px)}
+  .dc-decor-front .dc-decor-item{width:clamp(104px,34vw,190px);height:clamp(104px,34vw,190px)}
+  .dc-atmo{width:150%;height:86%;filter:blur(48px)}
+  html[data-orbital-motion="depth-carousel"] .dish-copy{
+    position:relative;left:auto;top:auto;width:auto;margin:2vh 7vw 0}
+  html[data-orbital-motion="depth-carousel"] .dish-copy h3{font-size:clamp(32px,9vw,44px)}
+  html[data-orbital-motion="depth-carousel"] .orbit-controls{
+    position:relative;left:auto;bottom:auto;padding:0 7vw;margin-top:2.4vh}
+  .dc-price{font-size:clamp(26px,8vw,34px)}
+  .dc-ingredients{font-size:10px;letter-spacing:.1em}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .dc-plate,.dc-word-clip,.dc-bg,.dc-decor-item{will-change:auto}
+}

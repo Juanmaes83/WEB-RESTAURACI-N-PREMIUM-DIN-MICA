@@ -279,6 +279,14 @@ Si resolvemos bien este motor, parte de su arquitectura servirá para varios pre
 
 **P0 — Primer desarrollo.**
 
+## Estado
+
+**APPROVED / CLOSED** — aprobado por Juanma el 2026-09-05.
+Baseline aprobado: `532133496e2c861fa24dc905f5b09b8dfc6f1ade`.
+Implementación: `class8-depth-carousel.js` + `styles-v8.css`.
+Documentación: `docs/PROJECT-01-DEPTH-CAROUSEL.md`.
+Queda congelado como capacidad aprobada del Restaurant Motion Engine.
+
 ## Criterio de aprobación
 
 No se aprueba si parece un slider horizontal normal con `scale()`.
@@ -369,6 +377,12 @@ Es especialmente valioso para restaurantes con fotografía o producción audiovi
 ## Prioridad
 
 **P0/P1 — Segundo desarrollo.**
+
+## Estado
+
+**ACTIVE / IN DEVELOPMENT** — arrancado el 2026-09-05 tras el cierre de Project 01.
+Rama: `feat/anchor-swap-lab`. Documentación: `docs/PROJECT-02-ANCHOR-SWAP.md`.
+La definición de este proyecto no cambia: se desarrolla tal como está descrita arriba.
 
 ## Criterio de aprobación
 
@@ -877,6 +891,10 @@ El activo será el **motor capaz de generar experiencias gastronómicas premium 
 # 15. Decisión
 
 **APROBADO PARA I+D, NO APROBADO TODAVÍA PARA INTEGRACIÓN DIRECTA.**
+
+> **Actualización 2026-09-05.** Project 01 ha superado el ciclo completo y ha sido
+> aprobado por Juanma: queda **APPROVED / CLOSED** e integrado en `main`. Project 02
+> pasa a **ACTIVE / IN DEVELOPMENT**. Los proyectos 03, 04 y 05 siguen pendientes.
 
 Los cinco proyectos tienen interés suficiente para desarrollarse con Claude Code bajo supervisión.
 
