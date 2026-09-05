@@ -90,9 +90,9 @@ async function session(label,viewport,isMobile){
         w:+r.width.toFixed(1),
         vl:+r.left.toFixed(1),vr:+r.right.toFixed(1),
         free:el.classList.contains('is-free'),
-        opacity:+cs.opacity,
+        opacity:+getComputedStyle(el.firstElementChild||el).opacity,
         z:+cs.zIndex,
-        blur:/blur\(([\d.]+)px\)/.exec(cs.filter)?.[1]??'0'
+        blur:/blur\(([\d.]+)px\)/.exec((getComputedStyle(el.firstElementChild||el).filter||''))?.[1]??'0'
       };
     }).sort((a,b)=>a.cx-b.cx);
   });
@@ -101,7 +101,10 @@ async function session(label,viewport,isMobile){
   check(`${label} · plates rendered`,g0.length>=5,`${g0.length} plates`);
 
   const visible=g0.filter(p=>p.opacity>.05);
-  check(`${label} · multiple depth levels visible simultaneously`,visible.length>=3,`${visible.length} visible`);
+  const present=g0.filter(p=>p.opacity>=.30&&p.w>60);
+  const tiers=new Set(present.map(p=>Math.round(p.w/60)));
+  check(`${label} · five products present at once`,present.length>=(isMobile?4:5)&&tiers.size>=3,
+    `${present.length} present · widths ${present.map(p=>p.w|0).join('/')} · ${tiers.size} size tiers`);
 
   const widths=visible.map(p=>p.w);
   const hero=visible.reduce((a,b)=>a.w>b.w?a:b);
@@ -117,7 +120,7 @@ async function session(label,viewport,isMobile){
   const ys=new Set(visible.map(p=>Math.round(p.cy/10)));
   check(`${label} · vertical arc (not a flat rail)`,ys.size>=2,`${ys.size} vertical bands`);
 
-  await page.screenshot({path:path.join(SHOTS,`v3-${label}-01-idle.png`),fullPage:false});
+  await page.screenshot({path:path.join(SHOTS,`v3b-${label}-01-idle.png`),fullPage:false});
   /* =====================================================================
      VISUAL DIRECTION V2 — the checks that guard the human review criteria.
      ===================================================================== */
@@ -266,16 +269,35 @@ async function session(label,viewport,isMobile){
 
   /* decor must exist AND be visible, not merely declared */
   const decor=await page.evaluate(()=>{
-    const vis=sel=>[...document.querySelectorAll(sel)].filter(e=>{
-      const c=getComputedStyle(e);
-      const r=e.getBoundingClientRect();
-      return c.display!=='none'&&+c.opacity>.12&&r.width>40&&r.bottom>0&&r.top<innerHeight;
-    }).length;
-    return {declared:document.querySelectorAll('.dc-decor-item:not([data-empty])').length,
-      backVisible:vis('.dc-decor-back .dc-decor-item'),frontVisible:vis('.dc-decor-front .dc-decor-item')};
+    /* the group carries the parallax and the opacity; the items ride inside it */
+    const vis=layer=>[...document.querySelectorAll(`.dc-decor-${layer} .dc-decor-group`)]
+      .filter(g=>+getComputedStyle(g).opacity>.12)
+      .flatMap(g=>[...g.querySelectorAll('.dc-decor-item')])
+      .filter(e=>{const r=e.getBoundingClientRect();
+        return r.width>40&&r.right>0&&r.left<innerWidth&&r.bottom>0&&r.top<innerHeight}).length;
+    return {items:document.querySelectorAll('.dc-decor-item').length,
+      atmospheres:document.querySelectorAll('.dc-atmo').length,
+      backVisible:vis('back'),frontVisible:vis('front')};
   });
   check(`${label} · V3 decor layers are rendered and visible`,
-    decor.declared>=6&&decor.backVisible>=1&&decor.frontVisible>=1,JSON.stringify(decor));
+    decor.items>=12&&decor.atmospheres>=5&&decor.backVisible>=1&&decor.frontVisible>=1,JSON.stringify(decor));
+
+  /* every dish must own an ecosystem, and no two dishes the same one */
+  const decorPerDish=await page.evaluate(()=>{
+    const backs=[...document.querySelectorAll('.dc-decor-back .dc-decor-group')];
+    return [...document.querySelectorAll('.dc-decor-front .dc-decor-group')].map((g,i)=>{
+      const src=e=>(e.style.backgroundImage.match(/dish-\d+-decor-[a-z]/)||[''])[0];
+      const front=[...g.querySelectorAll('.dc-decor-item')].map(src);
+      const back=[...backs[i].querySelectorAll('.dc-decor-item')].map(src);
+      return {i,front,back,atmo:!!backs[i].querySelector('.dc-atmo'),key:[...front,...back].sort().join('+')};
+    });
+  });
+  check(`${label} · V3 every dish carries its own decor`,
+    decorPerDish.length>=5&&decorPerDish.every(d=>d.front.length>=1&&d.back.length>=1&&d.atmo),
+    decorPerDish.map(d=>`${d.i}:${d.front.length}f/${d.back.length}b`).join(' '));
+  check(`${label} · V3 decor differs from dish to dish`,
+    new Set(decorPerDish.map(d=>d.key)).size===decorPerDish.length,
+    `${new Set(decorPerDish.map(d=>d.key)).size}/${decorPerDish.length} distinct combinations`);
 
   /* the near decor must overtake the plates, otherwise it is not a foreground */
   const rates=await page.evaluate(()=>{
@@ -345,10 +367,10 @@ async function session(label,viewport,isMobile){
   /* The gesture series the human review asks for. The 50% frame is the important
      one: two colour worlds, the masked lettering seam, objects crossing in Z,
      decor sweeping and the copy dipped. */
-  for(const [name,pos] of [['02-quarter-drag',.25],['03-half-drag',.5],['04-three-quarter-drag',.75]]){
+  for(const [name,pos] of [['02-half-drag',.5],['04-quarter-drag',.25],['05-three-quarter-drag',.75]]){
     await page.evaluate(v=>window.RestaurantDepthCarousel.setPosition(v),pos);
     await page.waitForTimeout(300);
-    await page.screenshot({path:path.join(SHOTS,`v3-${label}-${name}.png`)});
+    await page.screenshot({path:path.join(SHOTS,`v3b-${label}-${name}.png`)});
   }
   await page.evaluate(()=>window.RestaurantDepthCarousel.setPosition(0));
   await page.waitForTimeout(400);
@@ -390,7 +412,7 @@ async function session(label,viewport,isMobile){
   }));
   check(`${label} · movement is continuous, not a swap`,midMoved>=3,`${midMoved} plates in flight mid-transition`);
 
-  await page.screenshot({path:path.join(SHOTS,`v3-${label}-05-next-scene.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v3b-${label}-03-next-scene.png`)});
 
   /* ---- 3. scene synchronisation ---- */
   const sync=await page.evaluate(()=>{
@@ -482,7 +504,7 @@ async function session(label,viewport,isMobile){
   });
   check(`${label} · engine and Orbital state stay in sync`,engineVsBase.engine===engineVsBase.counter,JSON.stringify(engineVsBase));
 
-  await page.screenshot({path:path.join(SHOTS,`v3-${label}-06-after-drag.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v3b-${label}-06-after-drag.png`)});
 
   /* V2 regression: during a multi-index momentum flight the base engine writes
      title/description while this engine writes price/ingredients. If they are driven
@@ -544,7 +566,7 @@ async function session(label,viewport,isMobile){
   await page.waitForTimeout(1200);
   const detailOpen=await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open'));
   check(`${label} · dish detail opens from the carousel`,detailOpen);
-  if(detailOpen)await page.screenshot({path:path.join(SHOTS,`v3-${label}-07-detail.png`)});
+  if(detailOpen)await page.screenshot({path:path.join(SHOTS,`v3b-${label}-07-detail.png`)});
   await page.evaluate(()=>document.querySelector('#detail-close')?.click());
   await page.waitForTimeout(1400);
   const detailClosed=await page.evaluate(()=>!document.getElementById('dish-detail').classList.contains('is-open'));
@@ -574,7 +596,7 @@ async function session(label,viewport,isMobile){
     };
   });
   check(`${label} · Orbital preset is restored intact`,backToOrbital.visible&&backToOrbital.dishes===baselineDishes&&backToOrbital.sceneHidden,JSON.stringify(backToOrbital));
-  await page.screenshot({path:path.join(SHOTS,`v3-${label}-08-orbital-regression.png`)});
+  await page.screenshot({path:path.join(SHOTS,`v3b-${label}-08-orbital-regression.png`)});
 
   const fatal=errors.filter(e=>!/favicon|ERR_INTERNET|net::ERR/i.test(e));
   check(`${label} · no JS errors`,fatal.length===0,fatal.slice(0,3).join(' | '));
@@ -612,7 +634,7 @@ async function reducedMotionSession(){
   await page.waitForTimeout(500);
   const i1=await page.evaluate(()=>parseInt(document.getElementById('dish-counter').textContent,10));
   check('reduced-motion · navigation still changes dish',i1!==i0,`${i0}→${i1}`);
-  await page.screenshot({path:path.join(SHOTS,'v3-reduced-motion-01.png')});
+  await page.screenshot({path:path.join(SHOTS,'v3b-reduced-motion-01.png')});
   await context.close();
 }
 

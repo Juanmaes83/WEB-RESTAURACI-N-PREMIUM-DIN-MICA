@@ -4,8 +4,8 @@
    product change → hero click. Screenshots cannot show any of that.
 
    Usage: node tests/record-depth-carousel-video.mjs
-   Output: tests/video/depth-carousel-v3-desktop.webm
-           tests/video/depth-carousel-v3-mobile.webm
+   Output: tests/video/depth-carousel-v3b-desktop.webm
+           tests/video/depth-carousel-v3b-mobile.webm
 */
 import {chromium} from 'playwright';
 import fs from 'node:fs';
@@ -89,7 +89,7 @@ async function record(name,viewport,mobile,script){
 
 /* Desktop: a slow deliberate drag so the intermediate state is readable, then a
    flick to show momentum, then a button step and a side pick. */
-await record('depth-carousel-v3-desktop',{width:1440,height:900},false,async page=>{
+await record('depth-carousel-v3b-desktop',{width:1440,height:900},false,async page=>{
   const {box,x:cx,y:cy}=await grabPoint(page,{width:1440,height:900});
   await page.waitForTimeout(1800);
 
@@ -128,7 +128,7 @@ await record('depth-carousel-v3-desktop',{width:1440,height:900},false,async pag
 
 /* Mobile: two real touch swipes through CDP, so the recording shows genuine
    touch behaviour and not a synthetic mouse drag. */
-await record('depth-carousel-v3-mobile',{width:390,height:844},true,async(page,context)=>{
+await record('depth-carousel-v3b-mobile',{width:390,height:844},true,async(page,context)=>{
   const cdp=await context.newCDPSession(page);
   const {x:cx,y:cy}=await grabPoint(page,{width:390,height:844});
   await page.waitForTimeout(1900);

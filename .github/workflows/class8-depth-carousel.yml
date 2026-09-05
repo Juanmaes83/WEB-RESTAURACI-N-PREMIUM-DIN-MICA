@@ -43,9 +43,9 @@ jobs:
           sleep 3
           node tests/class5-complete-e2e.mjs
           node tests/class6-product-e2e.mjs
-      - name: V3 asset contract
+      - name: Asset contract
         run: |
-          node -e "global.window={};require('./class4-config.js');const fs=require('fs');const d=window.RestaurantDefaults.dishes;const free=d.filter(x=>x.depthCarousel&&x.depthCarousel.asset);if(free.length<3)throw new Error('fewer than 3 free-object assets: '+free.length);const decor=d.filter(x=>x.depthCarousel&&x.depthCarousel.foregroundDecor&&x.depthCarousel.backgroundDecor);if(decor.length<3)throw new Error('fewer than 3 dishes with decor: '+decor.length);const files=d.flatMap(x=>[x.depthCarousel&&x.depthCarousel.asset,x.depthCarousel&&x.depthCarousel.foregroundDecor,x.depthCarousel&&x.depthCarousel.backgroundDecor]).filter(Boolean);for(const f of files)if(!fs.existsSync(f))throw new Error('missing asset '+f);console.log('free objects '+free.length+', decor pairs '+decor.length+', files '+files.length)"
+          node -e "global.window={};require('./class4-config.js');const fs=require('fs');const d=window.RestaurantDefaults.dishes;const free=d.filter(x=>x.depthCarousel&&x.depthCarousel.asset);if(free.length<3)throw new Error('fewer than 3 free-object assets: '+free.length);const decor=d.filter(x=>x.depthCarousel&&[].concat(x.depthCarousel.foregroundDecor||[]).length&&x.depthCarousel.backgroundDecor);if(decor.length<free.length)throw new Error('dishes without decor: '+(free.length-decor.length));const files=d.flatMap(x=>[x.depthCarousel.asset].concat(x.depthCarousel.foregroundDecor||[],x.depthCarousel.backgroundDecor||[])).filter(Boolean);for(const f of files)if(!fs.existsSync(f))throw new Error('missing asset '+f);console.log('free objects '+free.length+', dishes with decor '+decor.length+', files '+files.length)"
       - name: Record motion evidence
         run: node tests/record-depth-carousel-video.mjs
       - name: Upload visual evidence
