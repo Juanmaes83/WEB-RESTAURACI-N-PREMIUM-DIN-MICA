@@ -11,7 +11,7 @@ const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const SHOTS=path.join(ROOT,'tests','screenshots');
 fs.mkdirSync(SHOTS,{recursive:true});
 
-const {server,url:BASE}=await startServer(4173);
+const {server,url:BASE}=await startServer(0);
 const browser=await chromium.launch({headless:true});
 
 const results=[];
@@ -40,7 +40,7 @@ async function session(label,viewport,isMobile){
   await page.evaluate(()=>{
     const s=document.getElementById('motion-orbital-style');
     s.value='depth-carousel';
-    s.dispatchEvent(new Event('change',{bubbles:true}));
+    s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));
     window.RestaurantMotionStudio?.publish?.();
   });
   await page.waitForFunction(()=>document.documentElement.dataset.depthCarousel==='ready',null,{timeout:8000});
@@ -236,7 +236,7 @@ async function session(label,viewport,isMobile){
 
   await page.evaluate(()=>{
     const s=document.getElementById('motion-orbital-style');
-    s.value='elegant';s.dispatchEvent(new Event('change',{bubbles:true}));
+    s.value='elegant';s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));
     window.RestaurantMotionStudio?.publish?.();
   });
   await page.waitForTimeout(900);
@@ -266,7 +266,7 @@ async function reducedMotionSession(){
   await page.waitForTimeout(700);
   await page.evaluate(()=>{
     const s=document.getElementById('motion-orbital-style');
-    s.value='depth-carousel';s.dispatchEvent(new Event('change',{bubbles:true}));
+    s.value='depth-carousel';s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));
     window.RestaurantMotionStudio?.publish?.();
   });
   await page.waitForFunction(()=>document.documentElement.dataset.depthCarousel==='ready',null,{timeout:8000});

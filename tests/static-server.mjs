@@ -19,5 +19,6 @@ export function startServer(port=4173){
       res.end(buf);
     });
   });
-  return new Promise(resolve=>server.listen(port,()=>resolve({server,url:`http://127.0.0.1:${port}`})));
+  /* port 0 asks the OS for a free port, so a stale server never blocks a run. */
+  return new Promise(resolve=>server.listen(port,'127.0.0.1',()=>{const p=server.address().port;resolve({server,port:p,url:`http://127.0.0.1:${p}`})}));
 }
