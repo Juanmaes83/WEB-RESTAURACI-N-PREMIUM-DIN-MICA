@@ -7,7 +7,8 @@
 > **Este documento tiene tres partes, en orden cronológico.**
 > Secciones A–K = **V1** (~40% en revisión humana).
 > **VISUAL DIRECTION V2** (~60–65%).
-> **VISUAL DIRECTION V3 — FINAL ART DIRECTION PASS**, al final, es el estado vigente.
+> **VISUAL DIRECTION V3 — FINAL ART DIRECTION PASS**, y dentro de ella **V3b**, la
+> micro-iteración de cierre, es el estado vigente.
 >
 > Cada sección **sustituye** a la anterior en lo relativo a assets, capas, track,
 > lettering, fondo, decor y copy. La arquitectura de estado descrita en A–E sigue
@@ -1135,3 +1136,108 @@ A lo ya listado en V1 y V2 se añade:
     mismo mecanismo con un ancla encima.
 13. Las **capas de decor con rate propio** son genéricas y deberían subir a la capa
     común antes de escribir Project 02.
+
+---
+
+## V3b — MICRO-ITERACIÓN FINAL DE CIERRE
+
+> Dos ajustes concretos sobre `f7a4a3c`/`6e61119`. Sin rediseño, sin features nuevas,
+> sin tocar Studio, wipe A/B, lettering, copy safe zone ni arquitectura.
+
+### V3b.1 — Cinco presencias simultáneas
+
+La revisión veía tres productos claros. **No era una decisión de composición: era un
+bug.** Los slots `±2` se estaban pintando fuera del cuadro desde la V3.
+
+**Causa.** `perspective` sólo proyecta a los **hijos directos** del elemento que la
+declara. Estaba en `.orbit-shell`, y un plato es bisnieto:
+
+```text
+.orbit-shell (perspective)  →  .dc-scene  →  .dc-plates  →  .dc-plate
+```
+
+`.dc-scene` es un div plano, así que la cadena 3D se rompía ahí. Los platos recibían
+su `translateZ` pero **nunca la proyección**, de modo que un slot autorizado a
+`x = 109%` del shell (valor pre-perspectiva, pensado para proyectarse a 95%) se
+pintaba literalmente en el 109% — fuera de pantalla. Y `getBoundingClientRect()` sí
+aplicaba la perspectiva, así que **toda medición decía que el objeto estaba en
+pantalla**: los tests pasaban y el objeto no existía visualmente.
+
+Se detectó marcando el elemento con un contorno: el contorno aparecía en la esquina
+inferior derecha de su propio rect declarado.
+
+**Solución.** La perspectiva pasa a `.dc-plates`, que es el padre directo de los
+platos. Como consecuencia:
+
+- desaparece la necesidad de `transform-style: preserve-3d` para la proyección;
+- `opacity` y `filter` se mueven del botón a la imagen. Ambas son propiedades de
+  agrupación: cualquiera de las dos aplana su elemento fuera del contexto 3D, que era
+  la segunda mitad del mismo problema. El botón conserva sólo `transform`.
+
+Con la proyección funcionando, el track se reequilibró para cinco presencias reales:
+
+| slot | x pantalla | escala | opacidad | z | ancho medido |
+|---|---:|---:|---:|---:|---:|
+| −2 | 28% | .64 | .70 | −540 | 158 px |
+| −1 | 45% | .76 | .96 | −250 | 230 px |
+| **0** | **63%** | **1.16** | **1** | **+150** | **439 px** |
+| +1 | 84% | .74 | .96 | −210 | 220 px |
+| +2 | 95% | .70 | .72 | −470 | 178 px |
+
+Cinco presencias, tres escalones de tamaño, héroe 2.8× los lejanos, y los dos
+extremos recortados por los bordes del cuadro. En móvil se mantienen cinco, pero con
+los lejanos mucho más insinuados para no amontonar.
+
+### V3b.2 — Decorativos reales por plato
+
+`foregroundDecor` acepta ahora **una cadena o una lista**. Cada plato tiene:
+
+- **2 ingredientes en primer plano** (rate 1.35, por delante del héroe);
+- **1 ingrediente de fondo** (rate 0.34, detrás del lettering);
+- **1 atmósfera propia** — un lavado radial teñido con el acento del plato, generado
+  en CSS. Es el humo / vapor / agua que pedía el brief, no cuesta red, y garantiza
+  que ningún plato se quede sin ecosistema aunque su emplatado no dé recortes.
+
+Los recortes ambiguos (quenelles de salsa, motas blancas, migas negras) se retiraron
+de la asignación: sólo se usan ingredientes identificables — hojas, flores, gajos de
+cítrico, trazos de aceite. 18 elementos y 6 atmósferas en escena, **6/6 combinaciones
+distintas**.
+
+| Plato | Primer plano | Fondo |
+|---|---|---|
+| FIRE | gajo cítrico + hoja de salvia | trazo de aceite cálido |
+| BLUEFIN | gajo de naranja sanguina + flor y hoja | punto verde |
+| EMBER | trazo de aceite verde + brizna | punto verde |
+| SEA | flor y hoja + brizna cítrica | punto verde |
+| IBERIAN | hoja de salvia + gajo cítrico | punto verde |
+| HONEY | trazo de aceite cálido + flor y hoja | hoja de salvia |
+
+**Estructura.** Un grupo por plato y por capa. El grupo lleva el parallax y la
+opacidad; los ingredientes van dentro, anclados a su propia posición. Así todo el
+ecosistema viaja junto a una velocidad que no es la del producto, con un solo
+`gsap.set` por capa y plato.
+
+**Ventana de visibilidad.** Sólo el plato en foco conserva su ecosistema
+(`1 − |d|·1.55` delante, `1 − |d|·1.45` detrás). Una ventana más ancha parecía más
+rica en un fotograma y en el siguiente barría la guarnición de un plato vecino por
+encima del copy y de los controles, precisamente porque el raíl delantero viaja más
+rápido que los productos.
+
+### V3b.3 — Validaciones pedidas
+
+| | Comprobación | Resultado |
+|---|---|---|
+| A | Cinco productos simultáneos en desktop | **5** · anchos 158/230/439/220/178 · 3 escalones |
+| B | Decor visible en cada plato | 18 elementos + 6 atmósferas; 1 fondo y 2 frente visibles por escena |
+| C | El decor cambia por plato | **6/6 combinaciones distintas** |
+| D | El decor se mueve a otra velocidad | delantero 116 px vs plato 42 px en el mismo intervalo (2.8×) |
+| E | Sin regresiones | 114/114 · `class5-complete-e2e`, `class6-product-e2e`, `class7-editorial-flow-static` en verde |
+
+### V3b.4 — Nota sobre las pruebas
+
+El bug de perspectiva pasó desapercibido en V3 porque **todas las mediciones se
+hacían con `getBoundingClientRect()`**, que aplicaba una proyección que el pintado no
+aplicaba. La lección para el Motion Engine: en escenas 3D, una aserción geométrica no
+sustituye a mirar el fotograma. Las comprobaciones nuevas de esta micro-iteración
+miden tamaños relativos y escalones, no sólo presencia en el DOM, y `geom()` lee ahora
+opacidad y filtro de la imagen, que es donde viven.
