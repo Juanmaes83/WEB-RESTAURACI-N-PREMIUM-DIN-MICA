@@ -207,10 +207,13 @@
       const img=document.createElement('img');
       img.className='ps-slice-img';
       img.src=s.runtimeAsset;img.alt=s.name;img.draggable=false;
-      /* the hero and its immediate neighbours are worth the early bytes; the far side
-         of the orbit can arrive when the browser has spare capacity */
-      img.loading=i<=1||i>=N()-1?'eager':'lazy';
+      /* All eight are in the first viewport, so lazy would only leave the composition
+         half-built on first paint — and the optimized set is 1.7MB in total. Load them
+         all and PRIORITISE instead: the hero and its two neighbours first, the far
+         side of the orbit at low priority. */
+      img.loading='eager';
       img.decoding='async';
+      img.setAttribute('fetchpriority',i<=1||i>=N()-1?'high':'low');
       /* registration lives in the manifest: scale and rotate about this slice's own
          apex, then move that apex onto the canonical one */
       const r=s.registration;
