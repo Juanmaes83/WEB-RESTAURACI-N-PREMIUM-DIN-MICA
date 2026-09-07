@@ -21,14 +21,33 @@ jobs:
       - name: Syntax checks
         run: |
           node --check class8-depth-carousel.js
+          node --check class9-anchor-swap.js
+          node --check class9-anchor-swap-art-direction.js
           node --check class4-runtime-guard.js
           node --check tests/class8-depth-carousel-e2e.mjs
+          node --check tests/class9-anchor-swap-e2e.mjs
           node --check tests/static-server.mjs
       - name: Additive contract — index.html must stay untouched
         run: |
           grep -q 'class4-runtime-guard.js' index.html
           ! grep -q 'class8-depth-carousel.js' index.html
+          ! grep -q 'class9-anchor-swap.js' index.html
           grep -q "s.src='class8-depth-carousel.js'" class4-runtime-guard.js
+          grep -q "s.src='class9-anchor-swap.js'" class4-runtime-guard.js
+          grep -q "s.src='class9-anchor-swap-art-direction.js'" class4-runtime-guard.js
+      - name: Held-product art-direction contract
+        run: |
+          grep -q "anchorHeldAssets='ready'" class9-anchor-swap-art-direction.js
+          grep -q "outDrift" class9-anchor-swap-art-direction.js
+          grep -q "inDrift" class9-anchor-swap-art-direction.js
+          grep -q "type:'highball'" class9-anchor-swap-art-direction.js
+          grep -q "type:'stemless'" class9-anchor-swap-art-direction.js
+          grep -q "type:'bowl'" class9-anchor-swap-art-direction.js
+      - name: Verify held-product media is reachable
+        run: |
+          curl -fsSL --retry 3 --retry-delay 2 -o /dev/null 'https://d2ol7oe51mr4n9.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/7e293eeb-2220-42d0-a436-c3ec593e72e8.webp'
+          curl -fsSL --retry 3 --retry-delay 2 -o /dev/null 'https://d2ol7oe51mr4n9.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/f83605f6-72ca-4608-9e52-e90f1a71d79c.webp'
+          curl -fsSL --retry 3 --retry-delay 2 -o /dev/null 'https://d2ol7oe51mr4n9.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/9e7ced69-1f4c-4556-995e-0d6029be3c45.webp'
       - name: Install browser test runtime
         run: |
           test -f package.json || npm init -y >/dev/null 2>&1
