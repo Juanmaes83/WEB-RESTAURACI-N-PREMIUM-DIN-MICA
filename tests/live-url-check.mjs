@@ -19,9 +19,13 @@ const PRESETS={
     layerName:'carousel renders multiple depth levels',layerMin:3,layerUnit:'visible plates'},
   'anchor-scenes':{global:'RestaurantAnchorScenes',ready:()=>document.documentElement.dataset.anchorScenes==='ready',
     label:'Anchor Scenes',
+    /* not just "has an image": the deployed pixels must be the real master set from
+       the runtime folder, or the URL is serving something else */
     layers:()=>[...document.querySelectorAll('.sc-scene')].filter(s=>{
-      const bg=getComputedStyle(s.querySelector('.sc-subject')||s).backgroundImage;return bg&&bg!=='none'}).length,
-    layerName:'both master scenes resolve',layerMin:2,layerUnit:'scenes with imagery'}
+      const bg=getComputedStyle(s.querySelector('.sc-subject')||s).backgroundImage||'';
+      return /\/assets\/anchor-scenes\/runtime\/scene-\d\d-[a-z-]+\.webp/.test(bg)}).length,
+    layerName:'both master scenes resolve from the real runtime set',layerMin:2,
+    layerUnit:'real master scenes'}
 };
 const SPEC=PRESETS[PRESET];
 if(!SPEC){console.error(`unknown preset: ${PRESET}`);process.exit(2)}
