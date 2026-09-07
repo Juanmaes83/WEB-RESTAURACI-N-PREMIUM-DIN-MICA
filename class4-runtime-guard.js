@@ -80,3 +80,17 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,70));
   else setTimeout(load,70);
 })();
+
+/* PROJECT 02 · FINAL ART-DIRECTION MICRO PASS — load after the approved engine.
+   This layer owns only held-product media/layout; class9 keeps gesture/state/world. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-anchor-swap-art-direction]'))return;
+    const s=document.createElement('script');
+    s.src='class9-anchor-swap-art-direction.js';s.dataset.anchorSwapArtDirection='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,140));
+  else setTimeout(load,140);
+})();
