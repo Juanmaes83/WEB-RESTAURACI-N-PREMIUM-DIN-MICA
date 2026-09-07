@@ -19,14 +19,15 @@
   };
 
   /* Percentages are relative to .as-anchor (the measured hand canvas).
-     The same three physical product types are reused across the six demo dishes;
-     production projects can later map one unique held asset per dish. */
+     The three physical product types are each used twice across the six demo dishes.
+     Their order is staggered so non-adjacent navigation still proves that highball,
+     stemless glass and bowl are genuinely different held objects. */
   const PROFILES=[
     {asset:ASSETS.highball, x:51.5,y:31.2,w:40,rotate:-1.5, outDrift:8.0,inDrift:6.0,type:'highball'},
     {asset:ASSETS.stemless,x:52.0,y:32.0,w:47,rotate: 1.2, outDrift:7.0,inDrift:5.5,type:'stemless'},
     {asset:ASSETS.bowl,    x:51.0,y:34.4,w:58,rotate:-1.0, outDrift:9.0,inDrift:6.5,type:'bowl'},
-    {asset:ASSETS.highball, x:51.8,y:31.0,w:39,rotate: 1.0, outDrift:8.0,inDrift:6.0,type:'highball'},
-    {asset:ASSETS.stemless,x:51.4,y:32.3,w:46,rotate:-1.4, outDrift:7.5,inDrift:5.5,type:'stemless'},
+    {asset:ASSETS.stemless,x:51.8,y:32.1,w:46,rotate: 1.0, outDrift:7.2,inDrift:5.5,type:'stemless'},
+    {asset:ASSETS.highball,x:51.4,y:31.1,w:39,rotate:-1.4, outDrift:8.0,inDrift:6.0,type:'highball'},
     {asset:ASSETS.bowl,    x:51.7,y:34.0,w:57,rotate: 1.1, outDrift:9.0,inDrift:6.5,type:'bowl'}
   ];
 
