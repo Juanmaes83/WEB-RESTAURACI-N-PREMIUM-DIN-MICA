@@ -299,16 +299,26 @@
 
   function boot(){
     if(ready)return;
-    if(!$('.studio-panel.motion-panel'))return;
+    const panel=$('.studio-panel.motion-panel');
+    /* Build only once the panel is actually on screen.
+
+       Studio creates its panels hidden at boot, so the library COULD be built while
+       the drawer is closed — and it used to be. That put thirteen cards into the DOM
+       during the busiest moment of the page's life, and under a slow CPU it shifted
+       the boot order enough to expose a pre-existing race in how a preset's saved
+       choice is restored: one run in six ended back on the default choreography.
+       The library is an index of a drawer nobody has opened yet, so it simply waits.
+       Nothing outside Studio can feel it any more. */
+    if(!panel||panel.offsetParent===null)return;
     if(!build())return;
     ready=true;
   }
-  /* Studio builds its panels lazily, and each engine injects its option when its
-     runtime lands — so keep looking until the panel exists, then keep the view honest. */
+  /* Each engine injects its option when its runtime lands, so keep looking until the
+     panel is open, then keep the view honest. */
   const timer=setInterval(()=>{boot();if(ready)clearInterval(timer)},200);
-  setTimeout(()=>clearInterval(timer),30000);
+  setTimeout(()=>clearInterval(timer),120000);
   document.addEventListener('click',e=>{
-    if(e.target.closest?.('.studio-open'))setTimeout(()=>{boot();sync()},200);
+    if(e.target.closest?.('.studio-open'))setTimeout(()=>{boot();sync()},260);
   },true);
   /* A preset's runtime can land after the library is built, and the select can be
      changed from anywhere, so the view is refreshed periodically — but only while the
