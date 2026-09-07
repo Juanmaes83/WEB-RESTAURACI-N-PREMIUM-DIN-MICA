@@ -161,3 +161,21 @@ Clase 04 prioriza producto y personalización. Clase 05 será la **Motion Direct
 - Clase 06 — QA, producto y publicación
 
 LÚMINA sigue siendo una marca docente. El activo real es el **Restaurant Experience Engine + Restaurant Studio**.
+
+---
+
+## Roadmap actual del producto
+
+La evolución posterior de Motion, Restaurant Studio y los nuevos módulos opcionales se mantiene en:
+
+**[`docs/ROADMAP-RESTAURANT-EXPERIENCE-ENGINE.md`](docs/ROADMAP-RESTAURANT-EXPERIENCE-ENGINE.md)**
+
+Ese roadmap incluye:
+
+- catálogo completo de Motion y motores pendientes;
+- integración futura de **Circular Dish Rotator** y **Dish Stage** desde LAB al catálogo oficial de Studio sin borrar sus LABs;
+- **Scroll Traveler / Red Prawn Journey**;
+- **Cinematic Product Rail**;
+- módulos opcionales OFF/ON de **Location / Google Maps**, **WhatsApp**, **Social + Reputation**;
+- experiencias opcionales **Memories / Guest Stories** y **Beverage Experience**;
+- reglas de Project State, Media Engine, personalización y validación humana visual.
