@@ -501,8 +501,19 @@ async function reducedMotionSession(){
       null,{timeout:9000});
   }catch{}
   await page.waitForTimeout(300);
+  const detailWhy=await page.evaluate(()=>({
+    open:document.getElementById('dish-detail')?.classList.contains('is-open'),
+    aria:document.getElementById('dish-detail')?.getAttribute('aria-hidden'),
+    title:document.getElementById('detail-title')?.textContent.trim().slice(0,24),
+    bridge:typeof window.RestaurantClass6Detail?.open,
+    scenes:window.RestaurantAnchorScenes?.state?.(),
+    baseDishes:document.querySelectorAll('#orbit-stage .orbit-dish').length,
+    heroMarks:document.querySelectorAll('#orbit-stage .orbit-dish[data-orbit-hero]').length,
+    foodReady:document.documentElement.dataset.orbitalFood||'-'
+  }));
   check('reduced-motion · the dish detail still opens',
-    await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open')));
+    await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open')),
+    JSON.stringify(detailWhy));
   await page.screenshot({path:path.join(SHOTS,'anchor-scenes-reduced-motion.png')});
   await context.close();
 }
