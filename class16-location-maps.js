@@ -71,7 +71,7 @@
       const hostOK = host === 'google.com' || host.endsWith('.google.com') || host === 'goo.gl' || host.endsWith('.goo.gl');
       if (!hostOK) return false;
       if (embedOnly) return host.includes('google.') && (url.pathname.includes('/maps/embed') || url.searchParams.get('output') === 'embed');
-      return url.pathname.includes('/maps') || host.endsWith('goo.gl');
+      return host === 'maps.google.com' || url.pathname.includes('/maps') || host.endsWith('goo.gl');
     } catch {
       return false;
     }
