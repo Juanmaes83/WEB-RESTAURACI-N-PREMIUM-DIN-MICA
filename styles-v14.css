@@ -95,7 +95,10 @@
 }
 
 /* ---------- Studio card ---------- */
-.st-studio .st-check{display:flex;align-items:center;gap:10px;margin:10px 0}
+/* Studio's own `#studio label` stacks its children, which is right for a field with a
+   caption and wrong for a checkbox and its word — so this one asks for a row. */
+.st-studio .st-check{display:flex;flex-direction:row;align-items:center;
+  justify-content:flex-start;gap:10px;margin:12px 0;cursor:pointer}
 .st-studio .st-check input{width:auto;margin:0}
 .st-studio input[type="range"]{width:100%}
 .st-studio .st-status{margin-top:10px;font-size:11px;line-height:1.6;
