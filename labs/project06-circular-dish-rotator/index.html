@@ -9,13 +9,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./project06-circular-dish-rotator.css">
+  <link rel="stylesheet" href="./project06-phase2-premium.css">
 </head>
 <body>
-  <main class="cdr-page">
+  <main class="cdr-page" id="cdr-page">
+    <div id="cdr-restaurant-bg" class="cdr-restaurant-bg" aria-hidden="true"></div>
+
     <header class="cdr-topbar">
-      <a class="cdr-brand" href="../../index.html">LÚMINA</a>
+      <a class="cdr-brand" id="cdr-brand" href="../../index.html"><span id="cdr-brand-text">LÚMINA</span><img id="cdr-brand-logo" alt="" hidden></a>
       <div class="cdr-project-mark"><span>RESTAURANT MOTION ENGINE</span><strong>PROJECT 06 · CIRCULAR DISH ROTATOR</strong></div>
-      <span class="cdr-status">ISOLATED LAB · PHASE 1</span>
+      <div class="cdr-top-actions">
+        <button id="cdr-personalize-open" class="cdr-personalize-btn" type="button">Personalizar</button>
+        <span class="cdr-status">ISOLATED LAB · PHASE 2</span>
+      </div>
     </header>
 
     <section class="cdr-stage" aria-labelledby="cdr-title">
@@ -54,6 +60,12 @@
           <small id="cdr-live" class="cdr-sr-only" aria-live="polite"></small>
         </div>
 
+        <div class="cdr-context-cta" id="cdr-context-cta">
+          <button id="cdr-primary-cta" class="cdr-primary-cta" type="button"><span>Order Diavola</span><i>↗</i></button>
+          <button id="cdr-secondary-cta" class="cdr-secondary-cta" type="button">Reserve table</button>
+          <small id="cdr-cta-note">Contextual action · selected product</small>
+        </div>
+
         <div class="cdr-actions">
           <button id="cdr-prev" class="cdr-circle-btn" type="button" aria-label="Pizza anterior">←</button>
           <button id="cdr-spin" class="cdr-spin-btn" type="button"><span id="cdr-spin-label">Discover</span><i>↻</i></button>
@@ -63,6 +75,11 @@
       </div>
 
       <div id="cdr-shell" class="cdr-shell" tabindex="0" role="application" aria-label="Selector circular de pizzas. Arrastra alrededor de la pizza, lánzala con inercia o usa las flechas." data-settled="true" data-spin-phase="idle">
+        <div class="cdr-world-type" id="cdr-world-type" aria-hidden="true">
+          <span id="cdr-world-word">FIRE</span>
+          <b id="cdr-world-index">01</b>
+          <i id="cdr-world-sub">DIAVOLA</i>
+        </div>
         <div id="cdr-ghost-name" class="cdr-ghost-name" aria-hidden="true">DIAVOLA</div>
         <div class="cdr-atmosphere" aria-hidden="true"></div>
         <div class="cdr-selection-beam" aria-hidden="true"><span></span></div>
@@ -88,6 +105,73 @@
       </div>
     </section>
   </main>
+
+  <aside id="cdr-customizer" class="cdr-customizer" aria-hidden="true" aria-label="Personalización del restaurante">
+    <div class="cdr-customizer-head">
+      <div><small>RESTAURANT PROFILE</small><strong>Personalización</strong></div>
+      <button id="cdr-personalize-close" type="button" aria-label="Cerrar personalización">×</button>
+    </div>
+    <div class="cdr-customizer-scroll">
+      <section>
+        <span class="cdr-panel-kicker">01 · BRAND</span>
+        <label>Nombre del restaurante<input id="cdr-profile-name" type="text" value="LÚMINA"></label>
+        <label>Etiqueta de colección<input id="cdr-profile-collection" type="text" value="Signature Pizza Collection"></label>
+        <label class="cdr-inline-check"><input id="cdr-profile-palette" type="checkbox" checked> Usar identidad cromática por pizza</label>
+        <label>Color de marca<input id="cdr-profile-accent" type="color" value="#ff5a36"></label>
+      </section>
+
+      <section>
+        <span class="cdr-panel-kicker">02 · ASSETS</span>
+        <label class="cdr-upload">Logo / wordmark<input id="cdr-logo-upload" type="file" accept="image/*"></label>
+        <label class="cdr-upload">Producto circular completo<input id="cdr-wheel-upload" type="file" accept="image/*"></label>
+        <label class="cdr-upload">Fondo / atmósfera<input id="cdr-background-upload" type="file" accept="image/*"></label>
+        <button id="cdr-assets-reset" class="cdr-panel-ghost" type="button">Restaurar assets demo</button>
+      </section>
+
+      <section>
+        <span class="cdr-panel-kicker">03 · COMMERCE</span>
+        <label>CTA principal<select id="cdr-profile-primary"><option value="order">Pedido</option><option value="reserve">Reserva</option></select></label>
+        <label>URL de pedido<input id="cdr-profile-order-url" type="url" placeholder="https://..."></label>
+        <label>URL de reservas<input id="cdr-profile-reserve-url" type="url" placeholder="https://..."></label>
+        <p class="cdr-panel-help">Si una URL queda vacía, el LAB abre un flujo demo y emite un evento de integración en vez de simular un backend real.</p>
+      </section>
+    </div>
+    <div class="cdr-customizer-actions">
+      <button id="cdr-profile-reset" class="cdr-panel-ghost" type="button">Reset</button>
+      <button id="cdr-profile-save" class="cdr-panel-save" type="button">Guardar cambios</button>
+    </div>
+  </aside>
+  <div id="cdr-customizer-backdrop" class="cdr-customizer-backdrop" hidden></div>
+
+  <dialog id="cdr-order-dialog" class="cdr-commerce-dialog">
+    <button class="cdr-dialog-close" type="button" data-close-dialog aria-label="Cerrar">×</button>
+    <p class="cdr-dialog-kicker">ORDER REQUEST</p>
+    <h2 id="cdr-order-title">Diavola</h2>
+    <p id="cdr-order-summary"></p>
+    <form id="cdr-order-form">
+      <label>Cantidad<input id="cdr-order-qty" type="number" min="1" max="12" value="1"></label>
+      <label>Notas<textarea id="cdr-order-notes" rows="3" placeholder="Sin cebolla, extra picante…"></textarea></label>
+      <button type="submit" class="cdr-dialog-primary">Preparar pedido</button>
+    </form>
+    <small>LAB: emite <code>cdr:order-request</code>. No se realiza ningún cobro.</small>
+  </dialog>
+
+  <dialog id="cdr-reserve-dialog" class="cdr-commerce-dialog">
+    <button class="cdr-dialog-close" type="button" data-close-dialog aria-label="Cerrar">×</button>
+    <p class="cdr-dialog-kicker">TABLE REQUEST</p>
+    <h2>Reserve the table</h2>
+    <form id="cdr-reserve-form">
+      <label>Fecha<input id="cdr-reserve-date" type="date" required></label>
+      <label>Personas<input id="cdr-reserve-guests" type="number" min="1" max="12" value="2"></label>
+      <label>Notas<textarea id="cdr-reserve-notes" rows="3" placeholder="Celebración, alergias, preferencias…"></textarea></label>
+      <button type="submit" class="cdr-dialog-primary">Preparar reserva</button>
+    </form>
+    <small>LAB: emite <code>cdr:reservation-request</code>. No envía datos a un restaurante real.</small>
+  </dialog>
+
+  <div id="cdr-toast" class="cdr-toast" role="status" aria-live="polite"></div>
+
   <script src="./project06-circular-dish-rotator.js"></script>
+  <script src="./project06-phase2-premium.js"></script>
 </body>
 </html>
