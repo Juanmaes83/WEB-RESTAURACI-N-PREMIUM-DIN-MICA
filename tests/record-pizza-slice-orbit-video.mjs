@@ -43,6 +43,14 @@ const settle=page=>page.waitForFunction(()=>{
 async function enter(page){
   await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:30000});
   await selectPreset(page,'pizza-slice-orbit','pizzaSliceOrbit');
+  /* Wait for the eight slices and the station to exist before judging: the ready
+     flag lands before the images have decoded, and an immediate sample would refuse
+     a preset that was about to be fine. */
+  await page.waitForFunction(()=>{
+    const imgs=[...document.querySelectorAll('.ps-slice .ps-slice-img')];
+    return imgs.length===8&&imgs.every(i=>i.complete&&i.naturalWidth>0)
+      &&!!document.querySelector('.ps-station svg');
+  },null,{timeout:25000}).catch(()=>{});
   const gate=await page.evaluate(()=>{
     const s=window.RestaurantPizzaSliceOrbit?.state?.()||{};
     const imgs=[...document.querySelectorAll('.ps-slice .ps-slice-img')];
