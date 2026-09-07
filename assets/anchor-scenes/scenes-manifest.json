@@ -1,0 +1,315 @@
+{
+  "kind": "real",
+  "source": "MANO+OBJETO/",
+  "generatedBy": "scripts/ingest-anchor-scenes.mjs",
+  "generatedAt": "2026-09-07",
+  "canvas": {
+    "w": 1122,
+    "h": 1402
+  },
+  "referenceTake": "MANO+OBJETO/5faa56e1-c9e1-48fb-bc5b-81e7ef683715.png",
+  "selectionThresholds": {
+    "objectScale": 0.045,
+    "objectShift": 0.045,
+    "fingerDiff": 20,
+    "fingerPct": 8.5
+  },
+  "anchorZones": {
+    "fingers": {
+      "x0": 0.14,
+      "x1": 0.86,
+      "y0": 0.4,
+      "y1": 0.57
+    },
+    "palm": {
+      "x0": 0.2,
+      "x1": 0.8,
+      "y0": 0.57,
+      "y1": 0.68
+    },
+    "wrist": {
+      "x0": 0.3,
+      "x1": 0.95,
+      "y0": 0.7,
+      "y1": 0.99
+    }
+  },
+  "scenes": [
+    {
+      "dishIndex": 0,
+      "dishId": "dish-01",
+      "product": "Gamba roja salvaje",
+      "sourceOriginal": "MANO+OBJETO/affdb8f4-8d67-4b7e-a010-f9cb028b4d38 (1).png",
+      "runtimeAsset": "assets/anchor-scenes/runtime/scene-01-gamba-roja.webp",
+      "bytes": 172764,
+      "canvas": {
+        "w": 1122,
+        "h": 1402
+      },
+      "registration": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "objectPosition": {
+          "x": 0.5,
+          "y": 0.3559
+        }
+      },
+      "object": {
+        "x": 197,
+        "y": 200,
+        "w": 728,
+        "h": 598
+      },
+      "hit": {
+        "x": 0.1756,
+        "y": 0.1427,
+        "w": 0.6488,
+        "h": 0.4265
+      },
+      "anchor": {
+        "fingers": {
+          "mean": 13.81,
+          "pct": 4.45
+        },
+        "palm": {
+          "mean": 6.78,
+          "pct": 0.2
+        },
+        "wrist": {
+          "mean": 6.67,
+          "pct": 0.15
+        },
+        "registrationGain": 0
+      },
+      "note": "prawns with tail, rice, micro herbs"
+    },
+    {
+      "dishIndex": 1,
+      "dishId": "dish-02",
+      "product": "Atún rojo / Naranja sanguina",
+      "sourceOriginal": "MANO+OBJETO/5faa56e1-c9e1-48fb-bc5b-81e7ef683715.png",
+      "runtimeAsset": "assets/anchor-scenes/runtime/scene-02-atun-rojo.webp",
+      "bytes": 177264,
+      "canvas": {
+        "w": 1122,
+        "h": 1402
+      },
+      "registration": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "objectPosition": {
+          "x": 0.496,
+          "y": 0.3288
+        }
+      },
+      "object": {
+        "x": 200,
+        "y": 170,
+        "w": 713,
+        "h": 582
+      },
+      "hit": {
+        "x": 0.1783,
+        "y": 0.1213,
+        "w": 0.6355,
+        "h": 0.4151
+      },
+      "anchor": {
+        "fingers": {
+          "mean": 0,
+          "pct": 0
+        },
+        "palm": {
+          "mean": 0,
+          "pct": 0
+        },
+        "wrist": {
+          "mean": 0,
+          "pct": 0
+        },
+        "registrationGain": 0
+      },
+      "note": "seared bluefin, avocado, edamame, radish"
+    },
+    {
+      "dishIndex": 2,
+      "dishId": "dish-03",
+      "product": "Alcachofa a la brasa",
+      "sourceOriginal": "MANO+OBJETO/e8522199-d6d1-489f-a446-c440e5b97c9b.png",
+      "runtimeAsset": "assets/anchor-scenes/runtime/scene-03-brasa-pulpo.webp",
+      "bytes": 176686,
+      "canvas": {
+        "w": 1122,
+        "h": 1402
+      },
+      "registration": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "objectPosition": {
+          "x": 0.4982,
+          "y": 0.3445
+        }
+      },
+      "object": {
+        "x": 203,
+        "y": 214,
+        "w": 712,
+        "h": 538
+      },
+      "hit": {
+        "x": 0.1809,
+        "y": 0.1526,
+        "w": 0.6346,
+        "h": 0.3837
+      },
+      "anchor": {
+        "fingers": {
+          "mean": 11.31,
+          "pct": 4.71
+        },
+        "palm": {
+          "mean": 3.26,
+          "pct": 0.29
+        },
+        "wrist": {
+          "mean": 3.5,
+          "pct": 0.03
+        },
+        "registrationGain": 0
+      },
+      "note": "charred octopus, tomato, potato"
+    },
+    {
+      "dishIndex": 3,
+      "dishId": "dish-04",
+      "product": "Lubina salvaje",
+      "sourceOriginal": "MANO+OBJETO/88a2a7a6-51f9-4c8b-869c-bb66eefa0a25.png",
+      "runtimeAsset": "assets/anchor-scenes/runtime/scene-04-lubina-salvaje.webp",
+      "bytes": 172790,
+      "canvas": {
+        "w": 1122,
+        "h": 1402
+      },
+      "registration": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "objectPosition": {
+          "x": 0.4942,
+          "y": 0.3541
+        }
+      },
+      "object": {
+        "x": 199,
+        "y": 220,
+        "w": 711,
+        "h": 553
+      },
+      "hit": {
+        "x": 0.1774,
+        "y": 0.1569,
+        "w": 0.6337,
+        "h": 0.3944
+      },
+      "anchor": {
+        "fingers": {
+          "mean": 13.8,
+          "pct": 3.65
+        },
+        "palm": {
+          "mean": 8.96,
+          "pct": 0.55
+        },
+        "wrist": {
+          "mean": 6.35,
+          "pct": 0.09
+        },
+        "registrationGain": 0
+      },
+      "note": "raw fish cubes, avocado, radish"
+    },
+    {
+      "dishIndex": 4,
+      "dishId": "dish-05",
+      "product": "Presa ibérica",
+      "sourceOriginal": "MANO+OBJETO/c4e5577e-ae4b-484d-8afd-a6fd25df9660.png",
+      "runtimeAsset": "assets/anchor-scenes/runtime/scene-05-presa-iberica.webp",
+      "bytes": 171712,
+      "canvas": {
+        "w": 1122,
+        "h": 1402
+      },
+      "registration": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "objectPosition": {
+          "x": 0.4951,
+          "y": 0.3466
+        }
+      },
+      "object": {
+        "x": 197,
+        "y": 208,
+        "w": 717,
+        "h": 556
+      },
+      "hit": {
+        "x": 0.1756,
+        "y": 0.1484,
+        "w": 0.639,
+        "h": 0.3966
+      },
+      "anchor": {
+        "fingers": {
+          "mean": 12.3,
+          "pct": 4.95
+        },
+        "palm": {
+          "mean": 4.16,
+          "pct": 0.12
+        },
+        "wrist": {
+          "mean": 4.11,
+          "pct": 0.02
+        },
+        "registrationGain": 0
+      },
+      "note": "sliced meat, truffle, creamed grain"
+    }
+  ],
+  "excluded": [
+    {
+      "sourceOriginal": "MANO+OBJETO/22285005-1749-47d7-9274-a45ad6f267f1 (1).png",
+      "product": "Cítricos y miel quemada",
+      "dishId": "dish-06",
+      "measured": {
+        "rimW": 646,
+        "rimY": 486,
+        "objectScaleOff": 0.094,
+        "objectShiftOff": 0.0899,
+        "fingers": {
+          "mean": 24.34,
+          "pct": 14.03
+        },
+        "palm": {
+          "mean": 8.53,
+          "pct": 0.49
+        },
+        "wrist": {
+          "mean": 6.39,
+          "pct": 0.24
+        }
+      },
+      "reasons": [
+        "object scale 9.4% off the take",
+        "object sits 9.0% of the frame away",
+        "fingers move (24.34 mean, 14.03% of pixels)"
+      ]
+    }
+  ],
+  "note": "Real master photography. Registration lives here, not in the engine: dropping in a new set means replacing these files and their registration numbers."
+}

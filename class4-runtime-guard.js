@@ -66,3 +66,17 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,60));
   else setTimeout(load,60);
 })();
+
+/* CLASS 09 · PROJECT 02 — load the Anchor Scenes preset additively.
+   Same pattern as Project 01: index.html stays untouched. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-anchor-scenes-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class9-anchor-scenes.js';s.dataset.anchorScenesRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,80));
+  else setTimeout(load,80);
+})();

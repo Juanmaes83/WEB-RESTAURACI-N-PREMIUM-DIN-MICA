@@ -380,9 +380,22 @@ Es especialmente valioso para restaurantes con fotografía o producción audiovi
 
 ## Estado
 
-**ACTIVE / IN DEVELOPMENT** — arrancado el 2026-09-05 tras el cierre de Project 01.
-Rama: `feat/anchor-swap-lab`. Documentación: `docs/PROJECT-02-ANCHOR-SWAP.md`.
-La definición de este proyecto no cambia: se desarrolla tal como está descrita arriba.
+**ACTIVE / PIVOTED** — arrancado el 2026-09-05 tras el cierre de Project 01 y pivotado
+el 2026-09-05 tras la primera revisión visual.
+
+La definición del proyecto —ancla persistente, mundo que muta, coexistencia controlada—
+**no cambia**. Cambia la técnica. El primer intento ensamblaba la mano en capas en tiempo
+de ejecución y la revisión humana la vio **entrecortada**: rama `feat/anchor-swap-lab`
+(HEAD `8653179`), archivada sin mergear, documentada en `docs/PROJECT-02-ANCHOR-SWAP.md`.
+
+El desarrollo continúa como **escenas precompuestas**: una imagen maestra cerrada por
+producto, todas con la misma mano, el mismo encuadre y la misma luz. Rama activa:
+`feat/anchor-swap-scenes-lab`. Documentación: `docs/PROJECT-02-ANCHOR-SCENES-PIVOT.md`.
+
+Estado del pivot: **APPROVED / CLOSED** — aprobado por Juanma el 2026-09-07 tras la
+revisión visual con las escenas maestras reales, e integrado en `main`. Baseline
+aprobada: `c378e05f`. Quedan pendientes de **datos** (no de código) los masters de
+Alcachofa, Lubina y Postre: ver `docs/PROJECT-02-ANCHOR-SCENES-PIVOT.md` §16.2.
 
 ## Criterio de aprobación
 
@@ -895,6 +908,14 @@ El activo será el **motor capaz de generar experiencias gastronómicas premium 
 > **Actualización 2026-09-05.** Project 01 ha superado el ciclo completo y ha sido
 > aprobado por Juanma: queda **APPROVED / CLOSED** e integrado en `main`. Project 02
 > pasa a **ACTIVE / IN DEVELOPMENT**. Los proyectos 03, 04 y 05 siguen pendientes.
+>
+> **Segunda actualización 2026-09-05.** Project 02 queda **ACTIVE / PIVOTED**: la mano
+> ensamblada en capas se abandona como solución de producción y el proyecto pasa a
+> escenas precompuestas. Ni Project 02 ni el pivot están mergeados a `main`.
+>
+> **Tercera actualización 2026-09-07.** Project 02 queda **APPROVED / CLOSED** e
+> integrado en `main` (baseline `c378e05f`). Con Project 01 y Project 02 cerrados, se
+> abre **Project 03 — Orbital Food Slider**; los proyectos 04 y 05 siguen pendientes.
 
 Los cinco proyectos tienen interés suficiente para desarrollarse con Claude Code bajo supervisión.
 

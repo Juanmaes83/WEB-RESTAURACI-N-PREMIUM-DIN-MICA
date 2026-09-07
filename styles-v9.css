@@ -1,0 +1,210 @@
+/* CLASS 09 · PROJECT 02 — ANCHOR SCENE SWAP
+
+   Layer contract:
+     L0 .sc-decor-back   background ingredients + atmosphere      rate .35
+     L1 .sc-word         lettering behind the scene               rate .55
+     L2 .sc-scene-a      outgoing master scene (opaque)           rate 0
+     L3 .sc-scene-b      incoming master scene, revealed by mask  rate 0
+     L4 .sc-seam         the light on the wipe edge
+     L5 .sc-decor-front  foreground ingredients                   rate 1.20
+     L6 .dish-copy / .orbit-controls / cursor
+
+   The scenes are rate 0 on purpose. Each one already contains the hand, so moving
+   them would move the anchor. They are the fixed part; the decor carries the motion.
+
+   Scoped to html[data-orbital-motion="anchor-scenes"], so the other presets are
+   untouched when this one is off.
+*/
+
+/* ---------- silence the other motion languages ---------- */
+html[data-orbital-motion="anchor-scenes"] #orbit-stage{visibility:hidden;pointer-events:none}
+html[data-orbital-motion="anchor-scenes"] .orbit-ring,
+html[data-orbital-motion="anchor-scenes"] .orbit-center-mark,
+html[data-orbital-motion="anchor-scenes"] .orbit-glow,
+html[data-orbital-motion="anchor-scenes"] .orbital-top{display:none}
+html[data-orbital-motion="anchor-scenes"] .orbital-section{
+  background:#05050a;padding:calc(7vh + 78px) 0 6vh;min-height:100svh;
+  display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+html[data-orbital-motion="anchor-scenes"] .orbit-shell{
+  position:relative;z-index:2;height:min(74vh,760px);min-height:520px;margin:0}
+
+/* ---------- the stage: full section, behind the interface ---------- */
+.sc-stage{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.sc-stage[hidden]{display:none}
+
+/* Master scenes. object-position keeps the hand in the same place at any viewport,
+   and background-size:cover crops rather than distorts. */
+.sc-scene{position:absolute;inset:0}
+.sc-scene-a{z-index:2}
+.sc-scene-b{z-index:3;will-change:mask-image}
+/* The subject is CONTAINED so the hand is never cropped, and it is a real box with
+   the image's own aspect ratio rather than a background inside a full-bleed div.
+   That distinction matters twice:
+     · a mask on a full-bleed div is measured against the viewport, not the image, so
+       its falloff never lands on the image's edge — which is why the image's own
+       rectangle was visible as two hard verticals down the frame;
+     · the object hit region is expressed in fractions of the scene image, and both
+       the engine and its test read it off this box, so a box that is not the image
+       makes the two agree with each other while both point at the wrong place.
+   `left:70%` + `translateX(-70%)` reproduces `background-position:70%` exactly:
+   0.70·container − 0.70·element = 0.70·(container − element). */
+.sc-subject{position:absolute;top:4%;left:70%;height:108%;aspect-ratio:var(--sc-aspect,1122/1402);
+  /* --sc-reg-* carry the per-scene registration from the manifest. They compose with
+     the box's own placement instead of replacing it, so the same numbers work on
+     both viewports. */
+  transform:translate(-70%,-4%) translate(var(--sc-reg-x,0%),var(--sc-reg-y,0%)) scale(var(--sc-reg-s,1));
+  background-repeat:no-repeat;background-size:100% 100%;background-position:center;
+  /* Feather only the sides. Top and bottom are clipped by the stage — the image is
+     taller than it — so they have no visible edge, and fading the bottom would fade
+     the wrist. The hand spans 10%–96% of the image, so the falloff stays off it. */
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 13%,#000 90%,rgba(0,0,0,.35) 98%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 13%,#000 90%,rgba(0,0,0,.35) 98%,transparent 100%)}
+
+/* The wash carries the scene's colour world to the edges of the frame. It uses the
+   SAME geometry as the subject, scaled up and blurred, so the pixels it shows where
+   the subject fades out come from the same image — the join has nowhere to step. A
+   `cover` crop cannot do that: it is a different scale of a different region, and the
+   mismatch reads as a straight edge no matter how soft the mask is.
+   Exposure has to match too: at brightness .94 against a full-strength subject the
+   boundary reappears as a tonal step. */
+.sc-wash{position:absolute;top:4%;left:70%;height:108%;aspect-ratio:var(--sc-aspect,1122/1402);
+  transform:translate(-70%,-4%) translate(var(--sc-reg-x,0%),var(--sc-reg-y,0%)) scale(calc(2.6*var(--sc-reg-s,1)));
+  background-repeat:no-repeat;background-size:100% 100%;background-position:center;
+  /* blur is applied in local space and then scaled with the element, so 32px here
+     lands at roughly 83px on screen */
+  filter:blur(32px) saturate(1.06) brightness(.99)}
+
+/* No scene image: the fallback paints the object cut-out with no hand, so it wants
+   the full stage and no feather. */
+.sc-scene[data-kind="fallback"] .sc-subject,
+.sc-scene[data-kind="fallback"] .sc-wash{
+  top:0;left:0;width:100%;height:100%;aspect-ratio:auto;transform:none}
+.sc-scene[data-kind="fallback"] .sc-subject{background-size:auto 44%;background-position:68% 30%;
+  -webkit-mask-image:none;mask-image:none}
+.sc-scene[data-kind="fallback"] .sc-wash{background-size:cover;filter:blur(80px) saturate(1.08) brightness(.94)}
+
+.sc-seam{position:absolute;left:-6%;right:-6%;height:2px;z-index:5;opacity:0;
+  background:linear-gradient(90deg,transparent,var(--sc-accent,#fff) 24%,var(--sc-accent,#fff) 76%,transparent);
+  filter:blur(1px);transform:rotate(-.6deg)}
+
+/* ---------- section identity ---------- */
+.sc-eyebrow{display:none}
+html[data-orbital-motion="anchor-scenes"] .sc-eyebrow{
+  display:flex;align-items:baseline;gap:18px;position:relative;z-index:9;
+  margin:0 0 1.6vh;padding:0 6vw;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#cfcbc2}
+.sc-eyebrow > span:first-child{color:var(--sc-accent,#d8ff4f)}
+.sc-eyebrow-hint{letter-spacing:.2em;opacity:.42}
+
+/* ---------- decor ---------- */
+.sc-decor{position:absolute;inset:0}
+.sc-decor-back{z-index:0}
+.sc-decor-front{z-index:6}
+.sc-decor-group{position:absolute;inset:0;will-change:transform,opacity}
+.sc-decor-item{position:absolute;transform:translate(-50%,-50%);background-repeat:no-repeat;
+  background-position:center;background-size:contain}
+.sc-atmo{position:absolute;left:24%;top:44%;width:120%;height:110%;transform:translate(-50%,-50%);
+  filter:blur(88px);pointer-events:none}
+/* Against a photograph these cut-outs read as stickers at the weight they carried
+   over the synthetic worlds, so they sit further back: softer, dimmer, smaller in
+   front. They are here for parallax, not for attention. */
+.sc-decor-back .sc-decor-item{width:clamp(44px,4.4vw,74px);height:clamp(44px,4.4vw,74px);
+  filter:blur(3.4px) brightness(.62) opacity(.52)}
+.sc-decor-front .sc-decor-item{width:clamp(84px,8.4vw,146px);height:clamp(84px,8.4vw,146px);
+  filter:blur(1.6px) opacity(.6) drop-shadow(0 18px 26px rgba(0,0,0,.42))}
+
+/* ---------- lettering ---------- */
+/* The master scenes are opaque images, so there is no "behind" to put type in.
+   The lettering therefore sits in FRONT of them, kept low enough in opacity that
+   the hand reads through it. */
+/* It lives in the editorial column, clear of the eyebrow above it and the title
+   below. Centred and oversized it crossed both — and against photography rather
+   than a synthetic world, a word that spans the frame competes with the dish
+   instead of framing it. */
+.sc-word{position:absolute;left:6vw;top:23%;white-space:nowrap;z-index:4;
+  font-family:var(--font-display,Italiana,serif);font-size:clamp(56px,6.4vw,104px);line-height:.78;
+  letter-spacing:-.03em;text-transform:uppercase;color:var(--sc-accent,#d8ff4f);
+  mix-blend-mode:overlay;will-change:transform,opacity;user-select:none}
+
+/* ---------- copy, controls, cursor ---------- */
+html[data-orbital-motion="anchor-scenes"] .dish-copy{
+  position:absolute;left:6vw;top:31%;z-index:9;
+  width:min(360px,26vw);margin:0;text-align:left;pointer-events:none}
+html[data-orbital-motion="anchor-scenes"] .dish-copy h3{font-size:clamp(38px,4.2vw,64px);margin:6px 0 12px}
+html[data-orbital-motion="anchor-scenes"] .dish-copy > p:not(.kicker){margin:0;max-width:340px;color:#c2bfb7}
+html[data-orbital-motion="anchor-scenes"] .dish-copy .kicker{color:var(--sc-accent,#d8ff4f)}
+html[data-orbital-motion="anchor-scenes"] .explore{pointer-events:auto;border-bottom-color:var(--sc-accent,#d8ff4f)}
+html[data-orbital-motion="anchor-scenes"] .explore span{color:var(--sc-accent,#d8ff4f)}
+
+.sc-copy{display:none;margin:18px 0 0}
+html[data-orbital-motion="anchor-scenes"] .sc-copy{display:block}
+.sc-price{display:block;font-family:var(--font-display,Italiana,serif);font-size:clamp(30px,3.4vw,46px);
+  line-height:1;color:var(--sc-accent,#d8ff4f)}
+.sc-ingredients{display:block;margin-top:10px;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#a8a59d}
+
+html[data-orbital-motion="anchor-scenes"] .orbit-controls{
+  position:absolute;left:6vw;bottom:9vh;z-index:10;justify-content:flex-start;margin:0}
+/* The preset's own counter takes the base one's slot: five scenes cannot honestly
+   read "/ 06". The base element keeps its authoritative text and is only hidden,
+   so every other preset gets it back untouched. */
+.sc-counter{display:none}
+html[data-orbital-motion="anchor-scenes"] .sc-counter{display:block}
+html[data-orbital-motion="anchor-scenes"] #dish-counter{display:none}
+
+.sc-dots{display:none;align-items:center;gap:9px;margin-left:12px}
+html[data-orbital-motion="anchor-scenes"] .sc-dots{display:flex}
+.sc-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.24);cursor:pointer;
+  transition:background .28s ease,width .28s ease}
+.sc-dot[aria-current="true"]{width:24px;border-radius:4px;background:var(--sc-accent,#d8ff4f)}
+html[data-orbital-motion="anchor-scenes"] .circle-btn{border-color:rgba(255,255,255,.26)}
+html[data-orbital-motion="anchor-scenes"] .orbit-shell{cursor:grab}
+html[data-orbital-motion="anchor-scenes"][data-scene-drag] .orbit-shell{cursor:grabbing}
+
+html[data-orbital-motion="anchor-scenes"] .cursor{
+  background:transparent;border:1px solid var(--sc-accent,#d8ff4f);color:var(--sc-accent,#d8ff4f)}
+html[data-orbital-motion="anchor-scenes"][data-scene-cursor="view"] .cursor{
+  background:var(--sc-accent,#d8ff4f);color:#0a0a08}
+html[data-orbital-motion="anchor-scenes"] .cursor span{color:inherit;letter-spacing:.16em}
+
+/* the left third carries the copy, so the scene is dimmed there and only there */
+html[data-orbital-motion="anchor-scenes"] .orbital-section::after{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(96deg,rgba(4,4,9,.88) 0%,rgba(4,4,9,.74) 12%,rgba(4,4,9,.52) 26%,rgba(4,4,9,.28) 38%,rgba(4,4,9,.10) 50%,transparent 66%)}
+
+/* ---------- mobile: the scene centres, the copy goes below ---------- */
+@media(max-width:820px){
+  html[data-orbital-motion="anchor-scenes"] .orbital-section{padding:calc(4vh + 72px) 0 5vh}
+  html[data-orbital-motion="anchor-scenes"] .orbit-shell{height:56vh;min-height:420px}
+  html[data-orbital-motion="anchor-scenes"] .sc-eyebrow{padding:0 7vw;gap:12px;font-size:9px;letter-spacing:.24em}
+  /* On this viewport the image is about as wide as the stage, so its sides sit at
+     the screen edge and the feather can be much shorter without exposing anything. */
+  /* At 104% of the section the subject came out 600px wide inside a 390px viewport:
+     the vessel ran off both edges and its rim sat behind the header. The object is
+     what the swap is about, so it has to fit whole. Measured, not guessed — these
+     values put the bowl at 22..362 across and 85..364 down, clear of the header,
+     with the wrist still running behind the copy. */
+  .sc-subject,.sc-wash{top:19%;left:52%;height:66%;
+    transform:translate(-52%,-19%) translate(var(--sc-reg-x,0%),var(--sc-reg-y,0%)) scale(var(--sc-reg-s,1))}
+  .sc-wash{transform:translate(-52%,-19%) translate(var(--sc-reg-x,0%),var(--sc-reg-y,0%)) scale(calc(2.4*var(--sc-reg-s,1)));
+    filter:blur(26px) saturate(1.06) brightness(.99)}
+  .sc-subject{
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%);
+    mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%)}
+  /* it was clipped behind the header band; below it, and scaled for the viewport */
+  .sc-word{left:7vw;top:14%;transform:none;font-size:clamp(44px,13vw,74px)}
+  .sc-atmo{left:50%;width:170%;height:92%;filter:blur(60px)}
+  .sc-decor-back .sc-decor-item{width:clamp(44px,12vw,74px);height:clamp(44px,12vw,74px)}
+  .sc-decor-front .sc-decor-item{width:clamp(92px,28vw,150px);height:clamp(92px,28vw,150px)}
+  html[data-orbital-motion="anchor-scenes"] .orbital-section::after{
+    background:linear-gradient(3deg,rgba(4,4,9,.92) 0%,rgba(4,4,9,.74) 18%,rgba(4,4,9,.42) 34%,rgba(4,4,9,.14) 48%,transparent 66%)}
+  html[data-orbital-motion="anchor-scenes"] .dish-copy{
+    position:relative;left:auto;top:auto;width:auto;margin:2vh 7vw 0}
+  html[data-orbital-motion="anchor-scenes"] .dish-copy h3{font-size:clamp(32px,9vw,44px)}
+  html[data-orbital-motion="anchor-scenes"] .orbit-controls{
+    position:relative;left:auto;bottom:auto;padding:0 7vw;margin-top:2.4vh}
+  .sc-price{font-size:clamp(26px,8vw,34px)}
+  .sc-ingredients{font-size:10px;letter-spacing:.1em}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sc-scene-b,.sc-word,.sc-decor-group{will-change:auto}
+}
