@@ -477,6 +477,12 @@ await run('mobile',{width:390,height:844},true);
   check('personalization · every product exposes name, ingredients, descriptor, mood, accent and price',
     [0,7].every(i=>['name','ingredients','descriptor','mood','accent','price']
       .every(k=>panel.fields.includes(`products.${i}.${k}`))));
+  /* the evidence has to SHOW the panel: scroll the card into view first */
+  await page.evaluate(()=>{
+    document.querySelector('.pp-studio')?.scrollIntoView({block:'start'});
+    document.querySelector('.pp-studio details')?.setAttribute('open','');
+  });
+  await page.waitForTimeout(700);
   await page.screenshot({path:path.join(SHOTS,'premium-08-personalization-panel.png')});
 
   /* edit through the panel, then reload and prove the existing project state kept it */
