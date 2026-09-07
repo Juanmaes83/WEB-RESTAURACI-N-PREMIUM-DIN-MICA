@@ -1,0 +1,46 @@
+name: WhatsApp Contact Module
+
+on:
+  push:
+    branches: [feat/whatsapp-contact-module-lab]
+    paths:
+      - 'class18-whatsapp-contact.js'
+      - 'styles-v18.css'
+      - 'labs/module-whatsapp-contact/**'
+      - 'docs/MODULE-WHATSAPP-CONTACT.md'
+      - 'tests/class18-whatsapp-contact-contract.mjs'
+      - '.github/workflows/whatsapp-contact-module.yml'
+  pull_request:
+    paths:
+      - 'class18-whatsapp-contact.js'
+      - 'styles-v18.css'
+      - 'labs/module-whatsapp-contact/**'
+      - 'docs/MODULE-WHATSAPP-CONTACT.md'
+      - 'tests/class18-whatsapp-contact-contract.mjs'
+      - '.github/workflows/whatsapp-contact-module.yml'
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: JavaScript syntax
+        run: node --check class18-whatsapp-contact.js
+      - name: WhatsApp Contact isolated contract
+        run: node tests/class18-whatsapp-contact-contract.mjs
+      - name: Parallel collision guard
+        shell: bash
+        run: |
+          git fetch origin main --quiet
+          ALLOWED='^(class18-whatsapp-contact\.js|styles-v18\.css|labs/module-whatsapp-contact/|docs/MODULE-WHATSAPP-CONTACT\.md|tests/class18-whatsapp-contact-contract\.mjs|\.github/workflows/whatsapp-contact-module\.yml)'
+          BAD="$(git diff --name-only origin/main...HEAD | grep -Ev "$ALLOWED" || true)"
+          if [ -n "$BAD" ]; then
+            echo "Unexpected shared/runtime changes detected:"
+            echo "$BAD"
+            exit 1
+          fi
+          echo "PASS · WhatsApp module remains isolated"
