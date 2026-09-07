@@ -15,14 +15,29 @@
     <header class="cdr-topbar">
       <a class="cdr-brand" href="../../index.html">LÚMINA</a>
       <div class="cdr-project-mark"><span>RESTAURANT MOTION ENGINE</span><strong>PROJECT 06 · CIRCULAR DISH ROTATOR</strong></div>
-      <span class="cdr-status">ISOLATED LAB · V2</span>
+      <span class="cdr-status">ISOLATED LAB · PHASE 1</span>
     </header>
 
     <section class="cdr-stage" aria-labelledby="cdr-title">
       <div class="cdr-copy" id="cdr-copy">
-        <p class="cdr-kicker"><span class="cdr-kicker-dot"></span> Eight slices · one rotating plate</p>
-        <h1 id="cdr-title">I'm tempted by<br><em id="cdr-hero-name">Diavola</em></h1>
-        <p class="cdr-body">Gira el plato completo y deja que cada porción llegue al foco. Arrastra, lánzala con inercia o pulsa Discover para una selección cinematográfica.</p>
+        <p class="cdr-kicker"><span class="cdr-kicker-dot"></span><span id="cdr-mood">FIRE · SIGNATURE 01</span></p>
+
+        <div class="cdr-headline-wrap">
+          <span class="cdr-headline-overline" id="cdr-headline-overline">Tonight, choose</span>
+          <h1 id="cdr-title"><span id="cdr-headline-lead">the slice with</span><br><em id="cdr-hero-name">Diavola</em></h1>
+          <p class="cdr-headline-tail" id="cdr-headline-tail">Fire at the centre of the table.</p>
+        </div>
+
+        <div class="cdr-product-story" aria-live="polite">
+          <div class="cdr-ingredients-wrap">
+            <span>INGREDIENTS</span>
+            <p id="cdr-ingredients">Tomate San Marzano · fior di latte · salami picante · albahaca</p>
+          </div>
+          <div class="cdr-price-wrap">
+            <span>FROM</span>
+            <strong id="cdr-price">€14</strong>
+          </div>
+        </div>
 
         <div class="cdr-copy-link" aria-hidden="true"><span></span><i></i></div>
 
@@ -34,21 +49,23 @@
           <div class="cdr-selection-name-wrap">
             <small>NOW SERVING</small>
             <strong id="cdr-name">Diavola</strong>
+            <span id="cdr-descriptor" class="cdr-descriptor">spicy · smoky · bold</span>
           </div>
           <small id="cdr-live" class="cdr-sr-only" aria-live="polite"></small>
         </div>
 
         <div class="cdr-actions">
           <button id="cdr-prev" class="cdr-circle-btn" type="button" aria-label="Pizza anterior">←</button>
-          <button id="cdr-spin" class="cdr-spin-btn" type="button"><span>Discover</span><i>↻</i></button>
+          <button id="cdr-spin" class="cdr-spin-btn" type="button"><span id="cdr-spin-label">Discover</span><i>↻</i></button>
           <button id="cdr-next" class="cdr-circle-btn" type="button" aria-label="Pizza siguiente">→</button>
         </div>
-        <p class="cdr-hint">Drag circular · Flick para lanzar · ← → · Discover</p>
+        <p class="cdr-hint" id="cdr-hint">Drag circular · Flick para lanzar · ← → · Discover</p>
       </div>
 
-      <div id="cdr-shell" class="cdr-shell" tabindex="0" role="application" aria-label="Selector circular de pizzas. Arrastra alrededor de la pizza, lánzala con inercia o usa las flechas." data-settled="true">
+      <div id="cdr-shell" class="cdr-shell" tabindex="0" role="application" aria-label="Selector circular de pizzas. Arrastra alrededor de la pizza, lánzala con inercia o usa las flechas." data-settled="true" data-spin-phase="idle">
         <div id="cdr-ghost-name" class="cdr-ghost-name" aria-hidden="true">DIAVOLA</div>
         <div class="cdr-atmosphere" aria-hidden="true"></div>
+        <div class="cdr-selection-beam" aria-hidden="true"><span></span></div>
         <div class="cdr-disc-wrap">
           <div class="cdr-disc-shadow" aria-hidden="true"></div>
           <img id="cdr-disc" class="cdr-disc" draggable="false" alt="Pizza completa formada por ocho variedades" src="../../assets/pizza-motion/source/full-pizza/PIZZA%20COMPLETA%20DE%208%20TROZOS.png">
@@ -56,6 +73,7 @@
           <div class="cdr-active-sector" aria-hidden="true">
             <img id="cdr-sector-disc" class="cdr-sector-disc" draggable="false" alt="" src="../../assets/pizza-motion/source/full-pizza/PIZZA%20COMPLETA%20DE%208%20TROZOS.png">
             <div class="cdr-sector-sheen"></div>
+            <div class="cdr-sector-aura"></div>
           </div>
 
           <svg class="cdr-selector" viewBox="0 0 100 100" aria-hidden="true">
