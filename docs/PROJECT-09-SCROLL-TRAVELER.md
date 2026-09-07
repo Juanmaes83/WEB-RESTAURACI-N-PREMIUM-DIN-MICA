@@ -14,7 +14,7 @@ same engine carries a lemon, a bottle, a glass, a spoon or a logo.
 | Styles | `styles-v14.css` (injected by the runtime) |
 | Contract | `window.RestaurantDefaults.scrollTraveler` in `class4-config.js` |
 | Object | `assets/scroll-traveler/runtime/dish-01-prawn.webp` |
-| Suite | `tests/class14-scroll-traveler-e2e.mjs` — 72/72 |
+| Suite | `tests/class14-scroll-traveler-e2e.mjs` — 76/76 |
 | Guard | `scripts/check-scroll-traveler.mjs` |
 | Evidence | `tests/screenshots/scroll-traveler/`, `tests/video/scroll-traveler-*.webm` |
 
@@ -214,9 +214,11 @@ reinterpreted and no pixel of the dish is re-decided:
 4. **crop** to the silhouette with a 2% margin.
 
 ```
-dish-01-prawn   source 820×820 (untouched) → runtime 640×640, 94KB
+dish-01-prawn   source 820×820, 220KB (untouched) → runtime 640×640, 94KB
                 plate disk r=307 at 444,463 — baked shadow outside it removed
-                alpha ≤ 24 cleared 5776 px · 1240 components, largest kept, 494 px dropped
+                alpha <= 24 cleared 5776 px
+                84 components, largest kept, 494 px of debris dropped
+                cropped to 616×615, silhouette solid over 65% of the frame
 ```
 
 Proof sheet: `assets/scroll-traveler/audit/traveler-asset-proof.png` — source and runtime
