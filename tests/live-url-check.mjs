@@ -126,6 +126,47 @@ check('save + reload persists',persisted===stamp,`${persisted||'(empty)'} vs ${s
 const presetRestored=await page.evaluate(()=>document.getElementById('motion-orbital-style')?.value);
 check('preset survives reload',presetRestored===PRESET,String(presetRestored));
 
+/* ---- Scroll Traveler: transversal, so it is checked whichever preset was asked for.
+   This runs after the reload above, which makes it a persistence check too. ---- */
+let travelerUp=true;
+try{await page.waitForFunction(()=>document.documentElement.dataset.scrollTraveler==='ready',
+  null,{timeout:20000})}catch{travelerUp=false}
+check('Scroll Traveler is live and survived the reload',travelerUp);
+if(travelerUp){
+  const obj=await page.evaluate(async()=>{
+    const t=window.RestaurantScrollTraveler;
+    t.measure();
+    const img=document.querySelector('.st-traveler .st-object');
+    return {layers:document.querySelectorAll('.st-traveler').length,
+      src:img?.getAttribute('src')||'',loaded:!!img&&img.complete&&img.naturalWidth>0,
+      anchors:t.state().anchors.length};
+  });
+  check('the traveler object is the deployed runtime cut and it loaded',
+    obj.loaded&&/^assets\/scroll-traveler\/runtime\//.test(obj.src),
+    `${obj.src} ${obj.loaded?'loaded':'DID NOT LOAD'}`);
+  check('one traveler layer with its full route resolved',
+    obj.layers===1&&obj.anchors>=5,`${obj.layers} layer, ${obj.anchors} anchors`);
+  const travel=await page.evaluate(async()=>{
+    const t=window.RestaurantScrollTraveler;
+    const doc=document.scrollingElement;
+    const seen=[];
+    scrollTo({top:0,behavior:'instant'});
+    await new Promise(r=>setTimeout(r,500));
+    t.measure();
+    for(let i=0;i<=16;i++){
+      scrollTo({top:(doc.scrollHeight-innerHeight)*(i/16),behavior:'instant'});
+      await new Promise(r=>setTimeout(r,140));
+      const st=t.state();
+      seen.push({p:+st.progress.toFixed(3),chapter:st.chapter});
+    }
+    return {first:seen[0].p,last:seen[seen.length-1].p,
+      chapters:[...new Set(seen.map(s=>s.chapter))].filter(Boolean)};
+  });
+  check('the object really travels when the live page is scrolled',
+    travel.first<=.02&&travel.last>=.98&&travel.chapters.length>=4,
+    `${travel.first} → ${travel.last} through ${travel.chapters.join(', ')}`);
+}
+
 const fatal=errors.filter(e=>!/favicon|net::ERR/i.test(e));
 check('no JS errors',fatal.length===0,fatal.slice(0,3).join(' | '));
 

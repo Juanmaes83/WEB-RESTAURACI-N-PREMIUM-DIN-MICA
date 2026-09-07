@@ -1,0 +1,57 @@
+{
+  "project": "PROJECT 09 — Scroll Traveler",
+  "generatedBy": "scripts/build-traveler-asset.mjs",
+  "generatedAt": "2026-09-07",
+  "note": "Alpha hygiene on approved masters: an alpha floor, largest-component only, and a crop to the silhouette. No colour is reinterpreted and no source is written.",
+  "alphaFloor": 24,
+  "travelers": [
+    {
+      "id": "dish-01-prawn",
+      "dishId": "dish-01",
+      "source": "assets/depth-carousel/dish-01.webp",
+      "deshadow": "disk",
+      "alt": "Gamba roja salvaje",
+      "altEn": "Wild red prawn",
+      "runtimeAsset": "assets/scroll-traveler/runtime/dish-01-prawn.webp",
+      "sourceBytes": 225394,
+      "bytes": 96610,
+      "sourceCanvas": {
+        "w": 820,
+        "h": 820
+      },
+      "runtimeCanvas": {
+        "w": 640,
+        "h": 640
+      },
+      "alphaFloor": 24,
+      "plateDisk": {
+        "cx": 444,
+        "cy": 463,
+        "r": 307,
+        "bbox": [
+          141,
+          160,
+          607,
+          607
+        ],
+        "alphaCleared": 9160938
+      },
+      "flooredPixels": 5776,
+      "droppedPixels": 494,
+      "components": 84,
+      "crop": [
+        135,
+        154,
+        616,
+        615
+      ],
+      "silhouette": [
+        12,
+        13,
+        616,
+        615
+      ],
+      "solidPct": 65.52
+    }
+  ]
+}

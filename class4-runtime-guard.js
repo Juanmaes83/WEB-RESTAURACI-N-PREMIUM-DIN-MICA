@@ -122,3 +122,18 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,140));
   else setTimeout(load,140);
 })();
+
+/* CLASS 14 · PROJECT 09 — load the Scroll Traveler additively.
+   A page-level capability, transversal to every product preset: it coexists with
+   whichever choreography is selected. index.html stays untouched. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-scroll-traveler-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class14-scroll-traveler.js';s.dataset.scrollTravelerRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,160));
+  else setTimeout(load,160);
+})();

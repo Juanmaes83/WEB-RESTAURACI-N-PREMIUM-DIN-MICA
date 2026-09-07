@@ -1,0 +1,87 @@
+{
+  "route": [
+    {
+      "name": "mobile-01-start",
+      "anchor": 0,
+      "fraction": 0,
+      "wanted": 0.108,
+      "progress": 0.10814209771771585,
+      "chapter": "signature",
+      "layer": "front",
+      "z": 60,
+      "x": 63.99,
+      "y": 36.01,
+      "scale": 0.95,
+      "rotation": -5,
+      "opacity": 0.999
+    },
+    {
+      "name": "mobile-02-origin",
+      "anchor": 1,
+      "fraction": 0,
+      "wanted": 0.331,
+      "progress": 0.331133188978433,
+      "chapter": "origin",
+      "layer": "behind",
+      "z": 1,
+      "x": 32.02,
+      "y": 18.01,
+      "scale": 0.86,
+      "rotation": 10.99,
+      "opacity": 1
+    },
+    {
+      "name": "mobile-03-atmosphere",
+      "anchor": 2,
+      "fraction": 0,
+      "wanted": 0.554,
+      "progress": 0.5541242802391502,
+      "chapter": "atmosphere",
+      "layer": "between",
+      "z": 4,
+      "x": 65.99,
+      "y": 51.98,
+      "scale": 0.92,
+      "rotation": -11.98,
+      "opacity": 1
+    },
+    {
+      "name": "mobile-04-chef",
+      "anchor": 3,
+      "fraction": 0,
+      "wanted": 0.777,
+      "progress": 0.7769088982672185,
+      "chapter": "chef",
+      "layer": "front",
+      "z": 60,
+      "x": 34.02,
+      "y": 44,
+      "scale": 0.98,
+      "rotation": 5,
+      "opacity": 1
+    },
+    {
+      "name": "mobile-05-reservation",
+      "anchor": null,
+      "fraction": 1,
+      "wanted": 1,
+      "progress": 0.9998999895279357,
+      "chapter": "visit",
+      "layer": "between",
+      "z": 4,
+      "x": 49.98,
+      "y": 40,
+      "scale": 1.12,
+      "rotation": -0.01,
+      "opacity": 1
+    }
+  ],
+  "overflow": {
+    "doc": 390,
+    "win": 390,
+    "rect": {
+      "left": 92,
+      "right": 241
+    }
+  }
+}
