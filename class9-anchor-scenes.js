@@ -51,12 +51,19 @@
    eyebrow; the left column has no room for a travelling headline. A short drift
    also suits photography better than a slab of type crossing the frame. */
 const RATE={scene:0,decorBack:.35,word:.14,decorFront:1.20};
-  const FEATHER=14;      /* % of height: the soft band of the wipe */
+  /* The soft band of the wipe, in PHYSICAL PIXELS on the scene.
+   It used to be 14 — read as 14% of the gradient line, which on a 1440x900 stage is
+   about 140px. Over a band that wide the two bowls are both half-visible at once and
+   their rims, which sit some 15px apart between takes, read as a doubled edge. The
+   hand survived it (identical pixels blend into themselves) but the object did not.
+   A narrow seam is a reveal; a wide one is a crossfade. */
+const SEAM_PX=16;
+const SEAM_MIN=.8, SEAM_MAX=4;   /* % guard rails, whatever the viewport */
   const COMMIT_IN=.55, COMMIT_OUT=.45;
   const RELEASE=.42;
 
   let scene=null,sceneA=null,sceneB=null,seam=null,wordEl=null;
-  let decorBack=null,decorFront=null,priceEl=null,ingEl=null,dotsEl=null,eyebrowEl=null,copyEl=null;
+  let decorBack=null,decorFront=null,priceEl=null,ingEl=null,dotsEl=null,eyebrowEl=null,copyEl=null,counterEl=null;
   let restIndex=0,outIndex=0,inIndex=0,progress=0,direction=1,committed=false;
   let dragging=false,pointerId=null,startX=0,startY=0,lastY=0,lastT=0,velocity=0,moved=false;
   let tween=null,booted=false,internalPass=false,meta=new Map();
@@ -183,6 +190,18 @@ const RATE={scene:0,decorBack:.35,word:.14,decorFront:1.20};
       explore?copy.insertBefore(copyEl,explore):copy.appendChild(copyEl);
     }
     priceEl=$('.sc-price',copy);ingEl=$('.sc-ingredients',copy);
+    /* The base #dish-counter describes the base model — six dishes — and stays the
+       authoritative state. But this preset navigates five of them, so a base counter
+       reading "05 / 06" describes a sixth position the user cannot reach. The preset
+       therefore paints its OWN presentational counter over the same slot, from
+       ring(), and the base one is hidden by CSS while this mode is active. No second
+       index, no second dish model: it is a label. */
+    if(controls&&!$('.sc-counter',controls)){
+      counterEl=document.createElement('span');counterEl.className='sc-counter';
+      counterEl.setAttribute('aria-live','polite');
+      const base=$('#dish-counter',controls);
+      base?base.insertAdjacentElement('afterend',counterEl):controls.appendChild(counterEl);
+    }else counterEl=$('.sc-counter',controls||document);
     if(controls&&!$('.sc-dots',controls)){
       dotsEl=document.createElement('div');dotsEl.className='sc-dots';
       dotsEl.setAttribute('role','tablist');dotsEl.setAttribute('aria-label','Seleccionar plato');
@@ -266,18 +285,31 @@ const RATE={scene:0,decorBack:.35,word:.14,decorFront:1.20};
     refreshPair();render(0);commitText(restIndex);
   }
 
+  /* 184deg / 4deg is 4 degrees off vertical, so the gradient line is
+     |W·sin4| + |H·cos4| long. SEAM_PX / that = the percentage to ask CSS for. */
+  function featherPct(){
+    const w=scene?.clientWidth||innerWidth, h=scene?.clientHeight||innerHeight;
+    const L=w*0.06976+h*0.99756;
+    return clamp(SEAM_PX/Math.max(1,L)*100,SEAM_MIN,SEAM_MAX);
+  }
+
   /* ---------- the frame ---------- */
   function render(p){
     if(!scene)return;
     const H=shell.clientHeight,dir=direction,t=clamp(p,0,1);
 
-    /* The wipe. A soft-edged mask, so the band where the two scenes overlap is
-       narrow and — over the hand, which is identical pixels — invisible. Travel
-       covers -FEATHER..100+FEATHER so the band is fully off-frame at both ends. */
-    const span=100+FEATHER*2;
-    const lead=dir>0 ? -FEATHER+t*span : 100+FEATHER-t*span;
-    const a=dir>0?`${lead}%`:`${lead}%`;
-    const b=dir>0?`${lead+FEATHER}%`:`${lead-FEATHER}%`;
+    /* The wipe. Percentages in a linear-gradient are measured along the gradient
+       LINE, not the height, so the band's real width depends on the angle and the
+       box. Converting from a pixel target keeps the seam the same thickness on any
+       viewport instead of scaling up with the frame.
+       Only B is masked; A stays whole underneath. That is already the complementary
+       pair — B over A at alpha a composites to B*a + A*(1-a) — so nothing is added
+       twice. The doubled rim was the band's width, and only its width. */
+    const F=featherPct();
+    const span=100+F*2;
+    const lead=dir>0 ? -F+t*span : 100+F-t*span;
+    const a=`${lead}%`;
+    const b=dir>0?`${lead+F}%`:`${lead-F}%`;
     const angle=dir>0?'184deg':'4deg';
     const mask=dir>0
       ? `linear-gradient(${angle}, #000 ${a}, rgba(0,0,0,0) ${b})`
@@ -289,7 +321,7 @@ const RATE={scene:0,decorBack:.35,word:.14,decorFront:1.20};
     if(seam){
       const show=t>.015&&t<.985;
       seam.style.opacity=show?String(.42*Math.sin(Math.PI*t)+.10):'0';
-      seam.style.top=`${clamp(dir>0?lead+FEATHER*.5:lead-FEATHER*.5,-10,110)}%`;
+      seam.style.top=`${clamp(dir>0?lead+F*.5:lead-F*.5,-10,110)}%`;
     }
 
     /* Decor carries the motion the scenes deliberately do not. */
@@ -326,6 +358,11 @@ const RATE={scene:0,decorBack:.35,word:.14,decorFront:1.20};
     if(ingEl)ingEl.textContent=d.ingredients||d.meta||'';
     if(dotsEl)$$('.sc-dot',dotsEl).forEach(dot=>
       dot.setAttribute('aria-current',String(Number(dot.dataset.index)===normalize(index))));
+    if(counterEl){
+      const r=ring(),at=r.indexOf(normalize(index));
+      const pad=n=>String(n).padStart(2,'0');
+      counterEl.textContent=r.length?`${pad(at<0?1:at+1)} / ${pad(r.length)}`:'';
+    }
   }
 
   /* ---------- commit back to the Orbital Engine ---------- */
@@ -562,7 +599,7 @@ const RATE={scene:0,decorBack:.35,word:.14,decorFront:1.20};
   window.RestaurantAnchorScenes={
     MODE,activate,rebuild,step,goTo,complete,cancel,
     setProgress(p,dir){if(dir&&dir!==direction){direction=dir;refreshPair()}tween?.kill?.();setProgress(p)},
-    state:()=>({progress,direction,restIndex:normalize(restIndex),outIndex,inIndex,committed,
+    state:()=>({progress,direction,restIndex:normalize(restIndex),ring:ring().length,outIndex,inIndex,committed,
       mode:root.dataset.orbitalMotion,dishes:count(),
       scenes:$$('.sc-scene').filter(e=>e.dataset.kind==='scene').length})
   };

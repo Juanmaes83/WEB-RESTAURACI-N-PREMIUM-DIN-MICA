@@ -143,6 +143,13 @@ html[data-orbital-motion="anchor-scenes"] .sc-copy{display:block}
 
 html[data-orbital-motion="anchor-scenes"] .orbit-controls{
   position:absolute;left:6vw;bottom:9vh;z-index:10;justify-content:flex-start;margin:0}
+/* The preset's own counter takes the base one's slot: five scenes cannot honestly
+   read "/ 06". The base element keeps its authoritative text and is only hidden,
+   so every other preset gets it back untouched. */
+.sc-counter{display:none}
+html[data-orbital-motion="anchor-scenes"] .sc-counter{display:block}
+html[data-orbital-motion="anchor-scenes"] #dish-counter{display:none}
+
 .sc-dots{display:none;align-items:center;gap:9px;margin-left:12px}
 html[data-orbital-motion="anchor-scenes"] .sc-dots{display:flex}
 .sc-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.24);cursor:pointer;

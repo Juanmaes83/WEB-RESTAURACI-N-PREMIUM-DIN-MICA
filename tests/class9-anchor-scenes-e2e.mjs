@@ -323,6 +323,38 @@ async function session(label,viewport,isMobile){
     if(openedByObject){await page.evaluate(()=>document.querySelector('#detail-close')?.click());await page.waitForTimeout(1400)}
   }
 
+  /* ---- 10b. the counter must describe the ring, not the base model ----
+     Five navigable scenes cannot honestly read "/ 06": that advertises a sixth
+     position the user can never reach. The base counter keeps its authoritative
+     text and is only hidden, so the label is presentational and the dish model
+     stays untouched. */
+  const counter=await page.evaluate(()=>{
+    const c=document.querySelector('.sc-counter');
+    return {text:c?.textContent.trim()||'',shown:c?getComputedStyle(c).display!=='none':false,
+      baseHidden:getComputedStyle(document.getElementById('dish-counter')).display==='none',
+      baseText:document.getElementById('dish-counter').textContent.trim(),
+      ring:window.RestaurantAnchorScenes.state().ring};
+  });
+  const ringLen=await page.evaluate(()=>window.RestaurantAnchorScenes.state().ring);
+  check(`${label} · the preset counter is shown and the base one hidden`,
+    counter.shown&&counter.baseHidden&&/^\d\d \/ \d\d$/.test(counter.text),
+    `preset "${counter.text}" · base "${counter.baseText}" hidden=${counter.baseHidden}`);
+  check(`${label} · the counter denominator is the ring, not the dish model`,
+    counter.text.endsWith(`/ ${String(ringLen).padStart(2,'0')}`)&&ringLen<dishes,
+    `${counter.text} with ${ringLen} navigable of ${dishes} dishes`);
+
+  /* walk the whole ring: it must read 01/05 … 05/05 and come back round */
+  const walk=[];
+  for(let i=0;i<ringLen+1;i++){
+    walk.push(await page.evaluate(()=>document.querySelector('.sc-counter').textContent.trim()));
+    await page.click('#next-dish');await page.waitForTimeout(isMobile?1200:1000);
+  }
+  const expected=Array.from({length:ringLen},(_,i)=>`${String(i+1).padStart(2,'0')} / ${String(ringLen).padStart(2,'0')}`);
+  const seenAll=expected.every(v=>walk.includes(v));
+  check(`${label} · the counter walks 01/${String(ringLen).padStart(2,'0')} → ${String(ringLen).padStart(2,'0')}/${String(ringLen).padStart(2,'0')} and wraps`,
+    seenAll&&walk[0]===walk[ringLen]&&!walk.some(v=>v.endsWith(`/ ${String(dishes).padStart(2,'0')}`)),
+    walk.join(' → '));
+
   /* ---- 11. layout ---- */
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
   check(`${label} · no broken horizontal overflow`,overflow<=2,`${overflow}px`);
@@ -339,6 +371,15 @@ async function session(label,viewport,isMobile){
   });
   check(`${label} · Project 01 still works and Anchor Scenes steps aside`,
     p01.present>=(isMobile?4:5)&&p01.free>=3&&p01.scenesHidden,JSON.stringify(p01));
+  const depthCounter=await page.evaluate(d=>({
+    base:getComputedStyle(document.getElementById('dish-counter')).display!=='none',
+    text:document.getElementById('dish-counter').textContent.trim(),
+    presetHidden:getComputedStyle(document.querySelector('.sc-counter')).display==='none'
+  }),dishes);
+  check(`${label} · Depth Carousel gets the base counter back at / ${dishes}`,
+    depthCounter.base&&depthCounter.presetHidden
+    &&depthCounter.text.endsWith(`/ ${String(dishes).padStart(2,'0')}`),
+    `"${depthCounter.text}" base shown=${depthCounter.base} preset hidden=${depthCounter.presetHidden}`);
 
   await selectPreset(page,'elegant');
   await page.waitForTimeout(1100);
@@ -350,6 +391,15 @@ async function session(label,viewport,isMobile){
   }));
   check(`${label} · Orbital is restored intact`,
     orbital.stage&&orbital.dishes===dishes&&orbital.scenesHidden&&orbital.depthHidden,JSON.stringify(orbital));
+  const orbCounter=await page.evaluate(()=>({
+    base:getComputedStyle(document.getElementById('dish-counter')).display!=='none',
+    text:document.getElementById('dish-counter').textContent.trim(),
+    presetHidden:getComputedStyle(document.querySelector('.sc-counter')).display==='none'
+  }));
+  check(`${label} · Orbital gets the base counter back at / ${dishes}`,
+    orbCounter.base&&orbCounter.presetHidden
+    &&orbCounter.text.endsWith(`/ ${String(dishes).padStart(2,'0')}`),
+    `"${orbCounter.text}" base shown=${orbCounter.base} preset hidden=${orbCounter.presetHidden}`);
   await page.screenshot({path:path.join(SHOTS,`anchor-scenes-${label}-07-orbital-regression.png`)});
 
   await selectPreset(page,'anchor-scenes','anchorScenes');
@@ -364,9 +414,55 @@ async function session(label,viewport,isMobile){
   /* ---- 13. gesture series ---- */
   await page.locator('#signature').scrollIntoViewIfNeeded();
   await page.waitForTimeout(700);
-  for(const [name,p] of [['01-idle',0],['02-quarter',.25],['04-three-quarter',.75]]){
+  const series=isMobile
+    ? [['01-idle',0],['02-quarter',.25],['04-three-quarter',.75]]
+    : [['01-idle',0],['02-quarter',.25],['04-three-quarter',.75],
+       ['08-p15',.15],['09-p35',.35],['10-p65',.65],['11-p85',.85]];
+  for(const [name,p] of series){
     await setP(page,p,1);await page.waitForTimeout(300);
     await page.screenshot({path:path.join(SHOTS,`anchor-scenes-${label}-${name}.png`)});
+  }
+
+  /* ---- 13b. seam proof ----
+     The doubled rim, when it existed, was only visible on the object's top edge. So
+     crop exactly that band at every stop and put the strip on one sheet: if two rims
+     are there, they are unmissable side by side. */
+  if(!isMobile){
+    const band=await page.evaluate(()=>{
+      const r=document.querySelector('.sc-scene-a .sc-subject').getBoundingClientRect();
+      const d=(window.RestaurantDefaults.dishes||[]).filter(x=>x.enabled!==false)
+        .find(x=>x.anchorScene&&x.anchorScene.image).anchorScene.hit;
+      const top=r.top+d.y*r.height;
+      return {x:Math.round(r.left+d.x*r.width),y:Math.round(top-30),
+        width:Math.round(d.w*r.width),height:150};
+    });
+    band.x=Math.max(0,band.x);band.y=Math.max(0,band.y);
+    band.width=Math.min(band.width,viewport.width-band.x);
+    band.height=Math.min(band.height,viewport.height-band.y);
+    const stops=[.15,.25,.35,.5,.65,.75,.85];
+    const strips=[];
+    for(const p of stops){
+      await setP(page,p,1);await page.waitForTimeout(260);
+      strips.push('data:image/png;base64,'+(await page.screenshot({clip:band})).toString('base64'));
+    }
+    await page.evaluate(([strips,stops,seamPx])=>{
+      document.body.style.margin='0';
+      document.body.innerHTML=`<div id="proof" style="width:${Math.min(1360,innerWidth)}px;background:#0a0a0e;
+        padding:12px;font:12px system-ui;color:#cfcbc2">
+        <div style="letter-spacing:.2em;text-transform:uppercase;color:#d8ff4f;padding:2px 2px 10px">
+          Seam proof · object top edge · seam ${seamPx}px</div>
+        ${strips.map((src,i)=>`<div style="position:relative;margin-bottom:3px">
+          <img src="${src}" style="width:100%;display:block">
+          <span style="position:absolute;left:8px;top:6px;font:700 13px system-ui;color:#d8ff4f;
+            text-shadow:0 1px 4px rgba(0,0,0,.8)">${Math.round(stops[i]*100)}%</span></div>`).join('')}
+      </div>`;
+    },[strips,stops,16]);
+    await page.waitForTimeout(900);
+    await page.locator('#proof').screenshot({path:path.join(SHOTS,'anchor-scenes-desktop-seam-proof.png')});
+    await page.goto(BASE,{waitUntil:'domcontentloaded'});
+    await selectPreset(page,'anchor-scenes','anchorScenes');
+    await page.locator('#signature').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(800);
   }
   await setP(page,0,1);
 

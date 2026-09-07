@@ -268,10 +268,55 @@ Aquí el pivot simplifica de verdad: **el split de mundos y el swap de escena so
 mismo movimiento**. Cada escena maestra lleva su propio mundo cromático, así que
 revelar B sobre A hace convivir los dos mundos y los dos objetos con una sola máscara.
 
-`mask-image: linear-gradient()` con una banda suave del 14% de la altura y una
-inclinación de 4°, más una fina línea de acento sobre la costura que sólo aparece
-durante el gesto. Nada de crossfade global: la mezcla se limita a esa banda, y sobre la
-mano —píxeles equivalentes— es invisible. Sin barro cromático.
+`mask-image: linear-gradient()` con una inclinación de 4°, más una fina línea de acento
+sobre la costura que sólo aparece durante el gesto. Nada de crossfade global: la mezcla
+se limita a la banda, y sobre la mano —píxeles equivalentes— es invisible.
+
+### El ancho de la costura: de 14% a 16 px
+
+La primera versión usaba `FEATHER = 14`, que se leía como **14% de la línea del
+degradado**: unos **140 px** en un escenario de 1440×900. Sobre una banda así los dos
+boles están medio visibles a la vez y sus bordes, que entre tomas se sitúan a unos 15 px
+de distancia, se leen como **un borde doble**. La mano lo sobrevivía —píxeles idénticos
+se mezclan consigo mismos— pero el objeto no. **Eso era el ghosting.**
+
+Ahora la costura se expresa en **píxeles físicos** (`SEAM_PX = 16`) y se convierte a
+porcentaje en cada frame, porque un porcentaje en un `linear-gradient` se mide sobre la
+**línea del degradado**, no sobre la altura: depende del ángulo y de la caja. Así la
+arista mide lo mismo en cualquier viewport en vez de crecer con el cuadro.
+
+Sólo B lleva máscara; A queda entera debajo. **Ése ya es el par complementario** —B
+sobre A con alfa *a* compone a `B·a + A·(1−a)`—, así que nada se sumaba dos veces: el
+borde doble era el ancho de la banda, y sólo su ancho.
+
+Barrido medido sobre el par real, en el vértice del borde del bol al 25%:
+
+| Ancho | Resultado |
+|---|---|
+| 140 px (antes) | **ghosting**: segundo borde translúcido, banda empastada |
+| 40 px | borde doble suave todavía visible |
+| 24 px | limpio, leve escalón en el flanco |
+| **16 px (elegido)** | **una sola arista, sin translucidez** |
+| 10 px | igual, algo más nítido |
+| 4 px | sin mezcla: el desfase geométrico entre tomas se convierte en una muesca dura |
+
+### Residuo honesto: el escalón del borde, que es de las fotos
+
+Queda un resto que **no es de mezcla, es de geometría**: el bol no está exactamente a la
+misma altura en las cinco tomas. `rimY` va de 360 a 398 px en origen, así que dos escenas
+consecutivas pueden tener el borde a hasta **26 px en pantalla** una de otra. Donde la
+costura cruza el borde se ve un **escalón**, no un fantasma: dos aristas opacas, no una
+translúcida. Es peor en `01 → 02` (26 px) y nulo en `02 → 03` (0 px).
+
+Estrechar más no lo arregla —a 4 px se convierte en una muesca— y corregirlo con
+`registration.offsetY` movería **la mano**, que es lo único que no puede moverse. Probé
+también reforzar la línea de luz de la costura para presentar el corte como una arista de
+iluminación: sobre la cerámica clara no se ve, así que no se añadió.
+
+**Se cierra en la próxima sesión de fotos**, no en código: si los masters nuevos de 03,
+04 y 06 se disparan con el bol a la misma altura, la dispersión se colapsa. La auditoría
+ya publica el número a batir — `object centre spread`, hoy **0.0271** del alto, que son
+esos 38 px de origen.
 
 ### Lo que cambió con la fotografía real
 
@@ -290,6 +335,28 @@ Un solo bloque, nunca dos superpuestos: 100% → ~0% en el crossover → 100%, c
 atención en la escena y el cambio de mundo. Título, meta y descripción los sigue
 escribiendo el motor base; precio, ingredientes e indicadores los escribe este preset
 desde `#dish-counter`, la misma fuente, así que no pueden discrepar.
+
+## 10b. El contador del preset
+
+El motor base escribe `#dish-counter` y sigue siendo **el estado autoritativo**. Pero
+describe el modelo base —seis platos— y este preset navega cinco, así que un contador
+que dijera `05 / 06` anuncia una sexta posición a la que el visitante no puede llegar.
+
+El preset pinta por tanto **su propio contador presentacional** (`.sc-counter`) en la
+misma ranura, calculado desde `ring()`:
+
+```text
+01 / 05   02 / 05   03 / 05   04 / 05   05 / 05
+```
+
+El elemento base conserva su texto autoritativo y sólo se **oculta** mientras este modo
+está activo, así que Orbital, Depth Carousel y el resto lo recuperan intacto en `/ 06`.
+No hay segundo índice ni segundo modelo de plato: es una etiqueta. El modelo global de
+seis platos no se toca.
+
+Verificado por test en los dos viewports: contador del preset visible y base oculto ·
+denominador = tamaño del anillo (5 de 6) · recorrido `01/05 → 05/05` con vuelta · y el
+contador base de vuelta en `/ 06` tanto en Depth Carousel como en Orbital.
 
 ## 11. Decor
 
@@ -319,7 +386,7 @@ La región del objeto dentro de la escena la registra el generador por plato
 
 ## 14. Tests
 
-**70/70** en desktop 1440×900, móvil 390×844 y reduced motion.
+**80/80** en desktop 1440×900, móvil 390×844 y reduced motion.
 
 Diez comprobaciones nuevas son de **procedencia**, porque un proxy que sobreviviera por
 accidente pasaría todas las puertas geométricas mostrando lo que no es: cada escena en
@@ -358,7 +425,8 @@ ya nos costó una vez.
 | | |
 |---|---|
 | Alineación | `tests/screenshots/anchor-scenes-real-alignment-sheet.png` — las 5 seleccionadas y la excluida, marcada |
-| Capturas desktop | `anchor-scenes-desktop-0{1,2,3,4,5,6}-*.png` (idle · quarter · half · three-quarter · complete · detail) + `07-orbital-regression` |
+| Prueba de costura | `tests/screenshots/anchor-scenes-desktop-seam-proof.png` — el borde superior del bol al 15/25/35/50/65/75/85% |
+| Capturas desktop | `anchor-scenes-desktop-0{1,2,3,4,5,6}-*.png` (idle · 25 · 50 · 75 · complete · detail) + `07-orbital-regression` + `08-p15` `09-p35` `10-p65` `11-p85` |
 | Capturas mobile | las equivalentes |
 | Reduced motion | `anchor-scenes-reduced-motion.png` |
 | Vídeo | `tests/video/anchor-scenes-desktop.webm` (19.4s) · `anchor-scenes-mobile.webm` (18.0s) |
@@ -384,12 +452,28 @@ ya nos costó una vez.
    no este preset, sigue diciendo `01 / 06` … `05 / 06`, así que el `06` nunca aparece.
    Se cierra con **una foto más del postre, a la escala de la toma** — o tocando el
    modelo base, que no toca este proyecto.
-2. **El contenido de la fotografía y el copy de la demo no siempre coinciden.** El menú
-   de la demo es dato de Project 01 (invención de placeholder) y las fotos son producto
-   real. Casan bien 01 gamba, 02 atún y 05 presa; 04 lubina recibe un crudo de otro
-   pescado y 03 alcachofa recibe pulpo. Un restaurante real sustituye copy y escenas
-   juntos, que es precisamente el contrato de §4 — pero conviene saberlo al mirar la
-   demo.
+2. **CONTENT ASSET MAPPING — PENDING FINAL MASTER SET.** El contenido de la fotografía
+   y el copy de la demo no siempre coinciden:
+
+   | Plato | Copy base | Fotografía actual | Estado |
+   |---|---|---|---|
+   | 01 | Gamba roja salvaje | gambas con arroz | **coincide** |
+   | 02 | Atún rojo / Naranja sanguina | atún marcado | **coincide** |
+   | 03 | Alcachofa a la brasa | pulpo a la brasa | **pendiente de master** |
+   | 04 | Lubina salvaje | crudo de otro pescado | **pendiente de master** |
+   | 05 | Presa ibérica | carne laminada con trufa | **coincide** |
+   | 06 | Cítricos y miel quemada | — (candidata excluida) | **pendiente de master** |
+
+   **No se ha tocado Project 01 ni el menú base para esconderlo, y no se ha inventado
+   contenido.** No bloquea la validación del efecto: la mano, el plano y el objeto que
+   cambia son independientes del contenido del bol.
+
+   Juanma producirá masters específicos de **Alcachofa a la brasa**, **Lubina salvaje** y
+   **Cítricos y miel quemada** manteniendo exactamente el mismo frame master. Con ellos
+   se recuperan las seis escenas (01 Gamba · 02 Atún · 03 Alcachofa · 04 Lubina · 05
+   Presa · 06 Postre), el plato 06 vuelve a ser navegable y el contador pasa a `/ 06` sin
+   cambiar una línea: es dato. Si además se disparan con el bol a la misma altura,
+   desaparece el escalón del borde descrito en §9.
 3. **Los boles son todos el mismo bol.** Es lo que hace que el ancla funcione y, a la
    vez, lo que limita la variedad: cinco platos en el mismo recipiente. Una copa o un
    cucurucho en la misma mano serían otro salto de percepción.
