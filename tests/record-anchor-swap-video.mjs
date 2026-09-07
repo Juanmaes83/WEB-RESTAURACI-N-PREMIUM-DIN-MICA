@@ -4,7 +4,11 @@
 
    Usage: node tests/record-anchor-swap-video.mjs
    Output: tests/video/anchor-swap-desktop.webm · anchor-swap-mobile.webm
-*/
+
+   IMPORTANT: Project 01 proved that a recorder can succeed while capturing the wrong
+   preset. This recorder therefore treats the visible scene as a contract: before the
+   narrative begins it must prove Anchor Swap is still active, the hand is visible and
+   the final held-product art-direction asset is actually painted. */
 import {chromium} from 'playwright';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,19 +23,73 @@ fs.mkdirSync(OUT,{recursive:true});
 const {server,url:BASE}=await startServer(0);
 const browser=await chromium.launch();
 
-async function selectPreset(page){
-  await page.waitForFunction(()=>!!document.querySelector('#motion-orbital-style option[value="anchor-swap"]'),null,{timeout:25000});
-  await page.evaluate(()=>{
-    const s=document.getElementById('motion-orbital-style');
-    s.value='anchor-swap';
-    s.dispatchEvent(new Event('input',{bubbles:true}));
-    s.dispatchEvent(new Event('change',{bubbles:true}));
-    window.RestaurantMotionStudio?.publish?.();
+async function anchorSceneState(page){
+  return page.evaluate(()=>{
+    const root=document.documentElement;
+    const visible=el=>{
+      if(!el)return false;
+      const s=getComputedStyle(el),r=el.getBoundingClientRect();
+      return s.display!=='none'&&s.visibility!=='hidden'&&+s.opacity>.05&&r.width>80&&r.height>80;
+    };
+    const scene=document.querySelector('.as-scene');
+    const anchor=document.querySelector('.as-anchor');
+    const out=document.querySelector('.as-product-out');
+    const art=window.RestaurantAnchorSwapArtDirection?.status?.();
+    return {
+      mode:root.dataset.orbitalMotion||'',
+      ready:root.dataset.anchorSwap||'',
+      held:root.dataset.anchorHeldAssets||'',
+      sceneVisible:visible(scene),
+      anchorVisible:visible(anchor),
+      productLoaded:!!out&&out.complete&&out.naturalWidth>0,
+      productSrc:out?.getAttribute('src')||'',
+      heldSrc:art?.outSrc||'',
+      artReady:!!art?.ready
+    };
   });
-  await page.waitForFunction(()=>document.documentElement.dataset.anchorSwap==='ready',null,{timeout:14000});
-  await page.locator('#signature').scrollIntoViewIfNeeded();
-  await page.waitForTimeout(1500);
 }
+
+async function assertAnchorScene(page,phase){
+  const s=await anchorSceneState(page);
+  const heldMedia=/d2ol7oe51mr4n9\.cloudfront\.net/.test(s.productSrc);
+  if(s.mode!=='anchor-swap'||s.ready!=='ready'||s.held!=='ready'||!s.sceneVisible||!s.anchorVisible||!s.productLoaded||!heldMedia||!s.artReady){
+    throw new Error(`${phase}: recorder is not on the final Anchor Swap scene: ${JSON.stringify(s)}`);
+  }
+  return s;
+}
+
+async function selectPreset(page){
+  await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:25000});
+  await page.waitForFunction(()=>!!window.RestaurantAnchorSwap,null,{timeout:25000});
+  await page.waitForFunction(()=>!!document.querySelector('#motion-orbital-style option[value="anchor-swap"]'),null,{timeout:25000});
+
+  /* Let Studio/project restoration finish before we assert ownership of the scene.
+     Then publish Anchor Swap after that restoration rather than racing it. */
+  await page.waitForTimeout(1600);
+  try{await page.evaluate(async()=>{await window.RestaurantStore?.loadProject?.()})}catch{}
+
+  for(let attempt=0;attempt<3;attempt++){
+    await page.evaluate(()=>{
+      const s=document.getElementById('motion-orbital-style');
+      s.value='anchor-swap';
+      s.dispatchEvent(new Event('input',{bubbles:true}));
+      s.dispatchEvent(new Event('change',{bubbles:true}));
+      window.RestaurantMotionStudio?.publish?.();
+    });
+    await page.waitForFunction(()=>document.documentElement.dataset.anchorSwap==='ready',null,{timeout:14000});
+    await page.waitForFunction(()=>document.documentElement.dataset.orbitalMotion==='anchor-swap',null,{timeout:10000});
+    await page.waitForFunction(()=>document.documentElement.dataset.anchorHeldAssets==='ready',null,{timeout:14000});
+    await page.locator('#signature').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(900);
+    const s=await anchorSceneState(page);
+    if(s.mode==='anchor-swap'&&s.sceneVisible&&s.anchorVisible&&s.productLoaded&&/d2ol7oe51mr4n9\.cloudfront\.net/.test(s.productSrc)){
+      await assertAnchorScene(page,`preset attempt ${attempt+1}`);
+      return;
+    }
+  }
+  await assertAnchorScene(page,'preset final');
+}
+
 async function grabPoint(page,viewport){
   const box=await page.locator('.orbit-shell').boundingBox();
   const x=box.x+box.width*0.5;
@@ -58,6 +116,7 @@ async function record(name,viewport,mobile,script){
   const page=await context.newPage();
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
   await selectPreset(page);
+  await assertAnchorScene(page,`${name} before narrative`);
   await script(page,context);
   const video=page.video();
   await context.close();
@@ -72,6 +131,7 @@ async function record(name,viewport,mobile,script){
 }
 
 await record('anchor-swap-desktop',{width:1440,height:900},false,async page=>{
+  await assertAnchorScene(page,'desktop narrative start');
   const {x:cx,y:cy}=await grabPoint(page,{width:1440,height:900});
   await page.waitForTimeout(1600);
 
@@ -99,14 +159,17 @@ await record('anchor-swap-desktop',{width:1440,height:900},false,async page=>{
   await page.waitForTimeout(1600);
 
   await ensureDetailClosed(page);
+  await assertAnchorScene(page,'desktop before button step');
   await page.click('#next-dish');
   await page.waitForTimeout(1900);
+  await assertAnchorScene(page,'desktop after button step');
 
   await page.evaluate(()=>document.querySelector('#explore-dish').click());
   await page.waitForTimeout(2600);
 });
 
 await record('anchor-swap-mobile',{width:390,height:844},true,async(page,context)=>{
+  await assertAnchorScene(page,'mobile narrative start');
   const cdp=await context.newCDPSession(page);
   const {x:cx,y:cy}=await grabPoint(page,{width:390,height:844});
   await page.waitForTimeout(1700);
@@ -128,8 +191,10 @@ await record('anchor-swap-mobile',{width:390,height:844},true,async(page,context
   await swipe(60,6,26,0);        /* short pull → cancels */
   await page.waitForTimeout(1800);
   await ensureDetailClosed(page);
+  await assertAnchorScene(page,'mobile before button step');
   await page.click('#next-dish');
   await page.waitForTimeout(1900);
+  await assertAnchorScene(page,'mobile after button step');
   await page.evaluate(()=>document.querySelector('#explore-dish').click());
   await page.waitForTimeout(2400);
 });
