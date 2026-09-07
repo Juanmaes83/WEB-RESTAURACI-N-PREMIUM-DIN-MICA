@@ -84,16 +84,7 @@ jobs:
         run: node tests/class10-orbital-food-slider-e2e.mjs
 
       - name: Orbital reuse contract — one engine, one index, one progress
-        run: |
-          node -e "const fs=require('fs');
-            const app=fs.readFileSync('app-v4.js','utf8');
-            if(!/window\.RestaurantOrbit\s*=/.test(app))throw new Error('the orbit adapter is gone from app-v4.js');
-            const of=fs.readFileSync('class10-orbital-food.js','utf8');
-            for(const banned of ['orbitProgress=','let active=','setupOrbitInteraction','addEventListener('pointerdown'']){
-              if(of.includes(banned))throw new Error('Project 03 is growing its own engine: '+banned);
-            }
-            if(!/setDishRenderer/.test(of))throw new Error('Project 03 is not rendering through the engine');
-            console.log('reuse contract: presentation only, state stays in app-v4.js')"
+        run: node scripts/check-orbit-reuse.mjs
 
       - name: Record motion evidence
         run: |
