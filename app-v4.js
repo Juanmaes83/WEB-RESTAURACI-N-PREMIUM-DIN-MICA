@@ -13,7 +13,7 @@
   const slug=s=>String(s||'restaurant').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 
   let config=clone(window.RestaurantDefaults), objectUrls={}, history=[], future=[], editIndex=0;
-  let active=0,orbitProgress=0,orbitTween=null,dragging=false,dragStartX=0,lastPointerX=0,dragStartProgress=0,velocity=0,detailSource=null;
+  let active=0,orbitProgress=0,orbitTween=null,dragging=false,dragStartX=0,lastPointerX=0,dragStartProgress=0,velocity=0,detailSource=null,tapDish=null,tapMoved=false;
   let saveTimer=null, savingPromise=Promise.resolve();
   const enabledDishes=()=>config.dishes.filter(d=>d.enabled!==false);
 
@@ -78,19 +78,65 @@
 
   function buildOrbit(){const stage=$('#orbit-stage'),dishes=enabledDishes();if(!stage||!dishes.length)return;active=Math.min(active,dishes.length-1);stage.innerHTML='';dishes.forEach((dish,i)=>{const b=document.createElement('button');b.type='button';b.className='orbit-dish';b.dataset.id=dish.id;b.innerHTML=`<img src="${resolveDishMedia(dish)}" alt="${escapeHtml(dish.name)}">`;safeImage($('img',b),dish.name);b.onclick=()=>{if(i===active)openDetail();else goToIndex(i)};stage.appendChild(b)});renderOrbit();updateCopy(true)}
   function continuousDistance(i){const n=enabledDishes().length;let d=i-orbitProgress;if(d>n/2)d-=n;if(d<-n/2)d+=n;return d}
-  function renderOrbit(){const shell=$('.orbit-shell'),n=enabledDishes().length;if(!shell||!n)return;const mobile=innerWidth<620,rx=(mobile?.47:.40)*shell.clientWidth,ry=(mobile?.25:.27)*shell.clientHeight;$$('.orbit-dish').forEach((el,i)=>{const d=continuousDistance(i),a=d*Math.PI*2/n,front=(Math.cos(a)+1)/2,x=Math.sin(a)*rx,y=-(1-front)*ry*.85+Math.abs(Math.sin(a))*ry*.2,scale=.42+Math.pow(front,1.4)*(mobile?.76:.72),opacity=.22+front*.78,blur=(1-front)*4,brightness=.54+front*.5,rot=Math.sin(a)*5,z=Math.round(front*100);if(window.gsap)gsap.set(el,{xPercent:-50,yPercent:-50,x,y,scale,rotation:rot,opacity,filter:`blur(${blur}px) brightness(${brightness})`,zIndex:z});else{el.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) scale(${scale}) rotate(${rot}deg)`;el.style.opacity=opacity;el.style.filter=`blur(${blur}px) brightness(${brightness})`;el.style.zIndex=z}})}
+  function renderOrbit(){const shell=$('.orbit-shell'),n=enabledDishes().length;if(!shell||!n)return;const mobile=innerWidth<620,rx=(mobile?.47:.40)*shell.clientWidth,ry=(mobile?.25:.27)*shell.clientHeight;$$('.orbit-dish').forEach((el,i)=>{const d=continuousDistance(i),a=d*Math.PI*2/n,front=(Math.cos(a)+1)/2,x=Math.sin(a)*rx,y=-(1-front)*ry*.85+Math.abs(Math.sin(a))*ry*.2,scale=.42+Math.pow(front,1.4)*(mobile?.76:.72),opacity=.22+front*.78,blur=(1-front)*4,brightness=.54+front*.5,rot=Math.sin(a)*5,z=Math.round(front*100);if(orbitRenderer){orbitRenderer({el,index:i,total:n,distance:d,angle:a,front,progress:orbitProgress,shell,mobile,rx,ry});return}if(window.gsap)gsap.set(el,{xPercent:-50,yPercent:-50,x,y,scale,rotation:rot,opacity,filter:`blur(${blur}px) brightness(${brightness})`,zIndex:z});else{el.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) scale(${scale}) rotate(${rot}deg)`;el.style.opacity=opacity;el.style.filter=`blur(${blur}px) brightness(${brightness})`;el.style.zIndex=z}});orbitFrame()}
   function nearestIndex(){const n=enabledDishes().length;return n?((Math.round(orbitProgress)%n)+n)%n:0}
-  function syncActive(){const n=nearestIndex();if(n!==active){active=n;updateCopy()}}
+  function syncActive(){const n=nearestIndex();if(n!==active){active=n;updateCopy();activeSubs.forEach(f=>{try{f(active)}catch(e){}})}}
   function goToIndex(index){const n=enabledDishes().length;let d=index-orbitProgress;while(d>n/2)d-=n;while(d<-n/2)d+=n;animateProgress(orbitProgress+d)}
   function animateProgress(target,duration=.7){orbitTween?.kill?.();if(window.gsap){const s={v:orbitProgress};orbitTween=gsap.to(s,{v:target,duration,ease:'power3.inOut',onUpdate(){orbitProgress=s.v;renderOrbit();syncActive()},onComplete(){orbitProgress=Math.round(target);renderOrbit();syncActive()}})}else{orbitProgress=Math.round(target);renderOrbit();syncActive()}}
   const next=()=>animateProgress(Math.round(orbitProgress)+1),prev=()=>animateProgress(Math.round(orbitProgress)-1);
   function updateCopy(){const d=enabledDishes()[active];if(!d)return;$('#dish-meta').textContent=d.meta||'';$('#dish-title').textContent=d.name||'';$('#dish-short').textContent=d.short||'';$('#dish-counter').textContent=`${String(active+1).padStart(2,'0')} / ${String(enabledDishes().length).padStart(2,'0')}`}
-  function setupOrbitInteraction(){const shell=$('.orbit-shell');if(!shell)return;$('#next-dish').onclick=next;$('#prev-dish').onclick=prev;$('#explore-dish').onclick=openDetail;shell.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();if(e.key==='Enter')openDetail()});if(window.Observer)Observer.create({target:shell,type:'wheel',preventDefault:true,tolerance:12,onDown:next,onUp:prev});else shell.addEventListener('wheel',e=>{e.preventDefault();e.deltaY>0?next():prev()},{passive:false});shell.addEventListener('pointerdown',e=>{dragging=true;dragStartX=e.clientX;lastPointerX=e.clientX;dragStartProgress=orbitProgress;velocity=0;shell.setPointerCapture?.(e.pointerId);orbitTween?.kill?.()});shell.addEventListener('pointermove',e=>{if(!dragging)return;velocity=e.clientX-lastPointerX;lastPointerX=e.clientX;orbitProgress=dragStartProgress-(e.clientX-dragStartX)/(innerWidth<620?170:240);renderOrbit();syncActive()});const end=()=>{if(!dragging)return;dragging=false;animateProgress(Math.round(orbitProgress-velocity*.018),.55)};shell.addEventListener('pointerup',end);shell.addEventListener('pointercancel',end);addEventListener('resize',renderOrbit)}
+  function setupOrbitInteraction(){const shell=$('.orbit-shell');if(!shell)return;$('#next-dish').onclick=next;$('#prev-dish').onclick=prev;$('#explore-dish').onclick=openDetail;shell.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();if(e.key==='Enter')openDetail()});if(window.Observer)Observer.create({target:shell,type:'wheel',preventDefault:true,tolerance:12,onDown:next,onUp:prev});else shell.addEventListener('wheel',e=>{e.preventDefault();e.deltaY>0?next():prev()},{passive:false});shell.addEventListener('pointerdown',e=>{dragging=true;dragStartX=e.clientX;lastPointerX=e.clientX;dragStartProgress=orbitProgress;velocity=0;tapDish=e.target?.closest?.('.orbit-dish')||null;tapMoved=false;shell.setPointerCapture?.(e.pointerId);orbitTween?.kill?.()});shell.addEventListener('pointermove',e=>{if(!dragging)return;velocity=e.clientX-lastPointerX;lastPointerX=e.clientX;if(Math.abs(e.clientX-dragStartX)>6)tapMoved=true;orbitProgress=dragStartProgress-(e.clientX-dragStartX)/(innerWidth<620?170:240);renderOrbit();syncActive()});
+    /* A tap has to be resolved here. setPointerCapture on the shell retargets
+       pointerup to the shell, so the browser fires `click` on the shell — a plate's
+       own onclick from buildOrbit is never reached, and tapping a product has
+       therefore always done nothing. Same contract as that handler: the active dish
+       opens its detail, any other one is navigated to. */
+    const end=()=>{if(!dragging)return;dragging=false;
+      const dish=tapDish,moved=tapMoved;tapDish=null;tapMoved=false;
+      if(dish&&!moved){const i=$$('.orbit-dish').indexOf(dish);
+        if(i>=0){orbitProgress=dragStartProgress;renderOrbit();syncActive();i===active?openDetail():goToIndex(i);return}}
+      animateProgress(Math.round(orbitProgress-velocity*.018),.55)};shell.addEventListener('pointerup',end);shell.addEventListener('pointercancel',end);addEventListener('resize',renderOrbit)}
 
   function fillDetail(d){[['detail-meta','meta'],['detail-title','name'],['detail-price','price'],['detail-description','short'],['detail-ingredients','ingredients'],['detail-origin','origin'],['detail-technique','technique'],['detail-pairing','pairing']].forEach(([id,k])=>{$('#'+id).textContent=d[k]||''});$('#detail-note').textContent=`“${d.note||''}”`;$('#detail-allergens').textContent=`Allergens · ${d.allergens||''}`}
   function openDetail(){const d=enabledDishes()[active],detail=$('#dish-detail'),source=$(`.orbit-dish[data-id="${d?.id}"]`);if(!d||!detail||!source)return;fillDetail(d);detailSource={node:source,parent:source.parentNode,next:source.nextSibling};const state=window.Flip?Flip.getState(source):null;$('#detail-visual').appendChild(source);detail.classList.add('is-open');detail.setAttribute('aria-hidden','false');document.body.classList.add('detail-open');if(state)Flip.from(state,{duration:.8,ease:'power4.inOut',absolute:true,scale:true});$('#detail-close').focus()}
   function closeDetail(){if(!detailSource)return;const detail=$('#dish-detail'),source=detailSource.node,state=window.Flip?Flip.getState(source):null;detailSource.parent.insertBefore(source,detailSource.next);const done=()=>{detail.classList.remove('is-open');detail.setAttribute('aria-hidden','true');document.body.classList.remove('detail-open');detailSource=null;renderOrbit()};state?Flip.from(state,{duration:.7,ease:'power3.inOut',absolute:true,scale:true,onComplete:done}):done()}
   function setupDetail(){if($('#detail-close'))$('#detail-close').onclick=closeDetail}
+
+  /* ---------- orbit adapter ----------
+     Motion presets need the engine's real state: the fractional orbitProgress, the
+     active index, and a way to take over how a dish is PRESENTED without owning a
+     second index, a second progress or a second gesture engine.
+
+     This exposes the existing engine; it does not copy it. With no renderer
+     registered and no subscribers, renderOrbit behaves exactly as before, so Elegant
+     Orbit and every approved preset are untouched. */
+  let orbitRenderer=null;
+  const progressSubs=new Set(),activeSubs=new Set();
+  function orbitFrame(){progressSubs.forEach(f=>{try{f(orbitProgress)}catch(e){}})}
+  window.RestaurantOrbit={
+    getProgress:()=>orbitProgress,
+    getActiveIndex:()=>active,
+    getDishes:()=>enabledDishes(),
+    getCount:()=>enabledDishes().length,
+    continuousDistance,
+    nearestIndex,
+    isDragging:()=>dragging,
+    next,prev,goToIndex,animateProgress,
+    /* Writes the engine's own progress and re-renders through the engine's own pass.
+       animateProgress cannot hold a fraction — it snaps to Math.round(target) when it
+       completes — so this is how a preset or a test inspects the orbit mid-travel
+       without inventing a progress of its own. */
+    setProgress(v){orbitTween?.kill?.();orbitProgress=Number(v)||0;renderOrbit();syncActive()},
+    render:renderOrbit,
+    openDetail,
+    subscribeProgress(fn){progressSubs.add(fn);return()=>progressSubs.delete(fn)},
+    subscribeActive(fn){activeSubs.add(fn);return()=>activeSubs.delete(fn)},
+    /* Registering a renderer replaces the per-dish transform ONLY. Distance, angle,
+       front, progress and the ellipse radii are still computed by the engine and
+       handed over, so a preset re-composes the same orbit instead of inventing one. */
+    setDishRenderer(fn){orbitRenderer=typeof fn==='function'?fn:null;renderOrbit()},
+    hasDishRenderer:()=>!!orbitRenderer
+  };
 
   function closeStudio(){window.RestaurantStudioShell?.close?.()}
   function bindStudio(){
