@@ -16,9 +16,15 @@
 
    Runs on the Chromium Playwright already installs. No new dependency.
 
+   DEVELOPMENT FALLBACK ONLY — SUPERSEDED BY THE REAL PHOTOGRAPHY.
+   The live demo is built by scripts/ingest-anchor-scenes.mjs from MANO+OBJETO/. This
+   generator is kept because it still answers a real question — what does a project
+   show before the photo session exists? — and it now writes to a sandbox of its own,
+   so it can never overwrite the real runtime set or the manifest the engine reads.
+
    Usage: node scripts/build-anchor-scenes.mjs
-   Output: assets/anchor-scenes/runtime/scene-XX-<slug>.webp
-           assets/anchor-scenes/scenes-manifest.json
+   Output: assets/anchor-scenes/proxy-dev/scene-XX-<slug>.webp
+           assets/anchor-scenes/proxy-dev/scenes-manifest.json
 */
 import {chromium} from 'playwright';
 import fs from 'node:fs';
@@ -27,7 +33,7 @@ import {fileURLToPath} from 'node:url';
 import {startServer} from '../tests/static-server.mjs';
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const OUT=path.join(ROOT,'assets','anchor-scenes','runtime');
+const OUT=path.join(ROOT,'assets','anchor-scenes','proxy-dev');
 const SRC=path.join(ROOT,'assets','anchor-scenes','source');
 fs.mkdirSync(OUT,{recursive:true});
 fs.mkdirSync(SRC,{recursive:true});
@@ -193,13 +199,13 @@ for(const d of dishes){
     const buf=Buffer.from(r.url.split(',')[1],'base64');
     fs.writeFileSync(path.join(OUT,name),buf);
     made.push({dishId:d.id,name:d.name,word:d.word,accent:d.accent,backgroundColor:d.bg,
-      file:`assets/anchor-scenes/runtime/${name}`,kb:Math.round(buf.length/1024),
+      file:`assets/anchor-scenes/proxy-dev/${name}`,kb:Math.round(buf.length/1024),
       anchor:r.anchor,object:r.object});
     console.log(`ok   ${name}  ${Math.round(buf.length/1024)}KB  object ${r.object.w}x${r.object.h} (ratio ${r.object.ratio})`);
   }catch(err){console.log(`FAIL ${d.id}: ${err.message}`)}
 }
 
-fs.writeFileSync(path.join(ROOT,'assets','anchor-scenes','scenes-manifest.json'),
+fs.writeFileSync(path.join(OUT,'scenes-manifest.json'),
   JSON.stringify({
     kind:'proxy',
     note:'Proxy set composed from the hand master and the Project 01 object cut-outs. Replace with real photography in assets/anchor-scenes/source and re-point dish.anchorScene.image; the engine needs no change.',

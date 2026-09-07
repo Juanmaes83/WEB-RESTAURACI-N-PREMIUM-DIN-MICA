@@ -29,7 +29,7 @@ fs.mkdirSync(OUT,{recursive:true});
 const MANIFEST=path.join(ROOT,'assets','anchor-scenes','scenes-manifest.json');
 if(!fs.existsSync(MANIFEST)){console.error('no scenes-manifest.json — run build-anchor-scenes.mjs first');process.exit(2)}
 const manifest=JSON.parse(fs.readFileSync(MANIFEST,'utf8'));
-const files=manifest.scenes.map(s=>s.file);
+const files=manifest.scenes.map(s=>s.runtimeAsset);
 if(files.length<3){console.error(`need at least 3 scenes, found ${files.length}`);process.exit(2)}
 
 /* Tolerances. Loose enough for a real photo session, tight enough to catch a
@@ -127,8 +127,11 @@ fs.writeFileSync(path.join(OUT,'anchor-region-diff.png'),
 delete report.diffUrl;
 
 /* object geometry consistency, straight from the manifest the builder wrote */
+/* The object's scale is its measured width on the canvas. For real photography that
+   is the vessel's rim: the same bowl reading a different size between scenes means
+   the camera moved, which is exactly what must not happen. */
 const objs=manifest.scenes.map(s=>s.object);
-const scales=objs.map(o=>o.scale);
+const scales=objs.map(o=>o.w/report.canvas.W);
 const scaleSpread=+((Math.max(...scales)-Math.min(...scales))/Math.max(...scales)).toFixed(4);
 const cx=manifest.scenes.map(s=>(s.object.x+s.object.w/2)/report.canvas.W);
 const cy=manifest.scenes.map(s=>(s.object.y+s.object.h/2)/report.canvas.H);
@@ -144,7 +147,7 @@ await page.evaluate(([files,names])=>{
       <img src="${f}" style="width:100%;display:block">
       <span style="position:absolute;left:10px;bottom:8px;font:11px system-ui;color:#fff;opacity:.85">${names[i]}</span>
     </div>`).join('')}</div>`;
-},[files,manifest.scenes.map(s=>s.word||s.name)]);
+},[files,manifest.scenes.map(s=>s.product||s.dishId)]);
 await page.waitForTimeout(1500);
 await page.locator('body > div').screenshot({path:path.join(OUT,'_scenes-sheet.png')});
 

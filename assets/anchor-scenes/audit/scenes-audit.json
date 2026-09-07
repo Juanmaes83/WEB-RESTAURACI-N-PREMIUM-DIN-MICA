@@ -7,107 +7,94 @@
     "luma": 0.1
   },
   "canvas": {
-    "W": 1200,
-    "H": 1500
+    "W": 1122,
+    "H": 1402
   },
-  "count": 6,
+  "count": 5,
   "scenes": [
     {
       "i": 0,
-      "w": 1200,
-      "h": 1500,
+      "w": 1122,
+      "h": 1402,
       "orientation": "portrait",
-      "bandMean": 0.1795,
-      "frameMean": 0.2135
+      "bandMean": 0.5401,
+      "frameMean": 0.5432
     },
     {
       "i": 1,
-      "w": 1200,
-      "h": 1500,
+      "w": 1122,
+      "h": 1402,
       "orientation": "portrait",
-      "bandMean": 0.1801,
-      "frameMean": 0.1981
+      "bandMean": 0.5215,
+      "frameMean": 0.5242
     },
     {
       "i": 2,
-      "w": 1200,
-      "h": 1500,
+      "w": 1122,
+      "h": 1402,
       "orientation": "portrait",
-      "bandMean": 0.1925,
-      "frameMean": 0.2541
+      "bandMean": 0.5272,
+      "frameMean": 0.5213
     },
     {
       "i": 3,
-      "w": 1200,
-      "h": 1500,
+      "w": 1122,
+      "h": 1402,
       "orientation": "portrait",
-      "bandMean": 0.1881,
-      "frameMean": 0.2479
+      "bandMean": 0.5374,
+      "frameMean": 0.5442
     },
     {
       "i": 4,
-      "w": 1200,
-      "h": 1500,
+      "w": 1122,
+      "h": 1402,
       "orientation": "portrait",
-      "bandMean": 0.1777,
-      "frameMean": 0.2094
-    },
-    {
-      "i": 5,
-      "w": 1200,
-      "h": 1500,
-      "orientation": "portrait",
-      "bandMean": 0.1905,
-      "frameMean": 0.2539
+      "bandMean": 0.5285,
+      "frameMean": 0.5389
     }
   ],
   "pairs": [
     {
       "i": 1,
-      "mean": 9.38,
-      "ratio": 0
+      "mean": 6.75,
+      "ratio": 0.0012
     },
     {
       "i": 2,
-      "mean": 5.8,
-      "ratio": 0
+      "mean": 5.39,
+      "ratio": 0.002
     },
     {
       "i": 3,
-      "mean": 9.06,
-      "ratio": 0
+      "mean": 4.1,
+      "ratio": 0.0013
     },
     {
       "i": 4,
-      "mean": 3.21,
-      "ratio": 0
-    },
-    {
-      "i": 5,
-      "mean": 4.08,
-      "ratio": 0
+      "mean": 4.9,
+      "ratio": 0.0006
     }
   ],
   "band": {
-    "x0": 168,
-    "x1": 1128,
-    "y0": 990,
-    "y1": 1470
+    "x0": 157,
+    "x1": 1055,
+    "y0": 925,
+    "y1": 1374
   },
   "verdict": {
     "sameCanvas": true,
     "sameOrientation": true,
-    "lumaSpread": 0.056,
+    "lumaSpread": 0.0229,
     "lumaOk": true,
-    "anchorWorst": 9.38,
+    "anchorWorst": 6.75,
     "anchorOk": true,
-    "anchorWorstRatio": 0,
+    "anchorWorstRatio": 0.002,
     "anchorRatioOk": true
   },
   "object": {
-    "scaleSpread": 0.0914,
+    "scaleSpread": 0.0234,
     "scaleOk": true,
-    "centreSpread": 0.0008,
+    "centreSpread": 0.0271,
     "centreOk": true
   }
 }
