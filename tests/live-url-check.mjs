@@ -10,6 +10,22 @@ const URL_=process.argv[2];
 const PRESET=process.argv[3]||'depth-carousel';
 if(!URL_){console.error('usage: node tests/live-url-check.mjs <url> [preset]');process.exit(2)}
 
+/* One deliverable check, two motion presets. The per-preset differences are the
+   runtime global, the ready flag and what "the experience is on screen" means. */
+const PRESETS={
+  'depth-carousel':{global:'RestaurantDepthCarousel',ready:()=>document.documentElement.dataset.depthCarousel==='ready',
+    label:'Depth Carousel',
+    layers:()=>[...document.querySelectorAll('.dc-plate')].filter(p=>+getComputedStyle(p).opacity>.05).length,
+    layerName:'carousel renders multiple depth levels',layerMin:3,layerUnit:'visible plates'},
+  'anchor-scenes':{global:'RestaurantAnchorScenes',ready:()=>document.documentElement.dataset.anchorScenes==='ready',
+    label:'Anchor Scenes',
+    layers:()=>[...document.querySelectorAll('.sc-scene')].filter(s=>{
+      const bg=getComputedStyle(s.querySelector('.sc-subject')||s).backgroundImage;return bg&&bg!=='none'}).length,
+    layerName:'both master scenes resolve',layerMin:2,layerUnit:'scenes with imagery'}
+};
+const SPEC=PRESETS[PRESET];
+if(!SPEC){console.error(`unknown preset: ${PRESET}`);process.exit(2)}
+
 const results=[];
 const check=(name,ok,detail='')=>{results.push({name,ok});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
 
@@ -33,8 +49,8 @@ check('not a blank screen',notBlank);
 
 /* The preset is loaded dynamically by class4-runtime-guard, so it lands after boot. */
 let runtimeUp=true;
-try{await page.waitForFunction(()=>!!window.RestaurantDepthCarousel,null,{timeout:20000})}catch{runtimeUp=false}
-check('Depth Carousel runtime present',runtimeUp);
+try{await page.waitForFunction(g=>!!window[g],SPEC.global,{timeout:20000})}catch{runtimeUp=false}
+check(`${SPEC.label} runtime present`,runtimeUp);
 
 /* Wait for the option itself: assigning a value a <select> does not yet contain
    silently resets it to "" and the preset would never be applied. */
@@ -44,12 +60,14 @@ await page.evaluate(p=>{
   s.value=p;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));
   window.RestaurantMotionStudio?.publish?.();
 },PRESET);
-await page.waitForFunction(()=>document.documentElement.dataset.depthCarousel==='ready',null,{timeout:12000});
+await page.waitForFunction(SPEC.ready,null,{timeout:12000});
+check('preset is the active motion language',
+  await page.evaluate(p=>document.documentElement.dataset.orbitalMotion===p,PRESET));
 await page.locator('#signature').scrollIntoViewIfNeeded();
 await page.waitForTimeout(900);
 
-const visible=await page.evaluate(()=>[...document.querySelectorAll('.dc-plate')].filter(p=>+getComputedStyle(p).opacity>.05).length);
-check('carousel renders multiple depth levels',visible>=3,`${visible} visible plates`);
+const visible=await page.evaluate(SPEC.layers);
+check(SPEC.layerName,visible>=SPEC.layerMin,`${visible} ${SPEC.layerUnit}`);
 
 const i0=await page.evaluate(()=>document.getElementById('dish-counter').textContent.trim());
 await page.click('#next-dish');
