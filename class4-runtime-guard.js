@@ -108,3 +108,17 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,120));
   else setTimeout(load,120);
 })();
+
+/* CLASS 12 · PROJECT 07 PREMIUM — load the product-discovery layer additively.
+   It presents; class11 keeps the approved motion engine. index.html stays untouched. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-pizza-premium-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class12-pizza-premium.js';s.dataset.pizzaPremiumRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,140));
+  else setTimeout(load,140);
+})();
