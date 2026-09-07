@@ -37,20 +37,48 @@ html[data-orbital-motion="anchor-scenes"] .orbit-shell{
 .sc-scene{position:absolute;inset:0}
 .sc-scene-a{z-index:2}
 .sc-scene-b{z-index:3;will-change:mask-image}
-/* the wash makes the scene's own colour world fill the frame without cropping it */
-.sc-wash{position:absolute;inset:-20%;background-repeat:no-repeat;background-size:cover;
-  /* exposure must match the sharp subject: a dimmer wash makes the mask boundary
-     visible as a straight step across the frame */
-  background-position:center;filter:blur(80px) saturate(1.08) brightness(.94)}
-/* The subject is contained so the hand is never cut — but a contained opaque image
-   shows its own rectangle against the wash. Feathering it away dissolves that edge,
-   and because the wash IS the same image the colours match exactly, so the join is
-   invisible. */
-.sc-subject{position:absolute;inset:0;background-repeat:no-repeat;
-  background-size:auto 108%;background-position:70% 4%;
-  -webkit-mask-image:radial-gradient(ellipse 128% 136% at 66% 44%,#000 28%,rgba(0,0,0,.82) 52%,rgba(0,0,0,.34) 76%,transparent 100%);
-  mask-image:radial-gradient(ellipse 128% 136% at 66% 44%,#000 28%,rgba(0,0,0,.82) 52%,rgba(0,0,0,.34) 76%,transparent 100%)}
-.sc-scene[data-kind="fallback"] .sc-subject{background-size:auto 44%;background-position:68% 30%}
+/* The subject is CONTAINED so the hand is never cropped, and it is a real box with
+   the image's own aspect ratio rather than a background inside a full-bleed div.
+   That distinction matters twice:
+     · a mask on a full-bleed div is measured against the viewport, not the image, so
+       its falloff never lands on the image's edge — which is why the image's own
+       rectangle was visible as two hard verticals down the frame;
+     · the object hit region is expressed in fractions of the scene image, and both
+       the engine and its test read it off this box, so a box that is not the image
+       makes the two agree with each other while both point at the wrong place.
+   `left:70%` + `translateX(-70%)` reproduces `background-position:70%` exactly:
+   0.70·container − 0.70·element = 0.70·(container − element). */
+.sc-subject{position:absolute;top:4%;left:70%;height:108%;aspect-ratio:1200/1500;
+  transform:translate(-70%,-4%);
+  background-repeat:no-repeat;background-size:100% 100%;background-position:center;
+  /* Feather only the sides. Top and bottom are clipped by the stage — the image is
+     taller than it — so they have no visible edge, and fading the bottom would fade
+     the wrist. The hand spans 10%–96% of the image, so the falloff stays off it. */
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 13%,#000 90%,rgba(0,0,0,.35) 98%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 13%,#000 90%,rgba(0,0,0,.35) 98%,transparent 100%)}
+
+/* The wash carries the scene's colour world to the edges of the frame. It uses the
+   SAME geometry as the subject, scaled up and blurred, so the pixels it shows where
+   the subject fades out come from the same image — the join has nowhere to step. A
+   `cover` crop cannot do that: it is a different scale of a different region, and the
+   mismatch reads as a straight edge no matter how soft the mask is.
+   Exposure has to match too: at brightness .94 against a full-strength subject the
+   boundary reappears as a tonal step. */
+.sc-wash{position:absolute;top:4%;left:70%;height:108%;aspect-ratio:1200/1500;
+  transform:translate(-70%,-4%) scale(2.6);
+  background-repeat:no-repeat;background-size:100% 100%;background-position:center;
+  /* blur is applied in local space and then scaled with the element, so 32px here
+     lands at roughly 83px on screen */
+  filter:blur(32px) saturate(1.06) brightness(.99)}
+
+/* No scene image: the fallback paints the object cut-out with no hand, so it wants
+   the full stage and no feather. */
+.sc-scene[data-kind="fallback"] .sc-subject,
+.sc-scene[data-kind="fallback"] .sc-wash{
+  top:0;left:0;width:100%;height:100%;aspect-ratio:auto;transform:none}
+.sc-scene[data-kind="fallback"] .sc-subject{background-size:auto 44%;background-position:68% 30%;
+  -webkit-mask-image:none;mask-image:none}
+.sc-scene[data-kind="fallback"] .sc-wash{background-size:cover;filter:blur(80px) saturate(1.08) brightness(.94)}
 
 .sc-seam{position:absolute;left:-6%;right:-6%;height:2px;z-index:5;opacity:0;
   background:linear-gradient(90deg,transparent,var(--sc-accent,#fff) 24%,var(--sc-accent,#fff) 76%,transparent);
@@ -130,9 +158,13 @@ html[data-orbital-motion="anchor-scenes"] .orbital-section::after{
   html[data-orbital-motion="anchor-scenes"] .orbital-section{padding:calc(4vh + 72px) 0 5vh}
   html[data-orbital-motion="anchor-scenes"] .orbit-shell{height:56vh;min-height:420px}
   html[data-orbital-motion="anchor-scenes"] .sc-eyebrow{padding:0 7vw;gap:12px;font-size:9px;letter-spacing:.24em}
-  .sc-subject{background-size:auto 104%;background-position:52% 4%;
-    -webkit-mask-image:radial-gradient(ellipse 170% 128% at 52% 40%,#000 30%,rgba(0,0,0,.82) 54%,rgba(0,0,0,.34) 78%,transparent 100%);
-    mask-image:radial-gradient(ellipse 170% 128% at 52% 40%,#000 30%,rgba(0,0,0,.82) 54%,rgba(0,0,0,.34) 78%,transparent 100%)}
+  /* On this viewport the image is about as wide as the stage, so its sides sit at
+     the screen edge and the feather can be much shorter without exposing anything. */
+  .sc-subject,.sc-wash{top:4%;left:52%;height:104%;transform:translate(-52%,-4%)}
+  .sc-wash{transform:translate(-52%,-4%) scale(2.2);filter:blur(28px) saturate(1.06) brightness(.99)}
+  .sc-subject{
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%);
+    mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%)}
   .sc-word{left:50%;top:5%;font-size:clamp(78px,24vw,140px)}
   .sc-atmo{left:50%;width:170%;height:92%;filter:blur(60px)}
   .sc-decor-back .sc-decor-item{width:clamp(44px,12vw,74px);height:clamp(44px,12vw,74px)}

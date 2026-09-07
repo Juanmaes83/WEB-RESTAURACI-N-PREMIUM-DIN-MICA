@@ -161,6 +161,30 @@ Salidas: `_scenes-sheet.png` (hoja comparativa), `anchor-region-diff.png` y
 `scenes-audit.json`. La auditoría **falla con exit 1** si una escena entra desalineada,
 y el CI la ejecuta.
 
+## 6b. Dos aristas que la geometría no delataba
+
+Las dos escenas se pintaban como imagen de fondo dentro de un `div` a sangre. En la
+revisión visual del fotograma al 50% aparecían **dos verticales duras** cruzando el
+cuadro, en x≈463 y x≈1241. Son exactamente los bordes de la propia imagen: con
+`background-size:auto 108%` sobre un escenario de 900px la banda mide 777.6px de ancho y,
+posicionada al 70%, empieza en 463. La máscara radial que debía difuminarla se mide
+contra el `div` —el viewport— y no contra la imagen, así que su caída nunca llegaba al
+borde.
+
+El sujeto es ahora **una caja con la relación de aspecto de la imagen**
+(`left:70%` + `translateX(-70%)` reproduce `background-position:70%` exactamente), con un
+degradado de bordes sólo lateral: arriba y abajo los recorta el escenario, y desvanecer
+el inferior desvanecería la muñeca. Y el baño usa **la misma geometría, escalada y
+desenfocada**, no un `cover`: donde el sujeto se apaga, el baño muestra píxeles de la
+misma imagen, así que el empalme no tiene por dónde escalonarse.
+
+El segundo borde era invisible en los tests. La región clicable del objeto se expresa en
+fracciones de la imagen de escena, y **tanto el motor como su test la leían de esa misma
+caja equivocada**: coincidían entre sí, apuntando los dos a un sitio que no era el objeto
+—pasaba porque la región es amplia y solapaba por suerte—. Al corregir la caja se
+corrigen los dos a la vez. Es el mismo aprendizaje que Project 01 dejó escrito: la
+geometría de acuerdo consigo misma no es prueba visual.
+
 ## 7. Modelo de capas
 
 ```text
@@ -282,10 +306,8 @@ ya nos costó una vez.
    consistencia auditada, pero se componen a partir de fotografía cenital de plato: no
    son un objeto fotografiado *para ser sostenido*. Una copa, un bowl en tres cuartos o
    un cucurucho darían otro salto.
-2. **Un borde vertical tenue** subsiste en el tercio izquierdo, donde la máscara del
-   sujeto se apaga contra su propio baño. Se atenuó igualando exposiciones (era un paso
-   duro: sujeto a brillo pleno contra baño al 0.56) y queda bajo el scrim del copy, pero
-   con fotografía real de fondo continuo desaparecería solo.
+2. **En móvil el lettering queda casi oculto** tras la banda del header. En desktop se
+   lee correctamente detrás del producto.
 3. **Una sola mano, una sola pose.** Las variantes B (mesa), C (copa) y D (utensilio)
    del documento maestro siguen sin implementar.
 4. **Sin panel en Studio.** El preset se selecciona; no hay controles de dirección,
