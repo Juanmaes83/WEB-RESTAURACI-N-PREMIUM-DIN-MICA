@@ -1,0 +1,173 @@
+{
+  "kind": "proxy",
+  "note": "Proxy set composed from the hand master and the Project 01 object cut-outs. Replace with real photography in assets/anchor-scenes/source and re-point dish.anchorScene.image; the engine needs no change.",
+  "take": {
+    "W": 1200,
+    "H": 1500,
+    "hand": {
+      "w": 0.86,
+      "left": 0.1,
+      "top": 0.1
+    },
+    "cup": {
+      "x": 0.515,
+      "y": 0.301,
+      "w": 0.464,
+      "h": 0.224
+    },
+    "productLift": -0.005,
+    "quality": 0.9
+  },
+  "scenes": [
+    {
+      "dishId": "dish-01",
+      "name": "Wild Red Prawn",
+      "word": "FIRE",
+      "accent": "#ff6a3c",
+      "backgroundColor": "#1e0a05",
+      "file": "assets/anchor-scenes/runtime/scene-01-wild-red-prawn.webp",
+      "kb": 98,
+      "anchor": {
+        "cupX": 651,
+        "cupY": 538,
+        "handX": 120,
+        "handY": 150,
+        "handW": 1032,
+        "handH": 1290
+      },
+      "object": {
+        "w": 524,
+        "h": 555,
+        "ratio": 0.94,
+        "x": 390,
+        "y": 267,
+        "scale": 0.616
+      }
+    },
+    {
+      "dishId": "dish-02",
+      "name": "Bluefin / Blood Orange",
+      "word": "BLUEFIN",
+      "accent": "#4f8dff",
+      "backgroundColor": "#050f22",
+      "file": "assets/anchor-scenes/runtime/scene-02-bluefin-blood-orange.webp",
+      "kb": 89,
+      "anchor": {
+        "cupX": 651,
+        "cupY": 538,
+        "handX": 120,
+        "handY": 150,
+        "handW": 1032,
+        "handH": 1290
+      },
+      "object": {
+        "w": 370,
+        "h": 555,
+        "ratio": 0.67,
+        "x": 467,
+        "y": 267,
+        "scale": 0.616
+      }
+    },
+    {
+      "dishId": "dish-03",
+      "name": "Charred Artichoke",
+      "word": "EMBER",
+      "accent": "#b9e24d",
+      "backgroundColor": "#101c07",
+      "file": "assets/anchor-scenes/runtime/scene-03-charred-artichoke.webp",
+      "kb": 114,
+      "anchor": {
+        "cupX": 651,
+        "cupY": 538,
+        "handX": 120,
+        "handY": 150,
+        "handW": 1032,
+        "handH": 1290
+      },
+      "object": {
+        "w": 555,
+        "h": 555,
+        "ratio": 1,
+        "x": 374,
+        "y": 267,
+        "scale": 0.616
+      }
+    },
+    {
+      "dishId": "dish-04",
+      "name": "Wild Sea Bass",
+      "word": "SEA",
+      "accent": "#34d3c6",
+      "backgroundColor": "#041d1d",
+      "file": "assets/anchor-scenes/runtime/scene-04-wild-sea-bass.webp",
+      "kb": 121,
+      "anchor": {
+        "cupX": 651,
+        "cupY": 538,
+        "handX": 120,
+        "handY": 150,
+        "handW": 1032,
+        "handH": 1290
+      },
+      "object": {
+        "w": 572,
+        "h": 555,
+        "ratio": 1.03,
+        "x": 366,
+        "y": 267,
+        "scale": 0.635
+      }
+    },
+    {
+      "dishId": "dish-05",
+      "name": "Iberian Presa",
+      "word": "IBERIAN",
+      "accent": "#ef5b7e",
+      "backgroundColor": "#1d0611",
+      "file": "assets/anchor-scenes/runtime/scene-05-iberian-presa.webp",
+      "kb": 117,
+      "anchor": {
+        "cupX": 651,
+        "cupY": 538,
+        "handX": 120,
+        "handY": 150,
+        "handW": 1032,
+        "handH": 1290
+      },
+      "object": {
+        "w": 562,
+        "h": 555,
+        "ratio": 1.01,
+        "x": 370,
+        "y": 267,
+        "scale": 0.625
+      }
+    },
+    {
+      "dishId": "dish-06",
+      "name": "Burnt Honey Citrus",
+      "word": "HONEY",
+      "accent": "#ffc23d",
+      "backgroundColor": "#201202",
+      "file": "assets/anchor-scenes/runtime/scene-06-burnt-honey-citrus.webp",
+      "kb": 106,
+      "anchor": {
+        "cupX": 651,
+        "cupY": 538,
+        "handX": 120,
+        "handY": 150,
+        "handW": 1032,
+        "handH": 1290
+      },
+      "object": {
+        "w": 610,
+        "h": 555,
+        "ratio": 1.1,
+        "x": 346,
+        "y": 267,
+        "scale": 0.678
+      }
+    }
+  ]
+}

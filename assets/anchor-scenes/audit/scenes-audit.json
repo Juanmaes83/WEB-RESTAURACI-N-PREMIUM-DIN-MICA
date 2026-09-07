@@ -1,0 +1,113 @@
+{
+  "tolerances": {
+    "anchorDiff": 26,
+    "anchorRatio": 0.055,
+    "objectScale": 0.34,
+    "objectCentre": 0.06,
+    "luma": 0.1
+  },
+  "canvas": {
+    "W": 1200,
+    "H": 1500
+  },
+  "count": 6,
+  "scenes": [
+    {
+      "i": 0,
+      "w": 1200,
+      "h": 1500,
+      "orientation": "portrait",
+      "bandMean": 0.1795,
+      "frameMean": 0.2135
+    },
+    {
+      "i": 1,
+      "w": 1200,
+      "h": 1500,
+      "orientation": "portrait",
+      "bandMean": 0.1801,
+      "frameMean": 0.1981
+    },
+    {
+      "i": 2,
+      "w": 1200,
+      "h": 1500,
+      "orientation": "portrait",
+      "bandMean": 0.1925,
+      "frameMean": 0.2541
+    },
+    {
+      "i": 3,
+      "w": 1200,
+      "h": 1500,
+      "orientation": "portrait",
+      "bandMean": 0.1881,
+      "frameMean": 0.2479
+    },
+    {
+      "i": 4,
+      "w": 1200,
+      "h": 1500,
+      "orientation": "portrait",
+      "bandMean": 0.1777,
+      "frameMean": 0.2094
+    },
+    {
+      "i": 5,
+      "w": 1200,
+      "h": 1500,
+      "orientation": "portrait",
+      "bandMean": 0.1905,
+      "frameMean": 0.2539
+    }
+  ],
+  "pairs": [
+    {
+      "i": 1,
+      "mean": 9.38,
+      "ratio": 0
+    },
+    {
+      "i": 2,
+      "mean": 5.8,
+      "ratio": 0
+    },
+    {
+      "i": 3,
+      "mean": 9.06,
+      "ratio": 0
+    },
+    {
+      "i": 4,
+      "mean": 3.21,
+      "ratio": 0
+    },
+    {
+      "i": 5,
+      "mean": 4.08,
+      "ratio": 0
+    }
+  ],
+  "band": {
+    "x0": 168,
+    "x1": 1128,
+    "y0": 990,
+    "y1": 1470
+  },
+  "verdict": {
+    "sameCanvas": true,
+    "sameOrientation": true,
+    "lumaSpread": 0.056,
+    "lumaOk": true,
+    "anchorWorst": 9.38,
+    "anchorOk": true,
+    "anchorWorstRatio": 0,
+    "anchorRatioOk": true
+  },
+  "object": {
+    "scaleSpread": 0.0914,
+    "scaleOk": true,
+    "centreSpread": 0.0008,
+    "centreOk": true
+  }
+}
