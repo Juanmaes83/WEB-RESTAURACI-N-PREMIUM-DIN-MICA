@@ -46,7 +46,11 @@
   ];
 
   /* Layer rates. The scenes are 0: they are the anchor. */
-  const RATE={scene:0,decorBack:.35,word:.55,decorFront:1.20};
+  /* The word drifts rather than slides. At .55 the incoming word entered from half a
+   viewport above its rest position, which put it straight through the section
+   eyebrow; the left column has no room for a travelling headline. A short drift
+   also suits photography better than a slab of type crossing the frame. */
+const RATE={scene:0,decorBack:.35,word:.14,decorFront:1.20};
   const FEATHER=14;      /* % of height: the soft band of the wipe */
   const COMMIT_IN=.55, COMMIT_OUT=.45;
   const RELEASE=.42;
@@ -100,6 +104,21 @@
   /* No master scene? Fall back to the object cut-out over a derived world, so a
      project without the photography still renders something coherent. */
   function hasScene(info){return !!info.image}
+  /* Only dishes that own a real master scene are navigable here. A dish without one
+     would drop the hand mid-swap and break the single thing this preset exists to
+     sell, so it is skipped rather than faked. With no scenes at all the ring is
+     every dish, and the fallback carries the section. */
+  function ring(){
+    const all=baseDishes().map((_,i)=>i);
+    const real=all.filter(i=>hasScene(sceneFor(i)));
+    return real.length?real:all;
+  }
+  function ringStep(from,dir){
+    const r=ring();if(!r.length)return normalize(from);
+    const at=r.indexOf(normalize(from));
+    if(at<0)return dir>0?r[0]:r[r.length-1];
+    return r[((at+dir)%r.length+r.length)%r.length];
+  }
   function worldFor(info){
     const a=hex2rgb(info.accent),base=info.backgroundColor||'#0a0a08';
     const glow=(t,al)=>`rgba(${a.map(v=>Math.round(v*t)).join(',')},${al})`;
@@ -173,6 +192,15 @@
 
   function paintScene(el,info){
     const wash=el.querySelector('.sc-wash'), subj=el.querySelector('.sc-subject');
+    /* Registration comes from the data and is applied as custom properties, never as
+       an inline transform: the box's own transform differs between desktop and
+       mobile, and overwriting it would flatten that. A photograph that sits a few
+       pixels off is corrected by its own numbers, so a new set is a data drop. */
+    const reg=info.registration||{};
+    el.style.setProperty('--sc-reg-s',String(Number(reg.scale)||1));
+    el.style.setProperty('--sc-reg-x',`${(Number(reg.offsetX)||0)*100}%`);
+    el.style.setProperty('--sc-reg-y',`${(Number(reg.offsetY)||0)*100}%`);
+    if(reg.aspect)el.style.setProperty('--sc-aspect',String(reg.aspect));
     if(hasScene(info)){
       wash.style.backgroundImage=`url("${info.image}")`;
       subj.style.backgroundImage=`url("${info.image}")`;
@@ -194,7 +222,9 @@
       g.appendChild(atmo);
     }
     const items=asList(layer==='back'?info.backgroundDecor:info.foregroundDecor);
-    const anchors=layer==='back'?[[20,18],[13,52]]:[[17,86],[86,22]];
+    /* kept off the copy column and off the controls: a decor cut-out landing on the
+       dish counter reads as a bug, not as atmosphere */
+    const anchors=layer==='back'?[[24,20],[15,56]]:[[30,74],[88,19]];
     items.slice(0,anchors.length).forEach((src,n)=>{
       const el=document.createElement('div');el.className='sc-decor-item';
       el.style.backgroundImage=`url("${src}")`;
@@ -206,7 +236,7 @@
 
   function refreshPair(){
     outIndex=normalize(restIndex);
-    inIndex=normalize(restIndex+direction);
+    inIndex=ringStep(restIndex,direction);
     paintScene(sceneA,sceneFor(outIndex));
     paintScene(sceneB,sceneFor(inIndex));
     decorBack.innerHTML='';decorFront.innerHTML='';
@@ -220,12 +250,16 @@
     ensureScene();
     if(detailOpen()||!count())return;
     restIndex=counterIndex();progress=0;committed=false;
-    if(dotsEl&&dotsEl.children.length!==count()){
+    /* The base engine may be resting on a dish this preset cannot show. Step onto
+       the ring before painting anything, and take the base engine with us. */
+    const r=ring();
+    if(!r.includes(normalize(restIndex))){restIndex=ringStep(restIndex,1);syncBaseTo(restIndex)}
+    if(dotsEl&&dotsEl.children.length!==r.length){
       dotsEl.innerHTML='';
-      baseDishes().forEach((_,i)=>{
+      r.forEach((base,n)=>{
         const dot=document.createElement('button');
-        dot.type='button';dot.className='sc-dot';dot.dataset.index=String(i);
-        dot.setAttribute('aria-label',`Plato ${i+1}`);
+        dot.type='button';dot.className='sc-dot';dot.dataset.index=String(base);
+        dot.setAttribute('aria-label',`Plato ${n+1}`);
         dotsEl.appendChild(dot);
       });
     }
@@ -290,7 +324,8 @@
     const info=sceneFor(index),d=info.dish||{};
     if(priceEl)priceEl.textContent=d.price||'';
     if(ingEl)ingEl.textContent=d.ingredients||d.meta||'';
-    if(dotsEl)$$('.sc-dot',dotsEl).forEach((dot,i)=>dot.setAttribute('aria-current',String(i===normalize(index))));
+    if(dotsEl)$$('.sc-dot',dotsEl).forEach(dot=>
+      dot.setAttribute('aria-current',String(Number(dot.dataset.index)===normalize(index))));
   }
 
   /* ---------- commit back to the Orbital Engine ---------- */
@@ -359,12 +394,16 @@
   }
   function goTo(index){
     if(!isScenes()||detailOpen()||!count())return;
-    const target=normalize(index);
-    if(target===normalize(restIndex))return;
-    const n=count();let d=target-normalize(restIndex);
+    const target=normalize(index),r=ring();
+    if(target===normalize(restIndex)||!r.includes(target))return;
+    const at=r.indexOf(normalize(restIndex)),to=r.indexOf(target);
+    if(at<0||to<0)return;
+    const n=r.length;let d=to-at;
     while(d>n/2)d-=n;while(d<-n/2)d+=n;
     direction=d>=0?1:-1;
-    restIndex=normalize(target-direction);
+    /* land on the neighbour the target arrives from, then play one full step, so a
+       jump reads as the same gesture the drag produces */
+    restIndex=ringStep(target,-direction);
     refreshPair();complete();
   }
 

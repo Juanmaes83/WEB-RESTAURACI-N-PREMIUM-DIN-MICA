@@ -48,8 +48,11 @@ html[data-orbital-motion="anchor-scenes"] .orbit-shell{
        makes the two agree with each other while both point at the wrong place.
    `left:70%` + `translateX(-70%)` reproduces `background-position:70%` exactly:
    0.70·container − 0.70·element = 0.70·(container − element). */
-.sc-subject{position:absolute;top:4%;left:70%;height:108%;aspect-ratio:1200/1500;
-  transform:translate(-70%,-4%);
+.sc-subject{position:absolute;top:4%;left:70%;height:108%;aspect-ratio:var(--sc-aspect,1122/1402);
+  /* --sc-reg-* carry the per-scene registration from the manifest. They compose with
+     the box's own placement instead of replacing it, so the same numbers work on
+     both viewports. */
+  transform:translate(-70%,-4%) translate(var(--sc-reg-x,0%),var(--sc-reg-y,0%)) scale(var(--sc-reg-s,1));
   background-repeat:no-repeat;background-size:100% 100%;background-position:center;
   /* Feather only the sides. Top and bottom are clipped by the stage — the image is
      taller than it — so they have no visible edge, and fading the bottom would fade
@@ -64,8 +67,8 @@ html[data-orbital-motion="anchor-scenes"] .orbit-shell{
    mismatch reads as a straight edge no matter how soft the mask is.
    Exposure has to match too: at brightness .94 against a full-strength subject the
    boundary reappears as a tonal step. */
-.sc-wash{position:absolute;top:4%;left:70%;height:108%;aspect-ratio:1200/1500;
-  transform:translate(-70%,-4%) scale(2.6);
+.sc-wash{position:absolute;top:4%;left:70%;height:108%;aspect-ratio:var(--sc-aspect,1122/1402);
+  transform:translate(-70%,-4%) translate(var(--sc-reg-x,0%),var(--sc-reg-y,0%)) scale(calc(2.6*var(--sc-reg-s,1)));
   background-repeat:no-repeat;background-size:100% 100%;background-position:center;
   /* blur is applied in local space and then scaled with the element, so 32px here
      lands at roughly 83px on screen */
@@ -101,18 +104,25 @@ html[data-orbital-motion="anchor-scenes"] .sc-eyebrow{
   background-position:center;background-size:contain}
 .sc-atmo{position:absolute;left:24%;top:44%;width:120%;height:110%;transform:translate(-50%,-50%);
   filter:blur(88px);pointer-events:none}
-.sc-decor-back .sc-decor-item{width:clamp(48px,5vw,84px);height:clamp(48px,5vw,84px);
-  filter:blur(2.2px) brightness(.68) opacity(.8)}
-.sc-decor-front .sc-decor-item{width:clamp(104px,11vw,190px);height:clamp(104px,11vw,190px);
-  filter:blur(.8px) drop-shadow(0 18px 22px rgba(0,0,0,.5))}
+/* Against a photograph these cut-outs read as stickers at the weight they carried
+   over the synthetic worlds, so they sit further back: softer, dimmer, smaller in
+   front. They are here for parallax, not for attention. */
+.sc-decor-back .sc-decor-item{width:clamp(44px,4.4vw,74px);height:clamp(44px,4.4vw,74px);
+  filter:blur(3.4px) brightness(.62) opacity(.52)}
+.sc-decor-front .sc-decor-item{width:clamp(84px,8.4vw,146px);height:clamp(84px,8.4vw,146px);
+  filter:blur(1.6px) opacity(.6) drop-shadow(0 18px 26px rgba(0,0,0,.42))}
 
 /* ---------- lettering ---------- */
 /* The master scenes are opaque images, so there is no "behind" to put type in.
    The lettering therefore sits in FRONT of them, kept low enough in opacity that
    the hand reads through it. */
-.sc-word{position:absolute;left:30%;top:12%;transform:translateX(-50%);white-space:nowrap;z-index:4;
-  font-family:var(--font-display,Italiana,serif);font-size:clamp(96px,13vw,210px);line-height:.78;
-  letter-spacing:-.04em;text-transform:uppercase;color:var(--sc-accent,#d8ff4f);
+/* It lives in the editorial column, clear of the eyebrow above it and the title
+   below. Centred and oversized it crossed both — and against photography rather
+   than a synthetic world, a word that spans the frame competes with the dish
+   instead of framing it. */
+.sc-word{position:absolute;left:6vw;top:23%;white-space:nowrap;z-index:4;
+  font-family:var(--font-display,Italiana,serif);font-size:clamp(56px,6.4vw,104px);line-height:.78;
+  letter-spacing:-.03em;text-transform:uppercase;color:var(--sc-accent,#d8ff4f);
   mix-blend-mode:overlay;will-change:transform,opacity;user-select:none}
 
 /* ---------- copy, controls, cursor ---------- */
@@ -160,12 +170,20 @@ html[data-orbital-motion="anchor-scenes"] .orbital-section::after{
   html[data-orbital-motion="anchor-scenes"] .sc-eyebrow{padding:0 7vw;gap:12px;font-size:9px;letter-spacing:.24em}
   /* On this viewport the image is about as wide as the stage, so its sides sit at
      the screen edge and the feather can be much shorter without exposing anything. */
-  .sc-subject,.sc-wash{top:4%;left:52%;height:104%;transform:translate(-52%,-4%)}
-  .sc-wash{transform:translate(-52%,-4%) scale(2.2);filter:blur(28px) saturate(1.06) brightness(.99)}
+  /* At 104% of the section the subject came out 600px wide inside a 390px viewport:
+     the vessel ran off both edges and its rim sat behind the header. The object is
+     what the swap is about, so it has to fit whole. Measured, not guessed — these
+     values put the bowl at 22..362 across and 85..364 down, clear of the header,
+     with the wrist still running behind the copy. */
+  .sc-subject,.sc-wash{top:19%;left:52%;height:66%;
+    transform:translate(-52%,-19%) translate(var(--sc-reg-x,0%),var(--sc-reg-y,0%)) scale(var(--sc-reg-s,1))}
+  .sc-wash{transform:translate(-52%,-19%) translate(var(--sc-reg-x,0%),var(--sc-reg-y,0%)) scale(calc(2.4*var(--sc-reg-s,1)));
+    filter:blur(26px) saturate(1.06) brightness(.99)}
   .sc-subject{
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%);
     mask-image:linear-gradient(90deg,transparent 0,#000 6%,#000 94%,transparent 100%)}
-  .sc-word{left:50%;top:5%;font-size:clamp(78px,24vw,140px)}
+  /* it was clipped behind the header band; below it, and scaled for the viewport */
+  .sc-word{left:7vw;top:14%;transform:none;font-size:clamp(44px,13vw,74px)}
   .sc-atmo{left:50%;width:170%;height:92%;filter:blur(60px)}
   .sc-decor-back .sc-decor-item{width:clamp(44px,12vw,74px);height:clamp(44px,12vw,74px)}
   .sc-decor-front .sc-decor-item{width:clamp(92px,28vw,150px);height:clamp(92px,28vw,150px)}
