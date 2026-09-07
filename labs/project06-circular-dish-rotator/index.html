@@ -15,34 +15,54 @@
     <header class="cdr-topbar">
       <a class="cdr-brand" href="../../index.html">LÚMINA</a>
       <div class="cdr-project-mark"><span>RESTAURANT MOTION ENGINE</span><strong>PROJECT 06 · CIRCULAR DISH ROTATOR</strong></div>
-      <span class="cdr-status">ISOLATED LAB</span>
+      <span class="cdr-status">ISOLATED LAB · V2</span>
     </header>
 
     <section class="cdr-stage" aria-labelledby="cdr-title">
-      <div class="cdr-copy">
-        <p class="cdr-kicker">Circular collection · 08 sectors</p>
-        <h1 id="cdr-title">The whole dish<br><em>becomes the interface.</em></h1>
-        <p class="cdr-body">Arrastra directamente la pizza, avanza de una en una o pulsa Discover. El producto circular completo gira sobre un único eje y se asienta cada 45°.</p>
+      <div class="cdr-copy" id="cdr-copy">
+        <p class="cdr-kicker"><span class="cdr-kicker-dot"></span> Eight slices · one rotating plate</p>
+        <h1 id="cdr-title">I'm tempted by<br><em id="cdr-hero-name">Diavola</em></h1>
+        <p class="cdr-body">Gira el plato completo y deja que cada porción llegue al foco. Arrastra, lánzala con inercia o pulsa Discover para una selección cinematográfica.</p>
+
+        <div class="cdr-copy-link" aria-hidden="true"><span></span><i></i></div>
+
         <div class="cdr-selection" aria-live="polite">
-          <span id="cdr-counter">01 / 08</span>
-          <strong id="cdr-name">Diavola</strong>
+          <div class="cdr-selection-index">
+            <span class="cdr-selection-label">Selected slice</span>
+            <strong id="cdr-counter">01 / 08</strong>
+          </div>
+          <div class="cdr-selection-name-wrap">
+            <small>NOW SERVING</small>
+            <strong id="cdr-name">Diavola</strong>
+          </div>
           <small id="cdr-live" class="cdr-sr-only" aria-live="polite"></small>
         </div>
+
         <div class="cdr-actions">
           <button id="cdr-prev" class="cdr-circle-btn" type="button" aria-label="Pizza anterior">←</button>
-          <button id="cdr-spin" class="cdr-spin-btn" type="button">Discover</button>
+          <button id="cdr-spin" class="cdr-spin-btn" type="button"><span>Discover</span><i>↻</i></button>
           <button id="cdr-next" class="cdr-circle-btn" type="button" aria-label="Pizza siguiente">→</button>
         </div>
-        <p class="cdr-hint">Drag circular · ← → · Discover</p>
+        <p class="cdr-hint">Drag circular · Flick para lanzar · ← → · Discover</p>
       </div>
 
-      <div id="cdr-shell" class="cdr-shell" tabindex="0" role="application" aria-label="Selector circular de pizzas. Arrastra alrededor de la pizza o usa las flechas.">
+      <div id="cdr-shell" class="cdr-shell" tabindex="0" role="application" aria-label="Selector circular de pizzas. Arrastra alrededor de la pizza, lánzala con inercia o usa las flechas." data-settled="true">
+        <div id="cdr-ghost-name" class="cdr-ghost-name" aria-hidden="true">DIAVOLA</div>
         <div class="cdr-atmosphere" aria-hidden="true"></div>
         <div class="cdr-disc-wrap">
+          <div class="cdr-disc-shadow" aria-hidden="true"></div>
           <img id="cdr-disc" class="cdr-disc" draggable="false" alt="Pizza completa formada por ocho variedades" src="../../assets/pizza-motion/source/full-pizza/PIZZA%20COMPLETA%20DE%208%20TROZOS.png">
+
+          <div class="cdr-active-sector" aria-hidden="true">
+            <img id="cdr-sector-disc" class="cdr-sector-disc" draggable="false" alt="" src="../../assets/pizza-motion/source/full-pizza/PIZZA%20COMPLETA%20DE%208%20TROZOS.png">
+            <div class="cdr-sector-sheen"></div>
+          </div>
+
           <svg class="cdr-selector" viewBox="0 0 100 100" aria-hidden="true">
             <path d="M50 50 L32.4 7.5 A46 46 0 0 1 67.6 7.5 Z"></path>
           </svg>
+
+          <div class="cdr-pointer" id="cdr-pointer" aria-hidden="true"><span></span><i></i></div>
           <div class="cdr-center" aria-hidden="true"><span></span></div>
         </div>
         <div class="cdr-tick cdr-tick-a" aria-hidden="true"></div>
