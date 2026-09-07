@@ -407,6 +407,16 @@ Debe percibirse claramente la continuidad del ancla y la coexistencia/control en
 
 # PROJECT 03 — ORBITAL FOOD SLIDER
 
+## Estado
+
+**ACTIVE / IN DEVELOPMENT** — arrancado el 2026-09-07 sobre `main` con Project 01 y
+Project 02 aprobados e integrados (baseline `fc917e0`). Rama:
+`feat/orbital-food-slider-lab`. Documentación:
+`docs/PROJECT-03-ORBITAL-FOOD-SLIDER.md`. Misión:
+`docs/PROJECT-03-ORBITAL-FOOD-SLIDER-MISSION.md`.
+
+Entregado para revisión visual humana; **no aprobado y no mergeado**.
+
 ## Referencia visual del vídeo
 
 Es el sistema circular observado en la primera parte del vídeo: producto, textos y decoración organizados alrededor de una geometría circular que rota de forma coordinada.
@@ -915,7 +925,8 @@ El activo será el **motor capaz de generar experiencias gastronómicas premium 
 >
 > **Tercera actualización 2026-09-07.** Project 02 queda **APPROVED / CLOSED** e
 > integrado en `main` (baseline `c378e05f`). Con Project 01 y Project 02 cerrados, se
-> abre **Project 03 — Orbital Food Slider**; los proyectos 04 y 05 siguen pendientes.
+> abre **Project 03 — Orbital Food Slider**, que pasa a **ACTIVE / IN DEVELOPMENT** y
+> queda entregado para revisión visual. Los proyectos 04 y 05 siguen pendientes.
 
 Los cinco proyectos tienen interés suficiente para desarrollarse con Claude Code bajo supervisión.
 
