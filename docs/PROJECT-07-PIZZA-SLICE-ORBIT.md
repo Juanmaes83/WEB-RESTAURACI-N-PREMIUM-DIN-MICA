@@ -1,6 +1,9 @@
 # PROJECT 07 — PIZZA SLICE ORBIT / HERO SELECTOR
 
-> **STATUS: READY FOR HUMAN VISUAL REVIEW.**
+> **STATUS: APPROVED / MERGED.** Aprobado por Juanma e integrado en `main` (merge
+> `a2632b7`). El paso premium construido encima está en
+> `docs/PROJECT-07-PREMIUM-PRODUCTIZATION.md`. Lo que sigue es el documento de entrega
+> original del motor.
 > Rama: `feat/pizza-slice-orbit-lab`, creada desde `main` con Projects 01, 02 y 03
 > aprobados e integrados. No se ha mergeado a `main`.
 > Este documento no aprueba nada. Aprueban Juanma + ChatGPT tras revisión visual.
