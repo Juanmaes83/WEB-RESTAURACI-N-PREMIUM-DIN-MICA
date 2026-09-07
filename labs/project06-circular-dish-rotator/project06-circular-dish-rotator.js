@@ -32,8 +32,8 @@
   let spinning = false;
   let dragging = false;
   let dragPointerId = null;
-  let dragStartAngle = 0;
   let dragStartProgress = 0;
+  let dragAccumulatedDeg = 0;
   let previousAngle = 0;
   let previousTime = 0;
   let angularVelocity = 0;
@@ -121,10 +121,10 @@
     cancelTween();
     dragging = true;
     dragPointerId = event.pointerId;
-    dragStartAngle = pointAngle(event);
-    previousAngle = dragStartAngle;
+    previousAngle = pointAngle(event);
     previousTime = performance.now();
     dragStartProgress = rotationProgress;
+    dragAccumulatedDeg = 0;
     angularVelocity = 0;
     shell.setPointerCapture?.(event.pointerId);
     shell.dataset.dragging = 'true';
@@ -134,12 +134,12 @@
     if (!dragging || event.pointerId !== dragPointerId) return;
     const now = performance.now();
     const angle = pointAngle(event);
-    const totalDelta = shortestAngleDelta(angle, dragStartAngle);
     const frameDelta = shortestAngleDelta(angle, previousAngle);
     const dt = Math.max(8, now - previousTime);
 
-    // Positive hand rotation turns the visual product in the same direction.
-    rotationProgress = dragStartProgress - totalDelta / STEP_DEG;
+    // Accumulating frame deltas allows one gesture to cross ±180° and complete full turns.
+    dragAccumulatedDeg += frameDelta;
+    rotationProgress = dragStartProgress - dragAccumulatedDeg / STEP_DEG;
     angularVelocity = frameDelta / dt; // deg/ms
     previousAngle = angle;
     previousTime = now;
@@ -179,7 +179,7 @@
   prev.addEventListener('click', () => stepBy(-1));
   next.addEventListener('click', () => stepBy(1));
 
-  async function discover() {
+  async function discover(targetOverride = null, turnsOverride = null) {
     if (spinning || dragging) return;
     spinning = true;
     shell.dataset.spinning = 'true';
@@ -189,10 +189,12 @@
 
     const current = Math.round(rotationProgress);
     const currentIndex = mod(current, COUNT);
-    let targetIndex = Math.floor(Math.random() * COUNT);
-    if (targetIndex === currentIndex) targetIndex = mod(targetIndex + 1 + Math.floor(Math.random() * (COUNT - 1)), COUNT);
+    let targetIndex = Number.isInteger(targetOverride) ? mod(targetOverride, COUNT) : Math.floor(Math.random() * COUNT);
+    if (targetIndex === currentIndex && targetOverride === null) {
+      targetIndex = mod(targetIndex + 1 + Math.floor(Math.random() * (COUNT - 1)), COUNT);
+    }
     const forwardSteps = mod(targetIndex - currentIndex, COUNT) || COUNT;
-    const turns = 2 + Math.floor(Math.random() * 3);
+    const turns = Number.isInteger(turnsOverride) ? Math.max(0, turnsOverride) : 2 + Math.floor(Math.random() * 3);
     const target = current + turns * COUNT + forwardSteps;
     const duration = reducedMotion.matches ? 0 : 2300 + turns * 240;
 
@@ -203,9 +205,10 @@
     spin.disabled = false;
     prev.disabled = false;
     next.disabled = false;
+    return targetIndex;
   }
 
-  spin.addEventListener('click', discover);
+  spin.addEventListener('click', () => discover());
 
   // Test/debug adapter. The lab still has one canonical state: rotationProgress.
   window.CircularDishRotator = Object.freeze({
