@@ -17,10 +17,12 @@ check('single canonical rotationProgress exists', (js.match(/let rotationProgres
 check('active index derives from rotationProgress', js.includes('Math.round(rotationProgress)'));
 check('visual rotation derives from rotationProgress', js.includes('BASE_OFFSET_DEG - rotationProgress * STEP_DEG'));
 check('circular drag uses pointer angle', js.includes('Math.atan2'));
-check('drag updates progress continuously', js.includes('rotationProgress = dragStartProgress - totalDelta / STEP_DEG'));
+check('drag accumulates angular movement across full turns', js.includes('dragAccumulatedDeg += frameDelta'));
+check('drag updates progress continuously', js.includes('rotationProgress = dragStartProgress - dragAccumulatedDeg / STEP_DEG'));
 check('release snaps to nearest integer', js.includes('Math.round(projectedProgress)'));
 check('step navigation shares canonical progress', js.includes('animateTo(anchor + amount'));
 check('discover performs multiple complete turns', js.includes('turns * COUNT + forwardSteps'));
+check('discover can be made deterministic for tests', js.includes('targetOverride') && js.includes('turnsOverride'));
 check('selector is independent SVG overlay', html.includes('class="cdr-selector"') && css.includes('.cdr-selector'));
 check('selector itself is not rotated by JS', !js.includes('cdr-selector'));
 check('reduced motion preserves selection path', js.includes('reducedMotion.matches'));
