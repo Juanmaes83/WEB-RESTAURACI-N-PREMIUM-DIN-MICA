@@ -1,7 +1,9 @@
 # PROJECT 02 — PIVOT TO PRECOMPOSED ANCHOR SCENES
 
-> **STATUS: Blocked on the real master scene photography.** Everything else is built,
-> tested, deployed and navigable.
+> **STATUS: REAL MASTER SCENES INTEGRATED — READY FOR HUMAN VISUAL REVIEW.**
+> El bloqueo queda levantado: las escenas maestras reales están integradas,
+> auditadas, registradas y desplegadas. El set proxy ha salido de la demo.
+> Este documento no aprueba nada. Aprueba Juanma tras revisión visual.
 > Rama: `feat/anchor-swap-scenes-lab`, creada desde `main` con Project 01 integrado.
 > No se ha mergeado a `main`. La exploración previa queda archivada, sin mergear, en
 > `feat/anchor-swap-lab`, y su documentación sigue en `docs/PROJECT-02-ANCHOR-SWAP.md`.
@@ -82,10 +84,18 @@ Modificados: `class4-runtime-guard.js` (loader aditivo) y `class4-config.js`
 
 ```js
 dish.anchorScene = {
-  image,   // la escena maestra: mano + objeto + fondo + luz, ya compuesta
-  hit      // { x, y, w, h } — la región del objeto dentro de la escena, en fracciones
+  image,        // la escena maestra: mano + objeto + fondo + luz, ya compuesta
+  hit,          // { x, y, w, h } — la región del objeto, en fracciones de la escena
+  registration  // { scale, offsetX, offsetY, objectPosition } — ver abajo
 }
 ```
+
+`registration` es el contrato que hace personalizable el sistema. **No se hornea en los
+píxeles**: una escena que cae unos píxeles desplazada se corrige con sus propios números,
+así que sustituir la fotografía es un cambio de datos y no de código. El motor los aplica
+como custom properties (`--sc-reg-x/y/s`) que **componen** con la colocación de la caja
+en vez de reemplazarla — un `transform` en línea aplastaría la diferencia entre desktop y
+móvil. `objectPosition` es el centro del objeto, en las mismas fracciones.
 
 `word`, `accent`, `backgroundColor`, `foregroundDecor` y `backgroundDecor` se heredan de
 `dish.depthCarousel`, que Project 01 ya definió: un proyecto no describe su paleta dos
@@ -104,36 +114,64 @@ assets/anchor-scenes/
 recorte del objeto, sin mano. Un proyecto sin la fotografía sigue renderizando algo
 coherente en vez de romperse.
 
-## 5. Estado de los assets de escena — EL BLOQUEO
+## 5. Los assets reales — EL BLOQUEO LEVANTADO
 
-**No hay fotografía real de una mano sosteniendo cada producto en el repositorio.**
-Se buscó en `main`, en `MANOS/` y en la rama anterior: sólo existen los tres PNG de la
-mano y los recortes de objeto de Project 01.
+Las seis fotografías maestras están en **`MANO+OBJETO/`**, todas a **1122×1402**: una
+mano, una pose, un fondo, una luz, un bol de cerámica, y la comida cambiando dentro.
+Es exactamente el material para el que se diseñó el pivot.
 
-Siguiendo la instrucción de preparar el sistema sin bloquear el desarrollo, se ha
-construido un **set proxy de 6 escenas** con `scripts/build-anchor-scenes.mjs`, a partir
-de la mano maestra y los objetos de Project 01. Comparte lienzo, encuadre, colocación de
-la mano, geometría de luz, viñeta y grado; sólo cambian objeto y mundo. Es exactamente
-el contrato que consume el motor.
+Las consume `scripts/ingest-anchor-scenes.mjs`, que mide cada fuente y decide cuáles
+pertenecen **a la misma toma** — una pregunta más estricta que si cada una es una buena
+fotografía. Cinco lo son.
 
-Y precisamente porque se compone **una sola vez y offline**, el set proxy ya incorpora
-lo que el ensamblaje en vivo no podía:
+### Escenas seleccionadas (5)
 
-- sombra de contacto pintada escalando el contexto, no recortando un degradado circular
-  a una elipse (recortarlo corta la caída antes de llegar a cero y deja un borde recto);
-- sombra de las yemas **enmascarada al objeto**, para que la línea de recorte de los
-  dedos no dibuje una banda sobre la palma;
-- alfa del objeto saneado, porque el halo residual del recorte compone como una neblina
-  de borde recto.
+| # | Fuente | Plato | Runtime | registration offsetX / offsetY / scale |
+|---|---|---|---|---|
+| 1 | `affdb8f4-8d6…` | Gamba roja salvaje | `scene-01-gamba-roja.webp` | 0.000 / 0.000 / 1 |
+| 2 | `5faa56e1-c9e…` | Atún rojo / Naranja sanguina | `scene-02-atun-rojo.webp` | 0.000 / 0.000 / 1 |
+| 3 | `e8522199-d6d…` | Alcachofa a la brasa | `scene-03-brasa-pulpo.webp` | 0.000 / 0.000 / 1 |
+| 4 | `88a2a7a6-51f…` | Lubina salvaje | `scene-04-lubina-salvaje.webp` | 0.000 / 0.000 / 1 |
+| 5 | `c4e5577e-ae4…` | Presa ibérica | `scene-05-presa-iberica.webp` | 0.000 / 0.000 / 1 |
 
-Cada uno de esos tres puntos fue un artefacto real detectado mirando la imagen, no un
-test en rojo.
+Las cinco salieron con **offset 0 y escala 1**: la mano ya venía registrada al píxel.
+El solver existe igualmente, y sus números viven en el manifest, para el set que no lo
+esté.
 
-**Por qué esto es Blocked y no Ready:** la instrucción es explícita — no declarar Ready
-for Human Visual Review hasta que el sistema esté probado con las imágenes maestras
-reales. El proxy demuestra el motor y la dirección; no sustituye a una sesión
-fotográfica. **En cuanto dejéis 4–6 escenas reales en `assets/anchor-scenes/source` y
-apuntéis `dish.anchorScene.image`, el sistema las consume sin un solo cambio de código.**
+### Escena excluida (1) — y por qué
+
+**`22285005-1749-47d7-9274-a45ad6f267f1 (1).png` · Cítricos y miel quemada.** La medición:
+
+| | Excluida | Las cinco entre sí |
+|---|---:|---:|
+| Ancho del bol | **646 px** (−9.4%) | 711–728 px (±2.3%) |
+| Altura del bol | **486** (9.0% del cuadro más abajo) | 360–398 |
+| Zona de los dedos · diff media | **24.34** | 11.31–17.72 |
+| Zona de los dedos · píxeles movidos | **14.03%** | 3.65–7.18% |
+
+El mismo bol de cerámica cambiando de tamaño un 9.4% entre dos estados de reposo no se
+lee como «otro plato»: se lee como **que la cámara se ha movido**. Y no se puede
+registrar: escalar la imagen un 11% para cuadrar el bol escalaría **la mano** un 11%.
+
+Lo importante es **qué la detectó**. Palma y muñeca son idénticas al píxel en las seis
+(3–9/255 de media, menos del 0.6% de píxeles), así que una auditoría que mirara sólo
+ahí la habría aprobado. Los **dedos** la delatan: envuelven el objeto, así que un objeto
+de otro tamaño los mueve. Ésa es la zona que decide.
+
+Queda registrada en el manifest bajo `excluded`, con sus medidas y su motivo. No se
+descarta en silencio y no se fuerza porque el auditor diga PASS.
+
+**Consecuencia:** el plato 06 (`Cítricos y miel quemada`, el postre) es justamente el
+que retrataba esa fotografía, así que se queda sin escena. El preset **no lo navega**
+—ver §16.3— en lugar de mostrarlo con el fallback sin mano.
+
+### Sustituir o ampliar el set
+
+Se deja el archivo en `MANO+OBJETO/`, se añade a la tabla de curación de
+`ingest-anchor-scenes.mjs` y se ejecuta el ingest más la auditoría. Nada más. El
+generador proxy sigue existiendo como *dev fallback* para un proyecto sin sesión de
+fotos, pero ahora escribe en `assets/anchor-scenes/proxy-dev/` y **no puede sobrescribir
+el set real** ni el manifest que lee el motor.
 
 ## 6. Auditoría de consistencia entre escenas
 
@@ -142,15 +180,20 @@ La pregunta ahora es la que decide si el swap vende: **¿parecen la misma toma?*
 
 `scripts/audit-anchor-scenes.mjs` comprueba lo que de verdad rompe la ilusión:
 
-| Control | Tolerancia | Medido |
-|---|---:|---:|
-| Mismo lienzo y dimensiones | idéntico | 6 escenas @ 1200×1500 · **OK** |
-| Misma orientación | idéntica | portrait · **OK** |
-| Dispersión de iluminación (luma media) | ≤ 0.10 | **0.0537** |
-| Región del ancla · diferencia media | ≤ 26 / 255 | **9.37** |
-| Región del ancla · píxeles alterados | ≤ 5.5% | **0.00%** |
-| Escala del objeto · dispersión | ≤ 0.34 | **0.0914** |
-| Centro del objeto · dispersión | ≤ 0.06 | **0.0008** |
+| Control | Tolerancia | Set proxy | **Fotografía real** |
+|---|---:|---:|---:|
+| Mismo lienzo y dimensiones | idéntico | 6 @ 1200×1500 | **5 @ 1122×1402 · OK** |
+| Misma orientación | idéntica | portrait | **portrait · OK** |
+| Dispersión de iluminación (luma media) | ≤ 0.10 | 0.0537 | **0.0229** |
+| Región del ancla · diferencia media | ≤ 26 / 255 | 9.37 | **6.75** |
+| Región del ancla · píxeles alterados | ≤ 5.5% | 0.00% | **0.20%** |
+| Escala del objeto · dispersión | ≤ 0.34 | 0.0914 | **0.0234** |
+| Centro del objeto · dispersión | ≤ 0.06 | 0.0008 | **0.0271** |
+
+La fotografía real gana al proxy en todas las medidas que importan. La escala del
+objeto ya no es un parámetro que yo elegí al generar: es **el ancho del borde del bol
+medido en la foto**, así que 0.0234 dice que el mismo recipiente se lee del mismo
+tamaño en las cinco tomas.
 
 La **región del ancla** es el tercio inferior, donde viven muñeca y palma y donde el
 objeto nunca llega: si la mano se hubiera movido o la luz hubiera cambiado entre tomas,
@@ -230,6 +273,17 @@ inclinación de 4°, más una fina línea de acento sobre la costura que sólo a
 durante el gesto. Nada de crossfade global: la mezcla se limita a esa banda, y sobre la
 mano —píxeles equivalentes— es invisible. Sin barro cromático.
 
+### Lo que cambió con la fotografía real
+
+Las seis fotografías comparten **el mismo fondo beige de estudio**. Con el set proxy cada
+escena traía su propio universo cromático y el barrido hacía convivir dos mundos; con las
+reales, el mundo **no cambia con la escena**: cambia el objeto.
+
+Eso no es una pérdida, es la misión (§20: *misma mano, mismo plano, objeto que cambia*).
+Y el cambio de universo sigue existiendo, sólo que lo aporta la capa de motor y no el
+píxel: el acento por plato, el lettering, la atmósfera teñida y el decor. Es la
+separación correcta — la fotografía describe el producto, el motor describe la marca.
+
 ## 10. Copy
 
 Un solo bloque, nunca dos superpuestos: 100% → ~0% en el crossover → 100%, con la
@@ -255,14 +309,24 @@ La región del objeto dentro de la escena la registra el generador por plato
 - **Desktop**: escena a la derecha, copy en columna editorial izquierda con caída de luz
   propia, controles abajo a la izquierda, lettering en la banda superior.
 - **Mobile**: composición propia — la escena se centra, copy y controles pasan al flujo
-  normal, el scrim se reorienta a 3° porque el texto va debajo, el lettering sube a
-  24vw y la máscara de sujeto se ensancha para el formato vertical.
+  normal, el scrim se reorienta a 3° porque el texto va debajo. El encuadre está
+  **medido, no heredado**: al 104% de la sección el sujeto salía de 600px de ancho en un
+  viewport de 390 y el bol se cortaba por los dos lados con el borde detrás del header.
+  Al 66%/19% el bol entra completo (23–361 px de ancho, 86–364 de alto) y la muñeca
+  sigue corriendo por detrás del copy.
 - **Reduced motion**: la transición se resuelve casi instantánea; escena, copy,
   navegación y ficha siguen disponibles. Verificado por test.
 
 ## 14. Tests
 
-**60/60** en desktop 1440×900, móvil 390×844 y reduced motion.
+**70/70** en desktop 1440×900, móvil 390×844 y reduced motion.
+
+Diez comprobaciones nuevas son de **procedencia**, porque un proxy que sobreviviera por
+accidente pasaría todas las puertas geométricas mostrando lo que no es: cada escena en
+pantalla viene de `assets/anchor-scenes/runtime/`, el set cableado es el que declara el
+manifest, el manifest es el real y trazado a ficheros que existen en `MANO+OBJETO/`, no
+hay ningún asset no declarado en la carpeta de runtime, y cada escena pintada lleva su
+registration. La cadena se afirma de punta a punta; no se supone.
 
 Dos comprobaciones se hacen **sobre píxeles**, porque son las que deciden el pivot:
 
@@ -293,6 +357,7 @@ ya nos costó una vez.
 
 | | |
 |---|---|
+| Alineación | `tests/screenshots/anchor-scenes-real-alignment-sheet.png` — las 5 seleccionadas y la excluida, marcada |
 | Capturas desktop | `anchor-scenes-desktop-0{1,2,3,4,5,6}-*.png` (idle · quarter · half · three-quarter · complete · detail) + `07-orbital-regression` |
 | Capturas mobile | las equivalentes |
 | Reduced motion | `anchor-scenes-reduced-motion.png` |
@@ -302,35 +367,50 @@ ya nos costó una vez.
 
 ## 16. Known issues
 
-1. **Las escenas son proxy, no fotografía.** Es el bloqueo declarado. Comparten toma y
-   consistencia auditada, pero se componen a partir de fotografía cenital de plato: no
-   son un objeto fotografiado *para ser sostenido*. Una copa, un bowl en tres cuartos o
-   un cucurucho darían otro salto.
-2. **En móvil el lettering queda casi oculto** tras la banda del header. En desktop se
-   lee correctamente detrás del producto.
-3. **Una sola mano, una sola pose.** Las variantes B (mesa), C (copa) y D (utensilio)
+### Resueltos en esta iteración
+
+- ~~Las escenas son proxy, no fotografía~~ → **integradas las reales** (§5).
+- ~~En móvil el lettering queda casi oculto tras el header~~ → bajado y reescalado.
+- ~~`goTo` a un índice lejano deja el contador un índice por detrás~~ → el anillo de
+  navegación lo hizo exacto; verificado con `goTo(3/0/4/2)`, contador y `restIndex`
+  coincidiendo siempre.
+- ~~Borde vertical del rectángulo de la escena~~ → resuelto en la iteración anterior.
+
+### Abiertos
+
+1. **El plato 06 no es navegable en este preset.** Su única fotografía candidata es la
+   excluida (§5), y un plato sin escena real dejaría caer la mano a mitad del barrido.
+   El anillo lo salta: se navegan 5 de 6. El contador, que lo escribe el motor base y
+   no este preset, sigue diciendo `01 / 06` … `05 / 06`, así que el `06` nunca aparece.
+   Se cierra con **una foto más del postre, a la escala de la toma** — o tocando el
+   modelo base, que no toca este proyecto.
+2. **El contenido de la fotografía y el copy de la demo no siempre coinciden.** El menú
+   de la demo es dato de Project 01 (invención de placeholder) y las fotos son producto
+   real. Casan bien 01 gamba, 02 atún y 05 presa; 04 lubina recibe un crudo de otro
+   pescado y 03 alcachofa recibe pulpo. Un restaurante real sustituye copy y escenas
+   juntos, que es precisamente el contrato de §4 — pero conviene saberlo al mirar la
+   demo.
+3. **Los boles son todos el mismo bol.** Es lo que hace que el ancla funcione y, a la
+   vez, lo que limita la variedad: cinco platos en el mismo recipiente. Una copa o un
+   cucurucho en la misma mano serían otro salto de percepción.
+4. **Una sola mano, una sola pose.** Las variantes B (mesa), C (copa) y D (utensilio)
    del documento maestro siguen sin implementar.
-4. **Sin panel en Studio.** El preset se selecciona; no hay controles de dirección,
+5. **Sin panel en Studio.** El preset se selecciona; no hay controles de dirección,
    intensidad ni encuadre de escena.
-5. **La palabra no es bilingüe**, a diferencia del resto del copy de Clase 06.
-6. **Sin traza de FPS en dispositivo real.** El motor es mucho más ligero que el
-   anterior —dos capas de imagen y una máscara, en vez de cinco capas transformadas—
-   pero no está medido.
-7. **`goTo` a un índice lejano** puede dejar el contador base un índice por detrás
-   durante un instante antes de resincronizarse. No afecta al arrastre ni a prev/next.
+6. **La palabra no es bilingüe**, a diferencia del resto del copy de Clase 06.
+7. **Sin traza de FPS en dispositivo real.** El motor es ligero —dos capas de imagen y
+   una máscara— pero no está medido.
 
 ## 17. Qué falta para el cierre final
 
-1. **Las 4–6 escenas maestras reales.** Es lo único que separa esto de Ready for Human
-   Visual Review. Requisitos: mismo lienzo, misma orientación, misma posición de la
-   mano, misma distancia de cámara, misma luz; el objeto dentro del hueco, sin salirse.
-   La auditoría los valida automáticamente al entrar.
-2. Revisión visual humana del resultado con esas escenas.
-3. Si se aprueba: subir a la capa común del Motion Engine los tres primitivos que
-   Project 01 y Project 02 ya comparten — la **arista única** de barrido, el **modelo de
-   progreso reversible con commit en el crossover**, y los **grupos de decor con rate
-   propio**. Son los mismos en ambos presets y es el momento de extraerlos, antes de
-   escribir Project 03.
-4. Decidir si el generador de escenas (`build-anchor-scenes.mjs`) pasa a ser una
-   capacidad de producto: un restaurante que sube su mano y sus productos obtendría su
-   propio set consistente sin sesión de estudio.
+1. **La revisión visual humana.** Es lo único que queda por delante. El sistema está
+   probado con las imágenes maestras reales, que era la condición para poder pedirla.
+2. Si se aprueba, decidir sobre el plato 06: una fotografía más del postre a la escala
+   de la toma lo cierra sin tocar nada más.
+3. Si se aprueba, subir a la capa común del Motion Engine los tres primitivos que
+   Project 01 y Project 02 ya comparten — la **arista única** de barrido, el **progreso
+   reversible con commit en el crossover**, y los **grupos de decor con rate propio**.
+   Es el momento de extraerlos, antes de escribir Project 03. (Explícitamente fuera del
+   alcance de esta iteración.)
+4. Decidir si el pipeline de ingest pasa a ser capacidad de producto: un restaurante
+   sube su sesión de fotos y obtiene su set auditado, registrado y desplegado.
