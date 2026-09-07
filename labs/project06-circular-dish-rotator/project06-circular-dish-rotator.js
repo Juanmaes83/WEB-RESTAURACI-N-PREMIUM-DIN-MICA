@@ -4,15 +4,90 @@
   const STEP_DEG = 45;
   const BASE_OFFSET_DEG = -22.5;
   const COUNT = 8;
-  const NAMES = [
-    'Diavola',
-    'Prosciutto Funghi',
-    '4 Quesos',
-    'Mortadela y Pistacho',
-    'Carbonara',
-    'Barbacoa',
-    'Verduras',
-    'Margarita'
+
+  // Demo content only. The motor consumes data; the final Studio integration will
+  // expose these fields for restaurant-specific authoring.
+  const PIZZAS = [
+    {
+      name:'Diavola',
+      ingredients:'Tomate San Marzano · fior di latte · salami picante · albahaca',
+      price:'€14',
+      descriptor:'spicy · smoky · bold',
+      mood:'FIRE · SIGNATURE 01',
+      lead:'the slice with',
+      tail:'Fire at the centre of the table.',
+      accent:'#ff5a36'
+    },
+    {
+      name:'Prosciutto Funghi',
+      ingredients:'Tomate · mozzarella · prosciutto cotto · champiñón · parmigiano',
+      price:'€15',
+      descriptor:'silky · savoury · woodland',
+      mood:'FOREST · SIGNATURE 02',
+      lead:'a softer kind of',
+      tail:'Silk, earth and savoury depth.',
+      accent:'#d6a56d'
+    },
+    {
+      name:'4 Quesos',
+      ingredients:'Fior di latte · gorgonzola · taleggio · parmigiano',
+      price:'€15',
+      descriptor:'creamy · rich · intense',
+      mood:'CREAM · SIGNATURE 03',
+      lead:'melt into',
+      tail:'Four cheeses. One unapologetic finish.',
+      accent:'#f0c867'
+    },
+    {
+      name:'Mortadela y Pistacho',
+      ingredients:'Mortadela · burrata · crema de pistacho · pistacho tostado',
+      price:'€16',
+      descriptor:'velvety · nutty · elegant',
+      mood:'SILK · SIGNATURE 04',
+      lead:'dress the table in',
+      tail:'Velvet, pistachio and a slow finish.',
+      accent:'#a9c875'
+    },
+    {
+      name:'Carbonara',
+      ingredients:'Fior di latte · guanciale · pecorino · yema · pimienta negra',
+      price:'€16',
+      descriptor:'golden · peppery · indulgent',
+      mood:'GOLD · SIGNATURE 05',
+      lead:'go all in on',
+      tail:'Golden richness with a peppered edge.',
+      accent:'#e5b84b'
+    },
+    {
+      name:'Barbacoa',
+      ingredients:'Mozzarella · carne especiada · cebolla roja · salsa barbacoa ahumada',
+      price:'€15',
+      descriptor:'smoked · sweet · robust',
+      mood:'SMOKE · SIGNATURE 06',
+      lead:'turn up the',
+      tail:'Smoke, sweetness and serious appetite.',
+      accent:'#d86f43'
+    },
+    {
+      name:'Verduras',
+      ingredients:'Calabacín · pimiento · berenjena · tomate · pesto de albahaca',
+      price:'€14',
+      descriptor:'fresh · green · vibrant',
+      mood:'GARDEN · SIGNATURE 07',
+      lead:'keep it vivid with',
+      tail:'The garden, sharpened into a slice.',
+      accent:'#7cbf72'
+    },
+    {
+      name:'Margarita',
+      ingredients:'Tomate San Marzano · fior di latte · albahaca · aceite de oliva virgen extra',
+      price:'€13',
+      descriptor:'clean · classic · bright',
+      mood:'CLASSIC · SIGNATURE 08',
+      lead:'come back to',
+      tail:'The original. Still impossible to beat.',
+      accent:'#e05b4f'
+    }
   ];
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -23,13 +98,21 @@
   const nameEl = document.getElementById('cdr-name');
   const heroName = document.getElementById('cdr-hero-name');
   const ghostName = document.getElementById('cdr-ghost-name');
+  const moodEl = document.getElementById('cdr-mood');
+  const leadEl = document.getElementById('cdr-headline-lead');
+  const tailEl = document.getElementById('cdr-headline-tail');
+  const ingredientsEl = document.getElementById('cdr-ingredients');
+  const priceEl = document.getElementById('cdr-price');
+  const descriptorEl = document.getElementById('cdr-descriptor');
   const copy = document.getElementById('cdr-copy');
   const live = document.getElementById('cdr-live');
   const prev = document.getElementById('cdr-prev');
   const next = document.getElementById('cdr-next');
   const spin = document.getElementById('cdr-spin');
+  const spinLabel = document.getElementById('cdr-spin-label');
+  const hint = document.getElementById('cdr-hint');
 
-  if (!shell || !disc || !sectorDisc || !counter || !nameEl || !heroName || !ghostName || !copy || !prev || !next || !spin) return;
+  if (!shell || !disc || !sectorDisc || !counter || !nameEl || !heroName || !ghostName || !moodEl || !leadEl || !tailEl || !ingredientsEl || !priceEl || !descriptorEl || !copy || !prev || !next || !spin || !spinLabel || !hint) return;
 
   // ONE canonical selection state. Everything visual and interactive derives from this.
   let rotationProgress = 0;
@@ -54,7 +137,7 @@
   const rotationDeg = () => BASE_OFFSET_DEG - rotationProgress * STEP_DEG;
   const easeOutQuint = t => 1 - Math.pow(1 - t, 5);
   const easeInOutCubic = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  const fortuneEase = t => 6 * Math.pow(t, 5) - 15 * Math.pow(t, 4) + 10 * Math.pow(t, 3);
+  const easeInCubic = t => t * t * t;
 
   function pulseSectorCross(index) {
     if (lastVisualIndex === null) {
@@ -78,11 +161,19 @@
   }
 
   function updateCopy(index) {
-    const name = NAMES[index];
+    const pizza = PIZZAS[index];
     counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(COUNT).padStart(2, '0')}`;
-    nameEl.textContent = name;
-    heroName.textContent = name;
-    ghostName.textContent = name.toUpperCase();
+    nameEl.textContent = pizza.name;
+    heroName.textContent = pizza.name;
+    ghostName.textContent = pizza.name.toUpperCase();
+    moodEl.textContent = pizza.mood;
+    leadEl.textContent = pizza.lead;
+    tailEl.textContent = pizza.tail;
+    ingredientsEl.textContent = pizza.ingredients;
+    priceEl.textContent = pizza.price;
+    descriptorEl.textContent = pizza.descriptor;
+    document.documentElement.style.setProperty('--cdr-accent', pizza.accent);
+    shell.dataset.pizza = pizza.name.toLowerCase().replace(/\s+/g,'-');
   }
 
   function render({announce = false} = {}) {
@@ -101,7 +192,7 @@
 
     if (announce && lastAnnounced !== index) {
       lastAnnounced = index;
-      live.textContent = `Selected pizza: ${NAMES[index]}`;
+      live.textContent = `Selected pizza: ${PIZZAS[index].name}`;
     }
   }
 
@@ -118,7 +209,7 @@
     landTimer = setTimeout(() => {
       shell.classList.remove('cdr-land');
       copy.classList.remove('cdr-copy-land');
-    }, 680);
+    }, 760);
 
     if (announce) render({announce: true});
   }
@@ -166,7 +257,7 @@
   function stepBy(amount) {
     if (spinning) return;
     const anchor = Math.round(rotationProgress);
-    animateTo(anchor + amount, 500, {announce: true, easing: easeInOutCubic, land: true});
+    animateTo(anchor + amount, 520, {announce: true, easing: easeInOutCubic, land: true});
   }
 
   function pointAngle(event) {
@@ -196,6 +287,7 @@
     angularVelocity = 0;
     shell.setPointerCapture?.(event.pointerId);
     shell.dataset.dragging = 'true';
+    hint.textContent = 'Suelta lentamente para snap · Lanza fuerte para varias vueltas';
   });
 
   shell.addEventListener('pointermove', event => {
@@ -219,12 +311,14 @@
     if (strong) {
       spinning = true;
       shell.dataset.spinning = 'true';
+      shell.dataset.spinPhase = 'flick';
       prev.disabled = true;
       next.disabled = true;
       spin.disabled = true;
+      spinLabel.textContent = 'Spinning';
     }
 
-    const duration = reducedMotion.matches ? 0 : clamp(500 + distance * 95, 540, 2100);
+    const duration = reducedMotion.matches ? 0 : clamp(520 + distance * 100, 560, 2200);
     await animateTo(target, duration, {
       announce: true,
       easing: strong ? easeOutQuint : easeInOutCubic,
@@ -234,10 +328,13 @@
     if (strong) {
       spinning = false;
       shell.dataset.spinning = 'false';
+      shell.dataset.spinPhase = 'idle';
       prev.disabled = false;
       next.disabled = false;
       spin.disabled = false;
+      spinLabel.textContent = 'Discover';
     }
+    hint.textContent = 'Drag circular · Flick para lanzar · ← → · Discover';
   }
 
   function endDrag(event) {
@@ -250,7 +347,7 @@
     // Slow release = nearby snap. Fast flick = physical multi-sector / multi-turn throw.
     const speed = Math.abs(angularVelocity);
     const progressVelocity = -angularVelocity / STEP_DEG; // sectors per millisecond
-    const projectionMs = speed < .18 ? 190 : 720;
+    const projectionMs = speed < .18 ? 190 : 760;
     const projectedTravel = clamp(progressVelocity * projectionMs, -COUNT * 3, COUNT * 3);
     const projectedProgress = rotationProgress + projectedTravel;
     const target = Math.round(projectedProgress);
@@ -282,9 +379,12 @@
     spinning = true;
     shell.dataset.spinning = 'true';
     shell.dataset.settled = 'false';
+    shell.dataset.spinPhase = 'anticipation';
     spin.disabled = true;
     prev.disabled = true;
     next.disabled = true;
+    spinLabel.textContent = 'Ready';
+    hint.textContent = 'Finding your next obsession…';
 
     const current = Math.round(rotationProgress);
     const currentIndex = mod(current, COUNT);
@@ -295,17 +395,36 @@
 
     const forwardSteps = mod(targetIndex - currentIndex, COUNT) || COUNT;
     const turns = Number.isInteger(turnsOverride) ? Math.max(0, turnsOverride) : 4 + Math.floor(Math.random() * 3);
-    const target = current + turns * COUNT + forwardSteps;
-    const duration = reducedMotion.matches ? 0 : 3000 + turns * 180;
 
-    // Fortune-wheel feel: starts from rest, reaches speed, then performs a long controlled deceleration.
-    await animateTo(target, duration, {announce: true, easing: fortuneEase, land: true});
+    if (!reducedMotion.matches) {
+      // A small reverse wind-up gives the main throw an unmistakable physical cue.
+      await animateTo(rotationProgress - .18, 220, {announce:false, easing:easeInCubic, land:false});
+    }
+
+    shell.dataset.spinPhase = 'travel';
+    spinLabel.textContent = 'Spinning';
+
+    const launchBase = Math.round(rotationProgress);
+    const launchIndex = mod(launchBase, COUNT);
+    const launchForward = mod(targetIndex - launchIndex, COUNT) || COUNT;
+    const target = launchBase + turns * COUNT + launchForward;
+    const duration = reducedMotion.matches ? 0 : 3150 + turns * 190;
+
+    // Fortune-wheel motion: immediate throw followed by a long, readable deceleration.
+    await animateTo(target, duration, {announce: true, easing: easeOutQuint, land: true});
+
+    shell.dataset.spinPhase = 'reveal';
+    spinLabel.textContent = 'Selected';
+    await new Promise(resolve => setTimeout(resolve, reducedMotion.matches ? 0 : 520));
 
     spinning = false;
     shell.dataset.spinning = 'false';
+    shell.dataset.spinPhase = 'idle';
     spin.disabled = false;
     prev.disabled = false;
     next.disabled = false;
+    spinLabel.textContent = 'Discover';
+    hint.textContent = `Selected · ${PIZZAS[targetIndex].name}`;
     return targetIndex;
   }
 
@@ -316,7 +435,8 @@
     getProgress: () => rotationProgress,
     getActiveIndex: nearestIndex,
     getRotationDeg: rotationDeg,
-    getNames: () => [...NAMES],
+    getNames: () => PIZZAS.map(p => p.name),
+    getProducts: () => PIZZAS.map(p => ({...p})),
     isDragging: () => dragging,
     isSpinning: () => spinning,
     setProgress(value, announce = false) {
