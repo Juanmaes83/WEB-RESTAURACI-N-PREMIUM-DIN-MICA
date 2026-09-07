@@ -137,3 +137,19 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,160));
   else setTimeout(load,160);
 })();
+
+/* CLASS 19 — load the Motion Library additively.
+   Studio chrome, not an engine: it indexes the eleven motion engines and the modules
+   so they can be seen and chosen in one place. It loads last, because it reads what
+   every other runtime has registered. index.html stays untouched. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-motion-library-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class19-motion-library.js';s.dataset.motionLibraryRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,220));
+  else setTimeout(load,220);
+})();
