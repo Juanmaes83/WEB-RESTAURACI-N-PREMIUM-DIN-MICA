@@ -1,6 +1,7 @@
 # PROJECT 03 — ORBITAL FOOD SLIDER
 
-> **STATUS: READY FOR HUMAN VISUAL REVIEW.**
+> **STATUS: APPROVED / MERGED.** Aprobado por Juanma el 2026-09-07 e integrado en
+> `main` (merge `2d7f211`). Lo que sigue es el documento de entrega original.
 > Rama: `feat/orbital-food-slider-lab`, creada desde `main` con Project 01 y Project 02
 > ya integrados. No se ha mergeado a `main`.
 > Este documento no aprueba nada. Aprueba Juanma tras revisión visual.

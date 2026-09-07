@@ -1,0 +1,141 @@
+/* CLASS 11 · PROJECT 07 — PIZZA SLICE ORBIT / HERO SELECTOR
+
+   Layer contract inside .orbit-shell:
+     L0 .ps-glow      the accent light pooled at the fixed station
+     L1 .ps-ring      the eight products, each an independent button
+     L9 .ps-station   the fixed selector outline — a SIBLING of the ring
+
+   The station is a sibling on purpose. Nothing that transforms a product can reach
+   it, so it cannot drift, rotate or scale with the orbit no matter what the slices
+   are doing. THE FRAME STAYS. THE PRODUCTS MOVE.
+
+   Scoped to html[data-orbital-motion="pizza-slice-orbit"], so all six approved
+   presets are untouched when this one is off.
+*/
+
+/* ---------- silence the other motion languages ---------- */
+html[data-orbital-motion="pizza-slice-orbit"] #orbit-stage{visibility:hidden;pointer-events:none}
+html[data-orbital-motion="pizza-slice-orbit"] .orbit-ring,
+html[data-orbital-motion="pizza-slice-orbit"] .orbit-center-mark,
+html[data-orbital-motion="pizza-slice-orbit"] .orbit-glow,
+html[data-orbital-motion="pizza-slice-orbit"] .orbital-top,
+html[data-orbital-motion="pizza-slice-orbit"] .dish-copy,
+html[data-orbital-motion="pizza-slice-orbit"] .orbit-controls{display:none}
+
+html[data-orbital-motion="pizza-slice-orbit"] .orbital-section{
+  background:
+    radial-gradient(ellipse 58% 44% at 50% 26%, rgba(216,255,79,.07) 0%, transparent 66%),
+    radial-gradient(ellipse 70% 50% at 50% 92%, rgba(255,138,58,.06) 0%, transparent 70%),
+    linear-gradient(178deg,#0b0a08 0%,#050505 62%,#0a0908 100%);
+  padding:calc(5vh + 74px) 0 5vh;min-height:100svh;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  overflow:hidden}
+
+html[data-orbital-motion="pizza-slice-orbit"] .orbit-shell{
+  position:relative;z-index:2;width:100%;height:min(62vh,640px);min-height:440px;
+  margin:0;touch-action:pan-y;cursor:grab;outline:none}
+html[data-orbital-motion="pizza-slice-orbit"][data-pizza-drag] .orbit-shell{cursor:grabbing}
+
+/* ---------- stage ---------- */
+.ps-stage{position:absolute;inset:0;overflow:visible}
+.ps-stage[hidden]{display:none}
+
+.ps-glow{position:absolute;left:50%;top:6%;width:46%;height:74%;
+  transform:translateX(-50%);z-index:0;pointer-events:none;opacity:0;
+  background:radial-gradient(ellipse 50% 56% at 50% 78%,
+    rgba(216,255,79,.20) 0%, rgba(216,255,79,.06) 44%, transparent 76%);
+  filter:blur(26px);transition:opacity .3s ease}
+
+.ps-ring{position:absolute;inset:0;z-index:1;
+  --ps-size:420px;--ps-apex-x:50%;--ps-apex-y:98%}
+
+/* ---------- the products ----------
+   The transform chain is read right to left: move the element so its APEX sits on the
+   origin, scale and rotate about that apex, then carry the apex to its place on the
+   ring. Anchoring on the apex is what lets eight differently-cut wedges share one
+   station — a wedge radiates from its tip. */
+.ps-slice{position:absolute;left:0;top:0;width:var(--ps-size);height:var(--ps-size);
+  padding:0;border:0;background:none;cursor:pointer;
+  transform-origin:0 0;
+  transform:translate(var(--ps-x,0px),var(--ps-y,0px))
+            rotate(var(--ps-rot,0deg))
+            scale(var(--ps-scale,1))
+            translate(calc(var(--ps-apex-x) * -1),calc(var(--ps-apex-y) * -1));
+  will-change:transform,opacity,filter}
+.ps-slice-img{display:block;width:100%;height:100%;object-fit:contain;
+  user-select:none;-webkit-user-drag:none;pointer-events:none;
+  filter:drop-shadow(0 26px 34px rgba(0,0,0,.55))}
+.ps-slice[data-hero="1"] .ps-slice-img{
+  filter:drop-shadow(0 34px 54px rgba(0,0,0,.66)) drop-shadow(0 4px 14px rgba(0,0,0,.4))}
+.ps-slice:focus-visible{outline:none}
+.ps-slice:focus-visible .ps-slice-img{
+  filter:drop-shadow(0 0 0 3px var(--ps-accent,#d8ff4f)) drop-shadow(0 30px 44px rgba(0,0,0,.6))}
+
+/* ---------- the fixed station ----------
+   Positioned from the same numbers the renderer uses for the hero: centre column,
+   apex on the hub ring at 12 o'clock. It carries no product transform. */
+/* left/top/width/height come from the renderer, computed from the same hub and hero
+   length the products use — so no transform is ever applied to this element. */
+.ps-station{position:absolute;left:0;top:0;z-index:9;pointer-events:none;
+  width:10px;height:10px}
+.ps-station-svg{width:100%;height:100%;overflow:visible}
+.ps-station-edge{vector-effect:non-scaling-stroke;stroke-width:1.6px}
+.ps-station-pin{r:3.2}
+
+/* ---------- head ---------- */
+.ps-head{display:none}
+html[data-orbital-motion="pizza-slice-orbit"] .ps-head{
+  display:block;position:relative;z-index:9;width:100%;padding:0 6vw;
+  text-align:center;margin:0 0 1vh}
+.ps-eyebrow{display:flex;align-items:baseline;justify-content:center;gap:16px;
+  margin:0 0 1.2vh;font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#cfcbc2}
+.ps-eyebrow > span:first-child{color:var(--ps-accent,#d8ff4f)}
+.ps-hint{letter-spacing:.18em;opacity:.44}
+.ps-name{font-family:var(--font-display,Italiana,serif);
+  font-size:clamp(34px,4.6vw,68px);line-height:1;margin:0;color:#fff}
+.ps-counter{margin:.8vh 0 0;font-size:11px;letter-spacing:.28em;color:#8d8a83}
+
+/* ---------- controls ---------- */
+.ps-controls{display:none}
+html[data-orbital-motion="pizza-slice-orbit"] .ps-controls{
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  position:relative;z-index:10;margin:1.4vh 0 0}
+.ps-btn{min-width:52px;height:52px;padding:0 18px;border-radius:26px;
+  border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.03);
+  color:#efece5;font:inherit;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  cursor:pointer;transition:background .24s ease,color .24s ease,border-color .24s ease}
+.ps-btn:hover:not(:disabled){background:#fff;color:#111;border-color:#fff}
+.ps-btn:focus-visible{outline:2px solid var(--ps-accent,#d8ff4f);outline-offset:3px}
+.ps-btn:disabled{opacity:.42;cursor:default}
+.ps-spin{padding:0 26px;border-color:var(--ps-accent,#d8ff4f);color:var(--ps-accent,#d8ff4f)}
+.ps-spin:hover:not(:disabled){background:var(--ps-accent,#d8ff4f);color:#111}
+
+/* the live region is for screen readers, not for the layout */
+.ps-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+html[data-orbital-motion="pizza-slice-orbit"] .cursor{
+  background:transparent;border:1px solid var(--ps-accent,#d8ff4f);color:var(--ps-accent,#d8ff4f)}
+html[data-orbital-motion="pizza-slice-orbit"] .cursor span{color:inherit;letter-spacing:.16em}
+
+/* ---------- mobile ----------
+   Not a shrunken desktop: a tighter hub, a shorter hero and less density, so the
+   station still reads and previous/next keep real presence at the edges. */
+@media(max-width:820px){
+  html[data-orbital-motion="pizza-slice-orbit"] .orbital-section{
+    padding:calc(4vh + 84px) 0 4vh}
+  html[data-orbital-motion="pizza-slice-orbit"] .orbit-shell{
+    height:46vh;min-height:340px}
+  html[data-orbital-motion="pizza-slice-orbit"] .ps-head{padding:0 7vw}
+  .ps-eyebrow{gap:10px;font-size:9px;letter-spacing:.22em;flex-direction:column;align-items:center}
+  .ps-name{font-size:clamp(28px,8.4vw,40px)}
+  .ps-counter{font-size:10px;letter-spacing:.22em}
+  .ps-btn{min-width:46px;height:46px;padding:0 14px;font-size:11px}
+  .ps-spin{padding:0 20px}
+  html[data-orbital-motion="pizza-slice-orbit"] .ps-controls{gap:10px;margin-top:1.8vh}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .ps-slice{will-change:auto}
+  .ps-glow{transition:none}
+}

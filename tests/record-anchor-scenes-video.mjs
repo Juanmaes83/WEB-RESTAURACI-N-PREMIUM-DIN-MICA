@@ -35,7 +35,12 @@ async function selectPreset(page){
   await page.waitForFunction(()=>document.documentElement.dataset.anchorScenes==='ready',null,{timeout:14000});
   /* Hard gate. The recording must be of THIS preset, with the scenes resolved, and
      the pixels on screen must be the real master photography — a clip of a proxy
-     that slipped through would look like evidence and be worthless. */
+     that slipped through would look like evidence and be worthless.
+     Wait for the resolved state first: the ready flag lands before the scenes are
+     painted, so sampling immediately refuses a preset that was about to be fine. */
+  await page.waitForFunction(()=>
+    document.querySelectorAll('.sc-scene[data-kind="scene"]').length===2,
+    null,{timeout:20000}).catch(()=>{});
   const gate=await page.evaluate(()=>{
     const painted=[...document.querySelectorAll('.sc-scene[data-kind="scene"] .sc-subject')]
       .map(el=>{const m=/url\(["']?([^"')]+)/.exec(getComputedStyle(el).backgroundImage||'');return m?m[1]:''});

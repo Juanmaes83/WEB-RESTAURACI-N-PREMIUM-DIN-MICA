@@ -31,7 +31,21 @@ const PRESETS={
     /* products composed by the preset, counted through the engine's own elements */
     layers:()=>[...document.querySelectorAll('#orbit-stage .orbit-dish[data-orbit-front]')]
       .filter(el=>+getComputedStyle(el).opacity>.05).length,
-    layerName:'the whole collection is on the orbit',layerMin:6,layerUnit:'products in orbit'}
+    layerName:'the whole collection is on the orbit',layerMin:6,layerUnit:'products in orbit'},
+  'pizza-slice-orbit':{global:'RestaurantPizzaSliceOrbit',
+    ready:()=>document.documentElement.dataset.pizzaSliceOrbit==='ready',
+    label:'Pizza Slice Orbit',
+    /* eight real slices from the runtime folder, and the fixed station present */
+    layers:()=>{
+      const ok=[...document.querySelectorAll('.ps-slice .ps-slice-img')]
+        .filter(i=>/^assets\/pizza-motion\/runtime\/slices\//.test(i.getAttribute('src')||'')
+          &&i.complete&&i.naturalWidth>0).length;
+      return document.querySelector('.ps-station svg')?ok:0;
+    },
+    layerName:'eight slices load and the fixed station is drawn',layerMin:8,
+    layerUnit:'slices in orbit',
+    /* this preset owns its own controls and counter: the base ones are hidden */
+    next:'.ps-next',counter:'.ps-counter'}
 };
 const SPEC=PRESETS[PRESET];
 if(!SPEC){console.error(`unknown preset: ${PRESET}`);process.exit(2)}
@@ -76,14 +90,21 @@ check('preset is the active motion language',
 await page.locator('#signature').scrollIntoViewIfNeeded();
 await page.waitForTimeout(900);
 
+/* Wait for the experience to finish arriving before judging it: sampling the instant
+   after a scroll measures the network, not the build. */
+await page.waitForFunction(([fn,min])=>{
+  try{return (new Function(`return (${fn})()`))()>=min}catch{return false}
+},[SPEC.layers.toString(),SPEC.layerMin],{timeout:15000}).catch(()=>{});
 const visible=await page.evaluate(SPEC.layers);
 check(SPEC.layerName,visible>=SPEC.layerMin,`${visible} ${SPEC.layerUnit}`);
 
-const i0=await page.evaluate(()=>document.getElementById('dish-counter').textContent.trim());
-await page.click('#next-dish');
-await page.waitForTimeout(1400);
-const i1=await page.evaluate(()=>document.getElementById('dish-counter').textContent.trim());
-check('navigation works live',i0!==i1,`${i0} → ${i1}`);
+const NEXT=SPEC.next||'#next-dish', COUNTER=SPEC.counter||'#dish-counter';
+const readCounter=()=>page.evaluate(sel=>document.querySelector(sel)?.textContent.trim()||'',COUNTER);
+const i0=await readCounter();
+await page.click(NEXT);
+await page.waitForTimeout(1600);
+const i1=await readCounter();
+check('navigation works live',i0!==i1&&!!i1,`${i0} → ${i1}`);
 
 await page.evaluate(()=>document.querySelector('.studio-open').click());
 await page.waitForTimeout(700);

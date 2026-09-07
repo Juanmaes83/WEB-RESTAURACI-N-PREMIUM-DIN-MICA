@@ -94,3 +94,17 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,100));
   else setTimeout(load,100);
 })();
+
+/* CLASS 11 · PROJECT 07 — load the Pizza Slice Orbit preset additively.
+   Same pattern as Projects 01, 02 and 03: index.html stays untouched. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-pizza-slice-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class11-pizza-slice-orbit.js';s.dataset.pizzaSliceRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,120));
+  else setTimeout(load,120);
+})();

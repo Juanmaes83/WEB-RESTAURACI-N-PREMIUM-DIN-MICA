@@ -38,7 +38,12 @@ async function selectPreset(page,value,readyFlag){
 async function enter(page){
   await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:30000});
   await selectPreset(page,'orbital-food','orbitalFood');
-  /* hard gate */
+  /* Hard gate — but wait for the composition to exist first: the ready flag lands
+     before the renderer has painted a frame, so an immediate sample can refuse a
+     preset that was about to be fine. */
+  await page.waitForFunction(()=>
+    document.querySelectorAll('#orbit-stage .orbit-dish[data-orbit-front]').length>=6,
+    null,{timeout:20000}).catch(()=>{});
   const gate=await page.evaluate(()=>{
     const st=window.RestaurantOrbitalFood?.state?.()||{};
     return {mode:document.documentElement.dataset.orbitalMotion,ready:st.ready,

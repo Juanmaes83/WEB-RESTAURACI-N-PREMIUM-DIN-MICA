@@ -1,0 +1,374 @@
+{
+  "canonical": {
+    "length": 1205.5,
+    "halfAngleDeg": 26.52,
+    "halfAngleMedianDeg": 23.43,
+    "halfAngleMinDeg": 23.11,
+    "halfAngleMaxDeg": 25.62,
+    "apex": {
+      "x": 627,
+      "y": 1236
+    },
+    "corner": {
+      "dx": 538.3,
+      "dy": 1078.7
+    }
+  },
+  "tolerances": {
+    "length": 0.02,
+    "axis": 1.2,
+    "halfAngle": 3.5,
+    "apex": 0.02
+  },
+  "verdict": {
+    "lengthSpreadPct": 0,
+    "axisSpreadDeg": 0,
+    "halfAngleSpreadDeg": 2.51,
+    "worstOverhangDeg": -0.9,
+    "tightestMarginDeg": 0.9,
+    "lengthOk": true,
+    "axisOk": true,
+    "halfAngleOk": true,
+    "fitsStation": true,
+    "registered": true,
+    "openingAdvisory": "ok"
+  },
+  "slices": [
+    {
+      "id": "quattro-formaggi",
+      "name": "4 Quesos",
+      "registration": {
+        "scale": 0.99876,
+        "offsetX": 0.01061,
+        "offsetY": 0.00877,
+        "rotationBias": -0.18,
+        "apex": {
+          "x": 0.48939,
+          "y": 0.97687
+        }
+      },
+      "measured": {
+        "bounds": {
+          "x0": 150,
+          "x1": 1107,
+          "y0": 18,
+          "y1": 1225,
+          "w": 958,
+          "h": 1208
+        },
+        "coverage": 0.3869,
+        "apex": {
+          "x": 613.7,
+          "y": 1225
+        },
+        "crust": {
+          "x": 617.4,
+          "y": 18,
+          "width": 261
+        },
+        "length": 1207,
+        "axisDeg": 0.18,
+        "halfAngleDeg": 23.38
+      },
+      "normalized": {
+        "length": 1205.5,
+        "halfAngleDeg": 23.38,
+        "axisDeg": 0
+      }
+    },
+    {
+      "id": "barbacoa",
+      "name": "Barbacoa",
+      "registration": {
+        "scale": 0.99137,
+        "offsetX": 0.01053,
+        "offsetY": 0.00399,
+        "rotationBias": -0.26,
+        "apex": {
+          "x": 0.48947,
+          "y": 0.98166
+        }
+      },
+      "measured": {
+        "bounds": {
+          "x0": 144,
+          "x1": 1109,
+          "y0": 15,
+          "y1": 1231,
+          "w": 966,
+          "h": 1217
+        },
+        "coverage": 0.386,
+        "apex": {
+          "x": 613.8,
+          "y": 1231
+        },
+        "crust": {
+          "x": 619.2,
+          "y": 15,
+          "width": 170
+        },
+        "length": 1216,
+        "axisDeg": 0.26,
+        "halfAngleDeg": 23.33
+      },
+      "normalized": {
+        "length": 1205.5,
+        "halfAngleDeg": 23.33,
+        "axisDeg": 0
+      }
+    },
+    {
+      "id": "carbonara",
+      "name": "Carbonara",
+      "registration": {
+        "scale": 0.99711,
+        "offsetX": 0.01061,
+        "offsetY": 0.00718,
+        "rotationBias": -0.31,
+        "apex": {
+          "x": 0.48939,
+          "y": 0.97847
+        }
+      },
+      "measured": {
+        "bounds": {
+          "x0": 143,
+          "x1": 1107,
+          "y0": 18,
+          "y1": 1227,
+          "w": 965,
+          "h": 1210
+        },
+        "coverage": 0.3828,
+        "apex": {
+          "x": 613.7,
+          "y": 1227
+        },
+        "crust": {
+          "x": 620.2,
+          "y": 18,
+          "width": 165
+        },
+        "length": 1209,
+        "axisDeg": 0.31,
+        "halfAngleDeg": 23.42
+      },
+      "normalized": {
+        "length": 1205.5,
+        "halfAngleDeg": 23.42,
+        "axisDeg": 0
+      }
+    },
+    {
+      "id": "diavola",
+      "name": "Diavola",
+      "registration": {
+        "scale": 1.12685,
+        "offsetX": -0.01069,
+        "offsetY": 0.0638,
+        "rotationBias": 2.19,
+        "apex": {
+          "x": 0.51069,
+          "y": 0.92185
+        }
+      },
+      "measured": {
+        "bounds": {
+          "x0": 166,
+          "x1": 1101,
+          "y0": 87,
+          "y1": 1156,
+          "w": 936,
+          "h": 1070
+        },
+        "coverage": 0.3404,
+        "apex": {
+          "x": 640.4,
+          "y": 1156
+        },
+        "crust": {
+          "x": 599.5,
+          "y": 87,
+          "width": 407
+        },
+        "length": 1069.8,
+        "axisDeg": -2.19,
+        "halfAngleDeg": 25.62
+      },
+      "normalized": {
+        "length": 1205.5,
+        "halfAngleDeg": 25.62,
+        "axisDeg": 0
+      }
+    },
+    {
+      "id": "margarita",
+      "name": "Margarita",
+      "registration": {
+        "scale": 1.12801,
+        "offsetX": -0.00646,
+        "offsetY": 0.063,
+        "rotationBias": 2.07,
+        "apex": {
+          "x": 0.50646,
+          "y": 0.92265
+        }
+      },
+      "measured": {
+        "bounds": {
+          "x0": 168,
+          "x1": 1091,
+          "y0": 89,
+          "y1": 1157,
+          "w": 924,
+          "h": 1069
+        },
+        "coverage": 0.341,
+        "apex": {
+          "x": 635.1,
+          "y": 1157
+        },
+        "crust": {
+          "x": 596.5,
+          "y": 89,
+          "width": 396
+        },
+        "length": 1068.7,
+        "axisDeg": -2.07,
+        "halfAngleDeg": 25.47
+      },
+      "normalized": {
+        "length": 1205.5,
+        "halfAngleDeg": 25.47,
+        "axisDeg": 0
+      }
+    },
+    {
+      "id": "mortadela-pistacho",
+      "name": "Mortadela y Pistacho",
+      "registration": {
+        "scale": 1.00116,
+        "offsetX": 0.0114,
+        "offsetY": 0.00957,
+        "rotationBias": -0.62,
+        "apex": {
+          "x": 0.4886,
+          "y": 0.97608
+        }
+      },
+      "measured": {
+        "bounds": {
+          "x0": 145,
+          "x1": 1105,
+          "y0": 20,
+          "y1": 1224,
+          "w": 961,
+          "h": 1205
+        },
+        "coverage": 0.3789,
+        "apex": {
+          "x": 612.7,
+          "y": 1224
+        },
+        "crust": {
+          "x": 625.8,
+          "y": 20,
+          "width": 165
+        },
+        "length": 1204.1,
+        "axisDeg": 0.62,
+        "halfAngleDeg": 23.44
+      },
+      "normalized": {
+        "length": 1205.5,
+        "halfAngleDeg": 23.44,
+        "axisDeg": 0
+      }
+    },
+    {
+      "id": "prosciutto-funghi",
+      "name": "Prosciutto Funghi",
+      "registration": {
+        "scale": 0.98884,
+        "offsetX": -0.01116,
+        "offsetY": -0.0008,
+        "rotationBias": 0.78,
+        "apex": {
+          "x": 0.51116,
+          "y": 0.98644
+        }
+      },
+      "measured": {
+        "bounds": {
+          "x0": 143,
+          "x1": 1109,
+          "y0": 18,
+          "y1": 1237,
+          "w": 967,
+          "h": 1220
+        },
+        "coverage": 0.4113,
+        "apex": {
+          "x": 641,
+          "y": 1237
+        },
+        "crust": {
+          "x": 624.4,
+          "y": 18,
+          "width": 226
+        },
+        "length": 1219.1,
+        "axisDeg": -0.78,
+        "halfAngleDeg": 23.11
+      },
+      "normalized": {
+        "length": 1205.5,
+        "halfAngleDeg": 23.11,
+        "axisDeg": 0
+      }
+    },
+    {
+      "id": "verduras",
+      "name": "Verduras",
+      "registration": {
+        "scale": 1.11662,
+        "offsetX": -0.01156,
+        "offsetY": 0.05742,
+        "rotationBias": 1.85,
+        "apex": {
+          "x": 0.51156,
+          "y": 0.92823
+        }
+      },
+      "measured": {
+        "bounds": {
+          "x0": 165,
+          "x1": 1102,
+          "y0": 85,
+          "y1": 1164,
+          "w": 938,
+          "h": 1080
+        },
+        "coverage": 0.3385,
+        "apex": {
+          "x": 641.5,
+          "y": 1164
+        },
+        "crust": {
+          "x": 606.5,
+          "y": 85,
+          "width": 401
+        },
+        "length": 1079.6,
+        "axisDeg": -1.85,
+        "halfAngleDeg": 25.51
+      },
+      "normalized": {
+        "length": 1205.5,
+        "halfAngleDeg": 25.51,
+        "axisDeg": 0
+      }
+    }
+  ]
+}
