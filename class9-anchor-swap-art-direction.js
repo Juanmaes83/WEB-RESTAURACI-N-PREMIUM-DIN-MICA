@@ -49,10 +49,15 @@
     if(!el||!p||el.dataset.heldProfileFailed==='1')return;
     el.dataset.heldIndex=String(index);
     el.dataset.heldType=p.type;
-    if(el.dataset.heldAsset!==p.asset){
-      const fallback=el.getAttribute('src')||'';
-      el.dataset.heldFallback=fallback;
-      el.dataset.heldAsset=p.asset;
+
+    /* IMPORTANT: class9 refreshPair() is authoritative and can rewrite src whenever
+       the base product pair changes. Therefore the source of truth is the ACTUAL src,
+       not data-held-asset. Comparing only the dataset made V1 of this micro-pass lose
+       the held media after a rebuild while tests still exercised the underlying engine. */
+    const current=el.getAttribute('src')||'';
+    if(!el.dataset.heldFallback && current && current!==p.asset)el.dataset.heldFallback=current;
+    el.dataset.heldAsset=p.asset;
+    if(current!==p.asset){
       el.onerror=()=>{
         if(el.dataset.heldProfileFailed==='1')return;
         el.dataset.heldProfileFailed='1';
@@ -112,6 +117,8 @@
 
   window.RestaurantAnchorSwapArtDirection={
     assets:{...ASSETS},profiles:PROFILES.map(x=>({...x})),apply,
-    status:()=>({active:active(),ready:root.dataset.anchorHeldAssets==='ready',state:state()})
+    status:()=>({active:active(),ready:root.dataset.anchorHeldAssets==='ready',state:state(),
+      outSrc:document.querySelector('.as-product-out')?.getAttribute('src')||'',
+      inSrc:document.querySelector('.as-product-in')?.getAttribute('src')||''})
   };
 })();
