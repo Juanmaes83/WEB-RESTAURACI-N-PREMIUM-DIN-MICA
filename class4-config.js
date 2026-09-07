@@ -129,3 +129,61 @@ window.RestaurantDefaults.pizzaSliceOrbit={
       orderUrl:'',available:true,demoContent:true}
   ]
 };
+
+/* PROJECT 09 — SCROLL TRAVELER.
+
+   A page-level capability, not another product carousel: ONE object persists across
+   several sections and travels through the page as the visitor scrolls.
+
+   The route is DATA. The renderer contains no product and no section knowledge — no
+   `if dish === gamba`, no `if section === chef`. Swap the source and the route and the
+   same engine carries a lemon, a bottle or a logo.
+
+   Coordinates are viewport-relative (vw/vh) because the traveler is a fixed overlay:
+   that is what makes each chapter's composition predictable at any page length.
+   `layer` is a discrete state, not a tween — z-index cannot be interpolated
+   meaningfully, so it hands over at the midpoint of a segment. */
+window.RestaurantDefaults.scrollTraveler={
+  enabled:true,
+  preset:'red-prawn',
+  /* how much of the designed amplitude to apply: the restaurant picks a language,
+     not bezier control points */
+  intensity:1,
+  scale:1,
+  rotationIntensity:1,
+  /* dish-01 is the canonical product record — this is a reference to it, not a copy.
+     The asset is the cleaned runtime cut of the approved master: see
+     scripts/build-traveler-asset.mjs for why a traveller cannot use the stage cut. */
+  source:{type:'dish',dishId:'dish-01',
+    asset:'assets/scroll-traveler/runtime/dish-01-prawn.webp',
+    alt:'Gamba roja salvaje',altEn:'Wild red prawn'},
+  /* Desktop route. Each chapter is an intentional composition, not a diagonal drift. */
+  route:[
+    /* clear of the product stage. Centred on it, the traveller landed among the
+       carousel's own plates — the same dish, so it read as a duplicate instead of as
+       the one object that is about to leave and travel the page. */
+    {anchor:'#signature',chapter:'signature',x:78,y:74,scale:1,rotation:-6,opacity:1,layer:'front',blur:0},
+    {anchor:'#experience',chapter:'origin',x:24,y:46,scale:.74,rotation:14,opacity:1,layer:'behind',blur:0},
+    {anchor:'.experience-section',chapter:'atmosphere',x:78,y:44,scale:.88,rotation:-16,opacity:1,layer:'between',blur:0},
+    {anchor:'.chef-section',chapter:'chef',x:30,y:58,scale:.96,rotation:6,opacity:1,layer:'front',blur:0},
+    /* the finale is the biggest the object ever gets, and it lands centred on the
+       reservation banner — so it goes BEHIND the page's own copy. At `front` it
+       covered "Toma asiento." and the CTA; behind them it reads as the dish arriving
+       through the invitation, and every word stays legible. */
+    {anchor:'#visit',chapter:'visit',x:52,y:44,scale:1.14,rotation:0,opacity:1,layer:'between',blur:0}
+  ],
+  /* Mobile is its own route, not shrunken desktop: lower amplitude, fewer crossings,
+     and positions that keep the copy columns clear on a 390px screen. */
+  /* Mobile scales are NOT the desktop ones reduced: the object's box is already much
+     smaller on a narrow screen (see styles-v14.css), so reusing desktop multipliers
+     would leave a 70px dish nobody can read. These are chosen against the real 390px
+     layout — the object sits in each section's open space, behind the type where the
+     type matters and in front of the photograph where there is nothing to obscure. */
+  routeMobile:[
+    {anchor:'#signature',chapter:'signature',x:64,y:36,scale:.95,rotation:-5,opacity:1,layer:'front',blur:0},
+    {anchor:'#experience',chapter:'origin',x:32,y:18,scale:.86,rotation:11,opacity:1,layer:'behind',blur:0},
+    {anchor:'.experience-section',chapter:'atmosphere',x:66,y:52,scale:.92,rotation:-12,opacity:1,layer:'between',blur:0},
+    {anchor:'.chef-section',chapter:'chef',x:34,y:44,scale:.98,rotation:5,opacity:1,layer:'front',blur:0},
+    {anchor:'#visit',chapter:'visit',x:50,y:40,scale:1.12,rotation:0,opacity:1,layer:'between',blur:0}
+  ]
+};

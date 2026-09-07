@@ -1,10 +1,10 @@
-name: Motion Engine — Depth Carousel + Anchor Scenes + Orbital Food + Pizza Slice Orbit + Premium
+name: Motion Engine — Depth Carousel + Anchor Scenes + Orbital Food + Pizza Slice Orbit + Premium + Scroll Traveler
 
 on:
   pull_request:
     branches: [main]
   push:
-    branches: ['feat/depth-carousel-lab','feat/anchor-swap-scenes-lab']
+    branches: ['feat/depth-carousel-lab','feat/anchor-swap-scenes-lab','feat/scroll-traveler-red-prawn']
   workflow_dispatch:
 
 permissions:
@@ -25,6 +25,12 @@ jobs:
           node --check class10-orbital-food.js
           node --check class11-pizza-slice-orbit.js
           node --check class12-pizza-premium.js
+          node --check class14-scroll-traveler.js
+          node --check scripts/check-scroll-traveler.mjs
+          node --check scripts/build-traveler-asset.mjs
+          node --check tests/class14-scroll-traveler-e2e.mjs
+          node --check tests/capture-scroll-traveler.mjs
+          node --check tests/record-scroll-traveler-video.mjs
           node --check scripts/check-pizza-premium.mjs
           node --check tests/class12-pizza-premium-e2e.mjs
           node --check class6-detail-bridge.js
@@ -46,11 +52,14 @@ jobs:
           ! grep -q 'class10-orbital-food.js' index.html
           ! grep -q 'class11-pizza-slice-orbit.js' index.html
           ! grep -q 'class12-pizza-premium.js' index.html
+          ! grep -q 'class14-scroll-traveler.js' index.html
+          ! grep -q 'styles-v14.css' index.html
           grep -q "s.src='class8-depth-carousel.js'" class4-runtime-guard.js
           grep -q "s.src='class9-anchor-scenes.js'" class4-runtime-guard.js
           grep -q "s.src='class10-orbital-food.js'" class4-runtime-guard.js
           grep -q "s.src='class11-pizza-slice-orbit.js'" class4-runtime-guard.js
           grep -q "s.src='class12-pizza-premium.js'" class4-runtime-guard.js
+          grep -q "s.src='class14-scroll-traveler.js'" class4-runtime-guard.js
       - name: Install browser test runtime
         run: |
           test -f package.json || npm init -y >/dev/null 2>&1
@@ -109,6 +118,30 @@ jobs:
       - name: Premium protection contract — approved motor untouched
         run: node scripts/check-pizza-premium.mjs
 
+      - name: Project 09 Scroll Traveler E2E (desktop + mobile + studio + reduced motion)
+        run: node tests/class14-scroll-traveler-e2e.mjs
+
+      - name: Traveler contract — one progress, data-driven route, additive only
+        run: node scripts/check-scroll-traveler.mjs
+
+      - name: Traveler object provenance — the runtime cut traces to an approved master
+        run: |
+          node -e "const m=require('./assets/scroll-traveler/traveler-manifest.json');const fs=require('fs');
+            if(!m.travelers.length)throw new Error('no traveler objects declared');
+            for(const t of m.travelers){
+              if(!fs.existsSync(t.source))throw new Error('missing source master: '+t.source);
+              if(!fs.existsSync(t.runtimeAsset))throw new Error('missing runtime object: '+t.runtimeAsset);
+              if(!/^assets\/depth-carousel\//.test(t.source))throw new Error('source is not an approved master: '+t.source);
+              if(t.bytes>=t.sourceBytes)throw new Error('the runtime cut is not lighter than its master: '+t.id);
+            }
+            const declared=new Set(m.travelers.map(t=>t.runtimeAsset.split('/').pop()));
+            const stray=fs.readdirSync('assets/scroll-traveler/runtime').filter(f=>!declared.has(f));
+            if(stray.length)throw new Error('undeclared objects in the runtime folder: '+stray.join(', '));
+            console.log('traveler objects: '+m.travelers.map(t=>t.id+' from '+t.source).join(', '))"
+
+      - name: Capture Scroll Traveler journey evidence
+        run: node tests/capture-scroll-traveler.mjs
+
       - name: Record motion evidence
         run: |
           node tests/record-depth-carousel-video.mjs
@@ -121,6 +154,9 @@ jobs:
 
       - name: Record Pizza Premium motion evidence
         run: node tests/record-pizza-premium-video.mjs
+
+      - name: Record Scroll Traveler motion evidence
+        run: node tests/record-scroll-traveler-video.mjs
 
       - name: Upload visual evidence
         if: always()
