@@ -18,6 +18,7 @@ import {startServer} from './static-server.mjs';
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const OUT=path.join(ROOT,'tests','video');
 fs.mkdirSync(OUT,{recursive:true});
+const MANIFEST=JSON.parse(fs.readFileSync(path.join(ROOT,'assets','anchor-scenes','scenes-manifest.json'),'utf8'));
 
 const {server,url:BASE}=await startServer(0);
 const browser=await chromium.launch();
@@ -32,11 +33,28 @@ async function selectPreset(page){
     window.RestaurantMotionStudio?.publish?.();
   });
   await page.waitForFunction(()=>document.documentElement.dataset.anchorScenes==='ready',null,{timeout:14000});
-  /* hard gate: the recording must be of THIS preset, with the scenes resolved */
-  const ok=await page.evaluate(()=>document.documentElement.dataset.orbitalMotion==='anchor-scenes'
-    &&document.querySelectorAll('.sc-scene[data-kind="scene"]').length===2
-    &&document.querySelector('.sc-stage')?.hidden!==true);
-  if(!ok)throw new Error('refusing to record: anchor-scenes is not the active, resolved preset');
+  /* Hard gate. The recording must be of THIS preset, with the scenes resolved, and
+     the pixels on screen must be the real master photography — a clip of a proxy
+     that slipped through would look like evidence and be worthless. */
+  const gate=await page.evaluate(()=>{
+    const painted=[...document.querySelectorAll('.sc-scene[data-kind="scene"] .sc-subject')]
+      .map(el=>{const m=/url\(["']?([^"')]+)/.exec(getComputedStyle(el).backgroundImage||'');return m?m[1]:''});
+    return {
+      preset:document.documentElement.dataset.orbitalMotion,
+      resolved:document.querySelectorAll('.sc-scene[data-kind="scene"]').length,
+      staged:document.querySelector('.sc-stage')?.hidden!==true,
+      painted
+    };
+  });
+  const fromRuntime=gate.painted.length===2
+    && gate.painted.every(u=>/\/assets\/anchor-scenes\/runtime\/scene-\d\d-/.test(u));
+  const declared=new Set(MANIFEST.scenes.map(s=>s.runtimeAsset.split('/').pop()));
+  const isReal=MANIFEST.kind==='real'&&MANIFEST.source==='MANO+OBJETO/'
+    && gate.painted.every(u=>declared.has(u.split('/').pop()));
+  if(gate.preset!=='anchor-scenes'||gate.resolved!==2||!gate.staged)
+    throw new Error(`refusing to record: anchor-scenes is not the active, resolved preset (${JSON.stringify(gate)})`);
+  if(!fromRuntime||!isReal)
+    throw new Error(`refusing to record: the scenes on screen are not the real master set (${gate.painted.join(' ')})`);
   await page.locator('#signature').scrollIntoViewIfNeeded();
   await page.waitForTimeout(1500);
 }

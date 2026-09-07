@@ -48,6 +48,23 @@ jobs:
           node -e "global.window={};require('./class4-config.js');const fs=require('fs');const d=window.RestaurantDefaults.dishes;const free=d.filter(x=>x.depthCarousel&&x.depthCarousel.asset);if(free.length<3)throw new Error('fewer than 3 free-object assets: '+free.length);const decor=d.filter(x=>x.depthCarousel&&[].concat(x.depthCarousel.foregroundDecor||[]).length&&x.depthCarousel.backgroundDecor);if(decor.length<free.length)throw new Error('dishes without decor: '+(free.length-decor.length));const files=d.flatMap(x=>[x.depthCarousel.asset].concat(x.depthCarousel.foregroundDecor||[],x.depthCarousel.backgroundDecor||[])).filter(Boolean);for(const f of files)if(!fs.existsSync(f))throw new Error('missing asset '+f);console.log('free objects '+free.length+', dishes with decor '+decor.length+', files '+files.length)"
       - name: Project 02 Anchor Scenes E2E
         run: node tests/class9-anchor-scenes-e2e.mjs
+      - name: Anchor scene provenance — the demo must be the real master set
+        run: |
+          node -e "const m=require('./assets/anchor-scenes/scenes-manifest.json');const fs=require('fs');
+            if(m.kind!=='real'||m.source!=='MANO+OBJETO/')throw new Error('the manifest is not the real master set: kind='+m.kind);
+            if(m.scenes.length<4)throw new Error('only '+m.scenes.length+' real scenes');
+            for(const s of m.scenes){
+              if(!/^MANO\+OBJETO\//.test(s.sourceOriginal))throw new Error('scene not traced to MANO+OBJETO/: '+s.runtimeAsset);
+              if(!fs.existsSync(s.sourceOriginal))throw new Error('missing source: '+s.sourceOriginal);
+              if(!fs.existsSync(s.runtimeAsset))throw new Error('missing runtime asset: '+s.runtimeAsset);
+              if(!s.registration)throw new Error('scene has no registration data: '+s.runtimeAsset);
+            }
+            const declared=new Set(m.scenes.map(s=>s.runtimeAsset.split('/').pop()));
+            const onDisk=fs.readdirSync('assets/anchor-scenes/runtime');
+            const stray=onDisk.filter(f=>!declared.has(f));
+            if(stray.length)throw new Error('undeclared assets in the runtime folder: '+stray.join(', '));
+            console.log('provenance: '+m.scenes.length+' real scenes from '+m.source+', '+m.excluded.length+' excluded')"
+
       - name: Anchor scene consistency audit
         run: |
           node scripts/audit-anchor-scenes.mjs

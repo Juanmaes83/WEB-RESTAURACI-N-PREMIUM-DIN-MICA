@@ -20,6 +20,12 @@ fs.mkdirSync(SHOTS,{recursive:true});
 
 const {server,url:BASE}=await startServer(0);
 const browser=await chromium.launch({headless:true});
+/* The manifest is the contract between the ingest pipeline and the engine, so the
+   suite reads it rather than restating what it should contain. */
+const MANIFEST=path.join(ROOT,'assets','anchor-scenes','scenes-manifest.json');
+const manifest=JSON.parse(fs.readFileSync(MANIFEST,'utf8'));
+const runtimeFiles=fs.readdirSync(path.join(ROOT,'assets','anchor-scenes','runtime')).sort();
+
 const results=[];
 const check=(name,ok,detail='')=>{results.push({name,ok});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
 
@@ -76,6 +82,39 @@ async function session(label,viewport,isMobile){
     `${model.withScene} dishes, ${model.images} distinct scene images`);
   check(`${label} · exactly two scene surfaces, both resolved`,
     model.sceneWrappers===2&&model.resolved===2,JSON.stringify({wrappers:model.sceneWrappers,resolved:model.resolved}));
+
+  /* ---- 1b. provenance: the live demo must be the real photography ----
+     A proxy that survives by accident would pass every geometric gate while showing
+     the wrong thing, so the chain from the source file to the pixels on screen is
+     asserted end to end, not assumed. */
+  const prov=await page.evaluate(()=>{
+    const list=(window.RestaurantDefaults.dishes||[]).filter(d=>d.enabled!==false)
+      .map(d=>d.anchorScene&&d.anchorScene.image).filter(Boolean);
+    const painted=[...document.querySelectorAll('.sc-scene[data-kind="scene"] .sc-subject')]
+      .map(el=>{const m=/url\(["']?([^"')]+)/.exec(getComputedStyle(el).backgroundImage||'');return m?m[1]:''});
+    return {wired:list,painted};
+  });
+  const fromRuntime=[...prov.wired,...prov.painted.map(u=>u.replace(/^.*?\/(assets\/)/,'$1'))]
+    .every(u=>/^assets\/anchor-scenes\/runtime\//.test(u));
+  check(`${label} · every scene on screen comes from assets/anchor-scenes/runtime/`,
+    fromRuntime&&prov.painted.length===2,prov.painted.map(u=>u.split('/').pop()).join(' · '));
+
+  const declared=new Set(manifest.scenes.map(s=>s.runtimeAsset));
+  check(`${label} · the wired scenes are the ones the manifest declares`,
+    prov.wired.length===manifest.scenes.length&&prov.wired.every(u=>declared.has(u)),
+    `${prov.wired.length} wired / ${declared.size} declared`);
+  check(`${label} · the manifest is the real set, built from MANO+OBJETO/`,
+    manifest.kind==='real'&&manifest.source==='MANO+OBJETO/'
+    &&manifest.scenes.every(s=>/^MANO\+OBJETO\//.test(s.sourceOriginal)&&fs.existsSync(path.join(ROOT,s.sourceOriginal))),
+    `kind=${manifest.kind} source=${manifest.source}`);
+  check(`${label} · no proxy asset survives in the runtime folder`,
+    runtimeFiles.length===manifest.scenes.length
+    &&runtimeFiles.every(f=>declared.has(`assets/anchor-scenes/runtime/${f}`)),
+    runtimeFiles.join(' · '));
+  check(`${label} · every scene painted on screen carries its registration`,
+    await page.evaluate(()=>[...document.querySelectorAll('.sc-scene[data-kind="scene"]')]
+      .every(el=>getComputedStyle(el).getPropertyValue('--sc-reg-s').trim()!=='')),
+    'registration comes from the manifest, not the engine');
 
   /* ---- 2. scene consistency, measured in the browser ---- */
   const consistency=await page.evaluate(async()=>{
