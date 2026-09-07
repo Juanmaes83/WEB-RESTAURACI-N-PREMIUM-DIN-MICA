@@ -392,9 +392,10 @@ El desarrollo continúa como **escenas precompuestas**: una imagen maestra cerra
 producto, todas con la misma mano, el mismo encuadre y la misma luz. Rama activa:
 `feat/anchor-swap-scenes-lab`. Documentación: `docs/PROJECT-02-ANCHOR-SCENES-PIVOT.md`.
 
-Estado del pivot: **Blocked on the real master scene photography.** El motor está
-construido, probado y desplegado contra un set proxy auditado; no se declara Ready for
-Human Visual Review hasta tenerlo probado con las fotografías maestras reales.
+Estado del pivot: **APPROVED / CLOSED** — aprobado por Juanma el 2026-09-07 tras la
+revisión visual con las escenas maestras reales, e integrado en `main`. Baseline
+aprobada: `c378e05f`. Quedan pendientes de **datos** (no de código) los masters de
+Alcachofa, Lubina y Postre: ver `docs/PROJECT-02-ANCHOR-SCENES-PIVOT.md` §16.2.
 
 ## Criterio de aprobación
 
@@ -911,6 +912,10 @@ El activo será el **motor capaz de generar experiencias gastronómicas premium 
 > **Segunda actualización 2026-09-05.** Project 02 queda **ACTIVE / PIVOTED**: la mano
 > ensamblada en capas se abandona como solución de producción y el proyecto pasa a
 > escenas precompuestas. Ni Project 02 ni el pivot están mergeados a `main`.
+>
+> **Tercera actualización 2026-09-07.** Project 02 queda **APPROVED / CLOSED** e
+> integrado en `main` (baseline `c378e05f`). Con Project 01 y Project 02 cerrados, se
+> abre **Project 03 — Orbital Food Slider**; los proyectos 04 y 05 siguen pendientes.
 
 Los cinco proyectos tienen interés suficiente para desarrollarse con Claude Code bajo supervisión.
 

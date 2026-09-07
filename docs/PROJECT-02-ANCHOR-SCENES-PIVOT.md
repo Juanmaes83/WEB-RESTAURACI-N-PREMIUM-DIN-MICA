@@ -1,8 +1,14 @@
 # PROJECT 02 — PIVOT TO PRECOMPOSED ANCHOR SCENES
 
-> **STATUS: REAL MASTER SCENES INTEGRATED — READY FOR HUMAN VISUAL REVIEW.**
-> El bloqueo queda levantado: las escenas maestras reales están integradas,
-> auditadas, registradas y desplegadas. El set proxy ha salido de la demo.
+> **STATUS: APPROVED / CLOSED — MERGED TO MAIN.**
+> **HUMAN APPROVAL: Juanma · 2026-09-07.** Revisión visual de Juanma + ChatGPT sobre
+> las evidencias reales: el pivot funciona, la mano no se percibe cortada, el reveal
+> de arista estrecha queda aprobado.
+> **APPROVED BASELINE: `c378e05f7eadbdc60c072af427fa55ec4e6b7ce1`.**
+>
+> Escenas maestras reales integradas, auditadas, registradas y desplegadas; el set
+> proxy fuera de la demo. Pendiente sólo de datos, no de código: los masters de 03,
+> 04 y 06 (ver §16.2) entran sin tocar una línea.
 > Este documento no aprueba nada. Aprueba Juanma tras revisión visual.
 > Rama: `feat/anchor-swap-scenes-lab`, creada desde `main` con Project 01 integrado.
 > No se ha mergeado a `main`. La exploración previa queda archivada, sin mergear, en
