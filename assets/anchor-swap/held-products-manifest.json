@@ -1,0 +1,32 @@
+{
+  "version": "final-art-direction-v1",
+  "generated_at": "2026-09-07",
+  "purpose": "Held-product media for Project 02 Anchor Swap final visual pass",
+  "notes": [
+    "These assets are intentionally photographed/generated as objects that a hand can physically hold.",
+    "They replace the top-down plated-food cutouts only inside the Anchor Swap presentation layer.",
+    "The base dish model, detail view, copy and Project 01 assets remain unchanged.",
+    "Runtime falls back to the original dish asset if a held-product URL fails."
+  ],
+  "assets": {
+    "highball": {
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/7e293eeb-2220-42d0-a436-c3ec593e72e8.webp",
+      "canvas": [1400, 1400],
+      "alpha": true,
+      "profile": {"x": 51.5, "y": 31.2, "width": 40, "rotate": -1.5, "outDrift": 8.0, "inDrift": 6.0}
+    },
+    "stemless": {
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/f83605f6-72ca-4608-9e52-e90f1a71d79c.webp",
+      "canvas": [1400, 1400],
+      "alpha": true,
+      "profile": {"x": 52.0, "y": 32.0, "width": 47, "rotate": 1.2, "outDrift": 7.0, "inDrift": 5.5}
+    },
+    "bowl": {
+      "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_32Z72jiRnAYwuEpbVNGYFa3wWSz/9e7ced69-1f4c-4556-995e-0d6029be3c45.webp",
+      "canvas": [1400, 1400],
+      "alpha": true,
+      "profile": {"x": 51.0, "y": 34.4, "width": 58, "rotate": -1.0, "outDrift": 9.0, "inDrift": 6.5}
+    }
+  },
+  "dish_mapping": ["highball", "stemless", "bowl", "highball", "stemless", "bowl"]
+}
