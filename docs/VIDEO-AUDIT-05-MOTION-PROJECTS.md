@@ -927,6 +927,24 @@ El activo será el **motor capaz de generar experiencias gastronómicas premium 
 > integrado en `main` (baseline `c378e05f`). Con Project 01 y Project 02 cerrados, se
 > abre **Project 03 — Orbital Food Slider**, que pasa a **ACTIVE / IN DEVELOPMENT** y
 > queda entregado para revisión visual. Los proyectos 04 y 05 siguen pendientes.
+>
+> **Cuarta actualización 2026-09-07.** Project 03 queda **APPROVED / MERGED**. La hoja
+> de ruta de cinco proyectos se mantiene intacta y se añaden dos extensiones
+> específicas de pizza **después** de ella:
+>
+> - **Project 06 — Circular Dish Rotator / Full Pizza Wheel**: una pizza completa
+>   girando como un solo objeto. **No se desarrolla aquí**; lo lleva ChatGPT/GitHub
+>   aparte. Es el dueño de `assets/pizza-motion/source/full-pizza/`.
+> - **Project 07 — Pizza Slice Orbit / Hero Selector**: ocho porciones independientes
+>   en órbita radial con una estación de selección fija. **ACTIVE / IN DEVELOPMENT**,
+>   entregado para revisión visual en `feat/pizza-slice-orbit-lab`. Documentación:
+>   `docs/PROJECT-07-PIZZA-SLICE-ORBIT.md`. Misión:
+>   `docs/PROJECT-07-PIZZA-SLICE-ORBIT-MISSION.md`.
+>
+> La distinción entre 06 y 07 es obligatoria: si Project 07 acabara pareciendo la rueda
+> de pizza completa, el proyecto habría fallado.
+>
+> Los proyectos **04 — Dish Stage** y **05 — Cinematic Product Rail** siguen pendientes.
 
 Los cinco proyectos tienen interés suficiente para desarrollarse con Claude Code bajo supervisión.
 
