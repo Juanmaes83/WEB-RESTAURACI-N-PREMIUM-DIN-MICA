@@ -73,6 +73,11 @@
     Object.entries(map).forEach(([id,path])=>{const el=$('#'+id);if(el)el.textContent=pathGet(config,path)??''});
     const badges=$('#chef-badges');if(badges)badges.innerHTML=(config.chef.badges||[]).map(x=>`<span>${escapeHtml(x)}</span>`).join('');
     renderBrand();['hero','origin','atmosphere','chef'].forEach(slot=>renderMedia(slot,$(`[data-media-host="${slot}"]`)));buildOrbit();syncStudioInputs();renderDishList();renderMediaCards();document.title=`${config.brand.name} — Orbital Dining`;
+    /* One signal that the project config has been applied, whatever changed it: a
+       Studio input, a programmatic set, an import or an undo. Runtime presets can
+       then refresh from config without each inventing its own listener — and without
+       polling, which is what a preset resorts to when there is no signal. */
+    try{document.dispatchEvent(new CustomEvent('restaurant:config-applied'))}catch(e){}
   }
   function renderBrand(){const src=objectUrls.logo||config.media?.logo?.url;$$('.brand-visual').forEach(el=>{el.innerHTML=src?`<img src="${src}" alt="${escapeHtml(config.brand.name)}">`:`<span class="brand-dot"></span><span>${escapeHtml(config.brand.name)}</span>`;const img=$('img',el);if(img)safeImage(img,config.brand.name)})}
 
@@ -136,6 +141,18 @@
        handed over, so a preset re-composes the same orbit instead of inventing one. */
     setDishRenderer(fn){orbitRenderer=typeof fn==='function'?fn:null;renderOrbit()},
     hasDishRenderer:()=>!!orbitRenderer
+  };
+
+  /* ---------- studio config adapter ----------
+     Studio binds [data-path] inputs once at boot, so a panel added later by a runtime
+     preset has no way into the project state. This exposes the same mutate → apply →
+     persist path those inputs already use, so a late panel writes through the
+     existing system instead of inventing a parallel store. Read-and-write only; no
+     new state. */
+  window.RestaurantStudioConfig={
+    get:path=>pathGet(config,path),
+    set(path,value){mutate(()=>pathSet(config,path,value))},
+    snapshot:()=>clone(config)
   };
 
   function closeStudio(){window.RestaurantStudioShell?.close?.()}

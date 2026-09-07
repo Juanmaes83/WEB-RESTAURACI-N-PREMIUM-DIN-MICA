@@ -314,7 +314,13 @@
     liveEl.textContent=`Selected pizza: ${s.name}`;
   }
 
-  function render(){place();paintCopy()}
+  /* Read-only observers. The premium presentation layer needs to know when the orbit
+     repainted; it derives everything else (speed, phase, palette, copy) from the
+     state this engine already reports. Nothing here changes progress, the active
+     index, registration, the station or any interaction path. */
+  const observers=new Set();
+  function notify(){observers.forEach(f=>{try{f()}catch(e){}})}
+  function render(){place();paintCopy();notify()}
   function setProgress(v){progress=v;render()}
 
   /* ---------- motion: every path writes the one scalar ---------- */
@@ -520,6 +526,8 @@
     step,goTo,spin,
     /* test seam: a deterministic RNG so the suite can force a target without flake */
     setRng(fn){rng=typeof fn==='function'?fn:(()=>Math.random())},
+    /* read-only: called after every repaint, returns an unsubscribe */
+    subscribe(fn){if(typeof fn!=='function')return()=>{};observers.add(fn);return()=>observers.delete(fn)},
     setProgress(v){tween?.kill?.();setProgress(Number(v)||0);announce()},
     state(){
       return {mode:root.dataset.orbitalMotion,ready:root.dataset.pizzaSliceOrbit==='ready',

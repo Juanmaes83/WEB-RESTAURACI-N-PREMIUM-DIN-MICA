@@ -936,10 +936,17 @@ El activo será el **motor capaz de generar experiencias gastronómicas premium 
 >   girando como un solo objeto. **No se desarrolla aquí**; lo lleva ChatGPT/GitHub
 >   aparte. Es el dueño de `assets/pizza-motion/source/full-pizza/`.
 > - **Project 07 — Pizza Slice Orbit / Hero Selector**: ocho porciones independientes
->   en órbita radial con una estación de selección fija. **ACTIVE / IN DEVELOPMENT**,
->   entregado para revisión visual en `feat/pizza-slice-orbit-lab`. Documentación:
->   `docs/PROJECT-07-PIZZA-SLICE-ORBIT.md`. Misión:
->   `docs/PROJECT-07-PIZZA-SLICE-ORBIT-MISSION.md`.
+>   en órbita radial con una estación de selección fija. **APPROVED / MERGED** (merge
+>   `a2632b7`). Documentación: `docs/PROJECT-07-PIZZA-SLICE-ORBIT.md`.
+>
+> **Quinta actualización 2026-09-07.** Project 06 Fase 2 y Project 07 quedan aprobados
+> e integrados en `main` (`05660ef`). Se abre el **PREMIUM PRODUCTIZATION PASS de
+> Project 07**: el motor aprobado no se reconstruye y se le añade el mundo de producto
+> —historia editorial, ocho mundos cromáticos, tipografía de fondo, CTA contextual,
+> personalización en Studio, contrato de sustitución de assets con registro obligatorio
+> y adaptadores de comercio—. Rama `feat/pizza-slice-orbit-premium`, entregado para
+> revisión visual, **sin mergear**. Documentación:
+> `docs/PROJECT-07-PREMIUM-PRODUCTIZATION.md`.
 >
 > La distinción entre 06 y 07 es obligatoria: si Project 07 acabara pareciendo la rueda
 > de pizza completa, el proyecto habría fallado.

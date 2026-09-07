@@ -1,4 +1,4 @@
-name: Motion Engine — Depth Carousel + Anchor Scenes + Orbital Food + Pizza Slice Orbit
+name: Motion Engine — Depth Carousel + Anchor Scenes + Orbital Food + Pizza Slice Orbit + Premium
 
 on:
   pull_request:
@@ -24,6 +24,9 @@ jobs:
           node --check class9-anchor-scenes.js
           node --check class10-orbital-food.js
           node --check class11-pizza-slice-orbit.js
+          node --check class12-pizza-premium.js
+          node --check scripts/check-pizza-premium.mjs
+          node --check tests/class12-pizza-premium-e2e.mjs
           node --check class6-detail-bridge.js
           node --check scripts/ingest-pizza-slices.mjs
           node --check tests/class11-pizza-slice-orbit-e2e.mjs
@@ -42,10 +45,12 @@ jobs:
           ! grep -q 'class9-anchor-scenes.js' index.html
           ! grep -q 'class10-orbital-food.js' index.html
           ! grep -q 'class11-pizza-slice-orbit.js' index.html
+          ! grep -q 'class12-pizza-premium.js' index.html
           grep -q "s.src='class8-depth-carousel.js'" class4-runtime-guard.js
           grep -q "s.src='class9-anchor-scenes.js'" class4-runtime-guard.js
           grep -q "s.src='class10-orbital-food.js'" class4-runtime-guard.js
           grep -q "s.src='class11-pizza-slice-orbit.js'" class4-runtime-guard.js
+          grep -q "s.src='class12-pizza-premium.js'" class4-runtime-guard.js
       - name: Install browser test runtime
         run: |
           test -f package.json || npm init -y >/dev/null 2>&1
@@ -98,6 +103,12 @@ jobs:
       - name: Pizza slice contract — immutable masters, one state, registered set
         run: node scripts/check-pizza-slices.mjs
 
+      - name: Project 07 Premium product-discovery E2E
+        run: node tests/class12-pizza-premium-e2e.mjs
+
+      - name: Premium protection contract — approved motor untouched
+        run: node scripts/check-pizza-premium.mjs
+
       - name: Record motion evidence
         run: |
           node tests/record-depth-carousel-video.mjs
@@ -107,6 +118,9 @@ jobs:
 
       - name: Record Pizza Slice Orbit motion evidence
         run: node tests/record-pizza-slice-orbit-video.mjs
+
+      - name: Record Pizza Premium motion evidence
+        run: node tests/record-pizza-premium-video.mjs
 
       - name: Upload visual evidence
         if: always()
