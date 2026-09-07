@@ -25,7 +25,13 @@ const PRESETS={
       const bg=getComputedStyle(s.querySelector('.sc-subject')||s).backgroundImage||'';
       return /\/assets\/anchor-scenes\/runtime\/scene-\d\d-[a-z-]+\.webp/.test(bg)}).length,
     layerName:'both master scenes resolve from the real runtime set',layerMin:2,
-    layerUnit:'real master scenes'}
+    layerUnit:'real master scenes'},
+  'orbital-food':{global:'RestaurantOrbitalFood',ready:()=>document.documentElement.dataset.orbitalFood==='ready',
+    label:'Orbital Food Slider',
+    /* products composed by the preset, counted through the engine's own elements */
+    layers:()=>[...document.querySelectorAll('#orbit-stage .orbit-dish[data-orbit-front]')]
+      .filter(el=>+getComputedStyle(el).opacity>.05).length,
+    layerName:'the whole collection is on the orbit',layerMin:6,layerUnit:'products in orbit'}
 };
 const SPEC=PRESETS[PRESET];
 if(!SPEC){console.error(`unknown preset: ${PRESET}`);process.exit(2)}

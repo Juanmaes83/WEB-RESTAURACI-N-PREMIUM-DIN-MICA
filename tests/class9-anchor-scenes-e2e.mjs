@@ -494,7 +494,13 @@ async function reducedMotionSession(){
   const i1=await page.evaluate(()=>document.getElementById('dish-counter').textContent.trim());
   check('reduced-motion · navigation still changes the dish',i0!==i1,`${i0} → ${i1}`);
   await page.evaluate(()=>document.querySelector('#explore-dish').click());
-  await page.waitForTimeout(1200);
+  /* Wait for the state, not for a clock: a fixed 1200ms passes locally and flakes on
+     a slower runner, which reports a working detail as a broken one. */
+  try{
+    await page.waitForFunction(()=>document.getElementById('dish-detail')?.classList.contains('is-open'),
+      null,{timeout:9000});
+  }catch{}
+  await page.waitForTimeout(300);
   check('reduced-motion · the dish detail still opens',
     await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open')));
   await page.screenshot({path:path.join(SHOTS,'anchor-scenes-reduced-motion.png')});
