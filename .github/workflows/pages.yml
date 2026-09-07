@@ -2,7 +2,7 @@ name: Deploy restaurant demo to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'feat/anchor-swap-lab']
   workflow_dispatch:
 
 permissions:
