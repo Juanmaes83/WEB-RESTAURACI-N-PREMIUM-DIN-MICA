@@ -1,0 +1,49 @@
+name: Project 11 — Cinematic Product Rail
+
+on:
+  push:
+    branches:
+      - feat/cinematic-product-rail-lab
+    paths:
+      - 'class15-cinematic-product-rail.js'
+      - 'styles-v15.css'
+      - 'labs/project11-cinematic-product-rail/**'
+      - 'docs/PROJECT-11-CINEMATIC-PRODUCT-RAIL.md'
+      - 'tests/class15-cinematic-product-rail-contract.mjs'
+      - '.github/workflows/project11-cinematic-product-rail.yml'
+  pull_request:
+    paths:
+      - 'class15-cinematic-product-rail.js'
+      - 'styles-v15.css'
+      - 'labs/project11-cinematic-product-rail/**'
+      - 'docs/PROJECT-11-CINEMATIC-PRODUCT-RAIL.md'
+      - 'tests/class15-cinematic-product-rail-contract.mjs'
+      - '.github/workflows/project11-cinematic-product-rail.yml'
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: node --check class15-cinematic-product-rail.js
+      - name: Project 11 isolated contract
+        run: node tests/class15-cinematic-product-rail-contract.mjs
+      - name: Parallel collision guard
+        shell: bash
+        run: |
+          git fetch origin main --quiet
+          ALLOWED='^(class15-cinematic-product-rail\.js|styles-v15\.css|labs/project11-cinematic-product-rail/|docs/PROJECT-11-CINEMATIC-PRODUCT-RAIL\.md|tests/class15-cinematic-product-rail-contract\.mjs|\.github/workflows/project11-cinematic-product-rail\.yml)'
+          BAD="$(git diff --name-only origin/main...HEAD | grep -Ev "$ALLOWED" || true)"
+          if [ -n "$BAD" ]; then
+            echo "Unexpected shared/runtime changes detected:"
+            echo "$BAD"
+            exit 1
+          fi
+          echo "PASS · Project 11 remains isolated"

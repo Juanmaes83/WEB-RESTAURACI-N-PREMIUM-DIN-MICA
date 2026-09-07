@@ -1,0 +1,46 @@
+name: Social / Reputation Module
+
+on:
+  push:
+    branches: [feat/social-reputation-module-lab]
+    paths:
+      - 'class17-social-reputation.js'
+      - 'styles-v17.css'
+      - 'labs/module-social-reputation/**'
+      - 'docs/MODULE-SOCIAL-REPUTATION.md'
+      - 'tests/class17-social-reputation-contract.mjs'
+      - '.github/workflows/social-reputation-module.yml'
+  pull_request:
+    paths:
+      - 'class17-social-reputation.js'
+      - 'styles-v17.css'
+      - 'labs/module-social-reputation/**'
+      - 'docs/MODULE-SOCIAL-REPUTATION.md'
+      - 'tests/class17-social-reputation-contract.mjs'
+      - '.github/workflows/social-reputation-module.yml'
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: JavaScript syntax
+        run: node --check class17-social-reputation.js
+      - name: Social / Reputation isolated contract
+        run: node tests/class17-social-reputation-contract.mjs
+      - name: Parallel collision guard
+        shell: bash
+        run: |
+          git fetch origin main --quiet
+          ALLOWED='^(class17-social-reputation\.js|styles-v17\.css|labs/module-social-reputation/|docs/MODULE-SOCIAL-REPUTATION\.md|tests/class17-social-reputation-contract\.mjs|\.github/workflows/social-reputation-module\.yml)'
+          BAD="$(git diff --name-only origin/main...HEAD | grep -Ev "$ALLOWED" || true)"
+          if [ -n "$BAD" ]; then
+            echo "Unexpected shared/runtime changes detected:"
+            echo "$BAD"
+            exit 1
+          fi
+          echo "PASS · Social module remains isolated"
