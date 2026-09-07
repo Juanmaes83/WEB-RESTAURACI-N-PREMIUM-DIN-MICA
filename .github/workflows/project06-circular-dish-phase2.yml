@@ -1,0 +1,39 @@
+name: Project 06 — Circular Dish Rotator Phase 2
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'labs/project06-circular-dish-rotator/**'
+      - 'tests/project06-circular-dish-rotator-contract.mjs'
+      - '.github/workflows/project06-circular-dish-phase2.yml'
+  push:
+    branches: ['feat/circular-dish-rotator-lab']
+    paths:
+      - 'labs/project06-circular-dish-rotator/**'
+      - 'tests/project06-circular-dish-rotator-contract.mjs'
+      - '.github/workflows/project06-circular-dish-phase2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  project06-phase2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check labs/project06-circular-dish-rotator/project06-circular-dish-rotator.js
+          node --check labs/project06-circular-dish-rotator/project06-phase2-premium.js
+          node --check tests/project06-circular-dish-rotator-contract.mjs
+      - name: Isolated Project 06 contract
+        run: node tests/project06-circular-dish-rotator-contract.mjs
+      - name: Shared runtime collision guard
+        run: |
+          git diff --name-only origin/main...HEAD | grep -q '^labs/project06-circular-dish-rotator/'
+          ! git diff --name-only origin/main...HEAD | grep -Eq '^(app-v4\.js|class4-config\.js|class4-runtime-guard\.js|class6-product\.js)$'
