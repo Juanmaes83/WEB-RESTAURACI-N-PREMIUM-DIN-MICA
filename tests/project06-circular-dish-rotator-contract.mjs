@@ -47,7 +47,7 @@ check('sector crossings create physical pointer feedback', js.includes('cdr-tick
 check('landing creates hero + copy choreography', js.includes('cdr-land') && js.includes('cdr-copy-land') && css.includes('cdrSliceLand') && css.includes('cdrStoryReveal'));
 
 check('phase-2 premium files are loaded after core', html.includes('project06-phase2-premium.css') && html.includes('project06-phase2-premium.js'));
-check('eight chromatic worlds exist', premiumJs.includes('const PALETTES = [') && (premiumJs.match(/word:'/g) || []).length === 8);
+check('eight chromatic worlds exist', premiumJs.includes('const PALETTES = [') && (premiumJs.match(/worldA:'/g) || []).length >= 8 && (premiumJs.match(/worldB:'/g) || []).length >= 8);
 check('chromatic world derives from canonical active index', premiumJs.includes('engine.getActiveIndex') && premiumJs.includes('applyWorld(index'));
 check('background typography is product aware', html.includes('id="cdr-world-word"') && html.includes('id="cdr-world-index"') && html.includes('id="cdr-world-sub"') && premiumJs.includes('worldSub.textContent'));
 check('world styling owns richer per-pizza gradients', premiumCss.includes('--cdr-world-a') && premiumCss.includes('--cdr-world-b') && premiumCss.includes('.cdr-world-type'));
