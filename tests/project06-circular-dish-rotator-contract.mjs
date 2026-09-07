@@ -3,6 +3,8 @@ import fs from 'node:fs';
 const html = fs.readFileSync('labs/project06-circular-dish-rotator/index.html', 'utf8');
 const js = fs.readFileSync('labs/project06-circular-dish-rotator/project06-circular-dish-rotator.js', 'utf8');
 const css = fs.readFileSync('labs/project06-circular-dish-rotator/project06-circular-dish-rotator.css', 'utf8');
+const premiumJs = fs.readFileSync('labs/project06-circular-dish-rotator/project06-phase2-premium.js', 'utf8');
+const premiumCss = fs.readFileSync('labs/project06-circular-dish-rotator/project06-phase2-premium.css', 'utf8');
 
 const checks = [];
 const check = (name, pass) => {
@@ -11,9 +13,9 @@ const check = (name, pass) => {
 };
 
 check('full pizza source is used', html.includes('PIZZA%20COMPLETA%20DE%208%20TROZOS.png'));
-check('independent slice sources are not used', !html.includes('/source/slices/') && !js.includes('/source/slices/'));
+check('independent slice sources are not used', !html.includes('/source/slices/') && !js.includes('/source/slices/') && !premiumJs.includes('/source/slices/'));
 check('eight-sector geometry exists', js.includes('const COUNT = 8') && js.includes('const STEP_DEG = 45'));
-check('single canonical rotationProgress exists', (js.match(/let rotationProgress/g) || []).length === 1);
+check('single canonical rotationProgress exists', (js.match(/let rotationProgress/g) || []).length === 1 && !premiumJs.includes('let rotationProgress'));
 check('active index derives from rotationProgress', js.includes('Math.round(rotationProgress)'));
 check('visual rotation derives from rotationProgress', js.includes('BASE_OFFSET_DEG - rotationProgress * STEP_DEG'));
 check('base disc and hero-sector clone share the same rotation', js.includes('sectorDisc.style.transform = transform'));
@@ -43,10 +45,28 @@ check('visual copy-to-product relationship exists', html.includes('cdr-copy-link
 check('ghost typography is driven by active pizza', html.includes('id="cdr-ghost-name"') && js.includes('ghostName.textContent = pizza.name.toUpperCase()'));
 check('sector crossings create physical pointer feedback', js.includes('cdr-tick-hit') && css.includes('cdrPointerTick'));
 check('landing creates hero + copy choreography', js.includes('cdr-land') && js.includes('cdr-copy-land') && css.includes('cdrSliceLand') && css.includes('cdrStoryReveal'));
+
+check('phase-2 premium files are loaded after core', html.includes('project06-phase2-premium.css') && html.includes('project06-phase2-premium.js'));
+check('eight chromatic worlds exist', premiumJs.includes('const PALETTES = [') && (premiumJs.match(/word:'/g) || []).length === 8);
+check('chromatic world derives from canonical active index', premiumJs.includes('engine.getActiveIndex') && premiumJs.includes('applyWorld(index'));
+check('background typography is product aware', html.includes('id="cdr-world-word"') && html.includes('id="cdr-world-index"') && html.includes('id="cdr-world-sub"') && premiumJs.includes('worldSub.textContent'));
+check('world styling owns richer per-pizza gradients', premiumCss.includes('--cdr-world-a') && premiumCss.includes('--cdr-world-b') && premiumCss.includes('.cdr-world-type'));
+check('contextual CTA exists', html.includes('id="cdr-primary-cta"') && html.includes('id="cdr-secondary-cta"') && premiumJs.includes('updateContextCta'));
+check('personalization panel exists', html.includes('id="cdr-customizer"') && html.includes('id="cdr-profile-save"') && premiumJs.includes('savePanel'));
+check('restaurant profile persists independently', premiumJs.includes("const PROFILE_KEY = 'cdr.project06.phase2.profile.v1'") && premiumJs.includes('localStorage.setItem'));
+check('restaurant asset upload supports logo wheel and background', html.includes('id="cdr-logo-upload"') && html.includes('id="cdr-wheel-upload"') && html.includes('id="cdr-background-upload"'));
+check('restaurant binary assets persist in IndexedDB', premiumJs.includes('indexedDB.open') && premiumJs.includes("const DB_STORE = 'assets'"));
+check('uploaded wheel always updates base and selected-sector copy', premiumJs.includes('disc.src = url') && premiumJs.includes('sectorDisc.src = url'));
+check('asset reset returns to canonical source pizza', premiumJs.includes('disc.src = SOURCE_WHEEL') && premiumJs.includes('sectorDisc.src = SOURCE_WHEEL'));
+check('order integration supports URL adapter and demo event', premiumJs.includes('profile.orderUrl') && premiumJs.includes("emit('cdr:order-request'"));
+check('reservation integration supports URL adapter and demo event', premiumJs.includes('profile.reservationUrl') && premiumJs.includes("emit('cdr:reservation-request'"));
+check('commerce intent carries canonical selected product', premiumJs.includes("emit('cdr:commerce-intent'") && premiumJs.includes('activeProduct()'));
+check('phase-2 remains isolated from shared Studio runtime', !premiumJs.includes('app-v4.js') && !premiumJs.includes('class4-runtime-guard.js') && !html.includes('class10-orbital-food.js'));
+
 check('reduced motion preserves selection path', js.includes('reducedMotion.matches'));
 check('keyboard navigation exists', js.includes("event.key === 'ArrowRight'") && js.includes("event.key === 'ArrowLeft'"));
 check('accessibility live region exists', html.includes('id="cdr-live"') && js.includes('Selected pizza:'));
 check('isolated lab does not depend on shared motion engine JS', !html.includes('app-v4.js') && !html.includes('class10-orbital-food.js'));
 
-console.log(`Project 06 Phase 1 contract PASS — ${checks.length}/${checks.length}`);
+console.log(`Project 06 Phase 2 contract PASS — ${checks.length}/${checks.length}`);
 for (const name of checks) console.log(`  ✓ ${name}`);
