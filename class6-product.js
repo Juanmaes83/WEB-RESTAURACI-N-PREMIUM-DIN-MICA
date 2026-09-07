@@ -23,6 +23,12 @@
   const baseDish=id=>config.dishes?.find(d=>d.id===id)||defaults.dishes?.find(d=>d.id===id)||{};
   const activeDishId=()=>{
     const inDetail=$('#detail-visual .orbit-dish')?.dataset.id;if(inDetail)return inDetail;
+    /* A motion preset can name its own hero. Proximity to the shell centre is only a
+       guess, and it silently picks the wrong dish the moment a composition puts the
+       hero somewhere other than dead centre — the copy then describes a plate the
+       visitor is not looking at. Presets that do not mark a hero keep the guess. */
+    const marked=$('#orbit-stage .orbit-dish[data-orbit-hero="1"]')?.dataset.id;
+    if(marked)return marked;
     const shell=$('.orbit-shell');if(!shell)return null;const sr=shell.getBoundingClientRect(),cx=sr.left+sr.width/2,cy=sr.top+sr.height/2;
     return $$('#orbit-stage .orbit-dish').map(el=>{const r=el.getBoundingClientRect();return{el,score:Math.abs(r.left+r.width/2-cx)+Math.abs(r.top+r.height/2-cy)*.18}}).sort((a,b)=>a.score-b.score)[0]?.el.dataset.id||null;
   };

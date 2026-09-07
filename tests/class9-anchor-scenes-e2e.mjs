@@ -493,10 +493,43 @@ async function reducedMotionSession(){
   await page.waitForTimeout(900);
   const i1=await page.evaluate(()=>document.getElementById('dish-counter').textContent.trim());
   check('reduced-motion · navigation still changes the dish',i0!==i1,`${i0} → ${i1}`);
-  await page.evaluate(()=>document.querySelector('#explore-dish').click());
-  await page.waitForTimeout(1200);
+  /* The CTA has to be pressed on a settled engine. Without the master detail bridge
+     present, Anchor Scenes falls back to a programmatic click on the real base dish,
+     and that dish's own handler opens the detail only when the base index has already
+     caught up — click while it is still settling and it navigates instead. That is a
+     race, not a broken detail, so wait for the counter to hold still, then press, and
+     allow one retry. */
+  const settle=async()=>{
+    let last='',stable=0;
+    for(let i=0;i<40&&stable<4;i++){
+      const now=await page.evaluate(()=>document.getElementById('dish-counter').textContent.trim());
+      stable=now===last?stable+1:0;last=now;
+      await page.waitForTimeout(100);
+    }
+  };
+  for(let attempt=0;attempt<2;attempt++){
+    await settle();
+    await page.evaluate(()=>document.querySelector('#explore-dish').click());
+    try{
+      await page.waitForFunction(()=>document.getElementById('dish-detail')?.classList.contains('is-open'),
+        null,{timeout:6000});
+      break;
+    }catch{}
+  }
+  await page.waitForTimeout(300);
+  const detailWhy=await page.evaluate(()=>({
+    open:document.getElementById('dish-detail')?.classList.contains('is-open'),
+    aria:document.getElementById('dish-detail')?.getAttribute('aria-hidden'),
+    title:document.getElementById('detail-title')?.textContent.trim().slice(0,24),
+    bridge:typeof window.RestaurantClass6Detail?.open,
+    scenes:window.RestaurantAnchorScenes?.state?.(),
+    baseDishes:document.querySelectorAll('#orbit-stage .orbit-dish').length,
+    heroMarks:document.querySelectorAll('#orbit-stage .orbit-dish[data-orbit-hero]').length,
+    foodReady:document.documentElement.dataset.orbitalFood||'-'
+  }));
   check('reduced-motion · the dish detail still opens',
-    await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open')));
+    await page.evaluate(()=>document.getElementById('dish-detail').classList.contains('is-open')),
+    JSON.stringify(detailWhy));
   await page.screenshot({path:path.join(SHOTS,'anchor-scenes-reduced-motion.png')});
   await context.close();
 }

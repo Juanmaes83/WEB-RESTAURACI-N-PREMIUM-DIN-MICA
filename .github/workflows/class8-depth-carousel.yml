@@ -1,4 +1,4 @@
-name: Motion Engine — Depth Carousel + Anchor Scenes
+name: Motion Engine — Depth Carousel + Anchor Scenes + Orbital Food
 
 on:
   pull_request:
@@ -21,14 +21,25 @@ jobs:
       - name: Syntax checks
         run: |
           node --check class8-depth-carousel.js
+          node --check class9-anchor-scenes.js
+          node --check class10-orbital-food.js
+          node --check app-v4.js
+          node --check class6-product.js
+          node --check class4-config.js
           node --check class4-runtime-guard.js
           node --check tests/class8-depth-carousel-e2e.mjs
+          node --check tests/class9-anchor-scenes-e2e.mjs
+          node --check tests/class10-orbital-food-slider-e2e.mjs
           node --check tests/static-server.mjs
       - name: Additive contract — index.html must stay untouched
         run: |
           grep -q 'class4-runtime-guard.js' index.html
           ! grep -q 'class8-depth-carousel.js' index.html
+          ! grep -q 'class9-anchor-scenes.js' index.html
+          ! grep -q 'class10-orbital-food.js' index.html
           grep -q "s.src='class8-depth-carousel.js'" class4-runtime-guard.js
+          grep -q "s.src='class9-anchor-scenes.js'" class4-runtime-guard.js
+          grep -q "s.src='class10-orbital-food.js'" class4-runtime-guard.js
       - name: Install browser test runtime
         run: |
           test -f package.json || npm init -y >/dev/null 2>&1
@@ -69,10 +80,19 @@ jobs:
         run: |
           node scripts/audit-anchor-scenes.mjs
           node -e "const a=require('./assets/anchor-scenes/audit/scenes-audit.json');const v=a.verdict,o=a.object;if(!v.sameCanvas||!v.sameOrientation)throw new Error('scenes are not one take');if(!v.anchorOk||!v.anchorRatioOk)throw new Error('anchor region moved between scenes: '+v.anchorWorst);if(!v.lumaOk)throw new Error('lighting spread too wide: '+v.lumaSpread);if(!o.scaleOk||!o.centreOk)throw new Error('object geometry jumps between scenes');console.log('scene consistency: anchor diff '+v.anchorWorst+', luma spread '+v.lumaSpread)"
+      - name: Project 03 Orbital Food Slider E2E
+        run: node tests/class10-orbital-food-slider-e2e.mjs
+
+      - name: Orbital reuse contract — one engine, one index, one progress
+        run: node scripts/check-orbit-reuse.mjs
+
       - name: Record motion evidence
         run: |
           node tests/record-depth-carousel-video.mjs
           node tests/record-anchor-scenes-video.mjs
+      - name: Record Orbital Food motion evidence
+        run: node tests/record-orbital-food-video.mjs
+
       - name: Upload visual evidence
         if: always()
         uses: actions/upload-artifact@v4

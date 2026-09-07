@@ -80,3 +80,17 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,80));
   else setTimeout(load,80);
 })();
+
+/* CLASS 10 · PROJECT 03 — load the Orbital Food Slider preset additively.
+   Same pattern as Projects 01 and 02: index.html stays untouched. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-orbital-food-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class10-orbital-food.js';s.dataset.orbitalFoodRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,100));
+  else setTimeout(load,100);
+})();
