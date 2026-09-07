@@ -58,10 +58,15 @@ test('reduced motion preserves navigation', () => {
   assert.match(css, /prefers-reduced-motion:reduce/);
 });
 
-test('lab loads approved baseline config read-only before engine', () => {
-  const configAt = html.indexOf('../../class4-config.js');
-  const engineAt = html.indexOf('../../class13-dish-stage.js');
+test('lab resolves repo assets from repository root and loads config before engine', () => {
+  assert.ok(html.includes('<base href="../../">'));
+  const configAt = html.indexOf('src="class4-config.js"');
+  const engineAt = html.indexOf('src="class13-dish-stage.js"');
   assert.ok(configAt > -1 && engineAt > configAt);
+});
+
+test('lab stylesheet is resolved from repository root', () => {
+  assert.ok(html.includes('href="styles-v13.css"'));
 });
 
 test('lab has direct manipulation and alternative controls', () => {
