@@ -327,7 +327,7 @@
       prev.disabled = true;
       next.disabled = true;
       spin.disabled = true;
-      spinLabel.textContent = 'Spinning';
+      spinLabel.textContent = 'Girando';
     }
 
     const duration = reducedMotion.matches ? 0 : clamp(520 + distance * 100, 560, 2200);
@@ -344,9 +344,9 @@
       prev.disabled = false;
       next.disabled = false;
       spin.disabled = false;
-      spinLabel.textContent = 'Discover';
+      spinLabel.textContent = 'Descubrir';
     }
-    hint.textContent = 'Drag circular · Flick para lanzar · ← → · Discover';
+    hint.textContent = 'Arrastra · Lanza para girar · ← → · Descubrir';
   }
 
   function endDrag(event) {
@@ -395,7 +395,7 @@
     spin.disabled = true;
     prev.disabled = true;
     next.disabled = true;
-    spinLabel.textContent = 'Ready';
+    spinLabel.textContent = 'Listo';
     hint.textContent = 'Finding your next obsession…';
 
     const current = Math.round(rotationProgress);
@@ -414,7 +414,7 @@
     }
 
     shell.dataset.spinPhase = 'travel';
-    spinLabel.textContent = 'Spinning';
+    spinLabel.textContent = 'Girando';
 
     const launchBase = Math.round(rotationProgress);
     const launchIndex = mod(launchBase, COUNT);
@@ -435,8 +435,8 @@
     spin.disabled = false;
     prev.disabled = false;
     next.disabled = false;
-    spinLabel.textContent = 'Discover';
-    hint.textContent = `Selected · ${PIZZAS[targetIndex].name}`;
+    spinLabel.textContent = 'Descubrir';
+    hint.textContent = `Elegida · ${PIZZAS[targetIndex].name}`;
     return targetIndex;
   }
 
