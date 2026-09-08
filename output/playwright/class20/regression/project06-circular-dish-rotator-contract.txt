@@ -1,0 +1,54 @@
+Project 06 Phase 2 contract PASS — 53/53
+  ✓ full pizza source is used
+  ✓ independent slice sources are not used
+  ✓ eight-sector geometry exists
+  ✓ single canonical rotationProgress exists
+  ✓ active index derives from rotationProgress
+  ✓ visual rotation derives from rotationProgress
+  ✓ base disc and hero-sector clone share the same rotation
+  ✓ circular drag uses pointer angle
+  ✓ drag accumulates angular movement across full turns
+  ✓ drag updates progress continuously
+  ✓ release snaps to nearest integer
+  ✓ flick can project multiple full sectors
+  ✓ step navigation shares canonical progress
+  ✓ discover defaults to fortune-wheel multi-turn range
+  ✓ discover has reverse anticipation before main throw
+  ✓ discover has long controlled deceleration
+  ✓ discover can be deterministic for tests
+  ✓ selector is independent SVG overlay
+  ✓ selector itself is not rotated by JS
+  ✓ selected sector uses independent clipped hero layer
+  ✓ settled hero sector receives stronger phase-1 lift
+  ✓ base pizza is visually subordinated when hero settles
+  ✓ phase-1 product data has eight authored pizzas
+  ✓ ingredients are driven by selected pizza
+  ✓ price is driven by selected pizza
+  ✓ descriptor is driven by selected pizza
+  ✓ wow headline has dynamic lead, hero name and tail
+  ✓ mood line is data driven
+  ✓ accent can follow active product
+  ✓ visual copy-to-product relationship exists
+  ✓ ghost typography is driven by active pizza
+  ✓ sector crossings create physical pointer feedback
+  ✓ landing creates hero + copy choreography
+  ✓ phase-2 premium files are loaded after core
+  ✓ eight chromatic worlds exist
+  ✓ chromatic world derives from canonical active index
+  ✓ background typography is product aware
+  ✓ world styling owns richer per-pizza gradients
+  ✓ contextual CTA exists
+  ✓ personalization panel exists
+  ✓ restaurant profile persists independently
+  ✓ restaurant asset upload supports logo wheel and background
+  ✓ restaurant binary assets persist in IndexedDB
+  ✓ uploaded wheel always updates base and selected-sector copy
+  ✓ asset reset returns to canonical source pizza
+  ✓ order integration supports URL adapter and demo event
+  ✓ reservation integration supports URL adapter and demo event
+  ✓ commerce intent carries canonical selected product
+  ✓ phase-2 remains isolated from shared Studio runtime
+  ✓ reduced motion preserves selection path
+  ✓ keyboard navigation exists
+  ✓ accessibility live region exists
+  ✓ isolated lab does not depend on shared motion engine JS

@@ -1,0 +1,50 @@
+name: Location / Google Maps Module
+
+on:
+  push:
+    branches:
+      - feat/location-maps-module-lab
+    paths:
+      - 'class16-location-maps.js'
+      - 'styles-v16.css'
+      - 'labs/module-location-maps/**'
+      - 'docs/MODULE-LOCATION-MAPS.md'
+      - 'tests/class16-location-maps-contract.mjs'
+      - '.github/workflows/location-maps-module.yml'
+  pull_request:
+    paths:
+      - 'class16-location-maps.js'
+      - 'styles-v16.css'
+      - 'labs/module-location-maps/**'
+      - 'docs/MODULE-LOCATION-MAPS.md'
+      - 'tests/class16-location-maps-contract.mjs'
+      - '.github/workflows/location-maps-module.yml'
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript syntax
+        run: node --check class16-location-maps.js
+      - name: Location / Maps isolated contract
+        run: node tests/class16-location-maps-contract.mjs
+      - name: Parallel collision guard
+        if: github.head_ref == 'feat/location-maps-module-lab' || github.ref_name == 'feat/location-maps-module-lab'
+        shell: bash
+        run: |
+          git fetch origin main --quiet
+          ALLOWED='^(class16-location-maps\.js|styles-v16\.css|labs/module-location-maps/|docs/MODULE-LOCATION-MAPS\.md|tests/class16-location-maps-contract\.mjs|\.github/workflows/location-maps-module\.yml)'
+          BAD="$(git diff --name-only origin/main...HEAD | grep -Ev "$ALLOWED" || true)"
+          if [ -n "$BAD" ]; then
+            echo "Unexpected shared/runtime changes detected:"
+            echo "$BAD"
+            exit 1
+          fi
+          echo "PASS · Location / Maps remains isolated"

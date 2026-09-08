@@ -1,0 +1,41 @@
+{
+  "url": "https://juanmaes83.github.io/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/",
+  "captured": [
+    {
+      "label": "desktop",
+      "off": {
+        "lm": 0,
+        "sr": 0,
+        "wa": 0
+      },
+      "copy": {
+        "location": "Encuéntranos Ven a cenar. Quédate a disfrutar de la noche. Añade una dirección en el configurador CÓMO LLEGAR ↗ UBICACIÓN Tu mesa está más cerca de lo que parece. El mapa de Google sólo se carga cuando tú lo decides.",
+        "social": "SOCIAL · RESEÑAS · COMUNIDAD Sigue cerca de nuestra mesa. Sigue la cocina, lee lo que recuerdan nuestros clientes y encuéntranos donde ya planeas tus noches. Activa al menos una plataforma con una URL válida.",
+        "whatsapp": "× CONCIERGE ¿Necesitas mesa esta noche? Escríbenos directamente. Sin formularios y sin cambiar el tono de la experiencia. Respondemos durante el horario de servicio WA Hablar por WhatsApp Añade un número internacional válido para activar el enlace."
+      },
+      "after": {
+        "lm": 16,
+        "title": "Encuéntranos"
+      },
+      "errors": []
+    },
+    {
+      "label": "mobile",
+      "off": {
+        "lm": 0,
+        "sr": 0,
+        "wa": 0
+      },
+      "copy": {
+        "location": "Encuéntranos Ven a cenar. Quédate a disfrutar de la noche. Añade una dirección en el configurador CÓMO LLEGAR ↗ UBICACIÓN Tu mesa está más cerca de lo que parece. El mapa de Google sólo se carga cuando tú lo decides.",
+        "social": "SOCIAL · RESEÑAS · COMUNIDAD Sigue cerca de nuestra mesa. Sigue la cocina, lee lo que recuerdan nuestros clientes y encuéntranos donde ya planeas tus noches. Activa al menos una plataforma con una URL válida.",
+        "whatsapp": "× CONCIERGE ¿Necesitas mesa esta noche? Escríbenos directamente. Sin formularios y sin cambiar el tono de la experiencia. Respondemos durante el horario de servicio WA Añade un número internacional válido para activar el enlace."
+      },
+      "after": {
+        "lm": 16,
+        "title": "Encuéntranos"
+      },
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#08090a">
+  <title>Location / Google Maps Module — LAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles-v16.css">
+</head>
+<body>
+  <main class="lm-lab" id="lm-lab" data-enabled="true" data-preset="split-editorial">
+    <aside class="lm-panel" aria-label="Configurador del módulo de ubicación">
+      <div class="lm-panel-head">
+        <div>
+          <small>OPTIONAL MODULE · CLASS 16</small>
+          <h1>Location / Maps</h1>
+        </div>
+        <span class="lm-status">ISOLATED LAB</span>
+      </div>
+
+      <form class="lm-controls" id="lm-controls">
+        <section class="lm-control-section">
+          <span class="lm-section-label">01 · MODULE</span>
+          <div class="lm-switch-row">
+            <strong>Activar sección</strong>
+            <label class="lm-switch" aria-label="Activar módulo">
+              <input name="enabled" type="checkbox" checked>
+              <span></span>
+            </label>
+          </div>
+          <label class="lm-field">Título<input name="title" type="text" value="Find us"></label>
+          <label class="lm-field">Eyebrow<input name="eyebrow" type="text" value="Torrevieja · Spain"></label>
+          <label class="lm-field">Preset
+            <select name="preset">
+              <option value="split-editorial">Split Editorial</option>
+              <option value="full-width">Full Width Map</option>
+              <option value="minimal">Minimal Location</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="lm-control-section">
+          <span class="lm-section-label">02 · ADDRESS</span>
+          <label class="lm-field">Dirección<input name="street" type="text" value="Paseo Vistalegre 12"></label>
+          <div class="lm-two">
+            <label class="lm-field">CP<input name="postalCode" type="text" value="03181"></label>
+            <label class="lm-field">Ciudad<input name="city" type="text" value="Torrevieja"></label>
+          </div>
+          <div class="lm-two">
+            <label class="lm-field">Provincia / región<input name="region" type="text" value="Alicante"></label>
+            <label class="lm-field">País<input name="country" type="text" value="España"></label>
+          </div>
+          <label class="lm-field">Teléfono<input name="phone" type="tel" value="+34 965 000 000"></label>
+          <label class="lm-field">Horarios<input name="hours" type="text" value="Tue — Sun · 13:00 — 00:00"></label>
+        </section>
+
+        <section class="lm-control-section">
+          <span class="lm-section-label">03 · GOOGLE MAPS</span>
+          <label class="lm-field">Modo
+            <select name="mode">
+              <option value="address">Generar desde dirección</option>
+              <option value="url">Google Maps URL</option>
+              <option value="embed">Embed URL</option>
+            </select>
+          </label>
+          <label class="lm-field">Google Maps URL<input name="googleMapsUrl" type="url" placeholder="https://www.google.com/maps/..."></label>
+          <label class="lm-field">Embed URL<input name="embedUrl" type="url" placeholder="https://www.google.com/maps/embed?...\n"></label>
+          <label class="lm-field">Privacidad / carga
+            <select name="privacyMode">
+              <option value="click">Cargar al pulsar</option>
+              <option value="auto">Cargar al entrar</option>
+            </select>
+          </label>
+          <label class="lm-field">Texto CTA<input name="ctaLabel" type="text" value="Cómo llegar"></label>
+        </section>
+
+        <div class="lm-panel-actions">
+          <button type="button" id="lm-reset">Reset demo</button>
+          <button type="button" id="lm-open-directions">Abrir Maps</button>
+        </div>
+      </form>
+    </aside>
+
+    <section class="lm-preview" aria-label="Preview del módulo">
+      <header class="lm-preview-top">
+        <span>LIVE PREVIEW</span>
+        <b>Location Module</b>
+      </header>
+      <div class="lm-preview-mount" id="lm-preview-mount"></div>
+    </section>
+  </main>
+
+  <script src="../../class16-location-maps.js"></script>
+</body>
+</html>

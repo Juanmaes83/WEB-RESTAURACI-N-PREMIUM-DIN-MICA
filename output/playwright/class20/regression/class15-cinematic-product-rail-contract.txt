@@ -1,0 +1,28 @@
+PASS · nested LAB resolves from repository root
+PASS · LAB loads canonical restaurant config
+PASS · LAB loads Class 15 engine
+PASS · LAB loads Class 15 styles
+PASS · engine reads canonical dish catalogue
+PASS · engine prefers existing depth-carousel product assets
+PASS · exactly one canonical railProgress declaration
+PASS · active index derives from railProgress
+PASS · no selectedProduct state
+PASS · no currentProduct authoritative state
+PASS · continuous wrapped distance exists
+PASS · fractional pointer drag writes progress before release
+PASS · release uses measured progress velocity
+PASS · single drag target is restrained to adjacent product
+PASS · prev/next share canonical step()
+PASS · keyboard uses same step path
+PASS · wheel uses same step path
+PASS · world interpolates from existing product metadata
+PASS · copy is synchronized from derived active index
+PASS · debug adapter exposes progress and active index
+PASS · no Swiper dependency or vocabulary
+PASS · mobile breakpoint exists
+PASS · reduced-motion fallback exists
+PASS · page overflow is contained by experience
+PASS · documentation marks isolated human review
+PASS · documentation reserves final Studio integration
+
+PROJECT 11 CONTRACT: PASS

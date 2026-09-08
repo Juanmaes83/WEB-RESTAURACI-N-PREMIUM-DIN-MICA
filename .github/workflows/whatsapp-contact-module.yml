@@ -33,6 +33,7 @@ jobs:
       - name: WhatsApp Contact isolated contract
         run: node tests/class18-whatsapp-contact-contract.mjs
       - name: Parallel collision guard
+        if: github.head_ref == 'feat/whatsapp-contact-module-lab' || github.ref_name == 'feat/whatsapp-contact-module-lab'
         shell: bash
         run: |
           git fetch origin main --quiet
