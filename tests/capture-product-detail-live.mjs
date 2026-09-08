@@ -63,15 +63,25 @@ async function main(label,viewport,mobile){
   await page.evaluate(()=>window.RestaurantProductDetail.close());
   await settle(page,1500);
 
-  /* OFF: el clic vuelve a ser navegación */
+  /* OFF: el clic vuelve a ser navegación.
+
+     Hay que pulsar un plato que NO sea el héroe: sobre el héroe, con la ficha apagada,
+     lo correcto es que no pase nada, así que ese clic no demuestra nada. */
   const off=await page.evaluate(async()=>{
     window.RestaurantStudioConfig.set('productDetail.enabled',false);
     await new Promise(r=>setTimeout(r,1100));
+    const activeId=window.RestaurantProductDetail.activeProduct()?.id;
     const before=window.RestaurantOrbit.getActiveIndex();
-    document.querySelector('#orbit-stage .orbit-dish')?.click();
-    await new Promise(r=>setTimeout(r,1600));
-    return {open:window.RestaurantProductDetail.isOpen(),
-      moved:window.RestaurantOrbit.getActiveIndex()!==before};
+    const lateral=[...document.querySelectorAll('#orbit-stage .orbit-dish')]
+      .find(d=>d.dataset.id!==activeId);
+    lateral?.click();
+    await new Promise(r=>setTimeout(r,1900));
+    const moved=window.RestaurantOrbit.getActiveIndex()!==before;
+    const heroId=window.RestaurantProductDetail.activeProduct()?.id;
+    document.querySelector(`#orbit-stage .orbit-dish[data-id="${heroId}"]`)?.click();
+    await new Promise(r=>setTimeout(r,1500));
+    return {open:window.RestaurantProductDetail.isOpen(),moved,
+      heroOpen:window.RestaurantProductDetail.isOpen()};
   });
   await page.screenshot({path:path.join(OUT,`${label}-02-ficha-off.png`)});
   await page.evaluate(()=>window.RestaurantStudioConfig.set('productDetail.enabled',true));

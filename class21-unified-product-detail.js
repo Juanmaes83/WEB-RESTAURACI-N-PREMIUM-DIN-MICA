@@ -73,20 +73,29 @@
       const list=window.RestaurantStudioConfig?.get?.('pizzaSliceOrbit.products')||[];
       const p=list[i];
       if(!p)return null;
+      /* Se traduce el registro que Pizza TIENE, no uno que se le parezca: sus campos
+         son headlineLead/headlineTail, ingredients, descriptor y mood. Lo que no
+         existe en su modelo (origen, técnica, maridaje, alérgenos) se queda vacío y la
+         ficha lo oculta — pedirle campos de plato normal era pedirle que los
+         inventara. La imagen se toma de la porción que el motor YA está mostrando, no
+         de una fuente nueva. */
+      const headline=[p.headlineLead,p.headlineTail].filter(Boolean).join(' ').trim();
+      const slice=$(`.ps-slice[data-id="${p.id}"] .ps-slice-img`)
+        ||$(`.ps-slice[data-index="${i}"] .ps-slice-img`);
       return {
         id:p.id,source:'pizza',index:i,
         name:p.name,
         meta:[p.descriptor,p.mood].filter(Boolean).join(' · '),
         /* price:null significa "no hay precio", no "cero" */
         price:p.price??null,
-        short:p.story||p.lead||'',
+        short:headline,
         ingredients:p.ingredients||'',
-        origin:p.origin||'',
-        technique:p.technique||'',
-        pairing:p.pairing||'',
-        allergens:p.allergens||'',
-        story:p.tale||p.story||'',
-        image:p.runtimeAsset||p.asset||'',
+        origin:'',
+        technique:'',
+        pairing:'',
+        allergens:'',
+        story:p.headlineOverline||'',
+        image:slice?.getAttribute('src')||'',
         demoContent:p.demoContent===true
       };
     },

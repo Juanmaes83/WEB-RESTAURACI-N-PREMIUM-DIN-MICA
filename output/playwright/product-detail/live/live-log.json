@@ -1,0 +1,95 @@
+{
+  "url": "https://juanmaes83.github.io/WEB-RESTAURACI-N-PREMIUM-DIN-MICA",
+  "log": [
+    {
+      "label": "desktop",
+      "on": {
+        "adapter": "orbit",
+        "product": "dish-01",
+        "title": "Gamba roja salvaje"
+      },
+      "off": {
+        "open": false,
+        "moved": true,
+        "heroOpen": false
+      },
+      "pizza": {
+        "adapter": "pizza",
+        "id": "quattro-formaggi",
+        "name": "4 Quesos",
+        "price": null,
+        "shown": "4 Quesos"
+      },
+      "afterReload": {
+        "trigger": "button",
+        "pairing": false
+      },
+      "errors": []
+    },
+    {
+      "label": "desktop",
+      "groupB": "dish-stage",
+      "adapter": "dish-stage",
+      "id": "dish-01",
+      "name": "Wild Red Prawn",
+      "hostOpen": true,
+      "ownDialogs": 0,
+      "errors": []
+    },
+    {
+      "label": "desktop",
+      "groupB": "product-rail",
+      "adapter": "product-rail",
+      "id": "dish-01",
+      "name": "Wild Red Prawn",
+      "hostOpen": true,
+      "ownDialogs": 0,
+      "errors": []
+    },
+    {
+      "label": "mobile",
+      "on": {
+        "adapter": "orbit",
+        "product": "dish-01",
+        "title": "Gamba roja salvaje"
+      },
+      "off": {
+        "open": false,
+        "moved": true,
+        "heroOpen": false
+      },
+      "pizza": {
+        "adapter": "pizza",
+        "id": "quattro-formaggi",
+        "name": "4 Quesos",
+        "price": null,
+        "shown": "4 Quesos"
+      },
+      "afterReload": {
+        "trigger": "button",
+        "pairing": false
+      },
+      "errors": []
+    },
+    {
+      "label": "mobile",
+      "groupB": "dish-stage",
+      "adapter": "dish-stage",
+      "id": "dish-01",
+      "name": "Wild Red Prawn",
+      "hostOpen": true,
+      "ownDialogs": 0,
+      "errors": []
+    },
+    {
+      "label": "mobile",
+      "groupB": "product-rail",
+      "adapter": "product-rail",
+      "id": "dish-01",
+      "name": "Wild Red Prawn",
+      "hostOpen": true,
+      "ownDialogs": 0,
+      "errors": []
+    }
+  ]
+}
