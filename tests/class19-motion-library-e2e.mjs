@@ -81,8 +81,8 @@ async function openLibrary(page){
     insideGrid:[...document.querySelectorAll('.ml-grid [data-ml-kind]')]
       .some(c=>/social|whatsapp/.test(c.dataset.mlCard)),
     heading:document.querySelector('.ml-modules h4')?.textContent.trim()||''}));
-  check('the two modules are listed in their own section',
-    modules.count===2&&modules.cards===2,`${modules.cards} module cards`);
+  check('the three optional modules are listed in their own section',
+    modules.count===3&&modules.cards===3,`${modules.cards} module cards`);
   check('the modules are not counted among the engines',
     !modules.insideGrid&&state.count===11,modules.heading);
 

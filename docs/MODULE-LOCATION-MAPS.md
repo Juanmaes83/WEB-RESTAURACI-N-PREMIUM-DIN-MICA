@@ -2,6 +2,9 @@
 
 ## Status
 
+LAB ORIGINAL: preserved at `labs/module-location-maps/index.html`.
+PRODUCTION INTEGRATION: [Class 20](CLASS-20-MODULES-STUDIO-INTEGRATION.md), via `modules.location`. Historical LAB notes below are preserved.
+
 ISOLATED LAB — HUMAN VISUAL REVIEW REQUIRED — DO NOT MERGE UNTIL APPROVED.
 
 Branch: `feat/location-maps-module-lab`

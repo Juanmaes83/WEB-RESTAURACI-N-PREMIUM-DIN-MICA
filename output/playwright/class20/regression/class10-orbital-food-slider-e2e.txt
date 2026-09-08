@@ -1,0 +1,95 @@
+PASS desktop · Studio exposes Orbital Food Slider beside every approved preset — elegant,urban,editorial-flow,depth-carousel,orbital-food,pizza-slice-orbit,anchor-scenes
+PASS desktop · preset is live with the whole collection — {"count":6,"words":6,"decorGroups":12}
+PASS desktop · the products are the base engine's own elements, re-composed — engine renderer registered: true
+PASS desktop · base active index = hero = dish counter, all naming one dish — {"active":0,"counter":0,"hero":0,"heroId":"dish-01","engineId":"dish-01","title":"Gamba roja salvaje"}
+PASS desktop · the preset reports the engine's progress, not one of its own — {"reported":0.37,"engine":0.37,"same":true}
+PASS desktop · the hero is unmistakably the largest product — hero 542.9px vs neighbour 375.1px = 1.45x
+PASS desktop · the hero is the brightest and the frontmost — opacity 1 z 100
+PASS desktop · at least three perceptible depth levels — 543 / 375 / 160 / 112 / 146 / 365
+PASS desktop · z-order follows depth — 100:100 75:75 25:25 0:0 25:25 75:75
+PASS desktop · the orbit travels vertically, not on a horizontal rail — 199px of 666px shell
+PASS desktop · products overlap, so depth reads as occlusion — 92px shared
+PASS desktop · the rear of the orbit stays context — rear 112px @ 0.3 vs hero 543px @ 1
+PASS desktop · no product teleports across the turn — largest step 97px over 7 samples
+PASS desktop · the incoming product approaches the front continuously — 0.75 → 0.83 → 0.91 → 0.93 → 0.96 → 0.99 → 1.00
+PASS desktop · the outgoing product recedes continuously — 1.00 → 0.99 → 0.96 → 0.93 → 0.91 → 0.83 → 0.75
+PASS desktop · z-order changes during the pass, not only at the end — 75 → 83 → 90 → 93 → 96 → 99 → 100
+PASS desktop · the incoming product grows out of depth toward the viewer — 375 → 436 → 489 → 511 → 527 → 546 → 543
+PASS desktop · the colour world interpolates across the orbit — rgb(221,130,98) → rgb(197,127,123) → rgb(171,130,151) → rgb(148,138,173) → rgb(134,151,182)
+PASS desktop · a second orbit of ingredients exists and travels — 11 of 18 items visible, moved with progress: true
+PASS desktop · decor belongs to its product and fades with it
+PASS desktop · one word per product, and only the front of the orbit speaks — 2 legible of 6: FIRE + BLUEFIN
+PASS desktop · the drag holds the orbit mid-travel while the pointer is down — progress 0.433 · incoming front 0.915
+PASS desktop · progress tracks the pointer continuously — 0.108/0.797 → 0.217/0.841 → 0.325/0.88 → 0.433/0.915
+PASS desktop · release snaps to a product, keeping the engine's momentum — settled at 1
+PASS desktop · next() advances the orbit — 1 → 2
+PASS desktop · prev() reverses it — 2 → 1
+PASS desktop · the keyboard reaches the same engine — 1 → 2
+PASS desktop · the wheel reaches the same engine — 2 → 3
+PASS desktop · price and counter describe the active product, title filled — {"price":"€34","dishPrice":"€34","counter":"04 / 06","expected":"04 / 06","titleFilled":true}
+PASS desktop · the copy hands over at the engine's crossover — 3:"Lubina salvaje" → 4:"Presa ibérica"
+PASS desktop · clicking a neighbour navigates to it and opens nothing — 0 → 1 (wanted 1), detail false
+PASS desktop · clicking the hero opens the real dish detail — Atún rojo / Naranja sanguina · detail dish dish-02 vs hero dish-02
+PASS desktop · closing the detail returns the product to its orbital place — {"activeBefore":1,"activeAfter":1,"heroBig":true}
+PASS desktop · no horizontal overflow — 0px
+PASS desktop · no product escapes the section
+PASS desktop · copy and controls stay reachable
+PASS desktop · no product buries the dish title — 28% of the title covered by a visible plate
+PASS desktop · Project 01 still works and Orbital Food steps aside — {"present":5,"free":6,"foodStage":true,"rendererReleased":true,"heroMarks":0}
+PASS desktop · Project 02 still works — {"scenes":2,"counter":"03 / 05","foodStage":true,"rendererReleased":true}
+PASS desktop · Elegant Orbit is restored intact, with no leftover tone — {"stage":true,"dishes":6,"foodStage":true,"rendererReleased":true,"titleFilled":true,"saturateLeftOver":false}
+PASS desktop · Urban Acrobatics is untouched
+PASS desktop · Editorial Flow is untouched
+PASS desktop · Restaurant Studio still opens
+PASS desktop · no JS errors
+PASS mobile · Studio exposes Orbital Food Slider beside every approved preset — elegant,urban,editorial-flow,depth-carousel,orbital-food,pizza-slice-orbit,anchor-scenes
+PASS mobile · preset is live with the whole collection — {"count":6,"words":6,"decorGroups":12}
+PASS mobile · the products are the base engine's own elements, re-composed — engine renderer registered: true
+PASS mobile · base active index = hero = dish counter, all naming one dish — {"active":0,"counter":0,"hero":0,"heroId":"dish-01","engineId":"dish-01","title":"Gamba roja salvaje"}
+PASS mobile · the preset reports the engine's progress, not one of its own — {"reported":0.37,"engine":0.37,"same":true}
+PASS mobile · the hero is unmistakably the largest product — hero 216.2px vs neighbour 151.4px = 1.43x
+PASS mobile · the hero is the brightest and the frontmost — opacity 1 z 100
+PASS mobile · at least three perceptible depth levels — 216 / 151 / 65 / 45 / 59 / 148
+PASS mobile · z-order follows depth — 100:100 75:75 25:25 0:0 25:25 75:75
+PASS mobile · the orbit travels vertically, not on a horizontal rail — 116px of 439px shell
+PASS mobile · products overlap, so depth reads as occlusion — 63px shared
+PASS mobile · the rear of the orbit stays context — rear 45px @ 0.3 vs hero 216px @ 1
+PASS mobile · no product teleports across the turn — largest step 31px over 7 samples
+PASS mobile · the incoming product approaches the front continuously — 0.75 → 0.83 → 0.91 → 0.93 → 0.96 → 0.99 → 1.00
+PASS mobile · the outgoing product recedes continuously — 1.00 → 0.99 → 0.96 → 0.93 → 0.91 → 0.83 → 0.75
+PASS mobile · z-order changes during the pass, not only at the end — 75 → 83 → 90 → 93 → 96 → 99 → 100
+PASS mobile · the incoming product grows out of depth toward the viewer — 151 → 174 → 194 → 202 → 209 → 216 → 216
+PASS mobile · the colour world interpolates across the orbit — rgb(221,130,98) → rgb(197,127,123) → rgb(171,130,151) → rgb(148,138,173) → rgb(134,151,182)
+PASS mobile · a second orbit of ingredients exists and travels — 11 of 18 items visible, moved with progress: true
+PASS mobile · decor belongs to its product and fades with it
+PASS mobile · one word per product, and only the front of the orbit speaks — 2 legible of 6: FIRE + BLUEFIN
+PASS mobile · the drag holds the orbit mid-travel while the pointer is down — progress 0.424 · incoming front 0.912
+PASS mobile · progress tracks the pointer continuously — 0.106/0.796 → 0.212/0.839 → 0.318/0.878 → 0.424/0.912
+PASS mobile · release snaps to a product, keeping the engine's momentum — settled at 1
+PASS mobile · next() advances the orbit — 1 → 2
+PASS mobile · prev() reverses it — 2 → 1
+PASS mobile · price and counter describe the active product, title filled — {"price":"€31","dishPrice":"€31","counter":"02 / 06","expected":"02 / 06","titleFilled":true}
+PASS mobile · the copy hands over at the engine's crossover — 1:"Atún rojo / Naranja sanguina" → 2:"Alcachofa a la brasa"
+PASS mobile · clicking a neighbour navigates to it and opens nothing — 0 → 1 (wanted 1), detail false
+PASS mobile · clicking the hero opens the real dish detail — Atún rojo / Naranja sanguina · detail dish dish-02 vs hero dish-02
+PASS mobile · closing the detail returns the product to its orbital place — {"activeBefore":1,"activeAfter":1,"heroBig":true}
+PASS mobile · no horizontal overflow — 0px
+PASS mobile · no product escapes the section
+PASS mobile · copy and controls stay reachable
+PASS mobile · no product buries the dish title — 0% of the title covered by a visible plate
+PASS mobile · Project 01 still works and Orbital Food steps aside — {"present":5,"free":6,"foodStage":true,"rendererReleased":true,"heroMarks":0}
+PASS mobile · Project 02 still works — {"scenes":2,"counter":"03 / 05","foodStage":true,"rendererReleased":true}
+PASS mobile · Elegant Orbit is restored intact, with no leftover tone — {"stage":true,"dishes":6,"foodStage":true,"rendererReleased":true,"titleFilled":true,"saturateLeftOver":false}
+PASS mobile · Urban Acrobatics is untouched
+PASS mobile · Editorial Flow is untouched
+PASS mobile · Restaurant Studio still opens
+PASS mobile · no JS errors
+PASS reduced-motion · product, copy, price and controls all survive — {"hero":true,"title":"Gamba roja salvaje","price":"€28","controls":true,"reduced":true}
+PASS reduced-motion · navigation still changes the product
+PASS reduced-motion · the dish detail still opens
+PASS persistence · orbitalFood metadata survives an unrelated edit and a reload — [null,null,{"orbitScale":1.06,"rotationBias":-3},null,null,{"word":"HONEY","orbitScale":0.
+PASS persistence · the preset choice and the edit both survive the reload — orbital-food / LAB-18181
+
+91/91 checks passed
+screenshots → C:\Users\temp123\Documents\ChatGPT\restaurant-experience-engine\tests\screenshots
+ORBITAL_FOOD_PASS

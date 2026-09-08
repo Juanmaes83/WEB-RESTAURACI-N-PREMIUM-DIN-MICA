@@ -1,0 +1,94 @@
+PASS desktop · eight product story records with the full schema — 8 products · schema complete: true
+PASS desktop · story ids join the slice manifest one to one — quattro-formaggi barbacoa carbonara diavola margarita mortadela-pistacho prosciutto-funghi verduras
+PASS desktop · demo content is labelled demo and no price is invented — demoContent on all: true · price null on all: true
+PASS desktop · no failed requests
+PASS desktop · headline name follows the active index — 0:4 Quesos · 3:Diavola · 5:Mortadela y Pistacho · 7:Verduras · 1:Barbacoa
+PASS desktop · ingredients follow the active index — Mozzarella fio | Tomate San Mar | Mortadela de B | Calabacín · pi | Ternera brasea
+PASS desktop · descriptor and mood follow the active index — CREAM · rich · silky · intense | FIRE · spicy · smoky · bold | SILK · delicate · nutty · soft | GARDEN · fresh · green · vibrant | SMOKE · smoked · sweet · deep
+PASS desktop · the palette follows the active index — #f0c96a #ff5a2b #a8d06a #7fd18a #e08a4b
+PASS desktop · the background word and index follow the active index — CREAM/01 FIRE/04 SILK/06 GARDEN/08 SMOKE/02
+PASS desktop · the counter follows the active index — 01 / 08 04 / 08 06 / 08 08 / 08 02 / 08
+PASS desktop · the CTA follows the active index — Order 4 Quesos | Order Diavola | Order Mortadela y Pistacho | Order Verduras | Order Barbacoa
+PASS desktop · the hero slice on stage is the product being told — quattro-formaggi=quattro-formaggi diavola=diavola mortadela-pistacho=mortadela-pistacho verduras=verduras barbacoa=barbacoa
+PASS desktop · a null price renders nothing at all — price element hidden on all 5 products
+PASS desktop · demo content carries its label
+PASS desktop · the premium layer reports the engine's index, never its own — 2.4:2/2 4.6:5/5 -1.3:7/7 9.7:2/2
+PASS desktop · eight distinct chromatic worlds — CREAM SMOKE GOLD FIRE CLASSIC SILK FOREST GARDEN
+PASS desktop · per-pizza worlds can be switched off for one brand accent — #d8ff4f #d8ff4f #d8ff4f vs brand #d8ff4f
+PASS desktop · the spin passes through fast and decelerating phases — settled → decelerating → fast → resolving
+PASS desktop · fast travel suppresses the story detail — ingredients at 0 while fast (speed 5.595)
+PASS desktop · settle restores the whole story — phase settled · ingredients at 1
+PASS desktop · after the spin hero, headline, ingredients and CTA are one product — prosciutto-funghi · Prosciutto Funghi · Order Prosciutto Funghi
+PASS desktop · the story actually changed from before the spin — 4 Quesos → Prosciutto Funghi
+PASS desktop · the order event carries the active product — {"productId":"prosciutto-funghi","productName":"Prosciutto Funghi","activeIndex":6,"action":"order","source":"pizza-slice-orbit"}
+PASS desktop · the reservation event carries the active product — {"productId":"prosciutto-funghi","productName":"Prosciutto Funghi","activeIndex":6,"action":"reservation","source":"pizza-slice-orbit"}
+PASS desktop · a neutral commerce intent is emitted for both
+PASS desktop · with no URL configured nothing is faked as completed — "Reservation intent registered. No reservation endpoint is configured yet."
+PASS desktop · a configured order URL is opened with product context — https://example.test/order?source=pizza-slice-orbit&product=prosciutto-funghi&name=Prosciutto+Funghi&action=order
+PASS desktop · CTA priority can be reversed — reserve
+PASS desktop · an asset with no usable wedge is refused — Asset requires registration: the wedge opens 30.1° and the station accepts up to 26.5°.
+PASS desktop · an asset that does not fit the station is refused — Asset requires registration: the wedge opens 31.0° and the station accepts up to 26.5°.
+PASS desktop · a refused upload never reaches production
+PASS desktop · the station still never moves under the premium layer — {"x":825.1,"y":153.9,"w":279.1} none
+PASS desktop · registration data is still the audited set — length 1205.5 · station 26.52°
+PASS desktop · the premium layer added no progress variable — progress
+PASS desktop · drag still moves the orbit and the world knows it — progress 0.516 · phase drag
+PASS desktop · no horizontal overflow — 0px
+PASS desktop · the headline is legible and not buried under the hero — 0% of the headline overlapped by the hero
+PASS desktop · Project 03 still works and the pizza world steps aside — {"ready":true,"renderer":true,"dishes":6,"premiumGone":true,"worldGone":true}
+PASS desktop · Project 01 still works
+PASS desktop · Project 02 still works
+PASS desktop · Elegant Orbit is restored intact
+PASS desktop · no JS errors
+PASS mobile · eight product story records with the full schema — 8 products · schema complete: true
+PASS mobile · story ids join the slice manifest one to one — quattro-formaggi barbacoa carbonara diavola margarita mortadela-pistacho prosciutto-funghi verduras
+PASS mobile · demo content is labelled demo and no price is invented — demoContent on all: true · price null on all: true
+PASS mobile · no failed requests
+PASS mobile · headline name follows the active index — 0:4 Quesos · 3:Diavola · 5:Mortadela y Pistacho · 7:Verduras · 1:Barbacoa
+PASS mobile · ingredients follow the active index — Mozzarella fio | Tomate San Mar | Mortadela de B | Calabacín · pi | Ternera brasea
+PASS mobile · descriptor and mood follow the active index — CREAM · rich · silky · intense | FIRE · spicy · smoky · bold | SILK · delicate · nutty · soft | GARDEN · fresh · green · vibrant | SMOKE · smoked · sweet · deep
+PASS mobile · the palette follows the active index — #f0c96a #ff5a2b #a8d06a #7fd18a #e08a4b
+PASS mobile · the background word and index follow the active index — CREAM/01 FIRE/04 SILK/06 GARDEN/08 SMOKE/02
+PASS mobile · the counter follows the active index — 01 / 08 04 / 08 06 / 08 08 / 08 02 / 08
+PASS mobile · the CTA follows the active index — Order 4 Quesos | Order Diavola | Order Mortadela y Pistacho | Order Verduras | Order Barbacoa
+PASS mobile · the hero slice on stage is the product being told — quattro-formaggi=quattro-formaggi diavola=diavola mortadela-pistacho=mortadela-pistacho verduras=verduras barbacoa=barbacoa
+PASS mobile · a null price renders nothing at all — price element hidden on all 5 products
+PASS mobile · demo content carries its label
+PASS mobile · the premium layer reports the engine's index, never its own — 2.4:2/2 4.6:5/5 -1.3:7/7 9.7:2/2
+PASS mobile · eight distinct chromatic worlds — CREAM SMOKE GOLD FIRE CLASSIC SILK FOREST GARDEN
+PASS mobile · per-pizza worlds can be switched off for one brand accent — #d8ff4f #d8ff4f #d8ff4f vs brand #d8ff4f
+PASS mobile · the spin passes through fast and decelerating phases — settled → decelerating → fast → resolving
+PASS mobile · fast travel suppresses the story detail — ingredients at 0 while fast (speed 6.063)
+PASS mobile · settle restores the whole story — phase settled · ingredients at 1
+PASS mobile · after the spin hero, headline, ingredients and CTA are one product — prosciutto-funghi · Prosciutto Funghi · Order Prosciutto Funghi
+PASS mobile · the story actually changed from before the spin — 4 Quesos → Prosciutto Funghi
+PASS mobile · the order event carries the active product — {"productId":"prosciutto-funghi","productName":"Prosciutto Funghi","activeIndex":6,"action":"order","source":"pizza-slice-orbit"}
+PASS mobile · the reservation event carries the active product — {"productId":"prosciutto-funghi","productName":"Prosciutto Funghi","activeIndex":6,"action":"reservation","source":"pizza-slice-orbit"}
+PASS mobile · a neutral commerce intent is emitted for both
+PASS mobile · with no URL configured nothing is faked as completed — "Reservation intent registered. No reservation endpoint is configured yet."
+PASS mobile · a configured order URL is opened with product context — https://example.test/order?source=pizza-slice-orbit&product=prosciutto-funghi&name=Prosciutto+Funghi&action=order
+PASS mobile · CTA priority can be reversed — reserve
+PASS mobile · an asset with no usable wedge is refused — Asset requires registration: the wedge opens 30.1° and the station accepts up to 26.5°.
+PASS mobile · an asset that does not fit the station is refused — Asset requires registration: the wedge opens 31.0° and the station accepts up to 26.5°.
+PASS mobile · a refused upload never reaches production
+PASS mobile · the station still never moves under the premium layer — {"x":120.5,"y":315.4,"w":149} none
+PASS mobile · registration data is still the audited set — length 1205.5 · station 26.52°
+PASS mobile · the premium layer added no progress variable — progress
+PASS mobile · drag still moves the orbit and the world knows it — progress 0.538 · phase drag
+PASS mobile · no horizontal overflow — 0px
+PASS mobile · the headline is legible and not buried under the hero — 0% of the headline overlapped by the hero
+PASS mobile · Project 03 still works and the pizza world steps aside — {"ready":true,"renderer":true,"dishes":6,"premiumGone":true,"worldGone":true}
+PASS mobile · Project 01 still works
+PASS mobile · Project 02 still works
+PASS mobile · Elegant Orbit is restored intact
+PASS mobile · no JS errors
+PASS personalization · the panel is added without disturbing the Motion panel — 64 bound controls
+PASS personalization · restaurant, collection, accent, worlds, CTA and both URLs are editable — brand.restaurantName brand.collectionName brand.accent brand.perProductWorlds brand.backgroundTypography brand.ctaPriority brand.orderUrl
+PASS personalization · every product exposes name, ingredients, descriptor, mood, accent and price
+PASS personalization · edits persist through the existing project state and a reload — Trattoria 4365 · Ingrediente de prueba · pizza-slice-orbit
+PASS reduced-motion · the full story is present — 4 Quesos · Order 4 Quesos
+PASS reduced-motion · discover still selects and the story follows — Carbonara
+
+90/90 checks passed
+screenshots → C:\Users\temp123\Documents\ChatGPT\restaurant-experience-engine\tests\screenshots
+PIZZA_PREMIUM_PASS

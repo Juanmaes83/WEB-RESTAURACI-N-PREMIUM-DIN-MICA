@@ -99,20 +99,18 @@
   if (typeof window !== 'undefined') window.SocialReputationModuleUtils = Utils;
   if (typeof document === 'undefined') return;
 
-  const root = document.getElementById('sr-lab');
-  const form = document.getElementById('sr-controls');
-  const mount = document.getElementById('sr-preview');
-  if (!root || !form || !mount) return;
+  function create(root, mount, form = null, production = false) {
+  if (!root || !mount) return;
+  let config = normalize({ ...clone(DEFAULTS), enabled: !production });
 
-  let config = normalize({ ...clone(DEFAULTS), enabled: true });
-
-  const get = (name) => form.querySelector(`[name="${name}"]`);
+  const get = (name) => form?.querySelector(`[name="${name}"]`);
   const fields = {
     enabled: get('enabled'), heading: get('heading'), eyebrow: get('eyebrow'), body: get('body'), preset: get('preset'),
     showRating: get('showRating'), rating: get('rating'), reviewCount: get('reviewCount'), reviewCtaLabel: get('reviewCtaLabel')
   };
 
   function sync() {
+    if (!form) return;
     fields.enabled.checked = config.enabled;
     fields.heading.value = config.heading;
     fields.eyebrow.value = config.eyebrow;
@@ -156,6 +154,7 @@
     root.dataset.enabled = String(config.enabled);
     root.dataset.preset = config.preset;
     if (!config.enabled) {
+      if (production) return;
       const off = node('div', 'sr-off');
       off.innerHTML = '<span>OPTIONAL MODULE · OFF</span><strong>Social & Reputation is not published.</strong><p>No social links, review score or footer extension are rendered.</p>';
       mount.appendChild(off);
@@ -192,14 +191,20 @@
 
     const foot = node('footer', 'sr-footer-line');
     foot.innerHTML = '<span>LÚMINA</span><span>Alicante · Mediterranean dining</span><span>Reservations · Tue—Sat</span>';
-    section.append(intro, social, rep, foot);
+    section.append(intro, social, rep);
+    if (!production) section.appendChild(foot);
     mount.appendChild(section);
   }
 
-  form.addEventListener('input', () => { config = read(); render(); });
-  form.addEventListener('change', () => { config = read(); render(); });
+  form?.addEventListener('input', () => { config = read(); render(); });
+  form?.addEventListener('change', () => { config = read(); render(); });
   document.getElementById('sr-reset')?.addEventListener('click', () => { config = normalize({ ...clone(DEFAULTS), enabled: true }); sync(); render(); });
 
-  window.SocialReputationLab = Object.freeze({ getConfig: () => clone(config), setConfig: (next) => { config = normalize(next); sync(); render(); }, render });
+  const api = Object.freeze({ getConfig: () => clone(config), setConfig: (next) => { config = normalize(next); sync(); render(); }, render });
   sync(); render();
+  return api;
+  }
+  window.SocialReputationModule = Object.freeze({ create: (root, mount) => create(root, mount, null, true) });
+  const root = document.getElementById('sr-lab'), form = document.getElementById('sr-controls'), mount = document.getElementById('sr-preview');
+  if (root && form && mount) window.SocialReputationLab = create(root, mount, form);
 })();

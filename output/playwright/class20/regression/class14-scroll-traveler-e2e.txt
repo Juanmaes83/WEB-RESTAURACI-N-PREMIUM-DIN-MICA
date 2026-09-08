@@ -1,0 +1,88 @@
+PASS boot · the traveler is ready and active — 5 anchors
+PASS boot · the route resolved to its five chapters — signature -> origin -> atmosphere -> chef -> visit
+PASS boot · the object is the cleaned runtime asset, not the stage cut — assets/scroll-traveler/runtime/dish-01-prawn.webp
+PASS canonical progress · <html data-traveler-progress> never disagrees with the engine — 9/9 route positions
+PASS canonical progress · no second authoritative state in the engine — none of the four
+PASS canonical progress · scroll is the only writer of the journey value — progress = progressAt(scrollY)
+PASS one object · exactly one traveler layer and one image at every chapter — signature:1/1 origin:1/1 atmosphere:1/1 chef:1/1 visit:1/1
+PASS one object · it is the SAME DOM node across the whole route — stamp kept through 5 chapters
+PASS one object · the image source is never swapped mid-journey — assets/scroll-traveler/runtime/dish-01-prawn.webp
+PASS one object · a 40-frame scroll sweep creates no new elements — 919 -> 919 nodes
+PASS performance · the object animates with transform and opacity only — custom properties feeding one transform, no canvas
+PASS performance · section geometry is cached, not read every frame — measure() caches; frame() does not touch layout
+PASS continuity · no teleport between anchors — largest step per 1/120 of the route: x 3.11vw, y 1.66vh, scale 0.019
+PASS continuity · no fade-out / fade-in: the object stays visible for the whole route — min opacity after the entry ramp 1.000
+PASS continuity · the entry is a ramp, not a pop-in — p0 0 -> p0.06 0.8709
+
+  progress    x       y      scale   rotation  chapter      layer
+  0.00      50      90     0.82    -18       signature    front
+  0.20      65.31   63.28  0.964   4.06      signature    front
+  0.40      36.64   43.68  0.794   5.17      origin       behind
+  0.60      75.66   43.81  0.911   -11.67    atmosphere   between
+  0.80      30.94   56.95  0.978   4.6       chef         front
+  1.00      52      44     1.14    0         visit        between
+
+PASS named progress values · 0.00/0.20/0.40/0.60/0.80/1.00 are six different compositions — x 6, y 6, scale 6 distinct values
+PASS named progress values · they walk the route in order — signature > signature > origin > atmosphere > chef > visit
+PASS scroll-driven · progress rises with the scroll position, never backwards — 0.000 -> 1.000 over 65 samples
+PASS scroll-driven · scrolling the page covers the whole journey — first 0.000, last 1.000
+PASS scroll-driven · the object never jumps across the viewport — largest on-screen step 125px
+PASS scroll-driven · intermediate positions are really visible mid-section — signature -> origin -> atmosphere -> chef -> visit
+PASS premium motion · the object has weight: it lags its target while the page moves — max lag 27.86vw behind the composition
+PASS premium motion · scroll velocity produces a small rotation response — up to 3.02 degrees
+PASS premium motion · it settles when the page stops — came to rest in 862ms
+PASS premium motion · no perpetual wobble: nothing moves once it has settled — drift 0.000 over 1.6s, resting spin 0.048
+PASS desktop route · every anchor composition is reached exactly as designed — signature 77.98/73.98  origin 24.02/46.01  atmosphere 77.98/44  chef 30.02/57.99  visit 51.98/44.01
+PASS desktop route · each chapter carries its designed layer — signature:front origin:behind atmosphere:between chef:front visit:between
+PASS desktop route · the final composition is reachable by scrolling — p=1.000 at the last anchor
+PASS layers · the route really uses more than one depth — front / behind / between
+PASS layers · behind means behind the page: the section keeps its own words on top — traveler z=1, media z=3, copy z=5
+PASS layers · between means in front of the photograph and behind the headline — media 3 < traveler 4 < copy 5
+PASS layers · front means in front of the page — z=60
+PASS layers · z-index is a state and not a tween — it hands over at the segment midpoint
+PASS layers · behind / between / front were all reached with the object visible — 1 / 1 / 1
+PASS no hijack · the engine never calls preventDefault and never captures the wheel — no preventDefault, no wheel listener
+PASS no hijack · every scroll and resize listener the engine adds is passive — 2 passive listeners
+PASS no hijack · a wheel event is not cancelled by anything on the page — defaultPrevented false
+PASS no hijack · a 900px scroll moves the page 900px — moved 900px
+PASS no hijack · no scroll snapping and no scroll lock introduced — snap none/none, overflow visible/auto
+PASS no blocking · the layer is pointer-transparent and hidden from assistive tech — pointer-events:none aria-hidden:true
+PASS no blocking · a hit test through the object finds the page underneath — elementFromPoint -> display
+PASS no blocking · the reservation CTA under the finale is still the click target — elementFromPoint returns the button
+PASS resize · the route is re-measured instead of drifting — anchor 3: 4076 -> 3752
+PASS runtime · no page errors during the desktop pass — clean
+PASS mobile · the mobile route is the one in use — innerWidth 390
+PASS mobile · it is a dedicated route, not the desktop one scaled down — 5 mobile stops, all differing from desktop
+PASS mobile route · every mobile composition is reached as designed — signature 63.99/36.01 origin 32.02/18.01 atmosphere 65.98/51.97 chef 34.02/44 visit 49.98/40
+PASS mobile route · all five chapters are recognisable on the phone — signature > origin > atmosphere > chef > visit
+PASS mobile · no horizontal overflow anywhere on the route — 390/390 390/390 390/390 390/390 390/390
+PASS mobile · the object itself never hangs outside the screen — [153,289] [29,163] [156,301] [34,174] [92,241]
+PASS mobile · crossing the breakpoint switches route and re-measures — mobileRoute false at 1100px
+PASS studio · the traveler is PAGE MOTION with its own card in the Motion panel — card present in the motion panel
+PASS studio · it is not an option in product navigation, so it coexists with any preset — presets: elegant, urban, editorial-flow, anchor-scenes, depth-carousel, orbital-food, pizza-slice-orbit
+PASS studio · the controls are few and meaningful, wired through data-path — scrollTraveler.enabled scrollTraveler.preset scrollTraveler.intensity scrollTraveler.scale scrollTraveler.rotationIntensity
+PASS studio · no bezier control points are exposed — intensity / scale / rotation only
+PASS studio · OFF means no traveler at all — active false, visible false, flag ""
+PASS studio · with the traveler OFF the page still scrolls normally — moved 700px
+PASS studio · ON brings the same object back, without a second layer — active true
+PASS studio · intensity re-composes the route instead of adding a second one — anchor x at intensity 0.75: 71.0 30.5 71.0 35.0 51.5
+PASS persistence · ON and the edited intensity survive a reload — enabled true, intensity 0.75
+PASS persistence · the object source comes from project state and survives too — assets/scroll-traveler/runtime/dish-01-prawn.webp
+PASS persistence · it uses the existing store, with no second settings system — RestaurantStudioConfig + RestaurantStore only
+PASS generic · a different object rides the same route and the same single layer — assets/depth-carousel/dish-02.webp
+PASS generic · the renderer takes no decision from a product or a section identity — no identity comparison anywhere in the engine
+PASS generic · even the Studio label is read from the route data — Signature → Origin → Atmosphere → Chef → Visit
+PASS generic · an unreadable object is refused rather than shown broken — asset flag "", naturalWidth 820
+PASS generic · restoring a valid object recovers the journey — assets/scroll-traveler/runtime/dish-01-prawn.webp
+PASS additive · the traveler stays alive across every product preset — depth-carousel:on anchor-scenes:on orbital-food:on pizza-slice-orbit:on
+PASS additive · each product preset still reaches its own ready state — depth-carousel:ready anchor-scenes:ready orbital-food:ready pizza-slice-orbit:ready
+PASS additive · no page errors while switching presets under the traveler — clean
+PASS additive · index.html is untouched: the runtime loads itself — loaded from class4-runtime-guard.js
+PASS reduced motion · the page sees the preference and the traveler still works — reduced true, active true
+PASS reduced motion · the object still resolves to its composed position — x 78 at atmosphere
+PASS reduced motion · it lands with no easing tail to chase — the lerp is skipped when the preference is set
+PASS reduced motion · content and scrolling remain fully usable — scrolled 800px, copy visible true
+PASS reduced motion · Studio ON/OFF still works — off false -> on true
+
+76/76 checks passed
+SCROLL_TRAVELER_PASS

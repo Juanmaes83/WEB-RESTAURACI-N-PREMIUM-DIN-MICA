@@ -52,6 +52,7 @@
     out.hours = safeText(out.hours);
     out.maps.mode = allowedModes.has(out.maps.mode) ? out.maps.mode : 'address';
     out.maps.privacyMode = allowedPrivacy.has(out.maps.privacyMode) ? out.maps.privacyMode : 'click';
+    out.design.preset = ({'full-width-map':'full-width','minimal-location':'minimal'})[out.design.preset] || out.design.preset;
     out.design.preset = allowedPresets.has(out.design.preset) ? out.design.preset : 'split-editorial';
     out.cta.label = safeText(out.cta.label) || base.cta.label;
     return out;
@@ -98,17 +99,12 @@
   if (typeof window !== 'undefined') window.LocationMapsModuleUtils = Utils;
   if (typeof document === 'undefined') return;
 
-  const root = document.getElementById('lm-lab');
-  const mount = document.getElementById('lm-preview-mount');
-  const form = document.getElementById('lm-controls');
-  if (!root || !mount || !form) return;
-
-  // The production contract defaults OFF. The isolated LAB deliberately starts ON
-  // so the reviewer lands directly on the visual proof.
-  let config = normalizeConfig({ ...clone(DEFAULTS), enabled: true });
+  function create(root, mount, form = null, production = false) {
+  /* Class 20: same renderer; config is an applied snapshot, never a store. */
+  if (!root || !mount) return;
+  let config = normalizeConfig({ ...clone(DEFAULTS), enabled: !production });
   let mapLoaded = false;
-
-  const fields = {
+  const fields = form ? {
     enabled: form.querySelector('[name="enabled"]'),
     title: form.querySelector('[name="title"]'),
     eyebrow: form.querySelector('[name="eyebrow"]'),
@@ -125,9 +121,10 @@
     privacyMode: form.querySelector('[name="privacyMode"]'),
     preset: form.querySelector('[name="preset"]'),
     ctaLabel: form.querySelector('[name="ctaLabel"]')
-  };
+  } : {};
 
   function syncFields() {
+    if (!form) return;
     fields.enabled.checked = config.enabled;
     fields.title.value = config.title;
     fields.eyebrow.value = config.eyebrow;
@@ -231,6 +228,7 @@
     root.dataset.privacy = config.maps.privacyMode;
 
     if (!config.enabled) {
+      if (production) return;
       const off = el('div', 'lm-off-state');
       off.innerHTML = '<span>OPTIONAL MODULE · OFF</span><strong>Location is not part of the public experience.</strong><p>No map iframe, no Google request, no reserved section.</p>';
       mount.appendChild(off);
@@ -262,7 +260,7 @@
     directions.href = buildDirectionsUrl(config);
     directions.target = '_blank';
     directions.rel = 'noopener noreferrer';
-    directions.innerHTML = `<span>${config.cta.label}</span><i aria-hidden="true">↗</i>`;
+    directions.append(el('span', '', config.cta.label), el('i', '', '↗'));
 
     copy.append(eyebrow, title, statement, address, meta, directions);
     section.appendChild(copy);
@@ -270,7 +268,7 @@
     mount.appendChild(section);
   }
 
-  form.addEventListener('input', () => {
+  form?.addEventListener('input', () => {
     const previousPrivacy = config.maps.privacyMode;
     const previousMode = config.maps.mode;
     const previousAddress = fullAddress(config);
@@ -279,7 +277,7 @@
     render();
   });
 
-  form.addEventListener('change', () => {
+  form?.addEventListener('change', () => {
     config = readConfigFromFields();
     mapLoaded = false;
     render();
@@ -296,7 +294,7 @@
     window.open(buildDirectionsUrl(config), '_blank', 'noopener,noreferrer');
   });
 
-  window.LocationMapsLab = Object.freeze({
+  const api = Object.freeze({
     getConfig: () => clone(config),
     setConfig: (next) => {
       config = normalizeConfig(next);
@@ -311,4 +309,9 @@
 
   syncFields();
   render();
+  return api;
+  }
+  window.LocationMapsModule = Object.freeze({ create: (root, mount) => create(root, mount, null, true) });
+  const root = document.getElementById('lm-lab'), mount = document.getElementById('lm-preview-mount'), form = document.getElementById('lm-controls');
+  if (root && mount && form) window.LocationMapsLab = create(root, mount, form);
 })();
