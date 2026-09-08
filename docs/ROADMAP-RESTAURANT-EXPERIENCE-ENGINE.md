@@ -222,11 +222,11 @@ Separación obligatoria:
 | 04 | Cinematic Depth Carousel | ✅ aprobado | escenario compartido |
 | 05 | Precomposed Anchor Scenes | ✅ aprobado | escenario compartido |
 | 06 | Orbital Food Slider | ✅ aprobado | escenario compartido |
-| 07 | Circular Dish Rotator | ✅ aprobado | experiencia autónoma, consolidación 1B |
+| 07 | Circular Dish Rotator | ✅ aprobado | experiencia autónoma, in-app desde 1B; su carta sigue siendo propia |
 | 08 | Pizza Slice Orbit · Premium | ✅ aprobado | escenario compartido |
 | 09 | Scroll Traveler | ✅ aprobado | Page Motion ON/OFF |
-| 10 | Dish Stage | ✅ aprobado | experiencia autónoma, consolidación 1B |
-| 11 | Cinematic Product Rail | ✅ aprobado | experiencia autónoma, consolidación 1B |
+| 10 | Dish Stage | ✅ aprobado | experiencia autónoma, in-app desde 1B; hereda la carta del proyecto |
+| 11 | Cinematic Product Rail | ✅ aprobado | experiencia autónoma, in-app desde 1B; hereda la carta del proyecto |
 
 **Class 19 — Motion Library:** ✅ cerrado y mergeado.
 
@@ -257,7 +257,14 @@ Incluye:
 
 ## 3.4 Fase activa
 
-**FASE 1B — IN-APP EXPERIENCE CONSOLIDATION: EN CURSO.**
+**FASE 1B — IN-APP EXPERIENCE CONSOLIDATION: READY FOR HUMAN VISUAL REVIEW.**
+
+Entregado: la In-App Experience Shell (`class22-experience-shell.js` + `styles-v22.css`)
+abre las tres experiencias dentro de la misma aplicación mediante un iframe same-origin,
+con traspaso explícito del proyecto activo a través de `experience-shell-bridge.js`.
+Ninguna abre otra pestaña, ninguna exige pasar por `/labs/`, y cerrar devuelve al Studio.
+Los motores, su geometría y sus animaciones quedaron intactos. Pendiente sólo de la
+revisión visual humana.
 
 Objetivo:
 
@@ -274,6 +281,12 @@ VOLVER AL STUDIO
 ```
 
 No convertir estos motores en orbit presets. No borrar LABs. Eliminar sólo la dependencia operativa de abrirlos fuera del producto.
+
+Estado real tras 1B: ninguno se convirtió en preset, ningún LAB se borró y la dependencia
+operativa está eliminada — los LABs sólo se usan ya como evidencia y regresión. La
+auditoría previa y sus limitaciones documentadas están en `docs/IN-APP-EXPERIENCE-AUDIT.md`;
+la limitación viva es que el rotador conserva su propia carta (ocho pizzas con su
+geometría de sectores) y hereda del proyecto sólo la marca.
 
 ---
 

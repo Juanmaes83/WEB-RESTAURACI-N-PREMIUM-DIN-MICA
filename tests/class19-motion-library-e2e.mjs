@@ -8,8 +8,8 @@
      · choosing a choreography from the library is the same act as choosing it in the
        select — the library owns no second selection;
      · the transversal engine toggles through the existing project state;
-     · the three full-screen experiences open their own page, because that is what
-       they are; the library never claims they are orbit presets;
+     · the three full-screen experiences open INSIDE the app — Phase 1B replaced the
+       new tab with the in-app shell — and the library never claims they are presets;
      · filtering never hides an engine permanently, and the panel stays scrollable;
      · nothing it does disturbs the engines themselves.
 
@@ -143,22 +143,30 @@ async function openLibrary(page){
     await page.evaluate(()=>document.getElementById('motion-orbital-style').value)==='orbital-food',
     'orbital-food still selected');
 
-  /* the experiences are honest about being their own page */
+  /* The experiences open inside the app.
+
+     This check used to assert the opposite — an anchor to labs/… with target="_blank" —
+     and Phase 1B replaced that UX on purpose: a lab is evidence, not the product's
+     entry point. So what is asserted now is the new contract, and just as strictly:
+     a button that calls the shell, no new tab, and the page still on disk because the
+     labs are kept for regression. */
   /* [data-ml-grid] is the ENGINES grid: the modules section reuses .ml-grid for layout */
-  const links=await page.evaluate(()=>[...document.querySelectorAll('[data-ml-grid] a.ml-open')]
-    .map(a=>({card:a.closest('[data-ml-card]').dataset.mlCard,
-      href:a.getAttribute('href'),target:a.getAttribute('target'),rel:a.getAttribute('rel')})));
-  check('the three full-screen experiences open their own page',
-    links.length===3&&links.every(l=>/^labs\/.+\/index\.html$/.test(l.href)
-      &&l.target==='_blank'&&/noopener/.test(l.rel||'')),
-    links.map(l=>l.href).join(' '));
-  for(const l of links){
-    if(!fs.existsSync(path.join(ROOT,l.href)))
-      check(`experience page exists: ${l.href}`,false,'missing');
-  }
-  check('every experience page in the catalogue exists on disk',
-    links.every(l=>fs.existsSync(path.join(ROOT,l.href))),
-    `${links.length} experience pages`);
+  const openers=await page.evaluate(()=>[...document.querySelectorAll('[data-ml-grid] .ml-open')]
+    .map(el=>({card:el.closest('[data-ml-card]').dataset.mlCard,
+      tag:el.tagName,id:el.dataset.experienceOpen||'',
+      href:el.getAttribute('href'),target:el.getAttribute('target')})));
+  check('the three full-screen experiences open inside the app, not in a new tab',
+    openers.length===3
+    &&openers.every(o=>o.tag==='BUTTON'&&o.id===o.card&&!o.href&&!o.target),
+    openers.map(o=>`${o.card}:${o.tag.toLowerCase()}`).join(' '));
+  const shellPages=await page.evaluate(()=>
+    (window.RestaurantExperienceShell?.experiences?.()||[]).map(e=>({id:e.id,url:e.url})));
+  check('the shell knows all three, and their pages are still on disk for regression',
+    shellPages.length===3
+    &&openers.every(o=>shellPages.some(p=>p.id===o.card))
+    &&shellPages.every(p=>/^labs\/.+\/index\.html$/.test(p.url)
+      &&fs.existsSync(path.join(ROOT,p.url))),
+    shellPages.map(p=>p.url.split('/')[1]).join(' '));
   check('no experience pretends to be an orbit preset',
     !(await page.evaluate(()=>[...document.querySelectorAll('#motion-orbital-style option')]
       .map(o=>o.value))).some(v=>['dish-stage','circular-dish-rotator','cinematic-product-rail'].includes(v)),

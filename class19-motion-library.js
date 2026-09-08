@@ -135,9 +135,12 @@
   function card(engine){
     const kind=KINDS[engine.kind];
     const st=statusOf(engine);
+    /* La experiencia se abre DENTRO de la aplicación. Deja de ser un enlace a /labs/
+       con target="_blank": el usuario no cambia de pestaña, no ve la ruta del lab y no
+       abandona el Studio. Los labs siguen existiendo para evidencia y regresión. */
     const action=engine.kind==='experience'
-      ? `<a class="ml-action ml-open" href="${engine.href}" target="_blank" rel="noopener"
-           data-ml-open="${engine.id}">Abrir experiencia →</a>`
+      ? `<button type="button" class="ml-action ml-open" data-experience-open="${engine.id}"
+           data-ml-open="${engine.id}">Abrir experiencia →</button>`
       : engine.kind==='page'
         ? `<button type="button" class="ml-action ml-toggle" data-ml-toggle="${engine.id}"
              aria-pressed="${st.active}">${st.active?'Activado':'Desactivado'}</button>`
@@ -217,6 +220,13 @@
     else panel.insertBefore(library,panel.firstElementChild);
     wire();
     library.addEventListener('click',e=>{const b=e.target.closest('[data-configure-module]');if(b)window.RestaurantModulesStudio?.open(({ 'social-reputation':'social','whatsapp-contact':'whatsapp' })[b.dataset.configureModule]||b.dataset.configureModule)});
+    /* la experiencia se abre en la shell del producto, con el disparador para que el
+       foco pueda volver aquí al cerrar */
+    library.addEventListener('click',e=>{
+      const b=e.target.closest('[data-experience-open]');
+      if(!b)return;
+      window.RestaurantExperienceShell?.open(b.dataset.experienceOpen,{trigger:b});
+    });
     sync();
     root.dataset.motionLibrary='ready';
     return true;

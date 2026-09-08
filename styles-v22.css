@@ -1,0 +1,92 @@
+/* CLASS 22 · IN-APP EXPERIENCE SHELL
+
+   Debe leerse como "Restaurant Studio → vista previa de experiencia", no como un lab
+   externo incrustado: una barra que dice dónde estás y cómo volver, y debajo la
+   experiencia entera. La barra es lo único que la shell pinta; el resto es el hijo.
+*/
+
+.xs-shell{
+  /* por encima del cajón del Studio (220) y de su backdrop (210): la vista previa ocupa
+     la pantalla en cualquier dispositivo. En móvil, con 200, el cajón la tapaba por
+     completo — el usuario pulsaba "Abrir experiencia" y seguía viendo el Studio. */
+  position:fixed;inset:0;z-index:300;
+  display:none;grid-template-rows:auto 1fr;
+  background:#08080a;
+  /* móviles con notch: la barra no se esconde bajo el sistema */
+  padding-top:env(safe-area-inset-top,0);
+  padding-bottom:env(safe-area-inset-bottom,0)}
+.xs-shell.is-open{display:grid}
+
+/* ---------- barra ---------- */
+.xs-bar{
+  display:flex;align-items:center;gap:14px;
+  padding:12px clamp(12px,2.5vw,22px);
+  background:#faf7f1;color:#151513;
+  border-bottom:1px solid rgba(0,0,0,.12)}
+
+#experience-shell .xs-back{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;
+  padding:9px 15px;border:1px solid #111;border-radius:999px;
+  background:#111;color:#fff;cursor:pointer;width:auto;
+  font:600 12px/1 system-ui,sans-serif;letter-spacing:.03em;white-space:nowrap}
+#experience-shell .xs-back:hover{opacity:.86}
+#experience-shell .xs-back:focus-visible{outline:2px solid #111;outline-offset:3px}
+
+.xs-id{flex:1 1 auto;min-width:0}
+.xs-id strong{display:block;font-size:15px;line-height:1.2;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xs-project{display:block;margin-top:2px;
+  font:500 10px/1.4 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  color:#8a877f}
+.xs-badge{
+  flex:0 0 auto;padding:5px 10px;border-radius:999px;
+  background:rgba(0,0,0,.06);color:#54514a;
+  font:600 9px/1 system-ui,sans-serif;letter-spacing:.13em;text-transform:uppercase}
+
+/* ---------- escenario ---------- */
+.xs-stage{position:relative;min-height:0;background:#08080a}
+.xs-frame-host{position:absolute;inset:0}
+.xs-frame{
+  display:block;width:100%;height:100%;border:0;
+  /* la experiencia ocupa su propio viewport y gestiona su propio scroll: un solo
+     scroll, nunca dos anidados */
+  background:#08080a}
+
+.xs-status{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  margin:0;padding:12px 18px;border-radius:999px;
+  background:rgba(250,247,241,.94);color:#151513;
+  font:600 12px/1 system-ui,sans-serif;letter-spacing:.02em;
+  z-index:2;pointer-events:none}
+.xs-status[hidden]{display:none}
+.xs-shell[data-state="error"] .xs-status{
+  background:#2a0f0c;color:#ffd9d2;pointer-events:auto;max-width:min(90vw,420px);
+  line-height:1.5;text-align:center;border-radius:14px}
+
+/* mientras la shell está abierta el Studio de fondo no se desplaza */
+body.xs-open{overflow:hidden}
+
+/* ---------- móvil real, 390px ---------- */
+@media(max-width:600px){
+  .xs-bar{gap:10px;padding:10px 12px}
+  /* objetivo táctil: 32px era legible pero pequeño para un pulgar, y es EL botón que
+     saca al usuario de la experiencia */
+  #experience-shell .xs-back{padding:11px 14px;font-size:11.5px;min-height:42px}
+  .xs-id strong{font-size:13.5px}
+  /* la insignia es lo primero que sobra cuando el ancho aprieta: el botón de volver
+     y el nombre nunca se comprimen */
+  .xs-badge{display:none}
+}
+@media(max-width:380px){
+  .xs-project{display:none}
+}
+/* apaisado en un teléfono: la barra se adelgaza para que la experiencia respire */
+@media(max-height:460px) and (orientation:landscape){
+  .xs-bar{padding:6px 12px}
+  .xs-id strong{font-size:12.5px}
+  .xs-project{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #experience-shell .xs-back{transition:none}
+}

@@ -373,7 +373,11 @@ NO retrasar V1 por polish móvil avanzado que no aporta al gate principal
 
 1. **Fase 0 — CLOSED:** Class 20 + Optional Modules + Spanish Defaults.
 2. **Fase 1A — CLOSED:** Unified Product Detail.
-3. **Fase 1B — IN PROGRESS:** experiencias autónomas dentro del mismo app shell.
+3. **Fase 1B — READY FOR HUMAN REVIEW:** experiencias autónomas dentro del mismo app
+   shell. La In-App Experience Shell (`class22-experience-shell.js`) abre Circular Dish
+   Rotator, Dish Stage y Cinematic Product Rail **dentro de la misma aplicación**, sobre
+   el mismo Project State; ninguna abre ya otra pestaña. Los LABs se conservan como
+   evidencia y regresión, no como punto de entrada del producto.
 4. **Fase 1C — Gate de consolidación:** 11 Motion + Product Detail + módulos desde una sola app.
 5. **Fase 2 — Memories:** diseño + Studio + imagen/vídeo + Project State + Media Engine.
 6. **Fase 3 — Beverages:** diseño + Studio + imagen/vídeo + Project State + Media Engine.

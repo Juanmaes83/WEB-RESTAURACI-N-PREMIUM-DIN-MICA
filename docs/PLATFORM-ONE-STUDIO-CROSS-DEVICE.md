@@ -600,7 +600,17 @@ Toda feature nueva debe responder antes de implementarse:
 
 ## En curso
 
-- Fase 1B: in-app consolidation de Circular Dish Rotator, Dish Stage y Cinematic Product Rail.
+- Fase 1B: in-app consolidation de Circular Dish Rotator, Dish Stage y Cinematic Product
+  Rail — **entregada y pendiente de revisión visual humana**. Cumple ya ONE PRODUCT ·
+  ONE STUDIO · ONE PROJECT · ONE PREVIEW EXPERIENCE: las tres se previsualizan dentro de
+  la misma aplicación sobre el mismo Project State, sin abrir otra pestaña y sin store
+  paralelo. `LAB != PRODUCT ENTRY POINT`.
+
+  Sigue pendiente para ONE MEDIA MODEL completo: el rotador aún no consume la carta del
+  proyecto, documentado en `docs/IN-APP-EXPERIENCE-AUDIT.md`.
+
+  Esto **no** cierra la Platform Layer: cuentas, cloud y autosave cross-computer siguen
+  pendientes.
 
 ## Falta para V1
 
