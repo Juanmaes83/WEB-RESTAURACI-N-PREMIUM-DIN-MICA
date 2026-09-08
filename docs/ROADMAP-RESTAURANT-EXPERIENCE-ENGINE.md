@@ -170,15 +170,40 @@ Si una experiencia necesita un canvas/shell propio, debe abrirse dentro del mism
 
 | Módulo | Runtime | Merge | Studio productivo | Estado |
 |---|---|---|---|---|
-| Location / Google Maps | Class 16 LAB | ⏳ | ⏳ | integración Class 20 en curso |
-| Social / Reputation | Class 17 | ✅ | ⏳ | integración Class 20 en curso |
-| WhatsApp Contact | Class 18 | ✅ | ⏳ | integración Class 20 en curso |
+| Location / Google Maps | Class 16 + Class 20 | ✅ | ✅ | CERRADO: productivo en Studio |
+| Social / Reputation | Class 17 + Class 20 | ✅ | ✅ | CERRADO: productivo en Studio |
+| WhatsApp Contact | Class 18 + Class 20 | ✅ | ✅ | CERRADO: productivo en Studio |
+
+### Fases cerradas más recientes
+
+**Class 20 — Optional Modules / Studio Integration** → **CERRADA**. Location, Social y
+WhatsApp viven dentro del Studio existente, con un único Project State, OFF por defecto
+y cero DOM público cuando están apagados.
+
+**Class 21 — Unified Product Detail** → **CERRADA**. La ficha de producto es una
+capacidad opcional del Product Engine, con un contrato compartido y adaptadores por
+motor; ningún motor aprobado fue reescrito.
 
 ### Fase activa
 
-**Class 20 — Optional Modules / Studio Integration**
+**Fase 1B — Product Consolidation** *(EN CURSO)*
 
-Debe cerrar:
+Las tres experiencias autónomas se abren dentro de la misma aplicación mediante la
+In-App Experience Shell (`class22-experience-shell.js`), sobre el mismo proyecto:
+
+```text
+STUDIO → MOTION LIBRARY → abrir experiencia
+       → IN-APP EXPERIENCE VIEWER (misma app, mismo Project State)
+       → volver al Studio
+```
+
+- experiencias autónomas accesibles en la misma aplicación;
+- LABs conservados sólo como evidencia y regresión;
+- ninguna dependencia operativa de `/labs/` en el recorrido del usuario.
+
+La capa de plataforma (cuentas, cloud, cross-device) sigue **pendiente**.
+
+Class 20 debía cerrar, y cerró:
 
 ```text
 LOCATION
@@ -497,9 +522,11 @@ Publicar no debe requerir salir a otro repo, otra web o editar código.
 
 ## Fase B — Optional Modules / Studio
 
-- [ ] Class 20: Location productivo.
-- [ ] Class 20: Social productivo.
-- [ ] Class 20: WhatsApp productivo.
+- [x] Class 20: Location productivo.
+- [x] Class 20: Social productivo.
+- [x] Class 20: WhatsApp productivo.
+- [x] Class 21: Unified Product Detail como capacidad del Product Engine.
+- [~] Fase 1B: experiencias autónomas dentro de la misma aplicación *(en curso)*.
 - [ ] Project State único.
 - [ ] public runtime.
 - [ ] persistence.

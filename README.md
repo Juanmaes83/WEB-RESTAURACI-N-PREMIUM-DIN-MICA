@@ -165,11 +165,20 @@ Estado UX actual:
 
 ## Optional Modules
 
-- Social / Reputation — construido y mergeado; integración productiva completa en Studio en curso.
-- WhatsApp Contact / Concierge — construido y mergeado; integración productiva completa en Studio en curso.
-- Location / Google Maps — LAB aprobado como base; recuperación e integración productiva en curso.
+- Social / Reputation — **CERRADO**: productivo dentro del Studio, con Project State único.
+- WhatsApp Contact / Concierge — **CERRADO**: productivo dentro del Studio.
+- Location / Google Maps — **CERRADO**: productivo dentro del Studio, con carga del mapa bajo consentimiento.
 
-La fase activa es **Class 20 — Optional Modules / Studio Integration**.
+Class 20 (módulos opcionales) y Class 21 (Unified Product Detail) están **CERRADAS y
+mergeadas**.
+
+La fase activa es **Fase 1B — Product Consolidation**: las tres experiencias autónomas
+(Circular Dish Rotator, Dish Stage, Cinematic Product Rail) se abren **dentro de la
+misma aplicación**, sobre el mismo proyecto, en lugar de mandar al usuario a `/labs/`
+en otra pestaña. Los LABs se conservan como evidencia y regresión: dejan de ser el
+punto de entrada del producto.
+
+La capa de plataforma (cuentas, cloud, cross-device) **no** está terminada.
 
 ## Section Experiences pendientes
 
@@ -296,8 +305,10 @@ NO abrir otra web para editar una capacidad del mismo proyecto
 
 # Próximas fases
 
-1. **Class 20 — Location + Social + WhatsApp dentro del Studio y Project State.**
-2. **Consolidación de UX:** todas las capacidades se previsualizan desde la misma plataforma.
+1. ~~**Class 20 — Location + Social + WhatsApp dentro del Studio y Project State.**~~ — CERRADO.
+2. ~~**Class 21 — Unified Product Detail:** la ficha como capacidad del Product Engine.~~ — CERRADO.
+3. **Fase 1B — Product Consolidation** *(en curso)*: las experiencias autónomas se
+   previsualizan dentro de la misma aplicación, sin LABs como punto de entrada.
 3. **Memories + Beverages:** diseño y construcción como Section Experiences configurables.
 4. **Platform Layer:** cuentas, proyectos, persistencia cloud, media cloud y cross-device.
 5. **Publish Layer:** drafts, preview y publicación desde el mismo proyecto.

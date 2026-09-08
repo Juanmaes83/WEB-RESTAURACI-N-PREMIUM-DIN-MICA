@@ -433,9 +433,25 @@ Toda feature nueva debe responder antes de implementarse:
 - import/export;
 - second-restaurant preset proof.
 
+## Cerrado recientemente
+
+- Class 20: Location + Social + WhatsApp productivos dentro de Studio, con Project
+  State único y sin store paralelo.
+- Class 21: Unified Product Detail — la ficha de producto como capacidad opcional del
+  Product Engine, compartida por los motores mediante adaptadores.
+
 ## En curso
 
-- Class 20: Location + Social + WhatsApp productivos dentro de Studio.
+- **Fase 1B — Product Consolidation**: las tres experiencias autónomas se previsualizan
+  dentro de la misma aplicación (In-App Experience Shell) sobre el mismo proyecto, en
+  lugar de abrirse como LAB en otra pestaña. `LAB != PRODUCT ENTRY POINT`.
+
+  Cumple ya: ONE PRODUCT · ONE STUDIO · ONE PROJECT · ONE PREVIEW EXPERIENCE.
+  Sigue pendiente: ONE MEDIA MODEL completo para la experiencia que aún no consume la
+  carta del proyecto (Circular Dish Rotator), documentado en
+  `docs/IN-APP-EXPERIENCE-AUDIT.md`.
+
+  Esto **no** cierra la Platform Layer: cuentas, cloud y cross-device siguen pendientes.
 
 ## Falta
 
