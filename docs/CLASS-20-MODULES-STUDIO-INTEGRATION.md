@@ -39,6 +39,8 @@ Original isolated-branch collision guards still apply on historical LAB branches
 
 Dedicated Vercel review project: `restaurant-class20-review`, separate from the existing GitHub Pages restaurant. Historical videos/docs remain in Git but are not deployment payload. Exact deployed SHA, live checks and URL are recorded in the PR (not a self-referential hash here).
 
+Public URL: https://restaurant-class20-review.vercel.app. Full live browser suite: **43/43 PASS**, including reload/persistence and real module output, with no page errors. Live captures/results: `output/playwright/class20/live/`. `node tests/class20-live-integrity.mjs` compares the served HTML, state/store, module/library JS and production CSS against the current committed HEAD (HTTP 200 and content equality).
+
 ## Seven human checks before merge
 
 1. Fresh/private window → Studio → Módulos: all OFF, no public modules.
