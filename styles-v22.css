@@ -6,7 +6,10 @@
 */
 
 .xs-shell{
-  position:fixed;inset:0;z-index:200;
+  /* por encima del cajón del Studio (220) y de su backdrop (210): la vista previa ocupa
+     la pantalla en cualquier dispositivo. En móvil, con 200, el cajón la tapaba por
+     completo — el usuario pulsaba "Abrir experiencia" y seguía viendo el Studio. */
+  position:fixed;inset:0;z-index:300;
   display:none;grid-template-rows:auto 1fr;
   background:#08080a;
   /* móviles con notch: la barra no se esconde bajo el sistema */

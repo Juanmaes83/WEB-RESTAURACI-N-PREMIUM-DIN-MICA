@@ -1,0 +1,57 @@
+{
+  "url": "http://127.0.0.1:63983",
+  "newTabs": {
+    "desktop": 0,
+    "mobile": 0
+  },
+  "log": [
+    {
+      "label": "desktop",
+      "id": "circular-dish-rotator",
+      "name": "Circular Dish Rotator",
+      "back": "← Volver al Studio",
+      "frames": 1,
+      "url": "/#experience/circular-dish-rotator"
+    },
+    {
+      "label": "desktop",
+      "id": "dish-stage",
+      "name": "Dish Stage",
+      "back": "← Volver al Studio",
+      "frames": 1,
+      "url": "/#experience/dish-stage"
+    },
+    {
+      "label": "desktop",
+      "id": "cinematic-product-rail",
+      "name": "Cinematic Product Rail",
+      "back": "← Volver al Studio",
+      "frames": 1,
+      "url": "/#experience/cinematic-product-rail"
+    },
+    {
+      "label": "mobile",
+      "id": "circular-dish-rotator",
+      "name": "Circular Dish Rotator",
+      "back": "← Volver al Studio",
+      "frames": 1,
+      "url": "/#experience/circular-dish-rotator"
+    },
+    {
+      "label": "mobile",
+      "id": "dish-stage",
+      "name": "Dish Stage",
+      "back": "← Volver al Studio",
+      "frames": 1,
+      "url": "/#experience/dish-stage"
+    },
+    {
+      "label": "mobile",
+      "id": "cinematic-product-rail",
+      "name": "Cinematic Product Rail",
+      "back": "← Volver al Studio",
+      "frames": 1,
+      "url": "/#experience/cinematic-product-rail"
+    }
+  ]
+}

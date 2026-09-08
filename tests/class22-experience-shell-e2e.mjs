@@ -125,6 +125,18 @@ const childOf=page=>page.frames().find(f=>/labs\//.test(f.url()))||null;
       shell.open&&shell.active===id&&shell.frames===1&&!!child
       &&inside?.framed==='1'&&inside?.engine===true,
       `${bar.name} · iframes ${shell.frames} · motor ${inside?.engine}`);
+    /* Lo que un rect no ve: quién está DELANTE. El cajón del Studio es z-index 220 y
+       la shell nacía en 200, así que en móvil la experiencia quedaba completamente
+       tapada y todas las medidas seguían siendo correctas. */
+    const occlusion=await page.evaluate(()=>{
+      const mid=document.elementFromPoint(Math.round(innerWidth/2),Math.round(innerHeight*0.6));
+      const shell=document.getElementById('experience-shell');
+      return {tag:mid?.tagName||'',cls:(mid?.className||'').toString().split(' ')[0],
+        insideShell:!!(mid&&shell&&(shell===mid||shell.contains(mid)))};
+    });
+    check(`1-3 · ${NAMES[id]} está delante, no detrás del Studio`,
+      occlusion.insideShell,
+      `en el centro de la pantalla: ${occlusion.tag}.${occlusion.cls}`);
     check(`1-3 · ${NAMES[id]} se presenta como vista previa del Studio`,
       bar.name===NAMES[id]&&bar.back&&bar.role==='dialog'&&bar.modal==='true',
       `"${bar.name}" con botón volver`);
