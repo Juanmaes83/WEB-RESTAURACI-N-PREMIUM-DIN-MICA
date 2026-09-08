@@ -1,10 +1,26 @@
-# PLATFORM CONTRACT — ONE STUDIO / CROSS-DEVICE / MULTI-PROJECT
+# PLATFORM CONTRACT — ONE STUDIO / CROSS-COMPUTER V1 / MOBILE STUDIO LATER / MULTI-PROJECT
 
 ## Purpose
 
 Este documento fija la arquitectura de producto que debe protegerse en todas las clases futuras.
 
-El objetivo no es mantener un conjunto de demos avanzadas. El objetivo es convertir el Restaurant Experience Engine en una **plataforma única de creación de webs premium para restauración**, accesible desde cualquier dispositivo y capaz de gestionar múltiples restaurantes sin duplicar código.
+El objetivo no es mantener un conjunto de demos avanzadas. El objetivo es convertir el Restaurant Experience Engine en una **plataforma única de creación de webs premium para restauración**, capaz de gestionar múltiples restaurantes sin duplicar código y sin depender de un ordenador concreto.
+
+Decisión de dispositivo vigente:
+
+```text
+V1 = DESKTOP / LAPTOP FIRST
++
+CROSS-COMPUTER OBLIGATORIO
++
+PUBLIC WEBSITE RESPONSIVE
++
+MOBILE-READY ARCHITECTURE
++
+MOBILE STUDIO COMPLETO EN FASE POSTERIOR
+```
+
+La edición móvil completa se difiere para acelerar V1. **No se cancela ni puede quedar bloqueada por decisiones tomadas ahora.**
 
 ---
 
@@ -18,7 +34,8 @@ ONE PROJECT MODEL
 ONE MEDIA MODEL
 ONE DEPLOYMENT EXPERIENCE
 MANY RESTAURANT PROJECTS
-ANY DEVICE
+ANY COMPUTER
+MOBILE-READY FUTURE
 ```
 
 Este principio tiene prioridad sobre la comodidad de una implementación aislada.
@@ -29,7 +46,7 @@ Una feature técnicamente brillante no está terminada si sólo vive en:
 - un LAB;
 - un repo paralelo;
 - una URL que el usuario debe conocer aparte;
-- un store local imposible de recuperar desde otro dispositivo.
+- un store local imposible de recuperar desde otro ordenador.
 
 ---
 
@@ -42,8 +59,6 @@ Una feature técnicamente brillante no está terminada si sólo vive en:
 ## Branches
 
 Las ramas son herramientas temporales de desarrollo y validación.
-
-Flujo:
 
 ```text
 main
@@ -60,7 +75,7 @@ Una rama aprobada no debe convertirse en dependencia permanente del producto.
 
 ## LABs
 
-Los LABs se conservan para:
+Se conservan para:
 
 - evidencia;
 - regresión;
@@ -76,34 +91,21 @@ LAB != PRODUCT ENTRY POINT
 
 El cliente final no debe necesitar abrir `/labs/...` para usar una capacidad aprobada.
 
-## Research / third-party references
-
-Investigación o exact-source references pueden vivir dentro del mismo repo bajo una zona explícita, por ejemplo:
-
-```text
-research/
-labs/
-```
-
-No deben convertirse automáticamente en dependencias del runtime productivo.
-
 ---
 
 # 3. APPLICATION POLICY
 
-## Same application
-
 Studio, preview y project management deben pertenecer a la misma plataforma.
 
-Puede haber rutas internas diferentes, pero el usuario no debe sentir que está saltando entre productos distintos.
-
-Permitido:
+Puede haber rutas internas diferentes, por ejemplo:
 
 ```text
 /app/projects
 /app/studio/:projectId
 /app/preview/:projectId
 ```
+
+pero el usuario no debe sentir que está saltando entre productos distintos.
 
 No deseado:
 
@@ -116,13 +118,13 @@ external demo → preview
 
 ## Autonomous visual experiences
 
-Algunos motores actuales tienen DOM/canvas propio. No es obligatorio convertirlos en el antiguo `#orbit-stage`.
+Algunos motores actuales tienen DOM/canvas propio. No es obligatorio convertirlos en `#orbit-stage`.
 
-Sí es obligatorio que la UX final permita abrirlos desde la misma plataforma:
+Sí es obligatorio que la UX final permita:
 
 ```text
 Studio
-→ select/open experience
+→ open experience
 → same application shell
 → same project data
 → same media
@@ -134,8 +136,6 @@ Studio
 # 4. PROJECT MODEL
 
 Cada restaurante es un **Project**, no una copia del código.
-
-Conceptualmente:
 
 ```js
 Project {
@@ -150,6 +150,7 @@ Project {
   media,
   menu,
   motion,
+  productDetail,
   modules,
   publish,
   createdAt,
@@ -175,9 +176,9 @@ COPY REPOSITORY
 
 ## Current state
 
-La plataforma actual utiliza IndexedDB para proyectos/media y dispone de import/export JSON.
+La plataforma actual utiliza persistencia local para proyectos/media y dispone de import/export.
 
-Esto demuestra personalización y persistencia local, pero no cross-device.
+Esto demuestra personalización y persistencia local, pero no continuidad real entre ordenadores.
 
 ## Target state
 
@@ -188,11 +189,11 @@ REMOTE DATABASE
 REMOTE OBJECT STORAGE
 = canonical media
 
-INDEXEDDB
-= local cache / resilience
+INDEXEDDB / LOCAL CACHE
+= resilience / optimization
 ```
 
-Nunca volver a diseñar una feature cuya única fuente de verdad sea un browser-local store si debe formar parte del producto multi-device.
+Nunca diseñar una feature cuya única fuente de verdad sea browser-local si debe formar parte del producto multi-project.
 
 ---
 
@@ -220,30 +221,57 @@ Sync pending
 Conflict
 ```
 
-El usuario debe poder cerrar el móvil después de `Saved`, abrir el ordenador y continuar.
+## Gate V1
 
-Import/export JSON seguirá siendo útil para:
+El gate cross-device principal de V1 es cross-computer:
 
-- backups;
-- templates;
-- migration;
-- support;
+```text
+PC A
+→ edit / upload / save
 
-pero no será el mecanismo normal de sincronización.
+PC B
+→ login
+→ same project
+→ same media
+→ continue / preview / publish
+```
+
+Import/export sigue siendo útil para backups, templates, migración y soporte, pero **no** como mecanismo normal de sincronización.
+
+## Gate móvil futuro
+
+```text
+PHONE
+→ edit / upload / save
+
+PC
+→ same project / continue
+```
+
+Se implementará en la fase Mobile Studio. El backend/state/media construidos para V1 deben poder servir ese flujo sin rehacerse.
 
 ---
 
 # 7. MEDIA CONTRACT
 
-Media debe ser cross-device.
+Media debe ser independiente del dispositivo.
 
-Flujo objetivo:
+Flujo V1:
 
 ```text
-mobile upload
+desktop upload
 → remote media storage
 → mediaId / stable URL
 → Project State reference
+→ another desktop opens same asset
+```
+
+Flujo futuro móvil:
+
+```text
+phone camera/gallery
+→ same remote media storage
+→ same mediaId / stable URL
 → desktop opens same asset
 ```
 
@@ -262,13 +290,22 @@ La Media Library debe admitir al menos:
 - memories media;
 - beverage media.
 
+## Regla de unificación
+
+```text
+BRAND     ─┐
+MENU      ─┤
+MEMORIES  ├─→ ONE MEDIA ENGINE / ONE MEDIA LIBRARY
+BEVERAGES ┘
+```
+
+No crear uploaders con almacenamiento propio por feature.
+
 ---
 
 # 8. RESTAURANT STUDIO CONTRACT
 
 Studio debe seguir siendo uno.
-
-Objetivo de IA:
 
 ```text
 STUDIO
@@ -279,6 +316,7 @@ STUDIO
 ├── Motion
 │   ├── Product Motion
 │   └── Page Motion
+├── Product Detail
 ├── Modules / Integrations
 │   ├── Location
 │   ├── Social / Reputation
@@ -301,9 +339,104 @@ Nunca:
 REPLACE CURRENT STUDIO
 ```
 
+## V1 Studio target
+
+V1 se optimiza para desktop/laptop:
+
+- navegación clara;
+- edición completa;
+- upload imagen/vídeo;
+- autosave;
+- preview;
+- project management;
+- publish.
+
+## Protección móvil obligatoria desde hoy
+
+Aunque no se cierre UX móvil completa en V1:
+
+- no hover-only para acciones críticas;
+- layouts flexibles y reflow posible;
+- no lógica de dominio acoplada al viewport;
+- no estado específico de dispositivo;
+- nuevas interacciones compatibles con Pointer Events cuando corresponda;
+- controles semánticos/accesibles;
+- no paths locales como contrato.
+
+```text
+MOBILE-READY ARCHITECTURE NOW
+≠
+MOBILE-FINISHED UX NOW
+```
+
 ---
 
-# 9. MULTI-PROJECT CONTRACT
+# 9. MEMORIES CONTRACT
+
+Memories debe ser una Section Experience configurable, no una demo visual cerrada.
+
+Debe incluir en el mismo Studio:
+
+```text
+ON / OFF
+preset
++ memory
+image OR video
+Media Library selection
+title / story / author / date / place
+type
+visual weight / featured
+order
+preview
+persist
+```
+
+Requisitos:
+
+- Project State único;
+- Media Engine único;
+- soporte de imagen y vídeo desde el modelo inicial;
+- desktop-first editor;
+- arquitectura compatible con touch futuro;
+- public output responsive.
+
+---
+
+# 10. BEVERAGES CONTRACT
+
+Beverages debe ser configurable desde el mismo Studio.
+
+Debe incluir:
+
+```text
+ON / OFF
+preset
++ beverage
+image OR video
+Media Library selection
+name / category / producer / origin / vintage
+description / notes / pairing
+price glass / bottle
+availability
+tags
+order / featured
+preview
+persist
+```
+
+Requisitos:
+
+- Beverage Domain único;
+- no duplicar producto por preset;
+- Media Engine único;
+- Project State único;
+- desktop-first editor;
+- arquitectura compatible con touch futuro;
+- public output responsive.
+
+---
+
+# 11. MULTI-PROJECT CONTRACT
 
 Dashboard objetivo:
 
@@ -332,22 +465,22 @@ Duplicar un restaurante duplica datos/configuración, no el engine.
 
 ---
 
-# 10. AUTH / SECURITY CONTRACT
+# 12. AUTH / SECURITY CONTRACT
 
 Antes de multi-project comercial:
 
 - autenticación;
-- autorización por project ownership;
+- autorización por ownership;
 - drafts privados;
 - media privada cuando corresponda;
 - validación server-side de writes;
-- separación clara entre editor y public snapshot.
+- separación entre editor y public snapshot.
 
 La infraestructura concreta puede decidirse más adelante. El contrato de producto no depende del proveedor.
 
 ---
 
-# 11. PUBLISH CONTRACT
+# 13. PUBLISH CONTRACT
 
 El mismo Project State alimenta preview y publicación.
 
@@ -359,7 +492,7 @@ WORKING DRAFT
 → immutable/versioned published snapshot
 ```
 
-El sitio público nunca debería depender del estado incompleto que el editor está modificando en ese instante.
+El sitio público no debe depender del estado incompleto que el editor modifica en ese instante.
 
 Campos conceptuales:
 
@@ -371,50 +504,82 @@ project.publishedAt
 
 ---
 
-# 12. MOBILE STUDIO CONTRACT
+# 14. PUBLIC RESPONSIVE CONTRACT
 
-Cross-device no significa únicamente "la URL abre".
+Diferir Mobile Studio **no reduce el estándar móvil de la web pública**.
 
-Studio debe ser realmente usable con touch:
+Toda web publicada debe funcionar en:
 
-- navegación accesible;
-- inputs cómodos;
-- media upload desde cámara/galería;
-- reorder táctil;
-- preview viewport;
-- toggles grandes;
-- sin hover obligatorio;
-- sin nested scroll imposible;
-- safe areas;
-- teclado móvil respetado.
+- móvil;
+- tablet;
+- desktop.
 
-Prueba obligatoria futura:
+Siguen siendo requisitos V1:
 
-```text
-CREATE / EDIT / SAVE FROM PHONE
-→ CONTINUE FROM DESKTOP
-```
+- responsive público;
+- accesibilidad;
+- reduced-motion;
+- performance;
+- controles públicos touch-friendly.
 
 ---
 
-# 13. MODULE CONTRACT
+# 15. MOBILE STUDIO CONTRACT — POST-V1, NO CANCELADO
+
+La edición móvil completa tendrá una fase propia posterior al V1 desktop/cross-computer.
+
+Objetivo:
+
+```text
+PHONE
+→ login
+→ open project
+→ edit
+→ camera/gallery upload
+→ reorder
+→ save
+
+DESKTOP
+→ same project
+→ continue
+```
+
+La fase incluirá:
+
+- navegación touch;
+- reflow de paneles;
+- inputs cómodos;
+- reorder táctil;
+- cámara/galería;
+- safe areas;
+- teclado móvil;
+- viewport preview;
+- nested scroll QA;
+- dispositivos físicos.
+
+Esta fase debe poder añadirse sin reescribir Project State, Media Engine, Memories, Beverages, Auth o Publish.
+
+---
+
+# 16. MODULE CONTRACT
 
 Toda feature nueva debe responder antes de implementarse:
 
 1. ¿Dónde vive en Project State?
 2. ¿Cómo se edita en el Studio actual?
-3. ¿Cómo se guarda remotamente?
-4. ¿Qué media utiliza?
+3. ¿Cómo se guardará remotamente?
+4. ¿Qué media utiliza y pertenece a la Media Library común?
 5. ¿Cómo se ve en preview?
 6. ¿Cómo pasa a published snapshot?
-7. ¿Funciona en móvil?
+7. ¿El sitio público funciona en móvil?
 8. ¿Qué ocurre OFF?
-9. ¿Puede abrirse desde otro dispositivo?
-10. ¿Introduce un store o producto paralelo? Si sí, rediseñar.
+9. ¿Puede abrirse desde otro ordenador?
+10. ¿La arquitectura permite móvil futuro sin reescritura de dominio?
+11. ¿Introduce un store, uploader o producto paralelo? Si sí, rediseñar.
 
 ---
 
-# 14. CURRENT GAP ANALYSIS
+# 17. CURRENT GAP ANALYSIS — 8 SEPTIEMBRE 2026
 
 ## Ya conseguido
 
@@ -426,85 +591,88 @@ Toda feature nueva debe responder antes de implementarse:
 - 11 Motion capabilities;
 - Motion Library;
 - Scroll Traveler;
-- Social runtime;
-- WhatsApp runtime;
-- Location LAB;
+- Class 20 Location + Social + WhatsApp productivos;
+- Spanish public defaults;
+- Class 21 Unified Product Detail;
 - autosave local;
 - import/export;
 - second-restaurant preset proof.
 
-## Cerrado recientemente
-
-- Class 20: Location + Social + WhatsApp productivos dentro de Studio, con Project
-  State único y sin store paralelo.
-- Class 21: Unified Product Detail — la ficha de producto como capacidad opcional del
-  Product Engine, compartida por los motores mediante adaptadores.
-
 ## En curso
 
-- **Fase 1B — Product Consolidation**: las tres experiencias autónomas se previsualizan
-  dentro de la misma aplicación (In-App Experience Shell) sobre el mismo proyecto, en
-  lugar de abrirse como LAB en otra pestaña. `LAB != PRODUCT ENTRY POINT`.
+- Fase 1B: in-app consolidation de Circular Dish Rotator, Dish Stage y Cinematic Product
+  Rail — **entregada y pendiente de revisión visual humana**. Cumple ya ONE PRODUCT ·
+  ONE STUDIO · ONE PROJECT · ONE PREVIEW EXPERIENCE: las tres se previsualizan dentro de
+  la misma aplicación sobre el mismo Project State, sin abrir otra pestaña y sin store
+  paralelo. `LAB != PRODUCT ENTRY POINT`.
 
-  Cumple ya: ONE PRODUCT · ONE STUDIO · ONE PROJECT · ONE PREVIEW EXPERIENCE.
-  Sigue pendiente: ONE MEDIA MODEL completo para la experiencia que aún no consume la
-  carta del proyecto (Circular Dish Rotator), documentado en
-  `docs/IN-APP-EXPERIENCE-AUDIT.md`.
+  Sigue pendiente para ONE MEDIA MODEL completo: el rotador aún no consume la carta del
+  proyecto, documentado en `docs/IN-APP-EXPERIENCE-AUDIT.md`.
 
-  Esto **no** cierra la Platform Layer: cuentas, cloud y cross-device siguen pendientes.
+  Esto **no** cierra la Platform Layer: cuentas, cloud y autosave cross-computer siguen
+  pendientes.
 
-## Falta
+## Falta para V1
 
-- Memories;
-- Beverages;
-- unified in-app preview para experiencias autónomas;
+- consolidation gate;
+- Memories con Studio + image/video;
+- Beverages con Studio + image/video;
+- final Project Model;
 - auth;
 - projects dashboard;
 - remote Project State;
 - remote Media Library;
-- cross-device sync;
+- cross-computer sync;
 - publish layer;
-- mobile Studio hardening;
-- permissions/security;
-- final second-restaurant cross-device proof.
+- security/permissions;
+- public responsive hardening;
+- final second-restaurant cross-computer proof.
+
+## Falta después de V1
+
+- Mobile Studio completion;
+- phone → desktop editing proof.
 
 ---
 
-# 15. PRODUCT COMPLETION TEST
+# 18. V1 COMPLETION TEST
 
-No declararemos el producto terminado hasta superar este escenario:
+No declararemos V1 terminado hasta superar:
 
 ```text
-PHONE
+PC A
 1. Login
 2. New Restaurant
 3. Set brand
-4. Upload logo/photos
+4. Upload logo/photos/video
 5. Build/edit menu
 6. Choose motion
-7. Enable modules
-8. Save
+7. Configure Product Detail
+8. Enable modules
+9. Configure Memories
+10. Configure Beverages
+11. Save remotely
 
-DESKTOP
-9. Login
-10. Open same restaurant
-11. See identical state/media
-12. Continue editing
-13. Preview
-14. Publish
+PC B
+12. Login
+13. Open same restaurant
+14. See identical state/media
+15. Continue editing
+16. Preview
+17. Publish
 
 SECOND RESTAURANT
-15. Create/duplicate new project
-16. Make visually different website
-17. Publish without touching code
+18. Create/duplicate new project
+19. Make visually different website
+20. Publish without touching code
 ```
 
-Resultado esperado:
+Resultado:
 
 ```text
 ONE ENGINE
 MANY RESTAURANTS
-ANY DEVICE
+ANY COMPUTER
 NO CODE
 NO REPO COPYING
 NO LAB HUNTING
@@ -512,12 +680,45 @@ NO LAB HUNTING
 
 ---
 
-# 16. DECISION RULE FOR FUTURE WORK
-
-Ante cualquier propuesta nueva, priorizar:
+# 19. MOBILE COMPLETION TEST — FASE POSTERIOR
 
 ```text
-Does this strengthen the one-platform product?
+PHONE
+1. Login
+2. Open restaurant
+3. Edit fields
+4. Upload image/video
+5. Reorder where applicable
+6. Save
+
+DESKTOP
+7. Open same restaurant
+8. Same project/media
+9. Continue editing
 ```
 
-Si la respuesta es no, o si crea fragmentación operativa, no se integra todavía.
+Resultado:
+
+```text
+SAME PLATFORM
+PHONE + DESKTOP
+NO DOMAIN REWRITE
+```
+
+---
+
+# 20. DECISION RULE
+
+Ante cualquier propuesta nueva:
+
+```text
+¿Acelera V1 sin fragmentar el producto ni bloquear Mobile Studio futuro?
+```
+
+- Si sí → implementar.
+- Si sólo falta polish móvil → diferir.
+- Si el atajo crea deuda estructural en Project State, Media, dominio o componentes → rechazarlo.
+- Si la compatibilidad futura tiene coste pequeño → pagar ese coste ahora.
+
+Documento complementario:
+[`DEVICE-STRATEGY-DESKTOP-FIRST-MOBILE-LATER.md`](DEVICE-STRATEGY-DESKTOP-FIRST-MOBILE-LATER.md)
