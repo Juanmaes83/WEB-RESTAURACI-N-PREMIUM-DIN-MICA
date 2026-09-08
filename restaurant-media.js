@@ -72,9 +72,22 @@
     }));
   }
 
+  /* Registra una URL para una ref SIN guardar nada en el almacén. Dos usos reales:
+     el dataset de revisión, que resuelve contra ficheros versionados del repositorio, y
+     —más adelante— Cloud Media, que resolverá una ref contra una URL remota. Sigue sin
+     haber un segundo almacén: esto es la capa de resolución haciendo su trabajo. */
+  function map(ref, url) {
+    if (!ref || !url) return '';
+    if (urls.has(ref) && urls.get(ref) !== url) revoke(ref);
+    urls.set(ref, url);
+    return url;
+  }
+
   function revoke(ref) {
     if (!urls.has(ref)) return;
-    try { URL.revokeObjectURL(urls.get(ref)); } catch {}
+    /* sólo los object URLs se revocan; una URL de fichero versionado no es revocable */
+    const value = urls.get(ref);
+    if (String(value).startsWith('blob:')) { try { URL.revokeObjectURL(value); } catch {} }
     urls.delete(ref);
   }
 
@@ -87,7 +100,7 @@
     try { await store().deleteMedia(ref); } catch {}
   }
 
-  window.RestaurantMedia = Object.freeze({save, load, url, list, revoke, revokeAll, forget, kindOf});
+  window.RestaurantMedia = Object.freeze({save, load, url, list, map, revoke, revokeAll, forget, kindOf});
 
   /* `class22-experience-shell.js` ya llamaba a `window.RestaurantMediaResolve(slot)` con
      `?.` — no existía y caía siempre al fallback. Ahora existe, y sigue siendo síncrono

@@ -59,7 +59,13 @@
   let storyLayer = null, storyReturn = null, storyViewer = null;
   let stack = null;                 /* runtime del Stack; NUNCA en Project State */
 
-  const config = () => M().normalize(cfg()?.get('modules.memories'));
+  /* La URL de REVISIÓN publica una composición de demostración y el motor la prefiere
+     mientras exista. Es una LECTURA: el Project State del restaurante no se toca, así
+     que salir de esa URL deja su proyecto exactamente como estaba. Mismo motor, mismo
+     CSS, misma ruta de render — sólo cambia de dónde vienen los datos. */
+  const review = () => window.RestaurantMemoriesReview?.active
+    ? window.RestaurantMemoriesReview.memories : null;
+  const config = () => M().normalize(review() || cfg()?.get('modules.memories'));
   const items = () => M().visible(config());
 
   const track = fn => { if (typeof fn === 'function') teardowns.push(fn); };
@@ -193,8 +199,10 @@
             /* un vídeo con `preload=metadata` puede no haber pintado ningún fotograma:
                la miniatura saldría negra. Se busca un instante temprano para que HAYA
                imagen — es el póster que un restaurante no tiene por qué preparar. */
+            /* Un tercio dentro del clip, no el primer fotograma: los vídeos suelen
+               empezar oscuros y la miniatura salía negra. */
             v.addEventListener('loadedmetadata', () => {
-              try { v.currentTime = Math.min(0.12, (v.duration || 1) * 0.06); } catch {}
+              try { v.currentTime = Math.max(0.1, (v.duration || 1) * 0.35); } catch {}
             }, {once: true});
             t.append(v);
           } else {
@@ -520,8 +528,11 @@
         const node = card.node;
         node.style.setProperty('--d', d.toFixed(4));
         node.style.setProperty('--focus', focusAmount.toFixed(4));
+        /* El desplazamiento vertical crece con la distancia: así las tarjetas de detrás
+           asoman también por ABAJO, como un montón sobre una mesa, y no sólo de lado.
+           Es la parte de Koi Studies que se perdía con un offset puramente horizontal. */
         node.style.transform =
-          `translate3d(${x.toFixed(2)}px,${(ad * 12).toFixed(2)}px,${z.toFixed(2)}px)` +
+          `translate3d(${x.toFixed(2)}px,${(ad * 26).toFixed(2)}px,${z.toFixed(2)}px)` +
           ` rotateY(${rotY.toFixed(2)}deg) rotateZ(${rotZ.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
         node.style.opacity = String(clamp(1 - ad * 0.34, 0, 1));
         node.style.filter = ad > 1.1 ? `blur(${Math.min((ad - 1.1) * 1.6, 4).toFixed(2)}px)` : 'none';
@@ -795,6 +806,34 @@
     if (back?.isConnected) requestAnimationFrame(() => back.focus());
   }
 
+  /* ---------- enlace público ----------
+     El usuario no encontraba Memories: la sección existía y nada la anunciaba. Con
+     Memories ON aparece en la navegación principal; con OFF desaparece, porque un enlace
+     a una sección inexistente es peor que no tener enlace. */
+  const navLabel = () =>
+    (document.documentElement.dataset.locale || cfg()?.get('locale') || 'es') === 'en'
+      ? 'Memories' : 'Memoria';
+
+  function mountNavLink() {
+    const nav = document.querySelector('.desktop-nav');
+    if (!nav) return;
+    let link = nav.querySelector('[data-memories-nav]');
+    if (!link) {
+      link = document.createElement('a');
+      link.href = '#memories';
+      link.dataset.memoriesNav = '1';
+      /* AL FINAL, y no antes de «Visita», por un motivo concreto: `class6-product.js`
+         reescribe las etiquetas de `.desktop-nav a` POR ÍNDICE, así que un enlace
+         insertado en medio se quedaba con el texto del siguiente — la navegación mostraba
+         «Visita» dos veces. En la última posición, ese bucle no lo alcanza. */
+      nav.append(link);
+    }
+    /* y se reafirma en cada aplicación de config, por si algo reetiqueta la barra */
+    if (link.textContent !== navLabel()) link.textContent = navLabel();
+  }
+  const unmountNavLink = () =>
+    document.querySelectorAll('[data-memories-nav]').forEach(n => n.remove());
+
   /* ---------- montaje ---------- */
   function mount() {
     if (host) return host;
@@ -816,6 +855,7 @@
 
   function unmount() {
     closeStory();
+    unmountNavLink();
     runTeardowns();
     wallSchedulers.length = 0;
     video().pauseAll();
@@ -855,6 +895,7 @@
     if (host) video().releaseWithin(host);
 
     mount();
+    mountNavLink();
     host.replaceChildren();
     host.dataset.preset = memories.preset;
 
@@ -902,6 +943,9 @@
     storyViewer: () => storyViewer
   });
 
+  /* La siembra del esquema se hace SIEMPRE, también en la URL de revisión: es una
+     migración por referencia que no escribe historial, y así el proyecto del restaurante
+     conserva su forma (apagado y vacío) mientras la revisión pinta por encima. */
   M()?.seed?.();
   applyConfig().catch(console.error);
 })();
