@@ -16,15 +16,15 @@
 
   const DEFAULTS = Object.freeze({
     enabled: false,
-    heading: 'Stay close to the table.',
-    eyebrow: 'SOCIAL · REVIEWS · COMMUNITY',
-    body: 'Follow the kitchen, read what guests remember, and find us where you already plan your night.',
+    heading: 'Sigue cerca de nuestra mesa.',
+    eyebrow: 'SOCIAL · RESEÑAS · COMUNIDAD',
+    body: 'Sigue la cocina, lee lo que recuerdan nuestros clientes y encuéntranos donde ya planeas tus noches.',
     preset: 'editorial-footer',
     showRating: true,
     rating: 4.8,
     reviewCount: 486,
-    ratingLabel: 'Guest rating',
-    reviewCtaLabel: 'Read our reviews',
+    ratingLabel: 'Valoración de clientes',
+    reviewCtaLabel: 'Leer reseñas',
     reviewCtaUrl: '',
     platforms: [
       { id: 'instagram', enabled: true, url: 'https://www.instagram.com/' },
@@ -167,7 +167,7 @@
     intro.append(node('p', 'sr-eyebrow', config.eyebrow), node('h2', 'sr-title', config.heading), node('p', 'sr-body', config.body));
 
     const social = node('nav', 'sr-platforms');
-    social.setAttribute('aria-label', 'Social and reputation links');
+    social.setAttribute('aria-label', 'Enlaces sociales y de reputación');
     const items = validPlatforms(config);
     items.forEach((p) => {
       const meta = PLATFORM_META[p.id];
@@ -180,7 +180,7 @@
 
     const rep = node('aside', 'sr-reputation');
     if (config.showRating) {
-      rep.append(node('span', 'sr-rating-label', config.ratingLabel), node('strong', 'sr-rating', config.rating.toFixed(1)), node('span', 'sr-stars', '★★★★★'), node('small', '', `${config.reviewCount.toLocaleString('es-ES')} reviews`));
+      rep.append(node('span', 'sr-rating-label', config.ratingLabel), node('strong', 'sr-rating', config.rating.toFixed(1)), node('span', 'sr-stars', '★★★★★'), node('small', '', `${config.reviewCount.toLocaleString('es-ES')} reseñas`));
       const url = reviewUrl(config);
       if (url) {
         const a = document.createElement('a');

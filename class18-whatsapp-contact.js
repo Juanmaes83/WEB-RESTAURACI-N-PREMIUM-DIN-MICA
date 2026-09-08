@@ -10,9 +10,9 @@
     message: 'Hola, quiero reservar una mesa.',
     label: 'Hablar por WhatsApp',
     eyebrow: 'CONCIERGE',
-    title: 'Need a table tonight?',
+    title: '¿Necesitas mesa esta noche?',
     body: 'Escríbenos directamente. Sin formularios y sin cambiar el tono de la experiencia.',
-    availability: 'Replies during service hours',
+    availability: 'Respondemos durante el horario de servicio',
     position: 'right',
     showPrompt: true,
     openInNewTab: true

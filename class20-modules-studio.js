@@ -10,13 +10,13 @@
   };
   const specs={
     location:{name:'Location / Google Maps',factory:()=>window.LocationMapsModule,fields:[
-      ['title','Título'],['eyebrow','Eyebrow'],['address.street','Calle'],['address.postalCode','Código postal'],['address.city','Ciudad'],['address.region','Región'],['address.country','País'],['phone','Teléfono'],['hours','Horario'],
+      ['title','Título'],['eyebrow','Antetítulo'],['address.street','Calle'],['address.postalCode','Código postal'],['address.city','Ciudad'],['address.region','Región'],['address.country','País'],['phone','Teléfono'],['hours','Horario'],
       ['design.preset','Preset',['split-editorial','full-width-map','minimal-location']],['maps.mode','Origen del mapa',['address','url','embed']],['maps.googleMapsUrl','URL Google Maps'],['maps.embedUrl','URL embed HTTPS'],['maps.latitude','Latitud','number'],['maps.longitude','Longitud','number'],['maps.privacyMode','Privacidad',['click-to-load','auto']],['cta.label','Texto del CTA']]},
     social:{name:'Social / Reputation',factory:()=>window.SocialReputationModule,fields:[
-      ['preset','Preset',['editorial-footer','reputation-strip','social-minimal']],['heading','Título'],['eyebrow','Eyebrow'],['body','Descripción','textarea'],['showRating','Mostrar valoración verificada','checkbox'],['rating','Valoración (0–5)','number'],['reviewCount','Número de reseñas','number'],['ratingLabel','Etiqueta de valoración'],['reviewCtaLabel','Texto reseñas'],['reviewCtaUrl','URL de reseñas HTTPS'],
+      ['preset','Preset',['editorial-footer','reputation-strip','social-minimal']],['heading','Título'],['eyebrow','Antetítulo'],['body','Descripción','textarea'],['showRating','Mostrar valoración verificada','checkbox'],['rating','Valoración (0–5)','number'],['reviewCount','Número de reseñas','number'],['ratingLabel','Etiqueta de valoración'],['reviewCtaLabel','Texto reseñas'],['reviewCtaUrl','URL de reseñas HTTPS'],
       ...Object.entries(S.PLATFORM_META).flatMap(([id,meta],i)=>[[`platforms.${i}.enabled`,meta.label,'checkbox'],[`platforms.${i}.url`,`${meta.label} URL`]])]},
     whatsapp:{name:'WhatsApp Contact / Concierge',factory:()=>window.WhatsAppContactModule,fields:[
-      ['mode','Modo',['floating-launcher','inline-concierge','direct-cta']],['phone','Teléfono internacional'],['message','Mensaje predefinido','textarea'],['label','Texto del CTA'],['eyebrow','Eyebrow'],['title','Título'],['body','Descripción','textarea'],['availability','Disponibilidad'],['position','Posición',['right','left']],['showPrompt','Mostrar mensaje de bienvenida','checkbox']]}
+      ['mode','Modo',['floating-launcher','inline-concierge','direct-cta']],['phone','Teléfono internacional'],['message','Mensaje predefinido','textarea'],['label','Texto del CTA'],['eyebrow','Antetítulo'],['title','Título'],['body','Descripción','textarea'],['availability','Disponibilidad'],['position','Posición',['right','left']],['showPrompt','Mostrar mensaje de bienvenida','checkbox']]}
   };
   const instances=new Map();let panel,built=false,stylePromise;
   const get=path=>window.RestaurantStudioConfig?.get(path);
