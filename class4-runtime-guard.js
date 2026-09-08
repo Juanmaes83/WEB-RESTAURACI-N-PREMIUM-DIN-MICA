@@ -187,3 +187,38 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,200));
   else setTimeout(load,200);
 })();
+
+/* CLASS 23 — MEMORIES. Capacidad completa del producto, cargada de forma aditiva.
+   `index.html` no se toca, como en Class 21 y Class 22.
+
+   El orden importa y es el único motivo de que sean cuatro ficheros:
+
+     restaurant-media.js         → la Media Library COMPARTIDA (resolución, no almacén)
+     restaurant-media-picker.js  → el selector compartido (lo usará Beverages)
+     class23-memories-model.js   → el dominio: esquema, normalización y siembra
+     class23-memories-engine.js  → el motor y sus tres presentaciones
+     class23-memories-studio.js  → el panel, dentro del Studio de siempre
+
+   Dentro de una experiencia enmarcada no se carga: ahí el producto es la shell padre. */
+(() => {
+  'use strict';
+  const CHAIN=['restaurant-media.js','restaurant-media-picker.js',
+    'class23-memories-model.js','class23-memories-engine.js','class23-memories-studio.js'];
+  const load=(i=0)=>{
+    if(i>=CHAIN.length)return;
+    const s=document.createElement('script');
+    s.src=CHAIN[i];
+    if(i===0)s.dataset.memoriesRuntime='1';
+    /* en cadena a propósito: el modelo necesita la Media Library, y el motor y el panel
+       necesitan el modelo. Nada de carreras de arranque. */
+    s.onload=()=>load(i+1);
+    document.body.appendChild(s);
+  };
+  const start=()=>{
+    if(document.querySelector('script[data-memories-runtime]'))return;
+    if(window.parent!==window)return;
+    load();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(start,260));
+  else setTimeout(start,260);
+})();

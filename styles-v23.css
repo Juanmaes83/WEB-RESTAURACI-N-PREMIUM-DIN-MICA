@@ -1,0 +1,357 @@
+/* CLASS 23 — MEMORIES. Una sección pública, tres presentaciones, y el panel del Studio.
+
+   No es un grid de tarjetas de administración: es la memoria del restaurante. Peso
+   visual asimétrico, espacio negativo controlado, tipografía del sitio y profundidad
+   muy sutil. El dato manda la composición; nada aquí es aleatorio, así que la pared se
+   ve igual en cada carga.
+
+   CONTRATO DE CAPAS CON SCROLL TRAVELER (Project 09) — al final del fichero.
+*/
+
+.mem-section{
+  --mem-ink:#f2ede2;
+  --mem-ground:#0d0d0c;
+  --mem-ground-2:#141312;
+  --mem-line:rgba(242,237,226,.14);
+  --mem-muted:rgba(242,237,226,.55);
+  --mem-paper:#e8e1d3;
+  position:relative;
+  background:linear-gradient(180deg,var(--mem-ground) 0%,var(--mem-ground-2) 55%,var(--mem-ground) 100%);
+  color:var(--mem-ink);
+  padding:clamp(88px,11vw,168px) clamp(20px,5vw,84px);
+  overflow:hidden}
+
+/* ---------- cabecera de sección ---------- */
+.mem-head{max-width:760px;margin:0 0 clamp(46px,6vw,88px)}
+.mem-eyebrow{
+  margin:0 0 14px;font-size:9px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--mem-muted)}
+.mem-title{
+  font-family:var(--serif,"Italiana",serif);font-weight:400;
+  font-size:clamp(34px,5.6vw,74px);line-height:1.02;letter-spacing:-.01em;margin:0}
+.mem-intro{
+  margin:20px 0 0;max-width:56ch;font-size:clamp(13px,1.1vw,15px);line-height:1.7;
+  color:var(--mem-muted)}
+.mem-empty{margin:0;font-size:12px;letter-spacing:.04em;color:var(--mem-muted)}
+
+/* ---------- piezas compartidas por los tres presets ---------- */
+.mem-frame{
+  position:relative;overflow:hidden;background:#000;
+  /* sombra muy corta: profundidad, no una tarjeta flotando */
+  box-shadow:0 22px 48px -30px rgba(0,0,0,.9)}
+.mem-media{display:block;width:100%;height:100%;object-fit:cover}
+.mem-kind{
+  margin:0 0 10px;font-size:8px;letter-spacing:.26em;text-transform:uppercase;
+  color:var(--mem-muted)}
+.mem-item-title{
+  font-family:var(--serif,"Italiana",serif);font-weight:400;margin:0;
+  font-size:clamp(20px,2.1vw,32px);line-height:1.12}
+.mem-meta{
+  margin:10px 0 0;font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--mem-muted)}
+.mem-text{margin:14px 0 0;font-size:13px;line-height:1.72;color:rgba(242,237,226,.82)}
+.mem-text[data-clamped]{
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.mem-author{
+  margin:12px 0 0;font-family:var(--serif,"Italiana",serif);font-size:15px;
+  color:var(--mem-muted)}
+.mem-rating{margin:10px 0 0;font-size:12px;letter-spacing:.24em;color:#d8c07a}
+.mem-open,.mem-link{
+  display:inline-block;margin:16px 14px 0 0;padding:0;border:0;background:none;
+  font:inherit;font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--mem-ink);cursor:pointer;
+  text-decoration:underline;text-underline-offset:6px;
+  text-decoration-color:var(--mem-line)}
+.mem-open:hover,.mem-link:hover,
+.mem-open:focus-visible,.mem-link:focus-visible{text-decoration-color:currentColor}
+.mem-section :focus-visible{outline:1px solid var(--mem-ink);outline-offset:4px}
+
+/* ============================================================
+   PRESET 01 — CINEMATIC MEMORY WALL
+   Doce columnas y un ritmo asimétrico derivado del dato: `hero` toma el momento grande,
+   `medium` acompaña, `small` respira. `featured` gana jerarquía real, no una etiqueta.
+   ============================================================ */
+.mem-wall{
+  display:grid;grid-template-columns:repeat(12,1fr);
+  gap:clamp(28px,3.4vw,64px) clamp(20px,2.6vw,48px);
+  align-items:start}
+.mem-cell{grid-column:span 6;display:flex;flex-direction:column}
+.mem-cell[data-weight=hero]{grid-column:span 8}
+.mem-cell[data-weight=medium]{grid-column:span 5}
+.mem-cell[data-weight=small]{grid-column:span 4}
+.mem-cell[data-featured]{grid-column:span 12}
+/* el espacio negativo es parte de la composición: algunas celdas entran más tarde */
+.mem-cell[data-rhythm="1"],.mem-cell[data-rhythm="4"]{margin-top:clamp(24px,4vw,86px)}
+.mem-cell[data-rhythm="3"]{margin-top:clamp(12px,2vw,40px)}
+.mem-cell[data-weight=hero] .mem-frame{aspect-ratio:16/10}
+.mem-cell[data-weight=medium] .mem-frame{aspect-ratio:4/5}
+.mem-cell[data-weight=small] .mem-frame{aspect-ratio:1}
+.mem-cell[data-featured] .mem-frame{aspect-ratio:21/9}
+.mem-cell .mem-copy{padding:22px 0 0;max-width:52ch}
+/* El recuerdo destacado se compone como la apertura de un reportaje: titular grande a
+   todo el ancho y la historia en una columna de lectura, con el resto del ancho como
+   espacio negativo deliberado.
+
+   Dos intentos anteriores se descartaron MIRANDO la captura, no un test: el título en
+   una columna con `grid-row:span 3` dejaba un hueco enorme a su derecha, y una segunda
+   columna con la firma y el botón los separaba media pantalla, porque compartían filas
+   con un párrafo mucho más alto. */
+.mem-cell[data-featured] .mem-copy{max-width:none;padding-top:26px}
+.mem-cell[data-featured] .mem-item-title{font-size:clamp(30px,3.6vw,54px)}
+.mem-cell[data-featured] .mem-text{max-width:64ch;font-size:14px;margin-top:18px}
+.mem-cell[data-featured] .mem-author{font-size:17px}
+.mem-frame,.mem-cell{transition:transform .6s cubic-bezier(.22,.8,.22,1)}
+.mem-cell:hover .mem-frame,.mem-cell:focus-within .mem-frame{transform:translateY(-4px)}
+
+/* ============================================================
+   PRESET 02 — MEMORY STACK
+   Uno en foco, los vecinos asomando. Botones y teclado son la vía principal.
+   ============================================================ */
+.mem-stack{max-width:1080px;margin:0 auto}
+.mem-deck{
+  position:relative;height:clamp(460px,58vh,660px);
+  perspective:1400px;outline:none}
+/* La tarjeta tiene una altura FIJA (la del mazo), así que el orden de las filas es al
+   revés de lo que parece: la copia toma lo que necesita y la media se queda con el
+   resto. Con `auto 1fr` y un marco con `aspect-ratio`, el marco reclamaba 349px en una
+   fila de 260 y desbordaba: el título aparecía encima de la foto. Se vio en la captura,
+   no en un test — un rect por separado seguía siendo correcto. */
+.mem-card{
+  position:absolute;inset:0;margin:auto;width:min(680px,86%);
+  display:grid;grid-template-rows:minmax(0,1fr) auto;
+  background:var(--mem-ground-2);border:1px solid var(--mem-line);
+  padding:0 0 26px;overflow:hidden;
+  transform-origin:50% 100%;
+  transition:transform .68s cubic-bezier(.22,.8,.22,1),opacity .5s ease,filter .5s ease;
+  will-change:transform,opacity}
+.mem-card .mem-frame{aspect-ratio:auto;height:100%;min-height:0}
+.mem-card .mem-copy{padding:22px 28px 0;max-width:none}
+.mem-card[data-state=focus]{
+  transform:translate3d(0,0,0) scale(1);opacity:1;z-index:3;filter:none}
+.mem-card[data-state=near]{
+  opacity:.42;z-index:2;filter:saturate(.7) brightness(.72);pointer-events:none}
+/* los vecinos tienen que ASOMAR de verdad: si sólo sobresalen un dedo, la pila no se
+   lee como una pila */
+.mem-card[data-state=near][data-offset="-1"]{transform:translate3d(-34%,24px,-140px) rotate(-3.6deg) scale(.9)}
+.mem-card[data-state=near][data-offset="1"]{transform:translate3d(34%,24px,-140px) rotate(3.6deg) scale(.9)}
+.mem-card[data-state=near][data-offset="-2"]{transform:translate3d(-52%,44px,-260px) rotate(-6deg) scale(.82);opacity:.18}
+.mem-card[data-state=near][data-offset="2"]{transform:translate3d(52%,44px,-260px) rotate(6deg) scale(.82);opacity:.18}
+.mem-card[data-state=far]{
+  transform:translate3d(0,60px,-420px) scale(.76);opacity:0;z-index:1;pointer-events:none}
+.mem-stack-nav{
+  display:flex;align-items:center;justify-content:center;gap:22px;margin-top:36px}
+.mem-nav-btn{
+  width:46px;height:46px;border-radius:50%;border:1px solid var(--mem-line);
+  background:transparent;color:var(--mem-ink);font-size:15px;cursor:pointer;
+  transition:border-color .3s ease,background .3s ease}
+.mem-nav-btn:hover:not(:disabled){border-color:var(--mem-ink);background:rgba(242,237,226,.06)}
+.mem-nav-btn:disabled{opacity:.3;cursor:default}
+.mem-counter{
+  margin:0;font-size:10px;letter-spacing:.24em;color:var(--mem-muted);min-width:88px;
+  text-align:center}
+.mem-live{
+  position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);
+  white-space:nowrap}
+
+/* ============================================================
+   PRESET 03 — EDITORIAL JOURNAL
+   Cronología con voz de revista: entradilla de fecha y lugar, media grande, ritmo
+   alternado. El orden lo sigue mandando el proyecto.
+   ============================================================ */
+.mem-journal{max-width:1180px;margin:0 auto;display:grid;gap:clamp(64px,8vw,148px)}
+.mem-entry{
+  display:grid;
+  grid-template-columns:minmax(120px,.72fr) minmax(0,1.5fr) minmax(0,1.25fr);
+  gap:clamp(22px,3vw,58px);align-items:start}
+.mem-entry[data-side=right]{direction:rtl}
+.mem-entry[data-side=right] > *{direction:ltr}
+.mem-entry .mem-frame{aspect-ratio:4/3}
+.mem-entry[data-featured] .mem-frame{aspect-ratio:16/9}
+.mem-entry[data-featured]{grid-template-columns:minmax(120px,.6fr) minmax(0,2.4fr)}
+.mem-entry[data-featured] .mem-copy{grid-column:2;max-width:62ch}
+.mem-entry-aside{padding-top:6px;border-top:1px solid var(--mem-line)}
+.mem-date{
+  margin:16px 0 0;font-family:var(--serif,"Italiana",serif);font-size:clamp(18px,1.7vw,26px);
+  line-height:1.1}
+.mem-place,.mem-entry-aside .mem-kind{
+  margin:8px 0 0;font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--mem-muted)}
+.mem-entry .mem-copy{padding-top:6px}
+.mem-entry .mem-text{font-size:14px}
+
+/* ---------- historia ampliada ----------
+   No es una segunda ficha de producto: es el texto largo del mismo recuerdo. */
+.mem-story{
+  position:fixed;inset:0;z-index:240;
+  display:grid;place-items:center;padding:clamp(16px,4vw,56px);
+  background:rgba(6,6,6,.86);backdrop-filter:blur(6px)}
+.mem-story-sheet{
+  position:relative;width:min(1040px,100%);max-height:88vh;overflow:auto;
+  display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+  background:var(--mem-ground-2,#141312);color:var(--mem-ink,#f2ede2);
+  border:1px solid rgba(242,237,226,.14)}
+.mem-story-media{background:#000}
+.mem-story-media .mem-media{width:100%;height:100%;max-height:88vh;object-fit:cover}
+.mem-story-body{padding:clamp(26px,3vw,52px)}
+.mem-story-title{
+  font-family:var(--serif,"Italiana",serif);font-weight:400;margin:0;
+  font-size:clamp(26px,3vw,44px);line-height:1.08}
+.mem-story-meta{
+  margin:14px 0 0;font-size:9px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(242,237,226,.55)}
+.mem-story-text{margin:22px 0 0;font-size:14px;line-height:1.78;color:rgba(242,237,226,.86)}
+.mem-story-author{
+  margin:18px 0 0;font-family:var(--serif,"Italiana",serif);font-size:16px;
+  color:rgba(242,237,226,.6)}
+.mem-story-close{
+  position:absolute;top:14px;right:14px;z-index:2;
+  width:42px;height:42px;border-radius:50%;border:1px solid rgba(242,237,226,.22);
+  background:rgba(10,10,10,.6);color:#f2ede2;font-size:20px;cursor:pointer}
+
+/* ---------- Media Picker compartido (no es de Memories) ---------- */
+.rmp-layer{
+  position:fixed;inset:0;z-index:260;display:grid;place-items:center;
+  padding:clamp(16px,4vw,48px);background:rgba(8,8,8,.72)}
+.rmp-sheet{
+  width:min(880px,100%);max-height:82vh;overflow:auto;
+  background:#f3efe6;color:#151512;border:1px solid #d6cfc1}
+.rmp-head{
+  display:flex;align-items:center;gap:14px;padding:16px 20px;
+  border-bottom:1px solid #d6cfc1;position:sticky;top:0;background:#f7f3eb}
+.rmp-head strong{font-size:12px;letter-spacing:.04em}
+.rmp-count{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7d776e}
+.rmp-cancel{
+  margin-left:auto;border:1px solid #bfb7a8;background:#fffdf8;padding:8px 12px;
+  font-size:10px;cursor:pointer}
+.rmp-empty{margin:0;padding:26px 20px;font-size:11px;line-height:1.6;color:#6f6a62}
+.rmp-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;
+  padding:16px 20px 24px}
+.rmp-card{
+  display:grid;gap:6px;border:1px solid #d6cfc1;background:#fffdf8;padding:8px;
+  text-align:left;cursor:pointer;color:inherit}
+.rmp-card:hover,.rmp-card:focus-visible{border-color:#171714}
+.rmp-thumb{height:104px;background:#111;overflow:hidden;display:grid;place-items:center}
+.rmp-thumb img,.rmp-thumb video{width:100%;height:100%;object-fit:cover}
+.rmp-name{
+  font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rmp-kind{font-size:8px;letter-spacing:.16em;color:#7d776e}
+
+/* ---------- panel del Studio ----------
+   Hereda de `.studio` (label, input, select, textarea): sólo se añade lo propio. */
+.mem-panel-head{display:flex;align-items:center;gap:10px;margin:0 0 6px}
+.mem-panel-head h3{font-family:var(--serif,"Italiana",serif);font-size:29px;font-weight:400;margin:0}
+.mem-panel .mem-hint{font-size:10px;line-height:1.6;color:#746f67;margin:0 0 16px}
+.mem-badge{
+  border:1px solid #d2cabd;border-radius:999px;padding:4px 9px;font-size:8px;
+  letter-spacing:.12em;white-space:nowrap;color:#5f5a52}
+.mem-field{margin:0 0 12px}
+.mem-field.mem-check{
+  flex-direction:row!important;align-items:center!important;gap:9px!important;
+  text-transform:none!important;font-size:11px!important}
+.mem-list-head{
+  display:flex;align-items:center;gap:10px;margin:22px 0 12px;
+  padding-top:16px;border-top:1px solid var(--studio-line,#d6cfc1)}
+.mem-sub{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#8b857c}
+.mem-add{
+  margin-left:auto;background:#151512;color:#fff;border:1px solid #151512;
+  padding:9px 12px;font-size:10px;cursor:pointer}
+.mem-list{display:grid;gap:8px}
+.mem-card-edit{border:1px solid var(--studio-line,#d6cfc1);background:#faf7f0}
+.mem-card-edit summary{
+  display:flex;align-items:center;gap:10px;padding:11px 12px;cursor:pointer;
+  font-size:11px;list-style:none}
+.mem-card-edit summary::-webkit-details-marker{display:none}
+.mem-card-edit summary strong{
+  font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mem-card-edit summary .mem-badge{margin-left:auto}
+.mem-card-body{padding:4px 12px 16px;border-top:1px solid #e3ddd0}
+.mem-ops{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 14px}
+.mem-op{
+  border:1px solid #cbc4b7;background:#fffdf8;padding:8px 10px;font-size:9px;
+  cursor:pointer;color:#171714}
+.mem-op:disabled{opacity:.4;cursor:default}
+.mem-op-danger{color:#9b3027;border-color:#d4aaa5}
+.mem-media-box{margin-top:14px;padding-top:12px;border-top:1px solid #e3ddd0}
+.mem-media-row{
+  display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;
+  margin:10px 0;padding-bottom:10px;border-bottom:1px solid #ece6da}
+.mem-media-row .mem-media-kind{
+  font-size:8px;letter-spacing:.12em;border:1px solid #d2cabd;padding:4px 7px;
+  justify-self:start}
+.mem-media-thumb{
+  width:56px;height:44px;background:#151512;overflow:hidden;display:grid;
+  place-items:center;font-size:7px;letter-spacing:.1em;color:#8b857c}
+.mem-media-thumb img,.mem-media-thumb video{width:100%;height:100%;object-fit:cover}
+.mem-media-row input{grid-column:1/-1;font-size:10px}
+.mem-media-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.mem-upload{
+  display:inline-flex;align-items:center;background:#171714;color:#fff;padding:8px 11px;
+  font-size:9px;cursor:pointer;text-transform:none;letter-spacing:.04em}
+.mem-upload input[type=file]{display:none}
+.mem-status{min-height:14px;margin:12px 0;font-size:10px;color:#8a6727}
+
+/* ---------- responsive público ---------- */
+@media(max-width:1000px){
+  .mem-cell,.mem-cell[data-weight=hero],.mem-cell[data-weight=medium],
+  .mem-cell[data-weight=small],.mem-cell[data-featured]{grid-column:span 12}
+  .mem-cell[data-rhythm]{margin-top:0}
+  .mem-cell[data-featured] .mem-copy{grid-template-columns:1fr}
+  .mem-entry,.mem-entry[data-featured]{grid-template-columns:1fr}
+  .mem-entry[data-side=right]{direction:ltr}
+  .mem-entry[data-featured] .mem-copy{grid-column:auto}
+  .mem-story-sheet{grid-template-columns:1fr}
+  .mem-story-media .mem-media{max-height:42vh}
+}
+@media(max-width:620px){
+  .mem-section{padding:72px 18px 84px}
+  .mem-deck{height:clamp(380px,64vh,520px)}
+  .mem-card{width:100%}
+  .mem-card[data-state=near]{opacity:.22}
+  .mem-card[data-state=near][data-offset="-1"]{transform:translate3d(-11%,18px,-120px) rotate(-2.4deg) scale(.92)}
+  .mem-card[data-state=near][data-offset="1"]{transform:translate3d(11%,18px,-120px) rotate(2.4deg) scale(.92)}
+}
+
+/* ---------- reduced motion ----------
+   Sin transiciones ni desplazamientos gratuitos. El Stack sigue funcionando: cambia de
+   recuerdo, simplemente no lo anima. */
+@media(prefers-reduced-motion:reduce){
+  .mem-card,.mem-frame,.mem-cell,.mem-nav-btn{transition:none!important}
+  .mem-cell:hover .mem-frame,.mem-cell:focus-within .mem-frame{transform:none}
+  .mem-card[data-state=near]{transform:translate3d(0,0,-140px) scale(.9)!important}
+}
+
+/* ============================================================
+   CONTRATO DE CAPAS CON SCROLL TRAVELER (Project 09)
+   El viajero es un overlay `position:fixed` cuya ruta ancla en `.chef-section` y
+   `#visit` — y Memories se inserta justo entre las dos, así que el objeto sobrevuela
+   esta sección. `styles-v14.css` documenta la solución y NO se rediseña Project 09:
+   el contenido de la página se eleva a la escala de capas del viajero.
+
+       media 3   → los marcos de foto/vídeo de esta sección
+       copy  5   → su tipografía, que siempre gana a `behind` y `between`
+
+   Sin esto, un overlay fijo no tiene nada tras lo que pasar: con z-index positivo pinta
+   sobre cualquier sección estática, y con negativo desaparece bajo su fondo opaco.
+   ============================================================ */
+html[data-scroll-traveler="ready"] .mem-section .mem-frame{
+  position:relative;z-index:3}
+
+/* El TEXTO va por encima incluso del estado `front` (60), y esto es una decisión, no un
+   descuido. La ruta del viajero ancla en `.chef-section` y en `#visit`; Memories entra
+   entre las dos, y `layer` es un estado discreto que cambia en el punto medio del
+   segmento, así que durante la primera mitad de esta sección el objeto viaja en `front`
+   y tapaba la historia. Se vio en la captura, no en un test.
+   Rediseñar la ruta sería rediseñar Project 09 —prohibido—, así que se resuelve donde
+   corresponde: el objeto sigue cruzando la sección por encima de las FOTOS, que es
+   donde no hay nada que leer, y nunca por encima de una palabra. 61 queda por debajo de
+   la cabecera del sitio (120), que sigue ganando a todo. */
+html[data-scroll-traveler="ready"] .mem-section .mem-copy,
+html[data-scroll-traveler="ready"] .mem-section .mem-head,
+html[data-scroll-traveler="ready"] .mem-section .mem-entry-aside,
+html[data-scroll-traveler="ready"] .mem-section .mem-stack-nav,
+html[data-scroll-traveler="ready"] .mem-section .mem-empty{
+  position:relative;z-index:61}
+/* el mazo del Stack necesita su propio contexto: sus tarjetas se apilan entre ellas, y
+   su copy viaja dentro */
+html[data-scroll-traveler="ready"] .mem-section .mem-deck{position:relative;z-index:61}
