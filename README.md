@@ -222,9 +222,15 @@ El motor del rotador se promovió a la raíz para conseguirlo sin duplicar nada:
 **Fase 2 — READY FOR HUMAN VISUAL REVIEW.**
 
 Un solo dominio de datos (`modules.memories.items[]`) y tres presentaciones. Recuerdos,
-eventos, testimonios, prensa e hitos: el tipo es data, no cinco sistemas. Imagen y vídeo
-desde la **misma** Media Library (`RestaurantStore`), con referencias lógicas
-(`project/memories/<item>/<media>`) en el Project State — nunca un `blob:`.
+eventos, testimonios, prensa e hitos: el tipo es data, no cinco sistemas. **Varias
+imágenes y vídeos por recuerdo**, todas alcanzables en Wall, Stack, Journal y en la ficha
+ampliada, desde la **misma** Media Library (`RestaurantStore`), con referencias lógicas
+(`project/memories/<item>/<media>`) en el Project State — nunca un `blob:`. El orden de
+`media[]` es dato y `media[0]` es la portada.
+
+Cada recuerdo puede llevar un **tratamiento material** —papel de archivo con grabado
+cinético, o tela con solver Verlet— elegido en el Studio y pintado en canvas 2D, sin traer
+WebGL al sitio.
 
 Nuevo y **compartido** para Fase 3: `RestaurantMedia` (resolución de media, sin almacén
 propio) y `RestaurantMediaPicker` (el selector de Media Library que el producto no
@@ -402,7 +408,14 @@ NO retrasar V1 por polish móvil avanzado que no aporta al gate principal
    que la puerta del LAB. Gate 28/28 con guard de DOM: ninguna acción productiva interna
    apunta a `/labs/` ni abre pestaña nueva. Ver
    `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
-5. **Fase 2 — Memories: READY FOR HUMAN VISUAL REVIEW.** La memoria del restaurante
+5. **Fase 2 — Memories: READY FOR HUMAN VISUAL REVIEW (recuperación visual completada).**
+   La primera entrega fue rechazada en revisión visual; se conservó la arquitectura
+   —Project State, media compartida, Studio, persistencia— y se reconstruyó el producto:
+   multimedia real (todas las medias de un recuerdo, en los cuatro destinos), vídeo con
+   Play/Pause de verdad, los tres presets con gramática propia y los artefactos
+   materiales (Paper y Heritage Cloth). Gate 64/64. Detalle en
+   `docs/CLASS-23-MEMORIES.md` y auditoría de referencias en
+   `docs/CLASS-23-MEMORIES-VISUAL-RECOVERY-AUDIT.md`. La memoria del restaurante
    entra como capacidad completa: `modules.memories` en el Project State, un panel en el
    Studio de siempre, imagen **y** vídeo por la Media Library compartida, y UN motor con
    tres presentaciones — Cinematic Memory Wall, Memory Stack y Editorial Journal.

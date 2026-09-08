@@ -1,7 +1,15 @@
 # CLASS 23 — MEMORIES ENGINE + MEMORIES STUDIO
 
-**Estado:** READY FOR HUMAN VISUAL REVIEW · **MERGED: NO**
+**Estado:** READY FOR HUMAN VISUAL REVIEW (tras la RECUPERACIÓN VISUAL) · **MERGED: NO**
 **Rama:** `feat/memories-engine-studio` · **Base:** `origin/main` con Fase 1C ya integrada
+
+> **La primera entrega de esta fase fue RECHAZADA en revisión visual humana.** Este
+> documento describe el producto después de la recuperación exigida por
+> `docs/CLASS-23-MEMORIES-VISUAL-RECOVERY-MISSION.md`. Lo que se conservó: Project State,
+> `RestaurantMedia`, `RestaurantMediaPicker`, el Studio, la persistencia, Undo/Redo y la
+> Media Library compartida. Lo que se reconstruyó: la multimedia real, el vídeo usable,
+> los tres presets y los artefactos materiales. Auditoría de referencias en
+> `docs/CLASS-23-MEMORIES-VISUAL-RECOVERY-AUDIT.md`.
 
 Fase 2 entra como capacidad completa del producto, no como un LAB bonito que después
 habría que integrar:
@@ -37,9 +45,14 @@ Cada recuerdo:
   link,                                 // sólo http/https; cualquier otra cosa se ignora
   featured,                             // jerarquía visual real, no una etiqueta
   visualWeight,                         // hero | medium | small
-  media: [{id, kind:'image'|'video', ref, alt}]
+  artifactStyle,                        // none | paper | cloth  ← TRATAMIENTO material
+  media: [{id, kind:'image'|'video', ref, alt}]   // ORDEN = dato; media[0] es la portada
 }
 ```
+
+`artifactStyle` lo elige el restaurante y **nunca** se deduce del `type`: un hito puede
+querer papel y una apertura puede querer tela. Cambiar el tratamiento conserva el
+recuerdo, sus datos y su media — sólo cambia cómo se presenta.
 
 **El `type` es DATA**, no una rama de arquitectura: no hay cinco sistemas, hay un modelo
 con un campo. Un campo vacío no se rellena — no se pinta.
@@ -92,14 +105,42 @@ cadena sigue identificando el asset. Al eliminar un recuerdo la referencia se
 **desvincula**; el asset **no** se borra, porque Undo tiene que poder devolver el
 recuerdo con su media puesta. La limpieza de huérfanos es otra responsabilidad.
 
+## Multi-media: `firstMedia()` ya no existe
+
+Era el defecto de fondo del rechazo. El modelo admitía `media[]`, pero el runtime pintaba
+la **primera** media resoluble y las demás quedaban guardadas e invisibles.
+
+Ahora hay **un visor compartido** —portada + tira navegable— y lo usan los cuatro
+destinos, así que **todas** las medias de un recuerdo son alcanzables en todos ellos:
+
+| | cómo se recorren |
+|---|---|
+| Cinematic Memory Wall | satélites que muerden el borde de la portada + anterior/siguiente |
+| Memory Stack | puntos en la tarjeta en foco + anterior/siguiente |
+| Editorial Journal | filmstrip bajo el spread |
+| Story ampliado | miniaturas, anterior/siguiente y ← → de teclado |
+
+Todas las medias se montan a la vez y se conmuta la activa: el cambio es instantáneo, el
+vídeo conserva su posición, y el DOM demuestra —para una persona y para un test— que el
+recuerdo tiene más de una. Al cambiar de media, el vídeo anterior se pausa.
+
+El **orden** de `media[]` es dato: `media[0]` es la portada, y «usar como portada» mueve
+esa media al índice 0. No hay `primaryMediaId` que pueda discrepar del array. El reorden
+de media entra en Undo/Redo como una sola operación.
+
 ## Studio
 
 El **mismo** Restaurant Studio, una pestaña más — sin segundo Studio, sin popup, sin LAB,
 sin editor en iframe. ON/OFF, preset, cabecera de sección, y por recuerdo: título,
-historia, autor, fecha, lugar, tipo, valoración, enlace, `featured`, peso visual, subir
-imagen, subir vídeo, elegir de la Media Library, quitar referencia, texto alternativo,
-`↑ Subir` / `↓ Bajar`, eliminar. Preview inmediato: se escribe en el Project State en el
-mismo evento que los controles nativos.
+historia, autor, fecha, lugar, tipo, valoración, enlace, `featured`, peso visual,
+**tratamiento** (Normal / Papel / Tejido), `↑ Subir` / `↓ Bajar`, eliminar. Preview
+inmediato: se escribe en el Project State en el mismo evento que los controles nativos.
+
+**La media se VE en el editor**, que era otra de las carencias: cada archivo aparece con
+su miniatura real (fotograma incluido, en el caso del vídeo), su badge IMAGEN/VÍDEO, su
+posición, el distintivo PORTADA en el primero, su texto alternativo, y sus controles
+`↑` `↓` `Portada` `Quitar`. El vídeo del editor tiene **Play/Pause manual y nunca
+autoplay**: se está editando, no viendo la web.
 
 **Mostrar el panel es cosa de Class 23, y no por gusto:** `app-v4.js` asigna el
 `onclick` de las pestañas UNA vez, en `bindStudio()`, recorriendo las que existen en ese
@@ -122,21 +163,68 @@ es UNA entrada de historial y Undo devuelve el recuerdo entero, con sus referenc
 Un solo motor (`class23-memories-engine.js`) y tres renderers. Los tres reciben los
 mismos ítems y ninguno guarda nada propio.
 
-**01 · Cinematic Memory Wall** — pared editorial asimétrica sobre doce columnas. El peso
-visual manda: `hero` toma el momento grande, `medium` acompaña, `small` respira.
-`featured` se compone como la apertura de un reportaje: titular a todo el ancho e
-historia en columna de lectura, con el resto del ancho como espacio negativo deliberado.
-El ritmo sale del dato y de la posición: nada aleatorio, así que la pared se ve igual en
-cada carga.
+**01 · Cinematic Memory Wall** — pared editorial asimétrica sobre doce columnas, con
+gramática de movimiento propia:
 
-**02 · Memory Stack** — recuerdos apilados con un solo `focus` (un segundo índice que
-pueda discrepar con la pantalla es el bug que ya costó dos fases). Los vecinos asoman con
-profundidad y desaturación. Botones y teclado son la vía principal; el arrastre es un
-extra de desktop. **La rueda no se toca**: cero scroll hijacking.
+- **revelado material** al entrar en pantalla: la media se abre por `clip-path`, el copy
+  entra detrás y los satélites llegan al final, escalonado por posición. Una sola pasada;
+  coreografía, no circo.
+- **parallax por celda** alimentado desde el motor (`--mem-shift`, `--mem-depth`) en un
+  único rAF que **se apaga tras tres frames sin scroll**. Nunca se toca el scroll.
+- **micro-inclinación** por puntero, sólo con puntero fino, y sólo en la celda señalada.
+- el **destacado** se compone como la apertura de un reportaje: portada 21/9, collage de
+  satélites que muerde su borde inferior, y la historia en columna de lectura.
 
-**03 · Editorial Journal** — cronología con voz de revista: fecha y lugar como
-entradilla, media grande y ritmo alternado. El orden lo sigue mandando el proyecto: una
-fecha sirve para leerla, no para reordenar a espaldas del restaurante.
+Un detalle que costó encontrar: el `transform` del parallax NO puede ir en la celda. Ahí
+crea un contexto de apilamiento que se lleva dentro al texto, y el contrato de capas con
+Scroll Traveler deja de valer — el objeto pasaba por encima de la historia. Vive en el
+escenario de media, que es lo que debe moverse.
+
+**02 · Memory Stack** — mazo físico con gramática de Koi Studies:
+
+- **posición CONTINUA**: `focus` es un flotante que un muelle persigue, y de la distancia
+  al foco salen `x/y/z`, `rotateY`, `rotateZ`, `scale`, `zIndex`, opacidad y desenfoque en
+  cada frame. Los estados discretos de la versión rechazada son justo la razón de que no
+  se sintiera físico.
+- **arrastre real** con `setPointerCapture`, umbral `clamp(ancho·0.18, 52, 88)`, prueba de
+  intención horizontal, `tapSlop` de 3 px y supresión del click fantasma.
+- **lanzamiento por velocidad**: un gesto rápido cambia de recuerdo aunque no alcance el
+  umbral; uno insuficiente vuelve al origen.
+- estados de runtime `IDLE` / `DRAGGING` / `SETTLING`, expuestos en `data-stack-state`
+  para los tests y **nunca** guardados en Project State. En reposo, cero rAF.
+- **la rueda no se toca**: el scroll de la página sigue siendo el scroll de la página.
+
+**03 · Editorial Journal** — archivo editorial: spreads con capas de papel, folio,
+entradilla de fecha y lugar, filmstrip de las medias secundarias, ritmo alternado y
+revelado por máscara. El orden lo sigue mandando el proyecto: una fecha sirve para leerla,
+no para reordenar a espaldas del restaurante.
+
+## Artefactos materiales
+
+Ya no son polish posterior: forman parte de la identidad de Memories. No son motores
+aparte — no tienen store, ni Studio, ni Project State propios. Son un **tratamiento** que
+el restaurante elige por recuerdo y que cualquier preset pinta.
+
+**Paper Artifact** (`artifactStyle:'paper'`) — hoja cálida con pliegue, canto y sombra
+propia, y encima un grabado cinético en canvas 2D: la matemática de roseta del
+`kinetic-lathe-certificate` de ThreeUI (familia de curvas anidadas cuya fase deriva) más
+dos bandas guilloché que desplazan el contorno por su normal. El documento respira.
+
+**Heritage Cloth** (`artifactStyle:'cloth'`) — tela colgada tras la media, resuelta con el
+**solver Verlet** del `lumina-weavers-cloth`: rejilla 18×12 fijada por arriba, la misma
+función de viento y tres iteraciones de relajación de distancias por paso. Se dibuja como
+urdimbre y trama, con el ancho y el brillo de cada hilo derivados de su profundidad — por
+eso parece tela y no una malla.
+
+**Sin Three.js y sin WebGL, y es una decisión, no un atajo.** El sitio no carga Three;
+añadirlo por un artefacto son ~600 KB de CDN nuevo y un contexto que hay que mantener y
+destruir bien, justo lo que §29 del contrato prohíbe dejar huérfano. En canvas 2D hay
+deformación, movimiento, luz y profundidad reales, y el ciclo de vida es trivial de cerrar.
+
+Ciclo de vida de los dos (patrón de `Gallery.tsx`): nada corre si el artefacto no es
+visible o el documento está oculto; `destroy()` cancela el rAF, desconecta observers y
+suelta el canvas. Con `prefers-reduced-motion` se pinta un fotograma y se para — estado
+premium estático, no una caja vacía.
 
 ### El recuerdo ampliado
 
@@ -147,15 +235,32 @@ el texto largo del mismo recuerdo.
 
 ## Vídeo
 
-Primera clase desde esta fase, y con reglas:
+El rechazo decía que «se pueden subir vídeos, pero la experiencia no garantiza que una
+persona pueda reproducirlos». El contrato está invertido en `class23-memories-video.js`:
 
-- `<video playsinline preload="metadata">`, siempre `muted`: nunca audio automático;
-- **nunca todos a la vez**: un `IntersectionObserver` reproduce el que está realmente
-  visible (>55%) y pausa el resto;
-- pausa fuera del viewport, con el documento oculto (`visibilitychange`) y al apagar
-  Memories;
-- con `prefers-reduced-motion` **no arranca solo**;
-- los object URLs se revocan al desmontar.
+- **TODO vídeo tiene un control de Play/Pause visible y usable. Siempre.** Es la vía
+  principal, no el plan B del autoplay.
+- El **autoplay es el extra**: sólo el vídeo de portada de un recuerdo destacado, sólo si
+  es visible, el documento está visible, no hay reduced-motion, está `muted` y es
+  `playsinline`. Como máximo **uno a la vez**.
+- Si `play()` se rechaza **no se ignora en silencio**: el estado vuelve a «pausado» y el
+  control sigue ahí, que es justo lo que faltaba.
+- Pausa al salir del viewport, al ocultarse el documento, al cambiar de media, al cambiar
+  de recuerdo en el Stack, al cerrar el story y al apagar Memories. Un registro único, así
+  que el vídeo del story entra por la misma puerta que el inline.
+- `preload="metadata"` y, en las miniaturas, una búsqueda a un instante temprano para que
+  **haya fotograma** — el póster que un restaurante no tiene por qué preparar.
+
+Dos detalles que salieron de tests que fallaban con razón:
+
+1. **Pausar por proporción de visibilidad era un error.** El revelado de la sección anima
+   un `clip-path`, y el IntersectionObserver *cuenta el recorte*: durante ~1,1 s la
+   proporción sube de 0 a 1, así que un vídeo recién arrancado se pausaba solo a mitad de
+   la animación. Ahora se pausa por `isIntersecting === false` — «fuera del viewport», que
+   es literalmente lo que pide el contrato.
+2. **Un vídeo parado en su final no arrancaba.** `play()` lo dejaba donde estaba y volvía
+   a terminar en el mismo instante, así que el control no hacía nada visible. Se rebobina,
+   como cualquier reproductor.
 
 ## Público
 
@@ -199,18 +304,40 @@ sus `mediaRef`.
 
 ## Gate
 
-`tests/class23-memories-e2e.mjs` — **39/39 · MEMORIES_PASS**. Cubre los 35 puntos de la
-misión. La media de los tests es real: la imagen sale de un asset del repositorio y el
-vídeo se **genera** con MediaRecorder, así que la subida se recorre de verdad.
+`tests/class23-memories-e2e.mjs` — **64/64 · MEMORIES_PASS**, sobre los §36–§41 del
+contrato de recuperación. No comprueba presencia de nodos: comprueba comportamiento.
 
-Dos defectos que salieron de MIRAR el resultado, no de un test en rojo:
+- un recuerdo con **cuatro medias mezcladas** (imagen · vídeo · imagen · vídeo) y hay que
+  llegar a las cuatro en Wall, Stack, Journal y Story — §35 prohíbe el atajo de «un
+  recuerdo de foto y otro de vídeo», y los fixtures lo respetan;
+- el vídeo se prueba con **Play, `currentTime` avanzando y Pause**, inline y en el story;
+- el arrastre del Stack se prueba **moviendo el puntero de verdad**: que el mazo se mueve,
+  que un lanzamiento cambia de recuerdo, que un gesto corto vuelve al origen y que la
+  página **no** se secuestra;
+- los artefactos se prueban leyendo el canvas: hay píxeles pintados, no una clase CSS;
+- el reorden de media y de recuerdos se prueba en el estado **y en el DOM del Studio**.
 
-1. **El marco del Stack desbordaba su fila.** Con `grid-template-rows:auto 1fr` en una
-   tarjeta de altura fija, un marco con `aspect-ratio` reclamaba 349 px en una fila de
-   260 y el título aparecía **encima de la foto**. Cada rect era correcto por separado.
-2. **Una resolución de media fallida se cacheaba para siempre**, así que un asset que
-   aparecía después —recién subido, o con el almacén aún hidratando— no se volvía a
-   intentar y su recuerdo se quedaba sin media hasta recargar.
+Los fixtures cumplen §34 al pie de la letra: 5 recuerdos, 12 medias (9 imágenes + 3
+vídeos), uno con cuatro medias, uno con imagen+vídeo+imagen, uno de papel, uno de tela, un
+destacado hero y los tres pesos. Las imágenes salen de assets del repositorio y los vídeos
+se **generan** con MediaRecorder, así que la subida se recorre de verdad.
+
+### Defectos que salieron de MIRAR el resultado, no de un test en rojo
+
+1. **El `transform` del parallax en la celda** creaba un contexto de apilamiento y anulaba
+   el contrato de capas con Scroll Traveler: el objeto pasaba sobre la historia.
+2. **La superficie del artefacto desaparecía**: una regla mía del contrato de capas le
+   forzaba `position:relative`, le anulaba el `inset` y la dejaba con altura cero.
+3. **El artefacto tapaba la fotografía**: el visor tiene `transform` de inclinación, así
+   que es contexto de apilamiento y el `z-index` de su marco quedaba encerrado dentro.
+4. **El mazo salía descentrado** porque `margin-left:min(-280px,-42%)` no es la mitad del
+   ancho de la tarjeta.
+5. **Banda negra bajo el vídeo** cuando su proporción no coincidía con la del marco: el
+   slot activo estaba en flujo normal en vez de rellenar la caja.
+6. **Desbordamiento real en móvil**: el Journal medía 468 px de ancho en un viewport de
+   390, porque el mínimo automático de una tira `nowrap` es la suma de sus miniaturas.
+   Faltaba `min-width:0`.
+7. **El rAF del parallax no se apagaba nunca** mientras la sección estuviera a la vista.
 
 ## Limitaciones honestas
 
@@ -220,11 +347,20 @@ Dos defectos que salieron de MIRAR el resultado, no de un test en rojo:
   NO está terminado**, y la capa Cloud es la que lo cierra.
 - **Project State remoto y Media Library remota siguen pendientes**, y siguen siendo
   obligatorios para V1. **La Platform Layer no está terminada.**
-- Una celda compone con la **primera** media que resuelve; las refs extra se conservan en
-  el dato para una galería futura.
 - **Studio desktop-first**: no se ha hecho paridad móvil del editor, y no se ha tomado
-  ninguna decisión que la impida. La web pública **sí** es responsive (smoke real a
-  390 px en el gate).
-- Los *optional material artifacts* (lenguaje de papel/herencia) del roadmap **no** entran
-  aquí: encajarían como detalle de presentación dentro de este mismo motor, y se dejan
-  como polish posterior para no arriesgar el cierre de la fase.
+  ninguna decisión que la impida — el reorden tiene vía accesible además del arrastre, el
+  dominio no depende del almacén y la media se referencia por una clave lógica. La web
+  pública **sí** es responsive, y el gate la comprueba en los tres presets a 390 px.
+- El **arrastre del Stack** es la vía rica; en móvil funciona por Pointer Events, y en
+  cualquier caso los botones y el teclado hacen lo mismo.
+- Los artefactos son **canvas 2D**, no WebGL: hay materialidad, movimiento y luz, pero no
+  sombras proyectadas ni refracción. Si algún día se quiere ir más allá, el sitio tendrá
+  que decidir si trae Three.js — hoy no lo trae.
+
+### Dos limitaciones de la entrega anterior que quedan RETIRADAS
+
+- ~~«una celda compone con la primera media»~~ — falso ya: **todas** las medias de un
+  recuerdo son alcanzables en los cuatro destinos.
+- ~~«los material artifacts quedan como polish posterior»~~ — **Paper Artifact y Heritage
+  Cloth están implementados** dentro de este mismo motor, elegibles por recuerdo desde el
+  Studio.

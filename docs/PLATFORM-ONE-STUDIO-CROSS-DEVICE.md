@@ -622,7 +622,10 @@ Toda feature nueva debe responder antes de implementarse:
   puerta productiva** — el LAB los conserva para regresión. Auditoría en
   `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
 
-- Fase 2 · Memories (Class 23) — **entregada y pendiente de revisión visual humana**.
+- Fase 2 · Memories (Class 23) — **recuperación visual completada; pendiente de revisión
+  visual humana**. La primera entrega se rechazó por producto, no por arquitectura: se
+  conservó la base y se reconstruyó la multimedia, el vídeo, los tres presets y los
+  artefactos materiales.
   Cumple ONE STUDIO · ONE PROJECT STATE · ONE MEDIA LIBRARY: `modules.memories` en el
   Project State de siempre, un panel más en el Studio de siempre, y la media —imagen y
   vídeo— en el único almacén (`RestaurantStore`), referenciada por
