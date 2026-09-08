@@ -122,7 +122,7 @@
     els.ingredients.textContent = dish.ingredients || '';
     els.price.textContent = dish.price || '';
     els.word.textContent = dish.depthCarousel?.word || dish.name.split(' ')[0].toUpperCase();
-    els.live.textContent = `Selected dish: ${dish.name}`;
+    els.live.textContent = `Plato seleccionado: ${dish.name}`;
   }
 
   function updateWorld() {
