@@ -211,9 +211,11 @@ Class 21 — Unified Product Detail: ✅ aprobada y mergeada.
 
 ### Product Consolidation
 
-**Fase 1B — IN PROGRESS.**
+**Fase 1B — CLOSED. Fase 1C — READY FOR HUMAN VISUAL REVIEW.**
 
-Circular Dish Rotator, Dish Stage y Cinematic Product Rail todavía tienen arquitectura autónoma. El objetivo inmediato es abrirlas **dentro del mismo shell/app** sin convertirlas en presets ni obligar al usuario a abrir LABs.
+Circular Dish Rotator, Dish Stage y Cinematic Product Rail se abren **dentro de la misma aplicación** (1B) y, desde 1C, desde sus propios entrypoints productivos en `experiences/`: el producto ya no carga `/labs/` ni como entrada ni como runtime. Ninguna se convirtió en preset y ningún LAB se borró.
+
+El motor del rotador se promovió a la raíz para conseguirlo sin duplicar nada: **una implementación, dos puertas** — la productiva y la histórica del LAB cargan exactamente los mismos ficheros. Detalle en `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
 
 ---
 
@@ -373,12 +375,18 @@ NO retrasar V1 por polish móvil avanzado que no aporta al gate principal
 
 1. **Fase 0 — CLOSED:** Class 20 + Optional Modules + Spanish Defaults.
 2. **Fase 1A — CLOSED:** Unified Product Detail.
-3. **Fase 1B — READY FOR HUMAN REVIEW:** experiencias autónomas dentro del mismo app
-   shell. La In-App Experience Shell (`class22-experience-shell.js`) abre Circular Dish
-   Rotator, Dish Stage y Cinematic Product Rail **dentro de la misma aplicación**, sobre
-   el mismo Project State; ninguna abre ya otra pestaña. Los LABs se conservan como
-   evidencia y regresión, no como punto de entrada del producto.
-4. **Fase 1C — Gate de consolidación:** 11 Motion + Product Detail + módulos desde una sola app.
+3. **Fase 1B — CLOSED:** experiencias autónomas dentro del mismo app shell. La In-App
+   Experience Shell (`class22-experience-shell.js`) abre Circular Dish Rotator, Dish
+   Stage y Cinematic Product Rail **dentro de la misma aplicación**, sobre el mismo
+   Project State; ninguna abre ya otra pestaña. Los LABs se conservan como evidencia y
+   regresión, no como punto de entrada del producto.
+4. **Fase 1C — READY FOR HUMAN VISUAL REVIEW:** gate de consolidación. 11 Motion +
+   Product Detail + los tres módulos desde una sola app, un solo Project State y un solo
+   modelo de media. El producto dejó de depender de `/labs/`: las tres experiencias
+   tienen entrypoint productivo en `experiences/`, cargando el **mismo motor canónico**
+   que la puerta del LAB. Gate 28/28 con guard de DOM: ninguna acción productiva interna
+   apunta a `/labs/` ni abre pestaña nueva. Ver
+   `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
 5. **Fase 2 — Memories:** diseño + Studio + imagen/vídeo + Project State + Media Engine.
 6. **Fase 3 — Beverages:** diseño + Studio + imagen/vídeo + Project State + Media Engine.
 7. **Fase 4 — Project Model final:** congelar contrato de datos antes de cloud.

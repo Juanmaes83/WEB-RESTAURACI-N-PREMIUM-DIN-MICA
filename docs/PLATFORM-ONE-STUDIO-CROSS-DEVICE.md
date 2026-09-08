@@ -601,20 +601,27 @@ Toda feature nueva debe responder antes de implementarse:
 ## En curso
 
 - Fase 1B: in-app consolidation de Circular Dish Rotator, Dish Stage y Cinematic Product
-  Rail — **entregada y pendiente de revisión visual humana**. Cumple ya ONE PRODUCT ·
-  ONE STUDIO · ONE PROJECT · ONE PREVIEW EXPERIENCE: las tres se previsualizan dentro de
-  la misma aplicación sobre el mismo Project State, sin abrir otra pestaña y sin store
-  paralelo. `LAB != PRODUCT ENTRY POINT`.
+  Rail — **CERRADA**. Cumple ONE PRODUCT · ONE STUDIO · ONE PROJECT · ONE PREVIEW
+  EXPERIENCE: las tres se previsualizan dentro de la misma aplicación sobre el mismo
+  Project State, sin abrir otra pestaña y sin store paralelo.
+
+- Fase 1C: consolidation gate — **entregada y pendiente de revisión visual humana**.
+  Cierra `LAB != PRODUCT ENTRY POINT` también como runtime: el producto abre
+  `experiences/<id>/index.html`, no una página de `/labs/`, y ambas puertas cargan el
+  **mismo motor canónico** — una implementación, dos entradas, ningún motor duplicado.
+  El guard de DOM prohíbe que cualquier acción productiva interna apunte a `/labs/` o
+  abra otra pestaña; los enlaces comerciales públicos sí pueden salir, y se comprueba
+  que siguen ahí. Gate 28/28 en `tests/phase-1c-consolidation-gate.mjs`, tabla capacidad
+  por capacidad en `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
 
   Sigue pendiente para ONE MEDIA MODEL completo: el rotador aún no consume la carta del
   proyecto, documentado en `docs/IN-APP-EXPERIENCE-AUDIT.md`.
 
-  Esto **no** cierra la Platform Layer: cuentas, cloud y autosave cross-computer siguen
-  pendientes.
+  Nada de esto cierra la Platform Layer: cuentas, cloud, Project State remoto, Media
+  Library remota y autosave cross-computer siguen pendientes y siguen siendo
+  obligatorios para V1.
 
 ## Falta para V1
-
-- consolidation gate;
 - Memories con Studio + image/video;
 - Beverages con Studio + image/video;
 - final Project Model;
