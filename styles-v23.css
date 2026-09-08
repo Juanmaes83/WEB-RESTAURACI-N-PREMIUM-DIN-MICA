@@ -301,13 +301,22 @@
   display:grid;grid-template-rows:minmax(0,1fr) auto;
   background:linear-gradient(180deg,#171614,#100f0e);
   border:1px solid var(--mem-line);
+  /* Lo que hace física a la referencia Koi y a mis tarjetas les faltaba: canto
+     redondeado, un filo interior de luz y una sombra larga. Sin eso son rectángulos;
+     con eso son objetos sobre una mesa. */
+  border-radius:clamp(14px,1.6vw,24px);
+  overflow:hidden;
   transform-origin:88% 92%;                       /* el mazo gira desde la esquina */
-  box-shadow:0 40px 70px -38px rgba(0,0,0,.95),inset 0 0 0 1px rgba(244,239,228,.05);
+  box-shadow:
+    0 42px 74px -36px rgba(0,0,0,.96),
+    0 8px 20px -12px rgba(0,0,0,.7),
+    inset 0 0 0 1px rgba(244,239,228,.1);
   will-change:transform,opacity,filter;
   -webkit-user-drag:none}
 /* durante el arrastre, sin transición: la tarjeta va pegada al dedo */
 .mem-deck[data-dragging] .mem-card{transition:none}
 .mem-card-stage{position:relative;min-height:0;overflow:hidden}
+.mem-card-stage .mem-frame{border-radius:0}
 .mem-card-stage .mem-viewer{height:100%;gap:0}
 .mem-card-stage .mem-frame{height:100%}
 /* el FOCO destiñe lo que no está elegido (Character Filmstrip) */
@@ -626,14 +635,96 @@ html[data-scroll-traveler="ready"] .mem-section .mem-frame{
    `z-index:0`, por debajo del visor y por encima del fondo de la sección. Forzarle
    `position:relative` le anulaba el `inset` y la dejaba con altura cero — el papel y el
    tejido desaparecían del todo. */
+/* Sólo se eleva lo que es ESTÁTICO por defecto. Las miniaturas, el filmstrip y el
+   anterior/siguiente del visor ya están posicionados por su preset —los satélites de la
+   pared son absolutos, y el control del mazo va anclado a su esquina—, así que forzarles
+   `position:relative` aquí los devolvía al flujo: el nav del Stack aparecía pegado a las
+   miniaturas en la esquina contraria. No lo necesitan: viajan dentro de `.mem-viewer`,
+   que ya tiene su propia capa. */
 html[data-scroll-traveler="ready"] .mem-section .mem-copy,
 html[data-scroll-traveler="ready"] .mem-section .mem-head,
 html[data-scroll-traveler="ready"] .mem-section .mem-entry-aside,
 html[data-scroll-traveler="ready"] .mem-section .mem-stack-nav,
 html[data-scroll-traveler="ready"] .mem-section .mem-stack-hint,
-html[data-scroll-traveler="ready"] .mem-section .mem-thumbs,
-html[data-scroll-traveler="ready"] .mem-section .mem-filmstrip,
-html[data-scroll-traveler="ready"] .mem-section .mem-viewer-nav,
 html[data-scroll-traveler="ready"] .mem-section .mem-empty{
   position:relative;z-index:61}
+html[data-scroll-traveler="ready"] .mem-section .mem-viewer{z-index:61}
 html[data-scroll-traveler="ready"] .mem-section .mem-deck{position:relative;z-index:61}
+
+/* ============================================================
+   REVISIÓN VISUAL (?review=memories) y accesos del Studio
+   Añadidos tras el rechazo: el usuario abría la URL y no encontraba Memories, ni sabía
+   cómo llegar a Wall/Stack/Journal, ni cómo reemplazar una imagen.
+   ============================================================ */
+.mem-review-banner{
+  position:fixed;left:0;right:0;bottom:0;z-index:230;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:12px clamp(16px,3vw,34px);
+  background:rgba(11,11,10,.92);backdrop-filter:blur(10px);
+  border-top:1px solid rgba(200,168,106,.34);
+  color:#f4efe4;font-size:10px;letter-spacing:.06em}
+.mem-review-banner strong{
+  font-size:9px;letter-spacing:.28em;color:#c8a86a;white-space:nowrap}
+.mem-review-banner span{color:rgba(244,239,228,.62);line-height:1.5}
+.mem-review-presets{display:flex;gap:8px;margin-left:auto}
+.mem-review-presets button{
+  border:1px solid rgba(244,239,228,.2);background:transparent;color:#f4efe4;
+  padding:8px 14px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  cursor:pointer;transition:border-color .3s ease,background .3s ease}
+.mem-review-presets button:hover{border-color:#c8a86a}
+.mem-review-presets button[data-current="1"]{background:#c8a86a;border-color:#c8a86a;color:#12100c}
+html[data-memories-review] .mem-section{padding-bottom:clamp(120px,12vw,180px)}
+
+/* el enlace público de la navegación principal */
+.desktop-nav [data-memories-nav]{position:relative}
+
+/* ---------- Studio: entrada inequívoca ---------- */
+.mem-panel-intro{
+  border-bottom:1px solid var(--studio-line,#d6cfc1);
+  padding-bottom:16px;margin-bottom:18px}
+.mem-eyebrow-studio{
+  margin:0;font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:#8b857c}
+.mem-panel-intro h3{
+  font-family:var(--serif,"Italiana",serif);font-size:31px;font-weight:400;margin:6px 0 8px}
+.mem-panel-intro .mem-hint{margin:0}
+
+/* ---------- Studio: los tres presets, presentados ---------- */
+.mem-preset-box{margin:18px 0 6px}
+.mem-preset-grid{display:grid;gap:8px;margin:10px 0 12px}
+.mem-preset-card{
+  display:grid;gap:4px;text-align:left;cursor:pointer;
+  border:1px solid var(--studio-line,#d6cfc1);background:#fffdf8;color:#171714;
+  padding:12px 13px;
+  transition:border-color .25s ease,box-shadow .25s ease,background .25s ease}
+.mem-preset-card strong{font-size:11px;letter-spacing:.02em}
+.mem-preset-note{font-size:9px;color:#7d776e;line-height:1.5}
+.mem-preset-view{
+  font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:#8b857c;margin-top:2px}
+.mem-preset-card:hover{border-color:#171714}
+.mem-preset-card[data-current="1"]{
+  border-color:#171714;background:#f2ede1;box-shadow:inset 3px 0 0 #171714}
+.mem-preset-card[data-current="1"] .mem-preset-view{color:#171714}
+
+/* ---------- Studio: accesos de revisión ---------- */
+.mem-review-actions{
+  display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  margin:16px 0 4px;padding-top:14px;border-top:1px solid var(--studio-line,#d6cfc1)}
+.mem-primary{
+  background:#151512;color:#fff;border:1px solid #151512;padding:10px 14px;
+  font-size:10px;letter-spacing:.12em;cursor:pointer}
+.mem-primary:hover{background:#000}
+
+/* ---------- Studio: reemplazar y zona de restablecer ---------- */
+.mem-op-replace{
+  display:inline-flex;align-items:center;cursor:pointer;
+  text-transform:none;letter-spacing:.02em}
+.mem-op-replace input[type=file]{display:none}
+.mem-danger-zone{
+  margin:20px 0 6px;padding-top:14px;border-top:1px solid var(--studio-line,#d6cfc1)}
+.mem-danger-zone .mem-hint{margin:8px 0 0}
+
+@media(max-width:620px){
+  .mem-review-banner{font-size:9px;padding:10px 14px}
+  .mem-review-presets{margin-left:0;width:100%}
+  .mem-review-presets button{flex:1}
+}

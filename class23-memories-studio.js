@@ -54,6 +54,17 @@
     ['memory-stack', 'Memory Stack'],
     ['editorial-journal', 'Editorial Journal']
   ];
+  /* Los tres presets, presentados. El `<select>` sigue existiendo —hay tests y hay teclado
+     que dependen de él— pero deja de ser la única forma de descubrirlos: el usuario
+     reportó que no encontraba Wall/Stack/Journal, y un desplegable no los enseña. */
+  const PRESET_CARDS = [
+    ['cinematic-memory-wall', 'Cinematic Memory Wall',
+      'Vista cinematográfica · collage · profundidad'],
+    ['memory-stack', 'Memory Stack',
+      'Tarjetas físicas · arrastre · lanzamiento · profundidad'],
+    ['editorial-journal', 'Editorial Journal',
+      'Archivo editorial · spreads · filmstrip']
+  ];
 
   /* ---------- controles ----------
      Escriben en el Project State en el mismo evento que los nativos (`input`), para que
@@ -215,6 +226,41 @@
     row?.querySelector('[data-mem-cover]')?.focus();
   };
 
+  /* REEMPLAZAR ≠ AÑADIR. Era el fallo que el usuario vivía como «siguen apareciendo las
+     imágenes antiguas»: subía otra foto creyendo sustituir y en realidad añadía una
+     referencia más al array, con la vieja todavía de portada. Esto sustituye ESA
+     referencia en SU posición; el asset global no se borra (otro recuerdo puede usarlo, y
+     Undo tiene que poder volver). */
+  async function replaceMedia(id, ref, kind, file) {
+    if (!file) return;
+    const expected = kind === 'video' ? 'video/' : 'image/';
+    if (!file.type.startsWith(expected)) {
+      status(`El archivo no es ${kind === 'video' ? 'un vídeo' : 'una imagen'}.`);
+      return;
+    }
+    const mediaId = M().newMediaId(kind);
+    const nextRef = M().refFor(id, mediaId);
+    try {
+      await media().save(nextRef, file);
+    } catch (err) {
+      console.error(err);
+      status('No se pudo guardar el archivo en la Media Library.');
+      return;
+    }
+    const next = itemsNow();
+    const item = next.find(i => i.id === id);
+    if (!item) return;
+    const at = (item.media || []).findIndex(x => x.ref === ref);
+    if (at < 0) return;
+    const previous = item.media[at];
+    item.media[at] = {id: mediaId, kind, ref: nextRef, alt: previous.alt || ''};
+    set(`${PATH}.items`, next);
+    openItem = id;
+    render();
+    engine()?.refresh?.();
+    status(`Media ${String(at + 1).padStart(2, '0')} reemplazada. La anterior ya no está vinculada a este recuerdo.`);
+  }
+
   function setAlt(id, ref, alt) {
     const next = itemsNow();
     const item = next.find(i => i.id === id);
@@ -222,6 +268,24 @@
     if (!m) return;
     m.alt = alt;
     set(`${PATH}.items`, next);
+  }
+
+  /* Abre la sección REAL del producto: cierra el cajón y lleva el scroll. Sin pestaña
+     nueva, sin iframe, sin LAB. */
+  function preview(preset) {
+    if (preset) set(`${PATH}.preset`, preset);
+    if (!state().enabled) {
+      set(`${PATH}.enabled`, true);
+      status('Memories se ha activado para poder verlo.');
+    }
+    window.RestaurantStudioShell?.close?.();
+    setTimeout(() => {
+      const section = document.querySelector('#memories');
+      if (section) section.scrollIntoView({
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start'
+      });
+    }, 220);
   }
 
   function status(message) {
@@ -351,11 +415,24 @@
       cover.type = 'button'; cover.dataset.memCover = m.ref; cover.disabled = mi === 0;
       cover.setAttribute('aria-label', 'Usar como portada');
       cover.addEventListener('click', () => makeCover(item.id, m.ref));
+      /* Reemplazar es un `<label>` con su propio input: mismo gesto que subir, pero
+         sustituye en su sitio en vez de añadir al final. */
+      const replace = el('label', 'mem-op mem-op-replace', 'Reemplazar');
+      const replaceInput = el('input');
+      replaceInput.type = 'file';
+      replaceInput.accept = m.kind === 'video' ? 'video/*' : 'image/*';
+      replaceInput.dataset.memReplace = m.ref;
+      replaceInput.addEventListener('change', async () => {
+        await replaceMedia(item.id, m.ref, m.kind, replaceInput.files?.[0]);
+        replaceInput.value = '';
+      });
+      replace.append(replaceInput);
       const drop = el('button', 'mem-op mem-op-danger', 'Quitar');
       drop.type = 'button';
       drop.dataset.memUnlink = m.ref;
+      drop.title = 'Desvincula esta media del recuerdo. El archivo sigue en la Media Library.';
       drop.addEventListener('click', () => unlink(item.id, m.ref));
-      ops.append(up, down, cover, drop);
+      ops.append(up, down, cover, replace, drop);
       row.append(ops);
       mediaBox.append(row);
     });
@@ -366,7 +443,8 @@
       mediaBox.append(none);
     }
     const actions = el('div', 'mem-media-actions');
-    for (const [kind, label, accept] of [['image', 'Subir imagen', 'image/*'], ['video', 'Subir vídeo', 'video/*']]) {
+    for (const [kind, label, accept] of [['image', '+ Añadir imagen', 'image/*'],
+      ['video', '+ Añadir vídeo', 'video/*']]) {
       const up = el('label', 'mem-upload', label);
       const input = el('input');
       input.type = 'file';
@@ -385,7 +463,9 @@
     pick.addEventListener('click', () => chooseExisting(item.id, ''));
     actions.append(pick);
     const hint = el('p', 'mem-hint',
-      'Un recuerdo admite varias imágenes y vídeos. El primero es la portada; el resto se recorren en la web y en la ficha ampliada.');
+      'AÑADIR suma una media nueva al recuerdo. Para cambiar una que ya está, usa '
+      + 'REEMPLAZAR en su fila: sustituye esa y la anterior deja de estar vinculada. '
+      + 'QUITAR sólo desvincula — el archivo permanece en la Media Library.');
     actions.append(hint);
     mediaBox.append(actions);
     body.append(mediaBox);
@@ -423,6 +503,10 @@
       else input.value = v ?? '';
     });
     panel.querySelector('[data-mem-state]').textContent = value.enabled ? 'ON' : 'OFF';
+    panel.querySelectorAll('[data-mem-preset-card]').forEach(card => {
+      card.dataset.current = card.dataset.memPresetCard === value.preset ? '1' : '0';
+      card.setAttribute('aria-pressed', card.dataset.current === '1' ? 'true' : 'false');
+    });
   }
 
   function build() {
@@ -432,19 +516,49 @@
     panel.dataset.panel = 'memories';
     panel.hidden = true;
 
+    /* Entrada inequívoca: el usuario reportó que no localizaba Memories */
+    const intro = el('div', 'mem-panel-intro');
+    intro.dataset.memEntry = '1';
     const head = el('div', 'mem-panel-head');
-    head.append(el('h3', '', 'Memories'));
+    head.append(el('p', 'mem-eyebrow-studio', 'MEMORIES'));
     const badge = el('span', 'mem-badge');
     badge.dataset.memState = '1';
     head.append(badge);
-    panel.append(head);
-
-    panel.append(el('p', 'mem-hint',
-      'La memoria del restaurante: recuerdos, eventos, testimonios, prensa e hitos. Un solo conjunto de datos, tres formas de presentarlo.'));
+    intro.append(head);
+    intro.append(el('h3', '', 'Memorias del restaurante'));
+    intro.append(el('p', 'mem-hint',
+      'Recuerdos, eventos, testimonios, prensa e hitos. Un solo conjunto de datos y tres '
+      + 'formas de presentarlo — la misma media, distinta puesta en escena.'));
+    panel.append(intro);
 
     const value = state();
     panel.append(field('Publicar Memories en la web', `${PATH}.enabled`, {type: 'checkbox', value: value.enabled}));
-    panel.append(field('Presentación', `${PATH}.preset`, {options: PRESET_LABELS, value: value.preset}));
+
+    /* ---------- selección VISUAL de presentación ---------- */
+    const presetBox = el('div', 'mem-preset-box');
+    presetBox.append(el('span', 'mem-sub', 'Presentación'));
+    const presetGrid = el('div', 'mem-preset-grid');
+    presetGrid.dataset.memPresetGrid = '1';
+    for (const [id, name, note] of PRESET_CARDS) {
+      const card = el('button', 'mem-preset-card');
+      card.type = 'button';
+      card.dataset.memPresetCard = id;
+      card.append(el('strong', '', name));
+      card.append(el('span', 'mem-preset-note', note));
+      const view = el('span', 'mem-preset-view', 'Previsualizar →');
+      card.append(view);
+      card.addEventListener('click', () => {
+        set(`${PATH}.preset`, id);
+        /* seleccionar y previsualizar en el mismo gesto: la sección REAL del producto */
+        preview(id);
+      });
+      presetGrid.append(card);
+    }
+    presetBox.append(presetGrid);
+    /* el select se conserva: teclado, lectores de pantalla y los contratos existentes */
+    presetBox.append(field('Presentación (lista)', `${PATH}.preset`,
+      {options: PRESET_LABELS, value: value.preset}));
+    panel.append(presetBox);
     panel.append(field('Antetítulo', `${PATH}.eyebrow`, {value: value.eyebrow}));
     panel.append(field('Título de la sección', `${PATH}.title`, {value: value.title}));
     panel.append(field('Entradilla', `${PATH}.intro`, {type: 'textarea', value: value.intro}));
@@ -471,14 +585,49 @@
     statusNode.setAttribute('aria-live', 'polite');
     panel.append(statusNode);
 
-    const preview = el('button', 'mem-op', 'Ver la sección en la web →');
-    preview.type = 'button';
-    preview.dataset.memPreview = '1';
-    preview.addEventListener('click', () => {
-      window.RestaurantStudioShell?.close?.();
-      setTimeout(() => document.querySelector('#memories')?.scrollIntoView({behavior: 'smooth', block: 'start'}), 140);
+    /* ---------- accesos de revisión rápida ---------- */
+    const review = el('div', 'mem-review-actions');
+    const see = el('button', 'mem-primary', 'VER MEMORIES →');
+    see.type = 'button';
+    see.dataset.memPreview = '1';
+    see.addEventListener('click', () => preview());
+    review.append(see);
+    for (const [id, name] of PRESET_CARDS.map(([i, n]) => [i, n.split(' ').pop()])) {
+      const b = el('button', 'mem-op', `Previsualizar ${name}`);
+      b.type = 'button';
+      b.dataset.memPreviewPreset = id;
+      b.addEventListener('click', () => { set(`${PATH}.preset`, id); preview(id); });
+      review.append(b);
+    }
+    panel.append(review);
+
+    /* ---------- restablecer SÓLO Memories ----------
+       El usuario necesitaba una forma explícita de quitarse de encima los recuerdos y las
+       imágenes antiguas de su navegador sin tirar la carta, la marca ni los módulos. Pasa
+       por `set`, así que entra en Undo y en el guardado de siempre. */
+    const danger = el('div', 'mem-danger-zone');
+    const reset = el('button', 'mem-op mem-op-danger', 'Restablecer Memories');
+    reset.type = 'button';
+    reset.dataset.memReset = '1';
+    reset.addEventListener('click', () => {
+      const total = state().items.length;
+      const ok = window.confirm(
+        `¿Restablecer Memories?\n\nSe quitan ${total} ${total === 1 ? 'recuerdo' : 'recuerdos'} `
+        + 'y sus vínculos de media, y la sección queda apagada.\n\n'
+        + 'NO se toca la carta, ni la marca, ni los demás módulos, ni la Media Library: '
+        + 'los archivos subidos siguen disponibles. Se puede deshacer con Undo.');
+      if (!ok) return;
+      set(PATH, M().clone(M().DEFAULTS));
+      openItem = null;
+      render();
+      engine()?.refresh?.();
+      status('Memories restablecido. Los archivos siguen en la Media Library.');
     });
-    panel.append(preview);
+    danger.append(reset);
+    danger.append(el('p', 'mem-hint',
+      'Restablecer afecta SÓLO a Memories: apaga la sección y vacía sus recuerdos. '
+      + 'La carta, la marca, los módulos y los archivos de la Media Library no se tocan.'));
+    panel.append(danger);
 
     document.querySelector('#studio-scroll').append(panel);
     render();
@@ -511,9 +660,10 @@
   }
 
   /* la pestaña, junto a las demás y antes de Proyecto — como hizo Class 20 */
-  const button = el('button', '', 'Memories');
+  const button = el('button', '', 'Memorias');
   button.type = 'button';
   button.dataset.panel = 'memories';
+  button.title = 'Memories · memorias del restaurante';
   document.querySelector('.studio-nav [data-panel="project"]')?.before(button);
   button.addEventListener('click', () => { build(); showPanel(); });
 
@@ -542,6 +692,7 @@
 
   window.RestaurantMemoriesStudio = Object.freeze({
     open() { build(); showPanel(); },
+    preview,
     isBuilt: () => built,
     addItem, removeItem, moveItem,
     attach, chooseExisting, unlink
