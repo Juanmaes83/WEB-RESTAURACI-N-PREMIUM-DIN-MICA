@@ -2,7 +2,7 @@
 
 ## North Star
 
-Este repositorio no representa una sola web de restaurante. El producto objetivo es una **plataforma única para crear, personalizar, previsualizar y publicar múltiples webs premium de restauración desde cualquier móvil, tablet u ordenador**.
+Este repositorio no representa una sola web de restaurante. El producto objetivo es una **plataforma única para crear, personalizar, previsualizar y publicar múltiples webs premium de restauración sin tocar código**.
 
 La regla principal es:
 
@@ -13,11 +13,54 @@ UN PRODUCTO
 → UN PROJECT STATE
 → UNA MEDIA LIBRARY
 → MÚLTIPLES PROYECTOS / RESTAURANTES
-→ ACCESO CROSS-DEVICE
+→ ACCESO DESDE CUALQUIER ORDENADOR
 → PREVIEW + PUBLICACIÓN DESDE LA MISMA PLATAFORMA
 ```
 
 LÚMINA y los LABs son superficies de prueba. El activo real es el **Restaurant Experience Engine + Restaurant Studio**.
+
+---
+
+# Estrategia de dispositivos
+
+La estrategia aprobada para acelerar V1 sin hipotecar el futuro es:
+
+```text
+V1 = DESKTOP / LAPTOP FIRST
++
+CROSS-COMPUTER OBLIGATORIO
++
+WEB PÚBLICA RESPONSIVE
++
+ARQUITECTURA DEL STUDIO PREPARADA PARA MÓVIL
++
+MOBILE STUDIO COMPLETO = FASE POSTERIOR, NO CANCELADA
+```
+
+El gate cross-device de V1 es:
+
+```text
+ORDENADOR A
+→ login
+→ editar Restaurante A
+→ subir imagen/vídeo
+→ autosave remoto
+
+ORDENADOR B
+→ login
+→ abrir Restaurante A
+→ ver exactamente el mismo estado y media
+→ continuar
+→ preview
+→ publish
+```
+
+**No es requisito de cierre V1** poder construir cómodamente una web completa desde un teléfono. Sí es obligatorio no tomar decisiones de arquitectura que hagan costosa esa capacidad futura.
+
+La web pública de cada restaurante **sí debe seguir siendo plenamente responsive en móvil/tablet/desktop**.
+
+Documento canónico de esta decisión:
+[`docs/DEVICE-STRATEGY-DESKTOP-FIRST-MOBILE-LATER.md`](docs/DEVICE-STRATEGY-DESKTOP-FIRST-MOBILE-LATER.md)
 
 ---
 
@@ -62,7 +105,7 @@ Servicios externos de base de datos, almacenamiento, mapas, reservas o mensajer�
 
 ## 3. Un único Studio
 
-Toda capacidad de producto debe terminar integrada en el Studio actual con la misma jerarquía visual, patrones de campos, toggles, autosave, responsive y persistencia.
+Toda capacidad de producto debe terminar integrada en el Studio actual con la misma jerarquía visual, patrones de campos, toggles, autosave y persistencia.
 
 No crear:
 
@@ -70,6 +113,8 @@ No crear:
 - un configurador separado por módulo;
 - un Studio por motor;
 - un store independiente por capacidad.
+
+El Studio V1 se optimiza para desktop/laptop. Debe mantener layouts flexibles, controles semánticos y arquitectura compatible con una futura adaptación móvil, pero **el polish móvil avanzado no bloquea V1**.
 
 ## 4. Un único Project State
 
@@ -81,43 +126,42 @@ Content
 Media references
 Menu / Products
 Motion
+Product Detail
 Modules
 Memories
 Beverages
 Publish settings
 ```
 
-IndexedDB es actualmente la persistencia local del Studio, pero **no puede ser la fuente de verdad final** porque no permite abrir el mismo proyecto desde otro dispositivo.
+IndexedDB es actualmente persistencia local de transición, pero **no puede ser la fuente de verdad final** porque no permite abrir el mismo proyecto desde otro ordenador.
 
-El objetivo de plataforma es:
+Objetivo:
 
 ```text
 REMOTE PROJECT STATE = SOURCE OF TRUTH
-LOCAL CACHE / INDEXEDDB = CACHE + OFFLINE/FALLBACK
+LOCAL CACHE / INDEXEDDB = CACHE + RESILIENCIA
 ```
 
-## 5. Cross-device es requisito de producto
+## 5. Cross-computer es requisito V1
 
-El mismo proyecto debe poder seguir este flujo:
+La personalización nunca debe depender de un navegador o PC concreto.
 
-```text
-MÓVIL
-→ login
-→ abrir Restaurante A
-→ cambiar texto / foto / motion
-→ autosave remoto
+Import/export seguirá siendo útil para backups/templates/migraciones, pero no será el mecanismo normal para cambiar de ordenador.
 
-ORDENADOR
-→ login
-→ abrir Restaurante A
-→ ver exactamente los cambios
-→ continuar editando
-→ publicar
-```
+## 6. Mobile Studio se difiere, no se abandona
 
-La personalización nunca debe depender de un navegador concreto.
+Desde ahora toda feature debe evitar bloqueos futuros:
 
-## 6. Multi-project
+- no hover obligatorio para acciones críticas;
+- evitar layouts rígidos innecesarios;
+- Project State y Media independientes del dispositivo;
+- no paths locales canónicos;
+- nuevas interacciones compatibles con Pointer Events cuando sea razonable;
+- no stores browser-only por feature.
+
+Más adelante habrá una fase específica para navegación touch, reorder táctil, cámara/galería, safe areas, teclado móvil y QA en dispositivos.
+
+## 7. Multi-project
 
 La plataforma debe permitir:
 
@@ -139,7 +183,7 @@ Cada proyecto conserva su propia marca, contenido, carta, media, motion, módulo
 
 **11/11 capacidades Motion están construidas y catalogadas en Studio.**
 
-Class 19 — Motion + Module Studio Integration está aprobada y mergeada.
+Class 19 — Motion + Module Studio Integration: ✅ aprobada y mergeada.
 
 Catálogo actual:
 
@@ -155,58 +199,99 @@ Catálogo actual:
 10. Dish Stage
 11. Cinematic Product Rail
 
-Estado UX actual:
+### Product Detail
 
-- siete coreografías se activan sobre el escenario compartido;
-- Scroll Traveler funciona como Page Motion transversal;
-- Circular Dish Rotator, Dish Stage y Cinematic Product Rail siguen siendo experiencias autónomas abiertas desde la biblioteca.
+Class 21 — Unified Product Detail: ✅ aprobada y mergeada.
 
-**Objetivo final:** ninguna experiencia aprobada debe exigir abandonar la plataforma. Si una experiencia necesita una superficie propia, debe vivir dentro del mismo deployment y del mismo shell de producto/preview, no como una web externa o repositorio separado.
+- seis motores comparten la ficha existente;
+- Dish Stage y Cinematic Product Rail usan adapters;
+- Pizza conserva su modelo propio;
+- configuración ON/OFF y campos desde el Studio existente;
+- mismo Project State.
+
+### Product Consolidation
+
+**Fase 1B — IN PROGRESS.**
+
+Circular Dish Rotator, Dish Stage y Cinematic Product Rail todavía tienen arquitectura autónoma. El objetivo inmediato es abrirlas **dentro del mismo shell/app** sin convertirlas en presets ni obligar al usuario a abrir LABs.
+
+---
 
 ## Optional Modules
 
-- Social / Reputation — construido y mergeado; integración productiva completa en Studio en curso.
-- WhatsApp Contact / Concierge — construido y mergeado; integración productiva completa en Studio en curso.
-- Location / Google Maps — LAB aprobado como base; recuperación e integración productiva en curso.
+Class 20 — Optional Modules / Studio Integration: ✅ aprobada y mergeada.
 
-La fase activa es **Class 20 — Optional Modules / Studio Integration**.
+Incluye productivamente:
+
+- Location / Google Maps;
+- Social / Reputation;
+- WhatsApp Contact / Concierge;
+- defaults públicos en español;
+- mismo Studio y mismo Project State.
+
+---
 
 ## Section Experiences pendientes
 
-- Memories / Guest Stories — diseño de producto pendiente.
-- Beverage Experience — diseño de producto pendiente.
+### Memories
 
-Dirección acordada:
+Debe construirse como Section Experience configurable desde el mismo Studio.
+
+Dirección:
 
 ```text
-MEMORIES
+MEMORIES ENGINE
 ├── Cinematic Memory Wall
 ├── Memory Stack
 ├── Editorial Journal
 └── optional material artifacts
+```
 
-BEVERAGES
+**Requisito obligatorio:** panel de personalización con soporte de **imagen y vídeo**, selección desde la Media Library, metadatos, orden/featured, preview y persistencia.
+
+### Beverages
+
+Dirección:
+
+```text
+BEVERAGE EXPERIENCE
 ├── Beverage Cellar
 ├── Bottle Rail
 ├── Cocktail Stage
 └── Minimal Wine List
 ```
 
+**Requisito obligatorio:** panel de personalización con soporte de **imagen y vídeo**, datos de bebida, precio, maridaje, disponibilidad, orden/featured, preview y persistencia.
+
+Regla:
+
+```text
+MEMORIES ─┐
+BEVERAGES ├─→ ONE MEDIA ENGINE / ONE MEDIA LIBRARY
+MENU      ┤
+BRAND     ┘
+```
+
+No crear uploaders, librerías o stores de media paralelos.
+
+---
+
 ## Platform Layer pendiente
 
-Todavía falta convertir el Studio local en una plataforma cross-device real:
+Antes de considerar V1 comercialmente cerrado faltan:
 
 - autenticación / cuentas;
 - lista de proyectos;
 - Project State remoto;
 - Media Library remota;
 - autosave remoto;
-- sincronización entre dispositivos;
+- sincronización entre ordenadores;
 - duplicar / crear proyecto;
 - drafts + published snapshot;
 - publicación desde Studio;
-- permisos/seguridad;
-- responsive completo del Studio móvil/tablet.
+- permisos/seguridad.
+
+La edición móvil completa del Studio queda **fuera del gate V1**, pero permanece explícitamente planificada como fase posterior.
 
 ---
 
@@ -216,27 +301,20 @@ Todavía falta convertir el Studio local en una plataforma cross-device real:
 RESTAURANT EXPERIENCE PLATFORM
 │
 ├── ACCOUNT / AUTH
-│
 ├── PROJECTS
-│   ├── project A
-│   ├── project B
-│   └── + new project
-│
 ├── CLOUD PROJECT STATE
-│
 ├── MEDIA LIBRARY
-│
 ├── RESTAURANT STUDIO
 │   ├── Brand
 │   ├── Content
 │   ├── Media
 │   ├── Menu / Products
 │   ├── Motion
+│   ├── Product Detail
 │   ├── Modules / Integrations
 │   ├── Memories
 │   ├── Beverages
 │   └── Publish
-│
 ├── EXPERIENCE ENGINE
 │   ├── Content Engine
 │   ├── Media Engine
@@ -244,15 +322,12 @@ RESTAURANT EXPERIENCE PLATFORM
 │   ├── Motion Engine
 │   ├── Section Experiences
 │   └── Optional Modules
-│
 └── PREVIEW / PUBLISH
 ```
 
 ---
 
-# Fuente de verdad y sincronización
-
-Objetivo:
+# Fuente de verdad y media
 
 ```text
 Cloud DB
@@ -268,14 +343,12 @@ Preview
 Published snapshot
 ```
 
-El navegador puede cachear y trabajar de forma resiliente, pero la versión canónica del proyecto debe vivir remotamente para permitir acceso desde cualquier dispositivo.
-
-Los assets deben seguir el mismo principio:
-
 ```text
 REMOTE MEDIA LIBRARY = SOURCE OF TRUTH
 LOCAL BLOB CACHE = OPTIMIZATION
 ```
+
+Los dominios Memories y Beverages deben referenciar media estable del proyecto; nunca deben construir una segunda biblioteca.
 
 ---
 
@@ -290,26 +363,61 @@ NO estado crítico sólo en localStorage / IndexedDB
 NO copiar la aplicación para cada restaurante
 NO tocar código para crear un nuevo restaurante
 NO abrir otra web para editar una capacidad del mismo proyecto
+NO sacrificar arquitectura futura móvil por un atajo desktop
+NO retrasar V1 por polish móvil avanzado que no aporta al gate principal
 ```
 
 ---
 
-# Próximas fases
+# Roadmap actual
 
-1. **Class 20 — Location + Social + WhatsApp dentro del Studio y Project State.**
-2. **Consolidación de UX:** todas las capacidades se previsualizan desde la misma plataforma.
-3. **Memories + Beverages:** diseño y construcción como Section Experiences configurables.
-4. **Platform Layer:** cuentas, proyectos, persistencia cloud, media cloud y cross-device.
-5. **Publish Layer:** drafts, preview y publicación desde el mismo proyecto.
-6. **Hardening:** mobile Studio, accesibilidad, performance, SEO, cross-browser y seguridad.
-7. **Prueba de producto:** crear un segundo restaurante totalmente diferente sin tocar código y continuar editándolo desde otro dispositivo.
+1. **Fase 0 — CLOSED:** Class 20 + Optional Modules + Spanish Defaults.
+2. **Fase 1A — CLOSED:** Unified Product Detail.
+3. **Fase 1B — IN PROGRESS:** experiencias autónomas dentro del mismo app shell.
+4. **Fase 1C — Gate de consolidación:** 11 Motion + Product Detail + módulos desde una sola app.
+5. **Fase 2 — Memories:** diseño + Studio + imagen/vídeo + Project State + Media Engine.
+6. **Fase 3 — Beverages:** diseño + Studio + imagen/vídeo + Project State + Media Engine.
+7. **Fase 4 — Project Model final:** congelar contrato de datos antes de cloud.
+8. **Fase 5 — Platform Layer:** Auth + Projects + Cloud State + Cloud Media + autosave cross-computer.
+9. **Fase 6 — Preview / Publish:** draft → preview → published snapshot.
+10. **Fase 7 — Hardening V1:** responsive público, accesibilidad, performance, SEO, seguridad y desktop/browser QA.
+11. **Fase 8 — Product Proof V1:** segundo restaurante + continuidad PC A → PC B sin código.
+12. **Fase 9 — Mobile Studio Completion:** edición touch completa, cámara/galería, reorder, safe areas y QA móvil.
+
+---
+
+# Gates
+
+## Gate V1 principal
+
+```text
+PC A
+→ LOGIN / EDIT / UPLOAD / SAVE
+
+PC B
+→ LOGIN / SAME PROJECT / SAME MEDIA / CONTINUE / PREVIEW / PUBLISH
+```
+
+## Gate móvil posterior
+
+```text
+PHONE
+→ EDIT / UPLOAD / SAVE
+
+PC
+→ SAME PROJECT / CONTINUE
+```
+
+El segundo gate está diferido; no eliminado.
 
 ---
 
 # Documentación canónica
 
 - **Roadmap:** [`docs/ROADMAP-RESTAURANT-EXPERIENCE-ENGINE.md`](docs/ROADMAP-RESTAURANT-EXPERIENCE-ENGINE.md)
-- **Arquitectura de plataforma / cross-device:** [`docs/PLATFORM-ONE-STUDIO-CROSS-DEVICE.md`](docs/PLATFORM-ONE-STUDIO-CROSS-DEVICE.md)
+- **Arquitectura de plataforma:** [`docs/PLATFORM-ONE-STUDIO-CROSS-DEVICE.md`](docs/PLATFORM-ONE-STUDIO-CROSS-DEVICE.md)
+- **Estrategia de dispositivos:** [`docs/DEVICE-STRATEGY-DESKTOP-FIRST-MOBILE-LATER.md`](docs/DEVICE-STRATEGY-DESKTOP-FIRST-MOBILE-LATER.md)
+- **Unified Product Detail:** [`docs/CLASS-21-UNIFIED-PRODUCT-DETAIL.md`](docs/CLASS-21-UNIFIED-PRODUCT-DETAIL.md)
 - **Class 19 Motion Library:** [`docs/CLASS-19-MOTION-STUDIO-INTEGRATION.md`](docs/CLASS-19-MOTION-STUDIO-INTEGRATION.md)
 
-La documentación histórica de Classes y LABs se conserva, pero estos tres documentos definen la dirección actual del producto.
+Estos documentos definen la dirección actual del producto. La documentación histórica de Classes y LABs se conserva como evidencia.
