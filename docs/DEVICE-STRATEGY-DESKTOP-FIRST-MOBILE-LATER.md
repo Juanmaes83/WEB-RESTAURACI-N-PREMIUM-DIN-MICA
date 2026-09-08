@@ -274,7 +274,8 @@ Esta regla tiene prioridad sobre la búsqueda de paridad móvil prematura.
 |---|---|---|
 | FASE 1A — Unified Product Detail + defaults públicos en español | **CLOSED** | desktop prioritario; web pública responsive |
 | FASE 1B — In-App Experience Consolidation | **CLOSED** | desktop prioritario; smoke móvil real a 390 px |
-| FASE 1C — Product Consolidation Gate | **READY FOR HUMAN VISUAL REVIEW** | desktop prioritario; smoke móvil |
+| FASE 1C — Product Consolidation Gate | **CLOSED** | desktop prioritario; smoke móvil |
+| FASE 2 — Memories (Class 23) | **READY FOR HUMAN VISUAL REVIEW** | Studio desktop-first; web pública responsive con smoke real a 390 px |
 
 Las tres siguieron la DECISION RULE de §7 sin pagar deuda móvil:
 
@@ -288,4 +289,11 @@ Las tres siguieron la DECISION RULE de §7 sin pagar deuda móvil:
 - El compromiso de §5 sigue en pie: **Mobile Studio está diferido, no cancelado**, y
   aparece como Fase 9 del roadmap.
 - Memories y Beverages mantienen intacta su regla de §4: panel de personalización,
-  imagen **y** vídeo, una sola Media Library y el mismo Project State.
+  imagen **y** vídeo, una sola Media Library y el mismo Project State. **Memories la
+  cumple ya**: su panel vive en el Studio existente, admite imagen y vídeo, y no creó
+  ningún almacén — `RestaurantMedia` y `RestaurantMediaPicker` son compartidos y
+  Beverages los reutilizará.
+- Memories no gastó la fase en paridad móvil del editor (§2 lo permite) y **no tomó
+  ninguna decisión que impida el Mobile Studio futuro**: el reorden tiene vía accesible
+  además del arrastre, el dominio no depende del almacén y la media se referencia por una
+  clave lógica, no por una ruta de IndexedDB.

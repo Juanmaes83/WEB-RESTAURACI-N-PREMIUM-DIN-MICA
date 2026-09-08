@@ -217,6 +217,27 @@ Circular Dish Rotator, Dish Stage y Cinematic Product Rail se abren **dentro de 
 
 El motor del rotador se promovió a la raíz para conseguirlo sin duplicar nada: **una implementación, dos puertas** — la productiva y la histórica del LAB cargan exactamente los mismos ficheros. Detalle en `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
 
+### Memories
+
+**Fase 2 — READY FOR HUMAN VISUAL REVIEW.**
+
+Un solo dominio de datos (`modules.memories.items[]`) y tres presentaciones. Recuerdos,
+eventos, testimonios, prensa e hitos: el tipo es data, no cinco sistemas. **Varias
+imágenes y vídeos por recuerdo**, todas alcanzables en Wall, Stack, Journal y en la ficha
+ampliada, desde la **misma** Media Library (`RestaurantStore`), con referencias lógicas
+(`project/memories/<item>/<media>`) en el Project State — nunca un `blob:`. El orden de
+`media[]` es dato y `media[0]` es la portada.
+
+Cada recuerdo puede llevar un **tratamiento material** —papel de archivo con grabado
+cinético, o tela con solver Verlet— elegido en el Studio y pintado en canvas 2D, sin traer
+WebGL al sitio.
+
+Nuevo y **compartido** para Fase 3: `RestaurantMedia` (resolución de media, sin almacén
+propio) y `RestaurantMediaPicker` (el selector de Media Library que el producto no
+tenía). Beverages los reutilizará sin tocarlos.
+
+`enabled:false` por defecto: cero sección, cero espacio, cero vídeo, cero observers.
+
 ---
 
 ## Optional Modules
@@ -380,14 +401,26 @@ NO retrasar V1 por polish móvil avanzado que no aporta al gate principal
    Stage y Cinematic Product Rail **dentro de la misma aplicación**, sobre el mismo
    Project State; ninguna abre ya otra pestaña. Los LABs se conservan como evidencia y
    regresión, no como punto de entrada del producto.
-4. **Fase 1C — READY FOR HUMAN VISUAL REVIEW:** gate de consolidación. 11 Motion +
+4. **Fase 1C — CLOSED:** gate de consolidación. 11 Motion +
    Product Detail + los tres módulos desde una sola app, un solo Project State y un solo
    modelo de media. El producto dejó de depender de `/labs/`: las tres experiencias
    tienen entrypoint productivo en `experiences/`, cargando el **mismo motor canónico**
    que la puerta del LAB. Gate 28/28 con guard de DOM: ninguna acción productiva interna
    apunta a `/labs/` ni abre pestaña nueva. Ver
    `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
-5. **Fase 2 — Memories:** diseño + Studio + imagen/vídeo + Project State + Media Engine.
+5. **Fase 2 — Memories: READY FOR HUMAN VISUAL REVIEW (recuperación visual completada).**
+   La primera entrega fue rechazada en revisión visual; se conservó la arquitectura
+   —Project State, media compartida, Studio, persistencia— y se reconstruyó el producto:
+   multimedia real (todas las medias de un recuerdo, en los cuatro destinos), vídeo con
+   Play/Pause de verdad, los tres presets con gramática propia y los artefactos
+   materiales (Paper y Heritage Cloth). Gate 64/64. Detalle en
+   `docs/CLASS-23-MEMORIES.md` y auditoría de referencias en
+   `docs/CLASS-23-MEMORIES-VISUAL-RECOVERY-AUDIT.md`. La memoria del restaurante
+   entra como capacidad completa: `modules.memories` en el Project State, un panel en el
+   Studio de siempre, imagen **y** vídeo por la Media Library compartida, y UN motor con
+   tres presentaciones — Cinematic Memory Wall, Memory Stack y Editorial Journal.
+   Cambiar de preset no cambia los datos. Apagado por defecto y sin recuerdos
+   inventados. Detalle en `docs/CLASS-23-MEMORIES.md`.
 6. **Fase 3 — Beverages:** diseño + Studio + imagen/vídeo + Project State + Media Engine.
 7. **Fase 4 — Project Model final:** congelar contrato de datos antes de cloud.
 8. **Fase 5 — Platform Layer:** Auth + Projects + Cloud State + Cloud Media + autosave cross-computer.

@@ -605,7 +605,7 @@ Toda feature nueva debe responder antes de implementarse:
   EXPERIENCE: las tres se previsualizan dentro de la misma aplicación sobre el mismo
   Project State, sin abrir otra pestaña y sin store paralelo.
 
-- Fase 1C: consolidation gate — **entregada y pendiente de revisión visual humana**.
+- Fase 1C: consolidation gate — **CERRADA y mergeada**.
   Cierra `LAB != PRODUCT ENTRY POINT` también como runtime: el producto abre
   `experiences/<id>/index.html`, no una página de `/labs/`, y ambas puertas cargan el
   **mismo motor canónico** — una implementación, dos entradas, ningún motor duplicado.
@@ -622,12 +622,30 @@ Toda feature nueva debe responder antes de implementarse:
   puerta productiva** — el LAB los conserva para regresión. Auditoría en
   `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
 
-  Nada de esto cierra la Platform Layer: cuentas, cloud, Project State remoto, Media
-  Library remota y autosave cross-computer siguen pendientes y siguen siendo
-  obligatorios para V1.
+- Fase 2 · Memories (Class 23) — **recuperación visual completada; pendiente de revisión
+  visual humana**. La primera entrega se rechazó por producto, no por arquitectura: se
+  conservó la base y se reconstruyó la multimedia, el vídeo, los tres presets y los
+  artefactos materiales.
+  Cumple ONE STUDIO · ONE PROJECT STATE · ONE MEDIA LIBRARY: `modules.memories` en el
+  Project State de siempre, un panel más en el Studio de siempre, y la media —imagen y
+  vídeo— en el único almacén (`RestaurantStore`), referenciada por
+  `project/memories/<item>/<media>` y nunca por `blob:`.
+
+  Aporta dos piezas **compartidas** que el producto no tenía y que Fase 3 reutilizará:
+  `RestaurantMedia` (capa de resolución sobre el almacén único) y `RestaurantMediaPicker`
+  (selector de Media Library). Ningún almacén nuevo.
+
+  Lo que **NO** cierra: la media local sigue viviendo en el navegador, y el export del
+  proyecto lleva las referencias, no los bytes, así que en otro ordenador esas refs no
+  resuelven. **Cross-computer no está terminado.**
+
+Nada de esto cierra la Platform Layer: cuentas, cloud, Project State remoto, Media
+Library remota y autosave cross-computer siguen pendientes y siguen siendo obligatorios
+para V1.
 
 ## Falta para V1
-- Memories con Studio + image/video;
+- Memories: revisión visual humana (implementado);
+- **Media remota**: hoy los assets viven en el navegador y no viajan entre ordenadores;
 - Beverages con Studio + image/video;
 - final Project Model;
 - auth;
