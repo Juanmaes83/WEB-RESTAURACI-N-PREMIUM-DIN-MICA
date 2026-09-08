@@ -1,0 +1,90 @@
+<!doctype html>
+<!-- GENERADO por scripts/build-experience-entrypoints.mjs — no editar a mano.
+
+     Entrypoint PRODUCTIVO de Cinematic Product Rail (Project 11). Es la puerta que abre la
+     In-App Experience Shell (Class 22). Carga el MOTOR CANÓNICO de la raíz, el mismo
+     que carga la puerta histórica de labs/project11-cinematic-product-rail/index.html: una implementación, dos puertas.
+
+     El producto no depende de /labs/ en runtime. -->
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#08080a">
+  <base href="../../">
+  <title>Project 11 — Cinematic Product Rail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles-v15.css">
+</head>
+<body>
+  <main class="cpr-page" id="cpr-page">
+    <header class="cpr-topbar">
+      <a class="cpr-brand" href="index.html">LÚMINA</a>
+      <div class="cpr-project-mark"><span>RESTAURANT MOTION ENGINE</span><strong>PROJECT 11 · CINEMATIC PRODUCT RAIL</strong></div>
+      <span class="cpr-status">ISOLATED LAB · HUMAN REVIEW</span>
+    </header>
+
+    <section class="cpr-stage" aria-labelledby="cpr-title">
+      <div id="cpr-world-word" class="cpr-world-word" aria-hidden="true">FIRE</div>
+
+      <div class="cpr-copy">
+        <p id="cpr-kicker" class="cpr-copy-kicker">Santa Pola · Fire · Citrus</p>
+        <h1 id="cpr-title">Wild Red Prawn</h1>
+        <p id="cpr-short" class="cpr-short">Red prawn, smoked almond, citrus beurre blanc and sea fennel.</p>
+
+        <div class="cpr-ingredients-wrap">
+          <span>INGREDIENTES</span>
+          <p id="cpr-ingredients" class="cpr-ingredients">Red prawn · smoked almond · citrus · sea fennel</p>
+        </div>
+
+        <div class="cpr-meta-row">
+          <div class="cpr-price-block"><span>PRICE</span><strong id="cpr-price">€28</strong></div>
+          <button id="cpr-explore" class="cpr-explore" type="button">Ver plato →</button>
+        </div>
+
+        <div class="cpr-nav" aria-label="Navegación de platos">
+          <button id="cpr-prev" type="button" aria-label="Plato anterior">←</button>
+          <span id="cpr-counter" class="cpr-counter">01 / 06</span>
+          <button id="cpr-next" type="button" aria-label="Plato siguiente">→</button>
+        </div>
+        <span id="cpr-live" class="cpr-sr" aria-live="polite">Plato seleccionado: Wild Red Prawn</span>
+      </div>
+
+      <div class="cpr-rail-shell">
+        <div id="cpr-viewport" class="cpr-viewport" tabindex="0" role="application" aria-label="Cinematic Product Rail. Arrastra horizontalmente o usa las flechas.">
+          <div id="cpr-track" class="cpr-track"></div>
+          <div class="cpr-axis" aria-hidden="true"></div>
+        </div>
+        <p class="cpr-hint">Drag · Swipe · Wheel · ← → · Enter</p>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="cpr-detail" class="cpr-detail">
+    <div class="cpr-detail-inner">
+      <button id="cpr-detail-close" class="cpr-detail-close" type="button" aria-label="Cerrar ficha">×</button>
+      <span class="cpr-detail-kicker">HISTORIA DEL PLATO</span>
+      <h2 id="cpr-detail-title">Wild Red Prawn</h2>
+      <p id="cpr-detail-meta" class="cpr-detail-meta"></p>
+      <p id="cpr-detail-story" class="cpr-detail-story"></p>
+      <div class="cpr-detail-grid">
+        <div><span>Ingredientes</span><p id="cpr-detail-ingredients"></p></div>
+        <div><span>Origen</span><p id="cpr-detail-origin"></p></div>
+        <div><span>Técnica</span><p id="cpr-detail-technique"></p></div>
+        <div><span>Maridaje</span><p id="cpr-detail-pairing"></p></div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="class4-config.js"></script>
+  <!-- IN-APP EXPERIENCE: el puente sólo actúa si la shell del producto enmarca esta página.
+       Abierta directamente, este lab se comporta exactamente como siempre. -->
+  <script src="experience-shell-bridge.js"></script>
+  <script src="class15-cinematic-product-rail.js"></script>
+  <!-- CLASS 21: el contrato de ficha de producto, para que este motor lo cumpla.
+       Nada de su experiencia cambia: el adaptador abre SU propia ficha aprobada. -->
+  <script src="class21-unified-product-detail.js"></script>
+</body>
+</html>
