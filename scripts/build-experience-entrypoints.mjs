@@ -72,6 +72,12 @@ for(const exp of EXPERIENCES){
       return `<span ${attrs}>${inner}</span>`;
     });
 
+  /* La placa que identifica al LAB no puede viajar al producto: dentro de la aplicación
+     esta pantalla es una vista previa del proyecto, no un laboratorio aislado. El lab
+     conserva la suya intacta. */
+  html=html.replace(/(<span class="cdr-status">)ISOLATED LAB · PHASE 2(<\/span>)/,
+    '$1VISTA PREVIA DEL PROYECTO$2');
+
   /* las rutas propias del directorio del lab pasan a la raíz canónica; el resto ya era
      relativo a la raíz y `experiences/<id>/` está a la misma profundidad */
   html=html.replace(/(href|src)="\.\/([^"]+)"/g,'$1="../../$2"');

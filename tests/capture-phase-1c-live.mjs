@@ -91,8 +91,10 @@ async function run(label,viewport,mobile,full){
   await boot(page);
   await motionPanel(page);
   facts.engines=await page.evaluate(()=>({
-    count:document.querySelectorAll('[data-ml-engine]').length,
-    numbers:[...document.querySelectorAll('.ml-num')].map(n=>n.textContent.trim()).join(' '),
+    /* las tarjetas de motor viven en [data-ml-grid]; la sección de módulos reutiliza
+       .ml-grid para maquetar, así que contar `.ml-card` a secas mezclaría las dos */
+    count:document.querySelectorAll('[data-ml-grid] [data-ml-card]').length,
+    numbers:[...document.querySelectorAll('[data-ml-grid] .ml-n')].map(n=>n.textContent.trim()).join(' '),
     modules:document.querySelectorAll('[data-configure-module]').length,
     labLinks:[...document.querySelectorAll('#studio a[href]')]
       .filter(a=>/\/labs\//.test(a.getAttribute('href')||'')).length}));
@@ -161,7 +163,7 @@ async function run(label,viewport,mobile,full){
         .filter(m=>window.RestaurantStudioConfig.get(`modules.${m}.enabled`)===true).length,
       detailOn:window.RestaurantStudioConfig.get('productDetail.enabled')===true,
       shellOpen:!!document.querySelector('.xs-frame'),
-      engines:document.querySelectorAll('[data-ml-engine]').length}));
+      engines:document.querySelectorAll('[data-ml-grid] [data-ml-card]').length}));
     await page.evaluate(()=>document.querySelector('.ml-library')?.scrollIntoView({block:'start'}));
     await wait(page,700);
     await page.screenshot({path:path.join(OUT,`${label}-09-vuelta-al-studio.png`)});

@@ -129,11 +129,13 @@
   }
 
   function updateContextCta(product = activeProduct()) {
-    const name = product.name || 'selected pizza';
+    const name = product.name || 'la porción elegida';
     const orderFirst = profile.primaryAction === 'order';
-    primaryCta.querySelector('span').textContent = orderFirst ? `Order ${name}` : 'Reserve table';
-    secondaryCta.textContent = orderFirst ? 'Reserve table' : `Order ${name}`;
-    ctaNote.textContent = `${profile.collectionLabel} · ${product.descriptor || 'selected product'}`;
+    /* Estas dos etiquetas se reescriben en CADA cambio de porción, así que el marcado
+       inicial del lab no las decide: la fuente canónica del copy es esta función. */
+    primaryCta.querySelector('span').textContent = orderFirst ? `Pedir ${name}` : 'Reservar mesa';
+    secondaryCta.textContent = orderFirst ? 'Reservar mesa' : `Pedir ${name}`;
+    ctaNote.textContent = `${profile.collectionLabel} · ${product.descriptor || 'producto seleccionado'}`;
   }
 
   function showToast(message) {

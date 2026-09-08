@@ -107,9 +107,28 @@ Sólo UI estática de producto, en su fuente autorada, sin ningún dataset tradu
 framework de i18n: `Explore dish` → `Ver plato`, las cuatro etiquetas de ficha
 (`Ingredientes` / `Origen` / `Técnica` / `Maridaje`), los `aria-label` de navegación de
 platos, el anuncio `Plato seleccionado:` que inyectan los dos motores, y el copy de demo
-propio del rotador (`Esta noche, elige`, `Pedir Diavola`, `Reservar mesa`). No se han
-tocado ids, `data-path`, nombres de eventos (`cdr:order-request`), enums, presets ni
-nombres técnicos de motor.
+propio del rotador (`Esta noche, elige`, `Porción seleccionada`, `Solicitud de pedido`).
+No se han tocado ids, `data-path`, nombres de eventos (`cdr:order-request`), enums,
+presets ni nombres técnicos de motor.
+
+Dos correcciones salieron de MIRAR las capturas, no de los tests:
+
+- **Las etiquetas de CTA del rotador se reescriben en cada cambio de porción.** Traducir
+  el marcado inicial del lab no servía de nada: `updateContextCta()` volvía a poner
+  `Order Diavola` / `Reserve table` al primer giro. La fuente canónica del copy era esa
+  función, y ahí se corrigió (`Pedir <porción>` / `Reservar mesa`).
+- **La puerta productiva se anunciaba como laboratorio.** La placa `ISOLATED LAB ·
+  PHASE 2` viajaba al producto. El generador la sustituye ahora por `VISTA PREVIA DEL
+  PROYECTO` en la puerta productiva; **el LAB conserva la suya**, porque ahí es verdad.
+
+### Lo que sigue en inglés, a propósito
+
+Dentro del rotador queda copy en inglés que **no** entra en esta limpieza acotada y que
+se deja explícitamente a decisión humana: el titular de demo (`the slice with` / `Fire at
+the centre of the table.`), y los rótulos tipográficos `NOW SERVING`, `DISCOVER`, `FROM`
+y `SPICY · SMOKY · BOLD`. Son composición tipográfica y narrativa de demo de ese motor,
+no chrome de producto; tocarlos cambia longitudes de línea y entra en terreno de diseño,
+que esta fase tiene prohibido. Quedan listados aquí para que se decidan aparte.
 
 ## El gate
 
