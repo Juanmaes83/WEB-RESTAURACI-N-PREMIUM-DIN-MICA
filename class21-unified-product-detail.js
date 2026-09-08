@@ -452,7 +452,10 @@
   let ready=false;
   function boot(){
     if(ready)return;
-    if(!window.RestaurantStudioConfig)return;
+    /* En la página principal la configuración viene del Studio; en la página propia de
+       un motor del GROUP B no hay Studio, y entonces manda la plantilla. El contrato
+       tiene que existir en ambas o el adaptador de ese motor es código muerto. */
+    if(!window.RestaurantStudioConfig&&!window.RestaurantDefaults?.[NS])return;
     ready=true;
     guard();
     watchSharedDetail();

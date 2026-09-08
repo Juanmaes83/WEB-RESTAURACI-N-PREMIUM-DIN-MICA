@@ -522,6 +522,72 @@ async function selectPreset(page,value,flag){
   await context.close();
 }
 
+/* ============================================================
+   5. GROUP B — los dos motores con ficha propia, en su propia página
+
+   Se adaptan al CONTRATO, no al marcado: `open()` dispara su propio disparador
+   aprobado y su ficha se abre tal como estaba. Si el contrato no existiera en su
+   página, su adaptador sería código muerto — así que eso también se comprueba.
+   ============================================================ */
+for(const [label,page_,adapterId,detailSel] of [
+  ['dish-stage','labs/project10-dish-stage/index.html','dish-stage','[data-ds-detail]'],
+  ['product-rail','labs/project11-cinematic-product-rail/index.html','product-rail','#cpr-detail']]){
+  const context=await browser.newContext({viewport:{width:1440,height:960}});
+  const page=await context.newPage();
+  const errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(`${BASE}/${page_}`,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>document.documentElement.dataset.productDetailReady==='ready',
+    null,{timeout:25000}).catch(()=>{});
+  await page.waitForTimeout(2400);
+
+  const present=await page.evaluate(()=>!!window.RestaurantProductDetail);
+  check(`${label} · el contrato existe en su propia página`,present,
+    present?'RestaurantProductDetail cargado':'AUSENTE: el adaptador sería código muerto');
+
+  const r=present?await page.evaluate(async(sel)=>{
+    const pd=window.RestaurantProductDetail;
+    const st=pd.state();
+    const product=pd.activeProduct();
+    const opened=pd.open(null,{via:'api'});
+    await new Promise(x=>setTimeout(x,1500));
+    const host=document.querySelector(sel);
+    const hostOpen=sel==='#cpr-detail'
+      ?(host?.open===true||host?.hasAttribute('open'))
+      :host?.getAttribute('aria-hidden')==='false';
+    return {adapter:st.adapter,product:product?.id||null,name:product?.name||null,
+      opened,isOpen:pd.isOpen(),hostOpen,
+      ownDialogs:document.querySelectorAll('.upd-dialog.is-open').length};
+  },detailSel):{};
+  check(`${label} · el contrato elige su adaptador y lee su producto activo`,
+    r.adapter===adapterId&&!!r.product,`${r.adapter} · ${r.product}`);
+  check(`${label} · abre SU ficha aprobada, no una nueva`,
+    r.opened===true&&r.isOpen===true&&r.hostOpen===true&&r.ownDialogs===0,
+    `su ficha abierta: ${r.hostOpen}, diálogos propios creados: ${r.ownDialogs}`);
+  await page.screenshot({path:path.join(SHOTS,`groupb-${label}-ficha-on.png`)});
+
+  const closed=present?await page.evaluate(async()=>{
+    window.RestaurantProductDetail.close();
+    await new Promise(x=>setTimeout(x,1100));
+    return !window.RestaurantProductDetail.isOpen();
+  }):false;
+  check(`${label} · y cierra por el contrato`,closed,'cerrada');
+
+  const offB=present?await page.evaluate(async()=>{
+    /* en su página no hay Studio: manda la plantilla, y apagarla debe bastar */
+    window.RestaurantDefaults.productDetail.enabled=false;
+    const blocked=window.RestaurantProductDetail.open(null,{via:'api'})===false;
+    await new Promise(x=>setTimeout(x,900));
+    const open=window.RestaurantProductDetail.isOpen();
+    window.RestaurantDefaults.productDetail.enabled=true;
+    return {blocked,open};
+  }):{};
+  check(`${label} · OFF no abre tampoco aquí`,offB.blocked&&!offB.open,'refusada');
+  check(`${label} · sin errores de página`,errors.length===0,
+    errors.slice(0,2).join(' | ')||'limpio');
+  await context.close();
+}
+
 await browser.close();server.close();
 const failed=results.filter(r=>!r.ok);
 console.log(`\n${results.length-failed.length}/${results.length} checks passed`);
