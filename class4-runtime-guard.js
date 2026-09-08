@@ -153,3 +153,19 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,220));
   else setTimeout(load,220);
 })();
+
+/* CLASS 21 — carga la ficha unificada de producto de forma aditiva.
+   Es capacidad del Product Engine, no un motor: se carga después de los motores
+   porque lee qué motor está en pantalla para elegir su adaptador. index.html no se
+   toca. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-product-detail-runtime]'))return;
+    const s=document.createElement('script');
+    s.src='class21-unified-product-detail.js';s.dataset.productDetailRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,240));
+  else setTimeout(load,240);
+})();

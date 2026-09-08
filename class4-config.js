@@ -187,3 +187,31 @@ window.RestaurantDefaults.scrollTraveler={
     {anchor:'#visit',chapter:'visit',x:50,y:40,scale:1.12,rotation:0,opacity:1,layer:'between',blur:0}
   ]
 };
+
+/* PRODUCT ENGINE — UNIFIED PRODUCT DETAIL.
+
+   La ficha pertenece al Product Engine, no al Motion Engine: el motor decide cuál es
+   el producto activo, la ficha decide cómo se cuenta. Este contrato es lo único que
+   comparten, y es opcional.
+
+   `trigger` describe QUÉ abre la ficha, no cómo se anima nada:
+     'product'             sólo al pulsar el producto activo
+     'button'              sólo desde el CTA "Ver plato"
+     'product-and-button'  ambos (por defecto)
+     'off' no existe: para eso está `enabled`.
+
+   `fields` son bloques de contenido, no de diseño. Un campo en false se oculta; un
+   campo en true que el producto no tiene TAMBIÉN se oculta — nunca se rellena. */
+window.RestaurantDefaults.productDetail={
+  enabled:true,
+  trigger:'product-and-button',
+  fields:{
+    description:true,
+    ingredients:true,
+    origin:true,
+    technique:true,
+    pairing:true,
+    allergens:true,
+    story:true
+  }
+};
