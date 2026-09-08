@@ -536,6 +536,37 @@ let page = await boot(context);
     `${visible.width}×${visible.height} · en el título pinta ${visible.topTag}`);
   await page.screenshot({path: path.join(SHOTS, '02-publico-desktop.png')});
 
+  /* Un solo punto no basta: se BARRE la sección entera buscando cualquier posición de
+     scroll en la que el objeto viajero de Project 09 gane a un texto. `layer` es un
+     estado discreto que cambia en el punto medio del segmento, así que el riesgo no está
+     en un sitio fijo. */
+  const occlusion = await page.evaluate(async () => {
+    const section = document.querySelector('#memories');
+    const hits = [];
+    for (let f = 0; f <= 1; f += 0.08) {
+      const top = section.offsetTop + (section.offsetHeight - innerHeight) * f;
+      window.scrollTo(0, Math.max(0, top));
+      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 110)));
+      const texts = [...section.querySelectorAll('.mem-item-title,.mem-text,.mem-date,.mem-author,.mem-title')];
+      for (const t of texts) {
+        const r = t.getBoundingClientRect();
+        if (r.top < 0 || r.bottom > innerHeight || r.width < 20) continue;
+        for (const dx of [0.2, 0.5, 0.8]) {
+          const el = document.elementFromPoint(Math.round(r.left + r.width * dx),
+            Math.round(r.top + r.height * 0.5));
+          if (el && el.closest('.st-traveler')) hits.push(`${t.className}@${dx}`);
+        }
+      }
+    }
+    return hits;
+  });
+  check('33b · el objeto viajero cruza la sección sin tapar una sola palabra',
+    occlusion.length === 0,
+    occlusion.length ? occlusion.slice(0, 3).join(' · ') : 'barrido completo sin oclusión');
+  await page.evaluate(() => document.querySelector('#memories .mem-item-title')
+    ?.scrollIntoView({block: 'center'}));
+  await page.waitForTimeout(600);
+
   /* campos vacíos e inválidos: nada inventado */
   await page.evaluate(() => {
     const model = window.RestaurantMemoriesModel;

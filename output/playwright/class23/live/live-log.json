@@ -1,0 +1,41 @@
+{
+  "url": "https://juanmaes83.github.io/WEB-RESTAURACI-N-PREMIUM-DIN-MICA",
+  "picker": {
+    "archivos": 3,
+    "kinds": [
+      "image",
+      "video"
+    ]
+  },
+  "cinematic-memory-wall": {
+    "recuerdos": 5,
+    "imagenes": 3,
+    "videos": 1
+  },
+  "memory-stack": {
+    "recuerdos": 5,
+    "imagenes": 3,
+    "videos": 1
+  },
+  "editorial-journal": {
+    "recuerdos": 5,
+    "imagenes": 3,
+    "videos": 1
+  },
+  "off": {
+    "seccion": 0,
+    "videos": 0,
+    "alto": 7120,
+    "altoConMemories": 10386
+  },
+  "reload": {
+    "igual": true,
+    "imagenes": 3,
+    "videos": 1
+  },
+  "errores": [],
+  "movil": {
+    "overflow": false,
+    "recuerdos": 5
+  }
+}

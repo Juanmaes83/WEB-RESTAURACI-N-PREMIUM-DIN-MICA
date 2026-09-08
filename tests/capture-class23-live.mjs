@@ -67,8 +67,12 @@ const setPreset = async (page, value) => {
 const showSection = async page => {
   await page.evaluate(() => window.RestaurantStudioShell?.close?.());
   await wait(page, 500);
+  /* la sección arriba y un empujón: encuadrar sólo el borde superior enseñaba la sección
+     anterior y dejaba la pared fuera del cuadro */
   await page.evaluate(() => document.querySelector('#memories')?.scrollIntoView({block: 'start'}));
-  await wait(page, 800);
+  await wait(page, 500);
+  await page.evaluate(() => window.scrollBy(0, Math.round(window.innerHeight * 0.42)));
+  await wait(page, 700);
 };
 
 /* sube media real por el panel: es el camino del restaurante, no un atajo */
