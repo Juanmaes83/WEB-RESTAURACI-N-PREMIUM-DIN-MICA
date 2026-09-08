@@ -1,0 +1,25 @@
+/* Production bindings: inherited Brand tokens, not LAB global body/reset styles. */
+[data-public-module]{--lm-ink:var(--paper);--lm-muted:color-mix(in srgb,var(--paper) 65%,transparent);--lm-accent:var(--accent);--sr-paper:var(--paper);--sr-ink:var(--ink);--sr-accent:var(--accent);--sr-line:color-mix(in srgb,var(--paper) 18%,transparent);--wa-paper:var(--paper);--wa-ink:var(--ink);--wa-accent:var(--accent);--wa-line:var(--sr-line);color:var(--paper);font-family:inherit;min-width:0}
+[data-public-module="location"] .lm-location{width:100%;background:var(--ink);box-shadow:none;border:0}
+[data-public-module="location"] .lm-title,[data-public-module="social"] .sr-title,[data-public-module="whatsapp"] h2,[data-public-module="whatsapp"] .wa-direct strong{font-family:Italiana,serif}
+[data-public-module="social"] .sr-experience{background:var(--ink);border-radius:0;border:0;min-height:0;grid-template-areas:'intro rep' 'social social'}
+[data-public-module="social"] .sr-reputation-strip{grid-template-areas:'intro' 'rep' 'social';grid-template-columns:1fr}
+[data-public-module="social"] .sr-social-minimal{grid-template-areas:'intro' 'social';grid-template-columns:1fr}
+body>footer:has([data-public-module="social"]){flex-wrap:wrap}
+body>footer>[data-public-module="social"]{flex:0 0 100%;width:100%;text-transform:none;letter-spacing:normal}
+[data-public-module="social"] .sr-platform,[data-public-module="social"] .sr-review-cta{color:var(--paper)}
+[data-public-module="location"] .lm-statement,[data-public-module="social"] .sr-body,[data-public-module="social"] .sr-rating-label,[data-public-module="social"] .sr-reputation small,[data-public-module="whatsapp"] .wa-concierge p,[data-public-module="whatsapp"] .wa-concierge small{color:color-mix(in srgb,var(--paper) 72%,transparent)}
+[data-public-module="whatsapp"] .wa-experience{min-height:0;border:0;border-radius:0;background:var(--ink);padding:clamp(24px,5vw,70px)}
+[data-public-module="whatsapp"][data-mode="floating-launcher"]{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));right:20px;z-index:110;width:min(330px,calc(100vw - 40px))}
+[data-public-module="whatsapp"][data-mode="floating-launcher"][data-position="left"]{right:auto;left:20px}
+[data-public-module="whatsapp"] .wa-mode-floating-launcher{overflow:visible;background:none;padding:0}
+[data-public-module="whatsapp"] .wa-floating{position:relative;bottom:auto;left:auto;right:auto;margin-left:auto;width:max-content;max-width:100%}
+[data-public-module="whatsapp"][data-position="left"] .wa-floating{margin-left:0}
+[data-public-module="whatsapp"] .wa-prompt{bottom:75px;right:0;width:100%;background:var(--paper);color:var(--ink)}
+[data-public-module="whatsapp"] .wa-prompt .wa-mini{color:var(--ink)}
+[data-public-module="whatsapp"] .wa-launcher{background:var(--paper);color:var(--ink)}
+[data-public-module="whatsapp"] .wa-invalid{position:static;margin:10px 0}
+.studio-open [data-public-module="whatsapp"][data-mode="floating-launcher"],.detail-open [data-public-module="whatsapp"][data-mode="floating-launcher"],body:has(#reserve-dialog[open]) [data-public-module="whatsapp"][data-mode="floating-launcher"]{visibility:hidden;pointer-events:none}
+@media(max-width:900px){[data-public-module="social"] .sr-experience{grid-template-columns:1fr;grid-template-areas:'intro' 'rep' 'social'}}
+@media(max-width:560px){[data-public-module="whatsapp"] .wa-concierge h2{font-size:38px}[data-public-module="whatsapp"] .wa-inline-cta{min-width:0}[data-public-module="social"] .sr-title{font-size:42px}}
+@media(prefers-reduced-motion:reduce){[data-public-module] *,[data-public-module] *:before,[data-public-module] *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

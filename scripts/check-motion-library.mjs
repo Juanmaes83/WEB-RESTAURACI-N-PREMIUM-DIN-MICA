@@ -51,9 +51,15 @@ for(const e of entries.filter(x=>x.kind==='experience')){
 if(!/path:'scrollTraveler\.enabled'/.test(code))
   fail('the page-motion engine no longer toggles the real project-state flag');
 
-/* ---- 2. the modules are listed and are NOT engines ---- */
+/* ---- 2. the modules are listed and are NOT engines ----
+
+   The invariant is not a module COUNT. Modules arrive and leave with the business
+   roadmap — Class 20 added Location beside Social and WhatsApp — and pinning a literal
+   here only made the guard fail for doing its job. What must hold is that every module
+   listed is real, that none of them is smuggled into the eleven, and that the engine
+   count above stays at eleven. */
 const modules=[...code.matchAll(/\{id:'([a-z0-9-]+)',href:'(labs\/[^']+)'/g)];
-if(modules.length!==2)fail(`expected 2 modules, found ${modules.length}`);
+if(!modules.length)fail('no modules are listed at all');
 for(const [,id,href] of modules){
   if(!fs.existsSync(path.join(ROOT,href)))fail(`module page missing: ${href} (${id})`);
   if(entries.some(e=>e.id===id))fail(`${id} is counted both as a module and as an engine`);
@@ -104,5 +110,5 @@ for(const f of ['class8-depth-carousel.js','class10-orbital-food.js','class11-pi
 
 console.log(`motion library contract: 11 engines numbered 01..11 (7 orbit presets, 1 page motion, `
   +`3 full-screen experiences), every preset registered by a real runtime and every experience a `
-  +`page that exists, 2 modules listed outside the count, no second selection, no persistence of `
-  +`its own, index.html untouched and every engine runtime still loaded`);
+  +`page that exists, ${modules.length} modules listed outside the count, no second selection, `
+  +`no persistence of its own, index.html untouched and every engine runtime still loaded`);

@@ -1,0 +1,98 @@
+PASS sources · eight master PNGs are present and byte-for-byte untouched — 8 files, sizes match: true
+PASS sources · the complete pizza master is present and untouched — 2754KB
+PASS runtime · eight declared assets, nothing stray, and far lighter than source — 1732KB runtime vs 12732KB source
+PASS registration · the audit reports the whole set fits one station — length spread 0.00% · axis 0° · tightest margin 0.9°
+PASS desktop · Studio exposes Pizza Slice Orbit beside all six approved presets — elegant,urban,editorial-flow,depth-carousel,orbital-food,pizza-slice-orbit,anchor-scenes
+PASS desktop · exactly eight independent slice products — 8 slices, 8 distinct ids
+PASS desktop · every slice image comes from the runtime folder — assets/pizza-motion/runtime/slices/quattro-formaggi.webp · assets/pizza-motion/runtime/slices/barbacoa.webp
+PASS desktop · no failed requests
+PASS desktop · the complete pizza is not used as the moving product
+PASS desktop · registration data exists for all eight — canonical length 1205.5px · station 26.52°
+PASS desktop · one progress scalar and one derived active index — {"progress":0,"activeIndex":0}
+PASS desktop · the hero on stage is always the derived active index — 0:0/0 1.4:1/1 3.5:4/4 6.7:7/7 -2.3:6/6 11.9:4/4
+PASS desktop · the label can never disagree with the active slice — 4 Quesos · Barbacoa · Margarita · Verduras · Prosciutto Funghi · Margarita
+PASS desktop · the hero is measurably larger than its neighbours — hero 1.000 vs neighbour 0.717 = 1.39x
+PASS desktop · the hero is the brightest and frontmost — opacity 1 z 100
+PASS desktop · at least three perceptible depth levels — 1.00 / 0.72 / 0.32 / 0.21 / 0.21 / 0.21 / 0.32 / 0.72
+PASS desktop · the station never moves while the orbit turns — 825.1,153.9 | 825.1,153.9 | 825.1,153.9 | 825.1,153.9 | 825.1,153.9 | 825.1,153.9
+PASS desktop · the station is never rotated or scaled — none
+PASS desktop · all eight slices measure the same in the station (pixels) — width spread 2.8% · height spread 1.6% of 286x308
+PASS desktop · all eight sit at the same place in the station (pixels) — centre spread x 1.4% · y 1.3%
+PASS desktop · next advances exactly one slice — 0 → 1
+PASS desktop · prev goes back exactly one slice — 1 → 0
+PASS desktop · the keyboard steps both ways — 0 → 1 → 0
+PASS desktop · wraps 08 → 01 — progress 8 · active 1/8 · 4 Quesos
+PASS desktop · wraps 01 → 08 — progress -1 · active 8/8 · Verduras
+PASS desktop · the orbit is mid-travel while the pointer is down — progress 0.547 · dragging true
+PASS desktop · progress tracks the pointer continuously — 0.137 → 0.274 → 0.411 → 0.547
+PASS desktop · release snaps to a whole slice — settled at 1
+PASS desktop · a short drag returns to the slice it started on — progress 0 · active 0
+PASS desktop · a long drag completes instead of snapping back — held at 1.179 · settled at 1 (from 0) · Barbacoa
+PASS desktop · a forced target produces a multi-turn plan — {"target":5,"turns":3,"finalProgress":29}
+PASS desktop · the spin really travels several revolutions — 29.0 progress units = 3.63 revolutions
+PASS desktop · the spin lands exactly on the requested slice — active 5 · Mortadela y Pistacho · progress 29
+PASS desktop · the visual result and the announced result are the same slice — {"label":"Mortadela y Pistacho","counter":"06 / 08","live":"Selected pizza: Mortadela y Pistacho","hero":"mortadela-pistacho"}
+PASS desktop · a deterministic target is honoured every time — 0→0 3→3 7→7
+PASS desktop · no slice teleports across a full revolution — largest step 166px over 17 samples
+PASS desktop · z-order changes during the motion, not only at the end — 85 → 92 → 96 → 99 → 100
+PASS desktop · no horizontal overflow — 0px
+PASS desktop · the hero slice is never clipped by the section
+PASS desktop · name, counter and discover stay available
+PASS desktop · leaving the preset removes its stage, datasets and vars — {"stageHidden":true,"datasets":[],"accentVar":"","p03":{"ready":true,"renderer":true,"dishes":6}}
+PASS desktop · Project 03 still works after Pizza Slice Orbit — {"ready":true,"renderer":true,"dishes":6}
+PASS desktop · a spin in flight is cancelled by leaving the preset — {"spinning":false,"spinFlag":false,"p01":5}
+PASS desktop · Project 01 still works after Pizza Slice Orbit — 5 plates
+PASS desktop · Project 02 still works after Pizza Slice Orbit
+PASS desktop · Elegant Orbit is restored intact
+PASS desktop · Restaurant Studio still opens
+PASS desktop · no JS errors
+PASS mobile · Studio exposes Pizza Slice Orbit beside all six approved presets — elegant,urban,editorial-flow,depth-carousel,anchor-scenes,orbital-food,pizza-slice-orbit
+PASS mobile · exactly eight independent slice products — 8 slices, 8 distinct ids
+PASS mobile · every slice image comes from the runtime folder — assets/pizza-motion/runtime/slices/quattro-formaggi.webp · assets/pizza-motion/runtime/slices/barbacoa.webp
+PASS mobile · no failed requests
+PASS mobile · the complete pizza is not used as the moving product
+PASS mobile · registration data exists for all eight — canonical length 1205.5px · station 26.52°
+PASS mobile · one progress scalar and one derived active index — {"progress":0,"activeIndex":0}
+PASS mobile · the hero on stage is always the derived active index — 0:0/0 1.4:1/1 3.5:4/4 6.7:7/7 -2.3:6/6 11.9:4/4
+PASS mobile · the label can never disagree with the active slice — 4 Quesos · Barbacoa · Margarita · Verduras · Prosciutto Funghi · Margarita
+PASS mobile · the hero is measurably larger than its neighbours — hero 1.000 vs neighbour 0.730 = 1.37x
+PASS mobile · the hero is the brightest and frontmost — opacity 1 z 100
+PASS mobile · at least three perceptible depth levels — 1.00 / 0.73 / 0.33 / 0.21 / 0.20 / 0.21 / 0.33 / 0.73
+PASS mobile · the station never moves while the orbit turns — 120.5,315.4 | 120.5,315.4 | 120.5,315.4 | 120.5,315.4 | 120.5,315.4 | 120.5,315.4
+PASS mobile · the station is never rotated or scaled — none
+PASS mobile · all eight slices measure the same in the station (pixels) — width spread 0.0% · height spread 0.5% of 177x186
+PASS mobile · all eight sit at the same place in the station (pixels) — centre spread x 0.0% · y 0.3%
+PASS mobile · next advances exactly one slice — 0 → 1
+PASS mobile · prev goes back exactly one slice — 1 → 0
+PASS mobile · wraps 08 → 01 — progress 8 · active 1/8 · 4 Quesos
+PASS mobile · wraps 01 → 08 — progress -1 · active 8/8 · Verduras
+PASS mobile · the orbit is mid-travel while the pointer is down — progress 0.554 · dragging true
+PASS mobile · progress tracks the pointer continuously — 0.138 → 0.277 → 0.415 → 0.554
+PASS mobile · release snaps to a whole slice — settled at 1
+PASS mobile · a long drag completes instead of snapping back — held at 1.292 · settled at 1 (from 0) · Barbacoa
+PASS mobile · a forced target produces a multi-turn plan — {"target":5,"turns":3,"finalProgress":29}
+PASS mobile · the spin really travels several revolutions — 29.0 progress units = 3.63 revolutions
+PASS mobile · the spin lands exactly on the requested slice — active 5 · Mortadela y Pistacho · progress 29
+PASS mobile · the visual result and the announced result are the same slice — {"label":"Mortadela y Pistacho","counter":"06 / 08","live":"Selected pizza: Mortadela y Pistacho","hero":"mortadela-pistacho"}
+PASS mobile · a deterministic target is honoured every time — 0→0 3→3 7→7
+PASS mobile · no slice teleports across a full revolution — largest step 70px over 17 samples
+PASS mobile · z-order changes during the motion, not only at the end — 85 → 92 → 96 → 99 → 100
+PASS mobile · no horizontal overflow — 0px
+PASS mobile · the hero slice is never clipped by the section
+PASS mobile · name, counter and discover stay available
+PASS mobile · leaving the preset removes its stage, datasets and vars — {"stageHidden":true,"datasets":[],"accentVar":"","p03":{"ready":true,"renderer":true,"dishes":6}}
+PASS mobile · Project 03 still works after Pizza Slice Orbit — {"ready":true,"renderer":true,"dishes":6}
+PASS mobile · a spin in flight is cancelled by leaving the preset — {"spinning":false,"spinFlag":false,"p01":5}
+PASS mobile · Project 01 still works after Pizza Slice Orbit — 5 plates
+PASS mobile · Project 02 still works after Pizza Slice Orbit
+PASS mobile · Elegant Orbit is restored intact
+PASS mobile · Restaurant Studio still opens
+PASS mobile · no JS errors
+PASS reduced-motion · the preset reports reduced motion and stays usable — {"count":8,"name":"4 Quesos"}
+PASS reduced-motion · step still changes the selection
+PASS reduced-motion · discover still selects, without the long spin — Prosciutto Funghi in 2201ms
+PASS reduced-motion · the selection is still announced — Selected pizza: Prosciutto Funghi
+
+94/94 checks passed
+screenshots → C:\Users\temp123\Documents\ChatGPT\restaurant-experience-engine\tests\screenshots
+PIZZA_SLICE_ORBIT_PASS

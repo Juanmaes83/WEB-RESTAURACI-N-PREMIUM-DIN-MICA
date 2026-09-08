@@ -1,0 +1,32 @@
+name: Class 20 Modules Studio Integration
+on:
+  push:
+    branches: [feat/modules-studio-integration]
+  pull_request:
+    paths:
+      - 'class20-modules-studio.js'
+      - 'class16-location-maps.js'
+      - 'class17-social-reputation.js'
+      - 'class18-whatsapp-contact.js'
+      - 'styles-v20*'
+      - 'tests/class20*'
+      - '.github/workflows/class20-modules-studio.yml'
+  workflow_dispatch:
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: npm install --no-save playwright postcss
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/build-module-styles.mjs && git diff --exit-code styles-v20-public.css
+      - run: node tests/class16-location-maps-contract.mjs && node tests/class17-social-reputation-contract.mjs && node tests/class18-whatsapp-contact-contract.mjs
+      - run: node tests/class19-motion-library-e2e.mjs
+      - run: node tests/class20-modules-studio-integration-e2e.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: class20-browser-evidence
+          path: output/playwright/class20/

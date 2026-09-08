@@ -1,0 +1,118 @@
+PASS desktop · baseline orbital renders 6 dishes — 6
+PASS desktop · Studio exposes the Depth Carousel preset
+PASS desktop · plates rendered — 6 plates
+PASS desktop · five products present at once — 5 present · widths 158/230/439/220/178 · 3 size tiers
+PASS desktop · differential scale (hero dominates) — hero 439.9px vs 158px
+PASS desktop · z-order is layered — 5 distinct z values
+PASS desktop · depth blur gradient — blur 0→1.4
+PASS desktop · vertical arc (not a flat rail) — 5 vertical bands
+PASS desktop · V2 free objects (transparent assets, no card) — 6 free objects
+PASS desktop · V2 free objects carry no circular card
+PASS desktop · V2 Orbital language is silenced — {"rings":true,"mark":true,"glow":true,"heading":true,"stage":true}
+PASS desktop · every dish owns a distinct colour world — 6/6 distinct
+PASS desktop · V3 two colour worlds coexist at full strength — {"count":2,"a":1,"b":1}
+PASS desktop · lettering is architectural, not decoration — 25% viewport height, 36% width, opacity 0.5, "FIRE"
+PASS desktop · V2 objects occlude each other — 3 overlapping pairs at different depths
+PASS desktop · the collection continues past the frame — 1 cropped
+PASS desktop · V2 composition is asymmetric — {"dyNeighbour":8,"dyFar":70,"dxL":18,"dxR":21,"dsFar":0.05999999999999994}
+PASS desktop · V2 depth is not carried by blur — neighbour blur 1.4px, hero/neighbour 1.91x
+PASS desktop · V3 the wipe edge follows the gesture — edge 100% → 50% → 6%
+PASS desktop · V2 accent interpolates during the drag — rgb(255,106,60) → rgb(167,123,157) → rgb(79,141,255)
+PASS desktop · V3 masked lettering: continuous, never soup, never a hole — rest 1.00 · half 0.57/0.57 (total 1.14) · end 1.00
+PASS desktop · V2 copy dips mid-gesture instead of flickering — 1 → 0.1
+PASS desktop · V2 the scene moves before the index commits — counter held at 01 / 06
+PASS desktop · V3 real translateZ spreads the collection in depth — {"heroZ":150,"midZ":-250,"farZ":-540,"heroSize":1.289,"midSize":0.651,"farSize":0.471,"spread":690,"asymZ":40}
+PASS desktop · V3 the hero reads as the nearest object — hero 1.289 vs neighbour 0.651
+PASS desktop · V3 objects swap depth when they pass — 0,1,5,2,4,3 → 1,2,0,3,5,4
+PASS desktop · V3 decor layers are rendered and visible — {"items":18,"atmospheres":6,"backVisible":1,"frontVisible":2}
+PASS desktop · V3 every dish carries its own decor — 0:2f/1b 1:2f/1b 2:2f/1b 3:2f/1b 4:2f/1b 5:2f/1b
+PASS desktop · V3 decor differs from dish to dish — 6/6 distinct combinations
+PASS desktop · V3 foreground decor travels faster than the products — decor 116px vs plate 42px
+PASS desktop · V3 lettering stays readable through the occlusion — {"text":"FIRE","opacity":0.5,"cover":0.23,"top":0.16}
+PASS desktop · V3 copy safe zone is respected — {"cover":0.01,"worst":0.01,"scrim":true,"copyOverProduct":true}
+PASS desktop · V3 cursor is part of the Depth Carousel — {"state":"view","label":"VIEW","accent":"rgb(255, 106, 60)"}
+PASS desktop · the whole collection re-composes — 6/6 plates travelled
+PASS desktop · differential trajectories (parallax) — travel spread 1137.5px
+PASS desktop · movement is continuous, not a swap — 6 plates in flight mid-transition
+PASS desktop · copy follows the active dish — Gamba roja salvaje → Atún rojo / Naranja sanguina
+PASS desktop · price follows the active dish — €31
+PASS desktop · giant lettering follows the active dish — FIRE → BLUEFIN (expected BLUEFIN)
+PASS desktop · accent theme is published and changes per dish — rgb(255,106,60) → rgb(79,141,255)
+PASS desktop · indicators follow the active dish — dot 1 vs index 1
+PASS desktop · ingredients follow the active dish
+PASS desktop · next advances one dish — 1→2
+PASS desktop · prev returns — 2→1
+PASS desktop · drag surface is reachable in the viewport — (720, 508)
+PASS desktop · drag navigates — 1→2
+PASS desktop · drag snaps to a dish — residual 0.0000
+PASS desktop · engine and Orbital state stay in sync — {"engine":2,"counter":2}
+PASS desktop · V2 title and price never disagree in flight — 12 samples, 3 dishes
+PASS desktop · no broken horizontal overflow — 0px
+PASS desktop · controls visible
+PASS desktop · clicking the hero object opens the dish
+PASS desktop · dish detail opens from the carousel
+PASS desktop · detail closes and the scene is restored — 6 plates
+PASS desktop · Restaurant Studio still opens
+PASS desktop · Orbital preset is restored intact — {"visible":true,"dishes":6,"sceneHidden":true}
+PASS desktop · no JS errors
+PASS mobile · baseline orbital renders 6 dishes — 6
+PASS mobile · Studio exposes the Depth Carousel preset
+PASS mobile · plates rendered — 6 plates
+PASS mobile · five products present at once — 5 present · widths 106/162/289/164/122 · 3 size tiers
+PASS mobile · differential scale (hero dominates) — hero 289.6px vs 106.9px
+PASS mobile · z-order is layered — 5 distinct z values
+PASS mobile · depth blur gradient — blur 0→1.5
+PASS mobile · vertical arc (not a flat rail) — 5 vertical bands
+PASS mobile · V2 free objects (transparent assets, no card) — 6 free objects
+PASS mobile · V2 free objects carry no circular card
+PASS mobile · V2 Orbital language is silenced — {"rings":true,"mark":true,"glow":true,"heading":true,"stage":true}
+PASS mobile · every dish owns a distinct colour world — 6/6 distinct
+PASS mobile · V3 two colour worlds coexist at full strength — {"count":2,"a":1,"b":1}
+PASS mobile · lettering is architectural, not decoration — 12% viewport height, 61% width, opacity 0.5, "FIRE"
+PASS mobile · V2 objects occlude each other — 4 overlapping pairs at different depths
+PASS mobile · the collection continues past the frame — 4 cropped
+PASS mobile · V2 composition is asymmetric — {"dyNeighbour":6,"dyFar":68,"dxL":35,"dxR":37,"dsFar":0.040000000000000036}
+PASS mobile · V2 depth is not carried by blur — neighbour blur 1.4px, hero/neighbour 1.76x
+PASS mobile · V3 the wipe edge follows the gesture — edge 100% → 50% → 6%
+PASS mobile · V2 accent interpolates during the drag — rgb(255,106,60) → rgb(167,123,157) → rgb(79,141,255)
+PASS mobile · V3 masked lettering: continuous, never soup, never a hole — rest 1.00 · half 0.57/0.57 (total 1.14) · end 1.00
+PASS mobile · V2 copy dips mid-gesture instead of flickering — 1 → 0.1
+PASS mobile · V2 the scene moves before the index commits — counter held at 01 / 06
+PASS mobile · V3 real translateZ spreads the collection in depth — {"heroZ":140,"midZ":-240,"farZ":-540,"heroSize":1.257,"midSize":0.672,"farSize":0.441,"spread":680,"asymZ":35}
+PASS mobile · V3 the hero reads as the nearest object — hero 1.257 vs neighbour 0.672
+PASS mobile · V3 objects swap depth when they pass — 0,1,5,2,4,3 → 1,2,0,3,5,4
+PASS mobile · V3 decor layers are rendered and visible — {"items":18,"atmospheres":6,"backVisible":1,"frontVisible":2}
+PASS mobile · V3 every dish carries its own decor — 0:2f/1b 1:2f/1b 2:2f/1b 3:2f/1b 4:2f/1b 5:2f/1b
+PASS mobile · V3 decor differs from dish to dish — 6/6 distinct combinations
+PASS mobile · V3 foreground decor travels faster than the products — decor 54px vs plate 16px
+PASS mobile · V3 lettering stays readable through the occlusion — {"text":"FIRE","opacity":0.5,"cover":0.28,"top":0.11}
+PASS mobile · V3 copy safe zone is respected — {"cover":0,"worst":0,"scrim":true,"copyOverProduct":true}
+PASS mobile · the whole collection re-composes — 6/6 plates travelled
+PASS mobile · differential trajectories (parallax) — travel spread 465.6px
+PASS mobile · movement is continuous, not a swap — 6 plates in flight mid-transition
+PASS mobile · copy follows the active dish — Gamba roja salvaje → Atún rojo / Naranja sanguina
+PASS mobile · price follows the active dish — €31
+PASS mobile · giant lettering follows the active dish — FIRE → BLUEFIN (expected BLUEFIN)
+PASS mobile · accent theme is published and changes per dish — rgb(255,106,60) → rgb(79,141,255)
+PASS mobile · indicators follow the active dish — dot 1 vs index 1
+PASS mobile · ingredients follow the active dish
+PASS mobile · next advances one dish — 1→2
+PASS mobile · prev returns — 2→1
+PASS mobile · drag surface is reachable in the viewport — (195, 276)
+PASS mobile · swipe navigates — 1→4
+PASS mobile · drag snaps to a dish — residual 0.0000
+PASS mobile · engine and Orbital state stay in sync — {"engine":4,"counter":4}
+PASS mobile · V2 title and price never disagree in flight — 12 samples, 4 dishes
+PASS mobile · no broken horizontal overflow — 0px
+PASS mobile · controls visible
+PASS mobile · dish detail opens from the carousel
+PASS mobile · detail closes and the scene is restored — 6 plates
+PASS mobile · Restaurant Studio still opens
+PASS mobile · Orbital preset is restored intact — {"visible":true,"dishes":6,"sceneHidden":true}
+PASS mobile · no JS errors
+PASS reduced-motion · content and navigation survive — {"plates":6,"visible":6,"title":"Gamba roja salvaje","price":"€28","controls":true}
+PASS reduced-motion · navigation still changes dish — 1→2
+
+114/114 checks passed
+screenshots → C:\Users\temp123\Documents\ChatGPT\restaurant-experience-engine\tests\screenshots
+DEPTH_CAROUSEL_PASS

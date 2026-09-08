@@ -73,6 +73,9 @@
   /* Not engines. They are listed so Studio shows everything the product has, and they
      are deliberately outside the count of eleven. */
   const MODULES=[
+    {id:'location',href:'labs/module-location-maps/index.html',
+      name:'Location / Google Maps',project:'Class 16 · Class 20',
+      note:'Dirección, horarios y mapas con carga bajo consentimiento.'},
     {id:'social-reputation',href:'labs/module-social-reputation/index.html',
       name:'Social / Reputation',project:'Class 17',
       note:'Prueba social y reputación: reseñas, valoraciones y credibilidad.'},
@@ -169,7 +172,8 @@
       </div>
       <p class="ml-note">${mod.note}</p>
       <div class="ml-card-foot">
-        <span class="ml-state">MÓDULO</span>
+        <span class="ml-state" data-ml-module-state="${mod.id}">MÓDULO · OFF</span>
+        <button class="ml-action" type="button" data-configure-module="${mod.id}">Configurar</button>
         <a class="ml-action ml-open" href="${mod.href}" target="_blank" rel="noopener"
            data-ml-open="${mod.id}">Abrir módulo →</a>
       </div>
@@ -212,6 +216,7 @@
     if(intro&&intro.parentNode===panel)intro.insertAdjacentElement('afterend',library);
     else panel.insertBefore(library,panel.firstElementChild);
     wire();
+    library.addEventListener('click',e=>{const b=e.target.closest('[data-configure-module]');if(b)window.RestaurantModulesStudio?.open(({ 'social-reputation':'social','whatsapp-contact':'whatsapp' })[b.dataset.configureModule]||b.dataset.configureModule)});
     sync();
     root.dataset.motionLibrary='ready';
     return true;
@@ -272,6 +277,7 @@
   /* Derived, always. The library never remembers which engine is active — it asks. */
   function sync(){
     if(!library)return;
+    MODULES.forEach(mod=>{const key=({'social-reputation':'social','whatsapp-contact':'whatsapp'})[mod.id]||mod.id;const badge=$(`[data-ml-module-state="${mod.id}"]`,library);if(badge)badge.textContent=`MÓDULO · ${window.RestaurantStudioConfig?.get(`modules.${key}.enabled`)?'ON':'OFF'}`});
     ENGINES.forEach(engine=>{
       const el=$(`[data-ml-card="${engine.id}"]`,library);
       if(!el)return;

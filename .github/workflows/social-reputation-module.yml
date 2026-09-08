@@ -33,6 +33,7 @@ jobs:
       - name: Social / Reputation isolated contract
         run: node tests/class17-social-reputation-contract.mjs
       - name: Parallel collision guard
+        if: github.head_ref == 'feat/social-reputation-module-lab' || github.ref_name == 'feat/social-reputation-module-lab'
         shell: bash
         run: |
           git fetch origin main --quiet

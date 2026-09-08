@@ -1,0 +1,13 @@
+.git
+node_modules
+.github
+tests
+scripts
+docs
+output
+MANOS
+MANO+OBJETO
+VIDEOS REFERENCIAS
+Grabación*.mp4
+assets/**/source/**
+assets/**/sources/**

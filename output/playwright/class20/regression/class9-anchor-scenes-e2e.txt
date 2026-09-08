@@ -1,0 +1,84 @@
+PASS desktop · Studio exposes the Anchor Scenes preset
+PASS desktop · the preset no longer assembles a split hand — 0 legacy hand layers in the DOM
+PASS desktop · 4-6 master scenes are wired to the dishes — 5 dishes, 5 distinct scene images
+PASS desktop · exactly two scene surfaces, both resolved — {"wrappers":2,"resolved":2}
+PASS desktop · every scene on screen comes from assets/anchor-scenes/runtime/ — scene-01-gamba-roja.webp · scene-02-atun-rojo.webp
+PASS desktop · the wired scenes are the ones the manifest declares — 5 wired / 5 declared
+PASS desktop · the manifest is the real set, built from MANO+OBJETO/ — kind=real source=MANO+OBJETO/
+PASS desktop · no proxy asset survives in the runtime folder — scene-01-gamba-roja.webp · scene-02-atun-rojo.webp · scene-03-brasa-pulpo.webp · scene-04-lubina-salvaje.webp · scene-05-presa-iberica.webp
+PASS desktop · every scene painted on screen carries its registration — registration comes from the manifest, not the engine
+PASS desktop · every scene shares one canvas — 5 scenes @ 1122x1402
+PASS desktop · the anchor is the same across scenes (pixel-measured) — mean diff 6.75/255, 0.12% of the band changed
+PASS desktop · both scenes are on stage at 50% — linear-gradient(184deg, rgb(0, 0, 0) 50%, rgba(0, 0, 0, 0) 51.6028%)
+PASS desktop · the seam light shows during the gesture — seam opacity 0.52
+PASS desktop · copy steps aside for the crossover — copy opacity 0.06
+PASS desktop · old and new worlds coexist across the seam (pixels) — above!=below true, above changed vs rest true
+PASS desktop · the wipe tracks the gesture — 0% → 25.8% → 51.6% → 77.4% → 103.2%
+PASS desktop · dragging back reverses the transition — {"progress":0.1,"direction":1,"restIndex":0,"ring":5,"outIndex":0,"inIndex":1,"committed":false,"mode":"anchor-scenes","dishes":6,"scenes":2}
+PASS desktop · a cancelled release commits nothing — rest 0, counter 01 / 06
+PASS desktop · a completed gesture commits the new scene — 0 → 1, counter 1
+PASS desktop · the held scene actually changes — scene-01-gamba-roja.webp scene-03-brasa-pulpo.webp scene-05-presa-iberica.webp
+PASS desktop · the drag surface is reachable — (893, 474)
+PASS desktop · drag completes the swap — 4 → 0
+PASS desktop · decor is rendered — {"items":6,"atmo":2}
+PASS desktop · decor changes when the product changes — dish-06-decor-a+dish-06-decor-c+dish-06-decor-b → dish-04-decor-b+dish-03-decor-a+dish-04-decor-c
+PASS desktop · copy, price and indicator follow the same dish — {"idx":2,"title":"Alcachofa a la brasa","price":"€22","expected":"€22","ing":"Artichoke · egg yolk · hazelnut · parsley oil","dot":2}
+PASS desktop · the active scene opens the real dish
+PASS desktop · the scene survives the detail round trip
+PASS desktop · clicking the object opens the dish
+PASS desktop · the preset counter is shown and the base one hidden — preset "03 / 05" · base "03 / 06" hidden=true
+PASS desktop · the counter denominator is the ring, not the dish model — 03 / 05 with 5 navigable of 6 dishes
+PASS desktop · the counter walks 01/05 → 05/05 and wraps — 03 / 05 → 04 / 05 → 05 / 05 → 01 / 05 → 02 / 05 → 03 / 05
+PASS desktop · no broken horizontal overflow — 0px
+PASS desktop · controls reachable
+PASS desktop · Project 01 still works and Anchor Scenes steps aside — {"present":5,"free":6,"scenesHidden":true}
+PASS desktop · Depth Carousel gets the base counter back at / 6 — "04 / 06" base shown=true preset hidden=true
+PASS desktop · Orbital is restored intact — {"stage":true,"dishes":6,"scenesHidden":true,"depthHidden":true}
+PASS desktop · Orbital gets the base counter back at / 6 — "04 / 06" base shown=true preset hidden=true
+PASS desktop · Restaurant Studio still opens
+PASS desktop · no JS errors
+PASS mobile · Studio exposes the Anchor Scenes preset
+PASS mobile · the preset no longer assembles a split hand — 0 legacy hand layers in the DOM
+PASS mobile · 4-6 master scenes are wired to the dishes — 5 dishes, 5 distinct scene images
+PASS mobile · exactly two scene surfaces, both resolved — {"wrappers":2,"resolved":2}
+PASS mobile · every scene on screen comes from assets/anchor-scenes/runtime/ — scene-01-gamba-roja.webp · scene-02-atun-rojo.webp
+PASS mobile · the wired scenes are the ones the manifest declares — 5 wired / 5 declared
+PASS mobile · the manifest is the real set, built from MANO+OBJETO/ — kind=real source=MANO+OBJETO/
+PASS mobile · no proxy asset survives in the runtime folder — scene-01-gamba-roja.webp · scene-02-atun-rojo.webp · scene-03-brasa-pulpo.webp · scene-04-lubina-salvaje.webp · scene-05-presa-iberica.webp
+PASS mobile · every scene painted on screen carries its registration — registration comes from the manifest, not the engine
+PASS mobile · every scene shares one canvas — 5 scenes @ 1122x1402
+PASS mobile · the anchor is the same across scenes (pixel-measured) — mean diff 6.75/255, 0.12% of the band changed
+PASS mobile · both scenes are on stage at 50% — linear-gradient(184deg, rgb(0, 0, 0) 50%, rgba(0, 0, 0, 0) 51.5829%)
+PASS mobile · the seam light shows during the gesture — seam opacity 0.52
+PASS mobile · copy steps aside for the crossover — copy opacity 0.06
+PASS mobile · old and new worlds coexist across the seam (pixels) — above!=below true, above changed vs rest true
+PASS mobile · the wipe tracks the gesture — 0% → 25.8% → 51.6% → 77.4% → 103.2%
+PASS mobile · dragging back reverses the transition — {"progress":0.1,"direction":1,"restIndex":0,"ring":5,"outIndex":0,"inIndex":1,"committed":false,"mode":"anchor-scenes","dishes":6,"scenes":2}
+PASS mobile · a cancelled release commits nothing — rest 0, counter 01 / 06
+PASS mobile · a completed gesture commits the new scene — 0 → 1, counter 1
+PASS mobile · the held scene actually changes — scene-01-gamba-roja.webp scene-03-brasa-pulpo.webp scene-05-presa-iberica.webp
+PASS mobile · the drag surface is reachable — (195, 285)
+PASS mobile · swipe completes the swap — 4 → 0
+PASS mobile · decor is rendered — {"items":6,"atmo":2}
+PASS mobile · decor changes when the product changes — dish-06-decor-a+dish-06-decor-c+dish-06-decor-b → dish-04-decor-b+dish-03-decor-a+dish-04-decor-c
+PASS mobile · copy, price and indicator follow the same dish — {"idx":2,"title":"Alcachofa a la brasa","price":"€22","expected":"€22","ing":"Artichoke · egg yolk · hazelnut · parsley oil","dot":2}
+PASS mobile · the active scene opens the real dish
+PASS mobile · the scene survives the detail round trip
+PASS mobile · the preset counter is shown and the base one hidden — preset "03 / 05" · base "03 / 06" hidden=true
+PASS mobile · the counter denominator is the ring, not the dish model — 03 / 05 with 5 navigable of 6 dishes
+PASS mobile · the counter walks 01/05 → 05/05 and wraps — 03 / 05 → 04 / 05 → 05 / 05 → 01 / 05 → 02 / 05 → 03 / 05
+PASS mobile · no broken horizontal overflow — 0px
+PASS mobile · controls reachable
+PASS mobile · Project 01 still works and Anchor Scenes steps aside — {"present":5,"free":6,"scenesHidden":true}
+PASS mobile · Depth Carousel gets the base counter back at / 6 — "04 / 06" base shown=true preset hidden=true
+PASS mobile · Orbital is restored intact — {"stage":true,"dishes":6,"scenesHidden":true,"depthHidden":true}
+PASS mobile · Orbital gets the base counter back at / 6 — "04 / 06" base shown=true preset hidden=true
+PASS mobile · Restaurant Studio still opens
+PASS mobile · no JS errors
+PASS reduced-motion · scene, copy and navigation survive — {"scenes":2,"title":"Gamba roja salvaje","price":"€28","controls":true}
+PASS reduced-motion · navigation still changes the dish — 01 / 06 → 02 / 06
+PASS reduced-motion · the dish detail still opens — {"open":true,"aria":"false","title":"Atún rojo / Naranja sang","bridge":"undefined","scenes":{"progress":0,"direction":1,"restIndex":1,"ring":4,"outIndex":1,"inIndex":2,"committed":false,"mode":"anchor-scenes","dishes":5,"scenes":2},"baseDishes":5,"heroMarks":0,"foodReady":"-"}
+
+80/80 checks passed
+screenshots → C:\Users\temp123\Documents\ChatGPT\restaurant-experience-engine\tests\screenshots
+ANCHOR_SCENES_PASS

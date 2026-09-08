@@ -10,9 +10,9 @@
     message: 'Hola, quiero reservar una mesa.',
     label: 'Hablar por WhatsApp',
     eyebrow: 'CONCIERGE',
-    title: 'Need a table tonight?',
+    title: '¿Necesitas mesa esta noche?',
     body: 'Escríbenos directamente. Sin formularios y sin cambiar el tono de la experiencia.',
-    availability: 'Replies during service hours',
+    availability: 'Respondemos durante el horario de servicio',
     position: 'right',
     showPrompt: true,
     openInNewTab: true
@@ -66,20 +66,19 @@
   if (typeof window !== 'undefined') window.WhatsAppContactModuleUtils = Utils;
   if (typeof document === 'undefined') return;
 
-  const root = document.getElementById('wa-lab');
-  const form = document.getElementById('wa-controls');
-  const mount = document.getElementById('wa-preview');
-  if (!root || !form || !mount) return;
-  let config = normalize({ ...clone(DEFAULTS), enabled: true });
+  function create(root, mount, form = null, production = false) {
+  if (!root || !mount) return;
+  let config = normalize({ ...clone(DEFAULTS), enabled: !production });
   let promptOpen = true;
 
-  const field = (name) => form.querySelector(`[name="${name}"]`);
+  const field = (name) => form?.querySelector(`[name="${name}"]`);
   const fields = {
     enabled: field('enabled'), mode: field('mode'), phone: field('phone'), message: field('message'), label: field('label'),
     eyebrow: field('eyebrow'), title: field('title'), body: field('body'), availability: field('availability'), position: field('position'), showPrompt: field('showPrompt')
   };
 
   function sync() {
+    if (!form) return;
     fields.enabled.checked = config.enabled; fields.mode.value = config.mode; fields.phone.value = config.phone; fields.message.value = config.message;
     fields.label.value = config.label; fields.eyebrow.value = config.eyebrow; fields.title.value = config.title; fields.body.value = config.body;
     fields.availability.value = config.availability; fields.position.value = config.position; fields.showPrompt.checked = config.showPrompt;
@@ -109,7 +108,8 @@
       a.href = '#'; a.setAttribute('aria-disabled', 'true');
       a.addEventListener('click', (e) => e.preventDefault());
     }
-    a.innerHTML = compact ? '<span class="wa-mark">WA</span>' : `<span>${config.label}</span><i aria-hidden="true">↗</i>`;
+    if (compact) a.appendChild(el('span', 'wa-mark', 'WA'));
+    else a.append(el('span', '', config.label), el('i', '', '↗'));
     return a;
   }
 
@@ -147,10 +147,11 @@
     mount.replaceChildren();
     root.dataset.enabled = String(config.enabled); root.dataset.mode = config.mode; root.dataset.position = config.position;
     if (!config.enabled) {
+      if (production) return;
       const off = el('div', 'wa-off'); off.innerHTML = '<span>OPTIONAL MODULE · OFF</span><strong>WhatsApp is not published.</strong><p>No launcher, no external request and no contact CTA are rendered.</p>'; mount.appendChild(off); return;
     }
     const stage = el('section', `wa-experience wa-mode-${config.mode}`);
-    stage.innerHTML = '<div class="wa-demo-copy"><span>PRIVATE DINING · ALICANTE</span><h1>Some nights deserve a direct line.</h1><p>This is a neutral restaurant canvas for reviewing the optional contact layer.</p></div><div class="wa-demo-orb"></div>';
+    if (!production) stage.innerHTML = '<div class="wa-demo-copy"><span>PRIVATE DINING · ALICANTE</span><h1>Some nights deserve a direct line.</h1><p>This is a neutral restaurant canvas for reviewing the optional contact layer.</p></div><div class="wa-demo-orb"></div>';
     if (config.mode === 'floating-launcher') renderFloating(stage);
     else if (config.mode === 'inline-concierge') renderInline(stage);
     else renderDirect(stage);
@@ -158,10 +159,15 @@
     mount.appendChild(stage);
   }
 
-  form.addEventListener('input', () => { config = read(); promptOpen = true; render(); });
-  form.addEventListener('change', () => { config = read(); promptOpen = true; render(); });
+  form?.addEventListener('input', () => { config = read(); promptOpen = true; render(); });
+  form?.addEventListener('change', () => { config = read(); promptOpen = true; render(); });
   document.getElementById('wa-reset')?.addEventListener('click', () => { config = normalize({ ...clone(DEFAULTS), enabled: true }); promptOpen = true; sync(); render(); });
 
-  window.WhatsAppContactLab = Object.freeze({ getConfig: () => clone(config), setConfig: (next) => { config = normalize(next); promptOpen = true; sync(); render(); }, buildWhatsAppUrl: () => buildWhatsAppUrl(config), render });
+  const api = Object.freeze({ getConfig: () => clone(config), setConfig: (next) => { config = normalize(next); promptOpen = true; sync(); render(); }, buildWhatsAppUrl: () => buildWhatsAppUrl(config), render });
   sync(); render();
+  return api;
+  }
+  window.WhatsAppContactModule = Object.freeze({ create: (root, mount) => create(root, mount, null, true) });
+  const root = document.getElementById('wa-lab'), form = document.getElementById('wa-controls'), mount = document.getElementById('wa-preview');
+  if (root && form && mount) window.WhatsAppContactLab = create(root, mount, form);
 })();
