@@ -2,15 +2,28 @@
 
 ## North Star
 
-El producto no es una web concreta de restaurante. El activo es un **Restaurant Experience Engine + Restaurant Studio** reutilizable, donde un restaurante puede activar únicamente las capacidades que necesita, personalizarlas sin tocar código y mantener desactivado el resto.
+El producto no es una web concreta de restaurante. El objetivo es una **plataforma única, reusable y cross-device para crear múltiples webs premium de restauración sin tocar código**.
 
-Principio de producto:
+Principio rector:
+
+```text
+UN PRODUCTO
+→ UN REPOSITORIO CANÓNICO
+→ UN STUDIO
+→ UN PROJECT STATE
+→ UNA MEDIA LIBRARY
+→ MÚLTIPLES PROYECTOS
+→ ACCESO DESDE CUALQUIER DISPOSITIVO
+→ PREVIEW + PUBLICACIÓN DESDE LA MISMA PLATAFORMA
+```
+
+Principio evolutivo:
 
 ```text
 CLASE N+1 = CLASE N APROBADA + NUEVA CAPACIDAD
 ```
 
-Principio de configuración para módulos opcionales:
+Principio de módulos opcionales:
 
 ```text
 OFF
@@ -21,411 +34,571 @@ OFF
 → GUARDAR EN PROJECT STATE
 ```
 
-Los módulos opcionales deben estar **OFF por defecto**. Si están OFF no deben reservar espacio visual, ejecutar lógica innecesaria ni contaminar la UI pública.
+Los módulos opcionales están **OFF por defecto**. OFF significa: sin espacio público, sin lógica innecesaria y sin dependencias externas activadas.
+
+---
+
+# 0. REGLAS DE CONSOLIDACIÓN DEL PRODUCTO
+
+## 0.1 Las ramas y LABs no son el producto
+
+Ramas de feature y LABs pueden existir para construir, comparar y validar. Una vez aprobada una capacidad:
+
+- debe mergearse a `main`;
+- debe quedar accesible desde el mismo Restaurant Studio;
+- debe usar el mismo Project State;
+- debe poder previsualizarse desde la misma plataforma;
+- no debe obligar al usuario final a conocer una rama, repo o página de laboratorio.
+
+Los LABs se conservan como evidencia histórica y banco de pruebas, no como dependencia operativa.
+
+## 0.2 Un solo repositorio canónico
+
+Este repositorio es el núcleo del producto. La evolución hacia backend, API, funciones y persistencia remota debe priorizar arquitectura **monorepo** para mantener app, Studio, schemas, adapters y tests coordinados.
+
+## 0.3 Un solo Studio
+
+No crear paneles paralelos. Toda nueva capacidad debe integrarse usando las convenciones del Studio actual: mismas cards, toggles, selects, inputs, data-path, preview, autosave y responsive.
+
+## 0.4 Un solo Project State
+
+Todo lo configurable debe pertenecer al mismo contrato de proyecto. No crear stores de feature independientes.
+
+## 0.5 Cross-device es obligatorio
+
+El estado local actual sirve como etapa intermedia. El producto final exige:
+
+```text
+REMOTE PROJECT STATE = SOURCE OF TRUTH
+INDEXEDDB / LOCAL CACHE = CACHE + RESILIENCIA
+```
+
+Lo mismo para media:
+
+```text
+REMOTE MEDIA LIBRARY = SOURCE OF TRUTH
+LOCAL BLOB CACHE = OPTIMIZACIÓN
+```
 
 ---
 
 # 1. ARQUITECTURA OBJETIVO
 
 ```text
-RESTAURANT EXPERIENCE ENGINE
-├── CONTENT ENGINE
-├── MEDIA ENGINE
-├── MENU / PRODUCT ENGINE
-├── PROJECT STATE
-├── MOTION ENGINE
-├── SECTION EXPERIENCES
-├── OPTIONAL MODULES
-└── INTEGRATIONS
+RESTAURANT EXPERIENCE PLATFORM
+│
+├── ACCOUNT / AUTH
+│
+├── PROJECTS
+│   ├── project A
+│   ├── project B
+│   └── + new project
+│
+├── CLOUD PROJECT STATE
+├── MEDIA LIBRARY
+│
+├── RESTAURANT STUDIO
+│   ├── Brand
+│   ├── Content
+│   ├── Media
+│   ├── Menu / Products
+│   ├── Motion
+│   ├── Modules / Integrations
+│   ├── Memories
+│   ├── Beverages
+│   └── Publish
+│
+├── EXPERIENCE ENGINE
+│   ├── Content Engine
+│   ├── Media Engine
+│   ├── Menu / Product Engine
+│   ├── Motion Engine
+│   ├── Section Experiences
+│   └── Optional Modules
+│
+└── PREVIEW / PUBLISH
 ```
 
 Separación obligatoria:
 
-- **Motion Engine** gobierna navegación/coreografía de producto y movimiento transversal.
-- **Section Experiences** son secciones visuales premium activables.
-- **Optional Modules** añaden funcionalidad/comercialización sin convertirse en motores de producto.
-- **Integrations** conectan servicios externos sin acoplar el core a un proveedor.
-- **Project State** sigue siendo la fuente persistente de configuración.
-- **Media Engine / RestaurantStore** sigue siendo la vía para assets binarios; no crear almacenes paralelos sin necesidad.
+- **Motion Engine** gobierna coreografía de producto y Page Motion.
+- **Section Experiences** son experiencias visuales premium activables.
+- **Optional Modules** añaden funcionalidad comercial y de contacto.
+- **Integrations** conectan proveedores externos mediante adapters.
+- **Project State** es la única configuración canónica de cada proyecto.
+- **Media Engine** es la única capa de assets del producto.
 
 ---
 
-# 2. MOTION CATALOG — ESTADO Y OBJETIVO
+# 2. ESTADO ACTUAL — 8 SEPTIEMBRE 2026
 
-## Motores/capacidades ya construidos
+## 2.1 Motion Catalog — 11/11 construidos
 
-1. **Elegant Orbit** — órbita elegante, lift/twist/settle contenido.
-2. **Urban Acrobatics** — coreografía orbital agresiva con spins, sweeps y recoil.
-3. **Editorial Flow** — flujo editorial de productos con hero central y copy sincronizado.
-4. **Depth Carousel** — colección 2.5D con profundidad, parallax y drag continuo.
-5. **Anchor Scenes** — escenas precompuestas con ancla fija y cambio de producto.
-6. **Orbital Food Slider** — órbita física continua de platos con mundos visuales sincronizados.
-7. **Pizza Slice Orbit Premium** — ocho porciones independientes orbitando una estación HERO fija.
-8. **Circular Dish Rotator / Full Pizza Wheel** — producto circular completo que gira como una unidad; Discover/ruleta, storytelling, personalización y commerce.
-9. **Dish Stage** — escenario limpio de producto HERO con outgoing/incoming coexistentes, drag fraccional y continuidad espacial.
+| # | Capacidad | Estado | UX actual |
+|---|---|---|---|
+| 01 | Elegant Orbit | ✅ aprobado | Activar en escenario compartido |
+| 02 | Urban Acrobatics | ✅ aprobado | Activar en escenario compartido |
+| 03 | Editorial Flow | ✅ aprobado | Activar en escenario compartido |
+| 04 | Cinematic Depth Carousel | ✅ aprobado | Activar en escenario compartido |
+| 05 | Precomposed Anchor Scenes | ✅ aprobado | Activar en escenario compartido |
+| 06 | Orbital Food Slider | ✅ aprobado | Activar en escenario compartido |
+| 07 | Circular Dish Rotator | ✅ aprobado | Experiencia autónoma |
+| 08 | Pizza Slice Orbit · Premium | ✅ aprobado | Activar en escenario compartido |
+| 09 | Scroll Traveler | ✅ aprobado + mergeado | Page Motion ON/OFF |
+| 10 | Dish Stage | ✅ aprobado | Experiencia autónoma |
+| 11 | Cinematic Product Rail | ✅ aprobado | Experiencia autónoma |
 
-## Pendientes principales
+**Class 19 — Motion + Module Studio Integration:** ✅ aprobado y mergeado.
 
-10. **Scroll Traveler / Red Prawn Journey** — objeto persistente que viaja entre capítulos de la página según scroll. Capacidad transversal; puede coexistir con cualquier motor de producto.
-11. **Cinematic Product Rail** — colección horizontal cinematográfica con previous / HERO / next y movimiento de colección completo, evitando apariencia de carrusel convencional.
+La biblioteca única de Motion ya lista las 11 capacidades dentro de Studio.
 
-## Motion Catalog Integration Pass
+### Consolidación pendiente de UX
 
-Después de cerrar los motores pendientes:
+Circular Dish Rotator, Dish Stage y Cinematic Product Rail siguen teniendo superficie autónoma. Esto es válido como arquitectura técnica actual, pero **no es la experiencia final de producto**.
 
-- promover **Circular Dish Rotator** desde LAB a preset/capacidad oficial de Studio;
-- promover **Dish Stage** desde LAB a preset/capacidad oficial de Studio;
-- conservar sus LABs como pruebas/referencias históricas;
-- no borrar ni reemplazar motores existentes;
-- evitar forzar capacidades incompatibles dentro del antiguo dropdown Orbital;
-- separar claramente **Product Motion** y **Page Motion** cuando sea necesario.
-
-Objetivo de Studio:
+Objetivo futuro:
 
 ```text
-MOTION
-├── PRODUCT MOTION
-│   ├── Elegant Orbit
-│   ├── Urban Acrobatics
-│   ├── Editorial Flow
-│   ├── Depth Carousel
-│   ├── Anchor Scenes
-│   ├── Orbital Food Slider
-│   ├── Pizza Slice Orbit
-│   ├── Circular Dish Rotator
-│   ├── Dish Stage
-│   └── Cinematic Product Rail
-└── PAGE MOTION
-    └── Scroll Traveler
+EL USUARIO NO SALE DEL PRODUCTO
 ```
+
+Si una experiencia necesita un canvas/shell propio, debe abrirse dentro del mismo deployment y del mismo flujo de preview del Studio, no como una web externa ni repo diferente.
 
 ---
 
-# 3. OPTIONAL MODULES — NUEVA CAPA DE PERSONALIZACIÓN
+## 2.2 Optional Modules
 
-Todos los módulos siguientes son **opcionales, activables y plegables** en Studio.
+| Módulo | Runtime | Merge | Studio productivo | Estado |
+|---|---|---|---|---|
+| Location / Google Maps | Class 16 LAB | ⏳ | ⏳ | integración Class 20 en curso |
+| Social / Reputation | Class 17 | ✅ | ⏳ | integración Class 20 en curso |
+| WhatsApp Contact | Class 18 | ✅ | ⏳ | integración Class 20 en curso |
 
-Patrón UI común:
+### Fase activa
+
+**Class 20 — Optional Modules / Studio Integration**
+
+Debe cerrar:
 
 ```text
-┌────────────────────────────────────────┐
-│ NOMBRE DEL MÓDULO               OFF ○ │
-│ Descripción corta.                     │
-└────────────────────────────────────────┘
-
-al activar:
-
-┌────────────────────────────────────────┐
-│ NOMBRE DEL MÓDULO                ● ON │
-│ [campos de personalización]             │
-│ [preview / configuración]               │
-└────────────────────────────────────────┘
+LOCATION
+SOCIAL / REPUTATION
+WHATSAPP
 ```
 
-No mostrar decenas de campos cuando el módulo está apagado.
+con:
+
+- configuración dentro del Studio actual;
+- Project State único;
+- persistencia;
+- public runtime real;
+- OFF/ON real;
+- responsive;
+- reduced motion;
+- sin stores paralelos;
+- sin borrar LABs históricos.
 
 ---
 
-## 3.1 LOCATION / GOOGLE MAPS
+# 3. OPTIONAL MODULES — CONTRATO DE PRODUCTO
+
+## 3.1 Location / Google Maps
 
 **Tipo:** Optional Module + Integration.
 
-### Objetivo
+Estado productivo objetivo:
 
-Permitir configurar una sección premium de ubicación con dirección y mapa, sin incrustar un iframe visualmente pobre como única solución.
+```text
+OFF
+→ no section
+→ no iframe
+→ no Google Maps request
 
-### Studio
+ON
+→ preset
+→ address / hours / phone / CTA
+→ map mode
+→ privacy mode
+```
 
-- Enabled OFF/ON
-- Nombre del restaurante
-- Dirección
-- Código postal
-- Ciudad
-- País
-- Teléfono opcional
-- Horarios opcionales
-- CTA label: `Cómo llegar`
-- Modo de mapa:
-  - generar desde dirección;
-  - Google Maps URL personalizada;
-  - embed/place personalizado.
-- Preset visual:
-  - Split Editorial
-  - Full Width Map
-  - Minimal Location
+Presets:
 
-### Frontend
+- Split Editorial
+- Full Width Map
+- Minimal Location
 
-Composición editorial con mapa integrado en el lenguaje de marca.
-
-### Regla
-
-Si está OFF, la sección no existe en la experiencia pública.
+Privacy default: **click-to-load**.
 
 ---
 
-## 3.2 WHATSAPP / CHAT
-
-**Tipo:** Integration.
-
-### Objetivo
-
-Añadir contacto inmediato sin destruir la estética premium.
-
-### Studio
-
-- Enabled OFF/ON
-- Número / país
-- Mensaje inicial
-- Texto CTA
-- Posición:
-  - inferior derecha;
-  - inferior izquierda;
-  - inline.
-- Modo:
-  - Direct WhatsApp CTA
-  - Floating Launcher
-  - External Chat Provider
-
-### Diseño
-
-Evitar por defecto un círculo verde genérico y sobredimensionado. Debe heredar marca, tipografía y acento del restaurante.
-
-### Arquitectura
-
-El core debe funcionar con un enlace WhatsApp simple. Integraciones de chatbot/proveedor se añaden mediante adapter, no como dependencia del motor base.
-
----
-
-## 3.3 SOCIAL + REPUTATION / FOOTER
+## 3.2 Social / Reputation
 
 **Tipo:** Optional Module.
 
-### Objetivo
+Presets:
 
-Convertir el footer/contacto en una capa real de marca, reputación y descubrimiento.
+- Editorial Footer
+- Reputation Strip
+- Social Minimal
 
-### Studio
+Plataformas:
 
-- Enabled OFF/ON
-- Instagram URL
-- Facebook URL
-- TikTok URL opcional
-- YouTube URL opcional
-- Tripadvisor URL
-- Google Business Profile URL
-- TheFork URL opcional
-- Michelin URL opcional
-- Otros enlaces configurables
-- Mostrar/ocultar:
-  - iconos/redes;
-  - CTA reviews;
-  - rating manual o proveniente de integración futura.
+- Instagram
+- Facebook
+- Tripadvisor
+- Google Business Profile
+- TheFork
+- MICHELIN Guide
+- TikTok
+- YouTube
 
-### Frontend
+Debe extender el footer actual, no reemplazarlo.
 
-Footer editorial; no una fila genérica de iconos.
+---
 
-Ejemplo conceptual:
+## 3.3 WhatsApp Contact / Concierge
+
+**Tipo:** Integration.
+
+Modes:
+
+- Floating Launcher
+- Inline Concierge
+- Direct CTA
+
+Debe heredar la identidad premium del restaurante. No usar como default un gran botón verde genérico.
+
+---
+
+# 4. SECTION EXPERIENCES PENDIENTES
+
+## 4.1 Memories / Guest Stories
+
+**Estado:** diseño de producto pendiente.
+
+Objetivo: convertir historia, clientes, recuerdos, prensa, eventos y testimonios en una experiencia visual memorable, no en un grid de cards.
+
+Dirección actual:
 
 ```text
-FOLLOW THE TABLE
-Instagram · Tripadvisor · Facebook · Google
-Alicante · Spain
-Reservations · Contact
+MEMORIES ENGINE
+├── Cinematic Memory Wall
+├── Memory Stack
+├── Editorial Journal
+└── optional material artifacts
+```
+
+### Flagship recomendado
+
+**Cinematic Memory Wall**
+
+- composición asimétrica;
+- imágenes y vídeo;
+- citas;
+- layering;
+- profundidad;
+- scroll editorial;
+- ritmo cinematográfico.
+
+### Memory Stack
+
+Inspiración de interacción física:
+
+- stack de recuerdos;
+- tilt;
+- drag;
+- depth;
+- mask reveal;
+- tactilidad.
+
+### Items
+
+```text
+type
+media
+title
+text
+author
+date
+place
+rating
+link
+visualWeight
 ```
 
 ---
 
-# 4. SECTION EXPERIENCES — BLOQUES VISUALES PREMIUM
+## 4.2 Beverage Experience
 
-Estas capacidades no son simples integraciones. Son experiencias de contenido activables que merecen dirección visual propia.
+**Estado:** diseño de producto pendiente.
 
----
+Objetivo: experiencia independiente para vinos, espumosos, cervezas, cócteles, destilados, copas, sin alcohol, café y té.
 
-## 4.1 MEMORIES / GUEST STORIES
+Presets objetivo:
 
-**Tipo:** Section Experience.
+```text
+BEVERAGE EXPERIENCE
+├── Beverage Cellar      ← flagship nuevo
+├── Bottle Rail          ← reutiliza gramática Product Rail
+├── Cocktail Stage       ← reutiliza gramática Dish Stage
+└── Minimal Wine List    ← editorial / performance-first
+```
 
-### Objetivo
+### Modelo beverage
 
-Crear una sección opcional y espectacular para combinar:
+```text
+name
+category
+producer
+origin
+vintage
+description
+notes
+pairing
+priceGlass
+priceBottle
+image
+availability
+tags
+accentColor
+world
+```
 
-- imágenes;
-- vídeo;
-- historia del restaurante;
-- testimonios;
-- clientes;
-- celebraciones;
-- eventos;
-- prensa;
-- recuerdos/momentos.
+### Principio
 
-No debe terminar como una cuadrícula genérica de testimonios.
-
-### Nombre de producto recomendado
-
-**Memories** / **Guest Stories**.
-
-### Presets iniciales
-
-1. **Cinematic Memory Wall** — composición de imágenes/vídeos/citas con escalas, capas y scroll editorial.
-2. **Editorial Journal** — secuencia narrativa tipo revista.
-3. **Guest Mosaic** — mosaico premium con jerarquía, no grid uniforme.
-
-### Studio
-
-- Enabled OFF/ON
-- Título
-- Subtítulo
-- Preset
-- `+ Añadir recuerdo`
-- Reordenar items
-
-Cada item:
-
-- tipo: imagen / vídeo / testimonio / historia / cliente;
-- media;
-- título;
-- texto;
-- autor;
-- fecha opcional;
-- lugar opcional;
-- rating opcional;
-- enlace opcional.
-
-### Requisito visual
-
-Debe ser una de las secciones más memorables del sistema, con layering, composición, ritmo y transiciones propias.
+Los datos son del Beverage/Product Domain. El preset gobierna presentación, no duplica producto.
 
 ---
 
-## 4.2 BEVERAGE EXPERIENCE
-
-**Tipo:** Section Experience + Product Domain.
-
-### Objetivo
-
-Dar a bebidas una experiencia premium independiente de la carta de platos.
-
-Categorías soportadas:
-
-- vinos;
-- espumosos;
-- cervezas;
-- cócteles;
-- destilados;
-- copas;
-- sin alcohol;
-- café / té.
-
-### Modelo de producto beverage
-
-- nombre;
-- categoría;
-- productor / bodega;
-- origen;
-- añada opcional;
-- descripción;
-- notas;
-- maridaje;
-- precio copa;
-- precio botella;
-- imagen;
-- disponibilidad;
-- tags opcionales.
-
-### Presets iniciales
-
-1. **Beverage Cellar** — botella HERO + copy + origen + precio copa/botella.
-2. **Bottle Rail** — colección premium de botellas.
-3. **Cocktail Stage** — hero de cóctel con ingredientes/color/atmósfera.
-4. **Minimal Wine List** — modo editorial para restaurantes con carta extensa.
-
-### Studio
-
-- Enabled OFF/ON
-- Título / subtítulo
-- Preset
-- Categorías activas
-- Gestor de bebidas
-- Reordenación
-- Media por producto
-
-### Regla
-
-Los datos pertenecen al Beverage/Product domain; el preset sólo gobierna presentación y movimiento.
-
----
-
-# 5. PROJECT STATE — CONTRATO PROPUESTO
-
-Los módulos opcionales deben vivir dentro del estado del proyecto, no en stores nuevos.
+# 5. PROJECT STATE — CONTRATO OBJETIVO
 
 ```js
-modules: {
-  location: {
-    enabled: false
+project: {
+  id,
+  ownerId,
+  name,
+  version,
+  brand: {},
+  content: {},
+  media: {},
+  menu: {},
+  motion: {},
+  modules: {
+    location: { enabled: false },
+    social: { enabled: false },
+    whatsapp: { enabled: false },
+    memories: {
+      enabled: false,
+      preset: 'cinematic-memory-wall',
+      items: []
+    },
+    beverages: {
+      enabled: false,
+      preset: 'beverage-cellar',
+      categories: [],
+      products: []
+    }
   },
-  whatsapp: {
-    enabled: false
-  },
-  social: {
-    enabled: false
-  },
-  memories: {
-    enabled: false,
-    preset: 'cinematic-memory-wall',
-    items: []
-  },
-  beverages: {
-    enabled: false,
-    preset: 'beverage-cellar',
-    categories: [],
-    products: []
-  }
+  publish: {}
 }
 ```
 
-Los assets binarios deben continuar utilizando Media Engine / RestaurantStore siempre que sea posible.
+Este esquema conceptual debe evolucionar sin crear stores separados por feature.
 
 ---
 
-# 6. ORDEN DE EJECUCIÓN
+# 6. PLATFORM LAYER — CROSS-DEVICE Y MULTI-PROJECT
 
-## Fase A — cerrar catálogo Motion
+Esta capa es **obligatoria antes de considerar el producto comercialmente cerrado**.
 
-1. Scroll Traveler / Red Prawn Journey.
-2. Cinematic Product Rail.
-3. Motion Catalog Integration Pass.
-4. Integrar Circular Dish Rotator y Dish Stage como capacidades oficiales de Studio sin borrar sus LABs.
-5. Regression + human visual validation.
+## 6.1 Accounts / Auth
 
-## Fase B — personalización comercial rápida
+- login;
+- sesión segura;
+- ownership de proyectos;
+- permisos preparados para futura colaboración.
 
-6. Location / Google Maps.
-7. Social + Reputation / Footer.
-8. WhatsApp / Chat.
+## 6.2 Projects Dashboard
 
-## Fase C — experiencias premium de contenido
+```text
+MY RESTAURANTS
+├── Restaurante A
+├── Restaurante B
+├── Restaurante C
+└── + New Project
+```
 
-9. Memories / Guest Stories.
-10. Beverage Experience.
+Acciones mínimas:
 
-## Fase D — hardening
+- crear;
+- abrir;
+- duplicar;
+- renombrar;
+- archivar;
+- eliminar con confirmación;
+- ver estado Draft / Published.
 
-11. Responsive/mobile completo.
-12. Reduced motion/accessibility.
-13. Performance budgets.
-14. Cross-browser/device QA.
-15. SEO/structured data de ubicación, restaurante y productos cuando corresponda.
-16. Adapters reales para reservas/pedidos/chat/reviews según cliente/proveedor.
+## 6.3 Cloud Project State
+
+Requisitos:
+
+- autosave remoto;
+- `projectId` estable;
+- versionado / `updatedAt`;
+- estrategia de conflictos;
+- recuperación tras cambio de dispositivo;
+- drafts privados.
+
+## 6.4 Cloud Media Library
+
+- uploads desde móvil/desktop;
+- imágenes/vídeos accesibles desde cualquier dispositivo;
+- referencias estables en Project State;
+- no depender de Blob URLs locales;
+- cache local permitida como optimización.
+
+## 6.5 Same Studio Everywhere
+
+El Studio debe ser realmente usable en:
+
+- desktop;
+- tablet;
+- móvil.
+
+No basta con que la web pública sea responsive.
+
+## 6.6 Publish Layer
+
+Objetivo:
+
+```text
+DRAFT PROJECT
+→ PREVIEW
+→ PUBLISH
+→ PUBLISHED SNAPSHOT
+```
+
+Publicar no debe requerir salir a otro repo, otra web o editar código.
 
 ---
 
-# 7. REGLAS DE ACEPTACIÓN
+# 7. ORDEN DE EJECUCIÓN ACTUALIZADO
 
-Un módulo no se considera terminado sólo porque funcione técnicamente.
+## Fase A — Motion / Experience Engine
+
+- [x] 11/11 capacidades construidas.
+- [x] Scroll Traveler integrado.
+- [x] Class 19 Motion Library.
+- [x] Regression + human visual validation.
+
+**Estado: CERRADA para construcción de nuevos motores.**
+
+---
+
+## Fase B — Optional Modules / Studio
+
+- [ ] Class 20: Location productivo.
+- [ ] Class 20: Social productivo.
+- [ ] Class 20: WhatsApp productivo.
+- [ ] Project State único.
+- [ ] public runtime.
+- [ ] persistence.
+- [ ] human visual validation.
+
+**Estado: EN CURSO.**
+
+---
+
+## Fase C — Product Design / Section Experiences
+
+- [ ] Memories concept board.
+- [ ] Memories mobile.
+- [ ] Memories motion board.
+- [ ] Beverage Cellar concept board.
+- [ ] Beverage mobile.
+- [ ] Beverage motion board.
+- [ ] Studio UX de Memories/Beverages.
+- [ ] Build sólo después de validación de diseño.
+
+**Estado: PENDIENTE DE DISEÑO.**
+
+---
+
+## Fase D — Product Consolidation
+
+- [ ] Todas las capacidades accesibles sin abandonar la plataforma.
+- [ ] In-app preview para experiencias autónomas.
+- [ ] eliminar dependencias operativas de LABs.
+- [ ] mantener LABs sólo como evidencia.
+
+---
+
+## Fase E — Platform Layer / Cross-device
+
+- [ ] Auth / accounts.
+- [ ] Projects dashboard.
+- [ ] Cloud Project State.
+- [ ] Cloud Media Library.
+- [ ] autosave remoto.
+- [ ] sync cross-device.
+- [ ] duplicate/new project.
+- [ ] drafts / published snapshots.
+- [ ] publish from Studio.
+
+**Criterio crítico:** editar en móvil y continuar el mismo proyecto en ordenador sin export/import manual.
+
+---
+
+## Fase F — Hardening
+
+- [ ] Studio responsive completo.
+- [ ] public responsive completo.
+- [ ] accessibility.
+- [ ] reduced motion.
+- [ ] performance budgets.
+- [ ] cross-browser/device QA.
+- [ ] SEO / structured data.
+- [ ] security / permissions.
+- [ ] adapter contracts para reservas, pedidos, chat y reviews.
+
+---
+
+## Fase G — Product Proof
+
+Crear un segundo restaurante completamente diferente usando sólo Studio:
+
+```text
+NEW PROJECT
+→ brand
+→ content
+→ media
+→ menu
+→ motion
+→ modules
+→ memories
+→ beverages
+→ preview
+→ publish
+```
+
+Después:
+
+```text
+MÓVIL
+→ editar
+→ guardar
+
+ORDENADOR
+→ abrir el mismo proyecto
+→ continuar
+→ publicar
+```
+
+Si esto funciona sin tocar código, sin copiar el repositorio y sin abrir una herramienta paralela, el Restaurant Experience Engine queda demostrado como producto reutilizable.
+
+---
+
+# 8. REGLAS DE ACEPTACIÓN
 
 ```text
 CODE PASS
@@ -439,34 +612,44 @@ PRODUCT PASS
 APPROVED
 ```
 
-Para módulos visuales (Memories/Beverages/Motion), la validación humana visual es obligatoria antes de merge final.
+Además, desde la fase de plataforma:
 
-Para integraciones (Maps/WhatsApp/Social), además debe comprobarse:
+```text
+CROSS-DEVICE PASS
++
+PERSISTENCE PASS
++
+PUBLISH PASS
+```
 
-- configuración OFF/ON;
-- persistencia;
-- ausencia total de UI pública al estar OFF;
-- enlaces/acciones correctos;
-- mobile;
-- accesibilidad;
-- no regresión de motores existentes.
+son obligatorios.
+
+Una capacidad no está cerrada si sólo funciona en su LAB o en un dispositivo concreto.
 
 ---
 
-# 8. RESULTADO OBJETIVO
+# 9. DEFINICIÓN DE “PRODUCTO TERMINADO”
 
-Restaurant Studio debe poder construir una experiencia donde un restaurante decida, por ejemplo:
+El producto está listo cuando una persona puede:
 
-```text
-Product Motion      → Dish Stage
-Page Motion         → Scroll Traveler
-Memories            → ON / Cinematic Memory Wall
-Beverages           → ON / Beverage Cellar
-Location            → ON / Split Editorial Map
-WhatsApp            → ON
-Social / Reputation → ON
-```
+1. entrar desde cualquier dispositivo;
+2. autenticarse;
+3. crear o abrir un restaurante;
+4. personalizar todo desde el mismo Studio;
+5. elegir Motion y módulos;
+6. gestionar media y productos;
+7. guardar automáticamente;
+8. abrir el mismo proyecto en otro dispositivo;
+9. previsualizar;
+10. publicar;
+11. crear un segundo restaurante sin tocar código.
 
-mientras otro restaurante puede dejar todos esos módulos OFF y conservar una experiencia más minimalista.
+No debe necesitar:
 
-La personalización no debe requerir tocar código.
+- conocer GitHub;
+- cambiar de rama;
+- abrir un LAB;
+- abrir otro repositorio;
+- exportar/importar manualmente para cambiar de dispositivo;
+- tocar HTML/JS/CSS;
+- reconstruir la aplicación para cada cliente.

@@ -1,181 +1,315 @@
-# WEB RESTAURACIÓN PREMIUM DINÁMICA
+# RESTAURANT EXPERIENCE ENGINE + RESTAURANT STUDIO
 
-## CLASE 04 — Restaurant Studio Platform
+## North Star
 
-Clase 04 corrige el principal fallo de Clase 03: el Studio era un mini editor y no una plataforma real de personalización.
+Este repositorio no representa una sola web de restaurante. El producto objetivo es una **plataforma única para crear, personalizar, previsualizar y publicar múltiples webs premium de restauración desde cualquier móvil, tablet u ordenador**.
 
-La web mantiene el **Orbital Menu 2.5D** de Clase 03, pero ahora separa claramente:
-
-```text
-ENGINE
-CONTENT
-MEDIA
-PROJECT STATE
-```
-
-El objetivo ya no es editar LÚMINA. El objetivo es demostrar que el mismo motor puede convertirse en otro restaurante sin tocar código.
-
-## Qué incorpora Clase 04
-
-### Restaurant Studio real
-
-El panel se reorganiza en:
-
-- Marca
-- Contenido
-- Media
-- Platos
-- Visita
-- Proyecto
-
-Cada zona explica qué parte de la web modifica y ofrece accesos directos de preview.
-
-### Marca
-
-- nombre del restaurante
-- logo / wordmark
-- color acento
-- fondo oscuro
-- fondo editorial
-
-### Contenido
-
-Los textos principales dejan de ser fuente de verdad en HTML y pasan a `class4-config.js`.
-
-Se editan Hero, Philosophy, Origin, Atmosphere, Chef, reserva y footer.
-
-### Media slots
-
-Las secciones editoriales admiten imagen o vídeo:
-
-- Hero
-- Origin
-- Atmosphere
-- Chef
-
-Cada slot incluye descripción de uso, preview y formato recomendado.
-
-El menú orbital mantiene imágenes 1:1 para preservar el contrato visual 2.5D: mismo encuadre, distancia, perspectiva y fondo oscuro.
-
-### Gestor de platos
-
-- añadir
-- duplicar
-- reordenar
-- ocultar
-- eliminar
-- sustituir imagen
-- editar ficha gastronómica completa
-
-Campos: nombre, meta, descripción, precio, ingredientes, origen, técnica, maridaje, alérgenos y chef note.
-
-### Persistencia
-
-Clase 03 usaba `localStorage`. Clase 04 usa IndexedDB:
-
-- store `projects`
-- store `media`
-
-Los archivos se guardan como Blob/File y se rehidratan al volver a abrir el proyecto.
-
-También existen:
-
-- autosave
-- Undo / Redo
-- import JSON
-- export JSON
-- reset
-- preview desktop/tablet/mobile
-
-### Segundo restaurante de prueba
-
-`presets/NAMI-CLASS04.json`
-
-Importar este archivo desde **Studio → Proyecto → Importar JSON** transforma marca, copy, paleta, carta, contacto y narrativa sin modificar código.
-
-Éste es el examen principal de Clase 04.
-
-## Arquitectura
+La regla principal es:
 
 ```text
-/
-├── index.html
-├── styles-v3.css
-├── styles-v4.css
-├── styles-v4-fixes.css
-├── class4-config.js
-├── class4-store.js
-├── app-v4.js
-├── presets/
-│   └── NAMI-CLASS04.json
-├── scripts/
-│   └── class4-static-check.mjs
-├── docs/
-│   ├── CLASS-04-RESTAURANT-STUDIO.md
-│   ├── CLASS-04-ERRORS-SOLUTIONS.md
-│   ├── CLASS-03-ORBITAL-PREMIUM.md
-│   └── CLASS-03-ERRORS-SOLUTIONS.md
-└── .github/workflows/
-    ├── class4-smoke.yml
-    └── pages.yml
+UN PRODUCTO
+→ UN REPOSITORIO CANÓNICO
+→ UN STUDIO
+→ UN PROJECT STATE
+→ UNA MEDIA LIBRARY
+→ MÚLTIPLES PROYECTOS / RESTAURANTES
+→ ACCESO CROSS-DEVICE
+→ PREVIEW + PUBLICACIÓN DESDE LA MISMA PLATAFORMA
 ```
 
-## QA de Clase 04
-
-El workflow `Class 04 smoke checks` comprueba:
-
-- sintaxis JavaScript
-- IDs críticos de Studio y Orbital Menu
-- contratos de media slots
-- validez JSON del preset NAMI
-
-La validación visual sigue siendo obligatoria antes de declarar la clase cerrada.
-
-## Qué queda para Clase 05
-
-Clase 04 prioriza producto y personalización. Clase 05 será la **Motion Direction premium**:
-
-- apertura cinematográfica
-- reveals diferentes por sección
-- zoom/focal hover
-- transiciones entre secciones
-- cursor contextual completo
-- coreografía de entrada del Orbital Menu
-- presets de intensidad de movimiento
-
-## Qué queda para Clase 06
-
-- QA final cross-browser/device
-- performance
-- SEO estructurado
-- publicación validada
-- evolución hacia backend remoto multiusuario si procede
-
-## Historia del curso
-
-- Clase 01 — lectura y reconstrucción del componente visual
-- Clase 02 — integración en web completa
-- Clase 03 — Orbital Menu, 2.5D y fichas inmersivas
-- **Clase 04 — plataforma editable / Restaurant Studio**
-- Clase 05 — Motion Direction premium
-- Clase 06 — QA, producto y publicación
-
-LÚMINA sigue siendo una marca docente. El activo real es el **Restaurant Experience Engine + Restaurant Studio**.
+LÚMINA y los LABs son superficies de prueba. El activo real es el **Restaurant Experience Engine + Restaurant Studio**.
 
 ---
 
-## Roadmap actual del producto
+# Reglas no negociables
 
-La evolución posterior de Motion, Restaurant Studio y los nuevos módulos opcionales se mantiene en:
+## 1. Todo termina en el mismo producto
 
-**[`docs/ROADMAP-RESTAURANT-EXPERIENCE-ENGINE.md`](docs/ROADMAP-RESTAURANT-EXPERIENCE-ENGINE.md)**
+Las ramas de feature y los LABs pueden existir durante desarrollo, auditoría y validación, pero **no son dependencias del producto final**.
 
-Ese roadmap incluye:
+Una capacidad aprobada debe terminar:
 
-- catálogo completo de Motion y motores pendientes;
-- integración futura de **Circular Dish Rotator** y **Dish Stage** desde LAB al catálogo oficial de Studio sin borrar sus LABs;
-- **Scroll Traveler / Red Prawn Journey**;
-- **Cinematic Product Rail**;
-- módulos opcionales OFF/ON de **Location / Google Maps**, **WhatsApp**, **Social + Reputation**;
-- experiencias opcionales **Memories / Guest Stories** y **Beverage Experience**;
-- reglas de Project State, Media Engine, personalización y validación humana visual.
+- integrada en `main`;
+- accesible desde el mismo Restaurant Studio;
+- configurable desde el mismo Project State;
+- visible/previsualizable dentro de la misma aplicación;
+- sin obligar al usuario a conocer ramas, repositorios o páginas de laboratorio.
+
+Los LABs históricos se conservan como evidencia y referencia, pero no como flujo operativo del cliente.
+
+## 2. Un único repositorio canónico
+
+Este repositorio es el núcleo canónico del producto.
+
+La arquitectura futura debe mantenerse como **monorepo** siempre que sea razonable:
+
+```text
+WEB-RESTAURACI-N-PREMIUM-DIN-MICA
+├── app / public experience
+├── Restaurant Studio
+├── engines
+├── modules
+├── shared schemas
+├── server / API / functions
+├── persistence adapters
+├── media
+├── tests
+├── labs / research
+└── docs
+```
+
+Servicios externos de base de datos, almacenamiento, mapas, reservas o mensajería pueden existir como infraestructura/proveedores, pero el usuario **no debe saltar entre aplicaciones para construir su web**.
+
+## 3. Un único Studio
+
+Toda capacidad de producto debe terminar integrada en el Studio actual con la misma jerarquía visual, patrones de campos, toggles, autosave, responsive y persistencia.
+
+No crear:
+
+- un segundo panel;
+- un configurador separado por módulo;
+- un Studio por motor;
+- un store independiente por capacidad.
+
+## 4. Un único Project State
+
+Todo proyecto debe poder serializarse y restaurarse desde un único contrato de estado:
+
+```text
+Brand
+Content
+Media references
+Menu / Products
+Motion
+Modules
+Memories
+Beverages
+Publish settings
+```
+
+IndexedDB es actualmente la persistencia local del Studio, pero **no puede ser la fuente de verdad final** porque no permite abrir el mismo proyecto desde otro dispositivo.
+
+El objetivo de plataforma es:
+
+```text
+REMOTE PROJECT STATE = SOURCE OF TRUTH
+LOCAL CACHE / INDEXEDDB = CACHE + OFFLINE/FALLBACK
+```
+
+## 5. Cross-device es requisito de producto
+
+El mismo proyecto debe poder seguir este flujo:
+
+```text
+MÓVIL
+→ login
+→ abrir Restaurante A
+→ cambiar texto / foto / motion
+→ autosave remoto
+
+ORDENADOR
+→ login
+→ abrir Restaurante A
+→ ver exactamente los cambios
+→ continuar editando
+→ publicar
+```
+
+La personalización nunca debe depender de un navegador concreto.
+
+## 6. Multi-project
+
+La plataforma debe permitir:
+
+```text
+PROJECTS
+├── Restaurante A
+├── Restaurante B
+├── Restaurante C
+└── + Nuevo proyecto
+```
+
+Cada proyecto conserva su propia marca, contenido, carta, media, motion, módulos y publicación sin duplicar el motor.
+
+---
+
+# Estado actual — 8 septiembre 2026
+
+## Motion / Experiences
+
+**11/11 capacidades Motion están construidas y catalogadas en Studio.**
+
+Class 19 — Motion + Module Studio Integration está aprobada y mergeada.
+
+Catálogo actual:
+
+1. Elegant Orbit
+2. Urban Acrobatics
+3. Editorial Flow
+4. Cinematic Depth Carousel
+5. Precomposed Anchor Scenes
+6. Orbital Food Slider
+7. Circular Dish Rotator
+8. Pizza Slice Orbit · Premium
+9. Scroll Traveler
+10. Dish Stage
+11. Cinematic Product Rail
+
+Estado UX actual:
+
+- siete coreografías se activan sobre el escenario compartido;
+- Scroll Traveler funciona como Page Motion transversal;
+- Circular Dish Rotator, Dish Stage y Cinematic Product Rail siguen siendo experiencias autónomas abiertas desde la biblioteca.
+
+**Objetivo final:** ninguna experiencia aprobada debe exigir abandonar la plataforma. Si una experiencia necesita una superficie propia, debe vivir dentro del mismo deployment y del mismo shell de producto/preview, no como una web externa o repositorio separado.
+
+## Optional Modules
+
+- Social / Reputation — construido y mergeado; integración productiva completa en Studio en curso.
+- WhatsApp Contact / Concierge — construido y mergeado; integración productiva completa en Studio en curso.
+- Location / Google Maps — LAB aprobado como base; recuperación e integración productiva en curso.
+
+La fase activa es **Class 20 — Optional Modules / Studio Integration**.
+
+## Section Experiences pendientes
+
+- Memories / Guest Stories — diseño de producto pendiente.
+- Beverage Experience — diseño de producto pendiente.
+
+Dirección acordada:
+
+```text
+MEMORIES
+├── Cinematic Memory Wall
+├── Memory Stack
+├── Editorial Journal
+└── optional material artifacts
+
+BEVERAGES
+├── Beverage Cellar
+├── Bottle Rail
+├── Cocktail Stage
+└── Minimal Wine List
+```
+
+## Platform Layer pendiente
+
+Todavía falta convertir el Studio local en una plataforma cross-device real:
+
+- autenticación / cuentas;
+- lista de proyectos;
+- Project State remoto;
+- Media Library remota;
+- autosave remoto;
+- sincronización entre dispositivos;
+- duplicar / crear proyecto;
+- drafts + published snapshot;
+- publicación desde Studio;
+- permisos/seguridad;
+- responsive completo del Studio móvil/tablet.
+
+---
+
+# Arquitectura objetivo
+
+```text
+RESTAURANT EXPERIENCE PLATFORM
+│
+├── ACCOUNT / AUTH
+│
+├── PROJECTS
+│   ├── project A
+│   ├── project B
+│   └── + new project
+│
+├── CLOUD PROJECT STATE
+│
+├── MEDIA LIBRARY
+│
+├── RESTAURANT STUDIO
+│   ├── Brand
+│   ├── Content
+│   ├── Media
+│   ├── Menu / Products
+│   ├── Motion
+│   ├── Modules / Integrations
+│   ├── Memories
+│   ├── Beverages
+│   └── Publish
+│
+├── EXPERIENCE ENGINE
+│   ├── Content Engine
+│   ├── Media Engine
+│   ├── Menu / Product Engine
+│   ├── Motion Engine
+│   ├── Section Experiences
+│   └── Optional Modules
+│
+└── PREVIEW / PUBLISH
+```
+
+---
+
+# Fuente de verdad y sincronización
+
+Objetivo:
+
+```text
+Cloud DB
+   ↓
+projectId + version
+   ↓
+Restaurant Studio
+   ↕
+local cache
+   ↓
+Preview
+   ↓
+Published snapshot
+```
+
+El navegador puede cachear y trabajar de forma resiliente, pero la versión canónica del proyecto debe vivir remotamente para permitir acceso desde cualquier dispositivo.
+
+Los assets deben seguir el mismo principio:
+
+```text
+REMOTE MEDIA LIBRARY = SOURCE OF TRUTH
+LOCAL BLOB CACHE = OPTIMIZATION
+```
+
+---
+
+# Qué NO queremos
+
+```text
+NO proyecto repartido entre varios repos
+NO funciones aprobadas que sólo vivan en ramas
+NO cliente obligado a abrir LABs
+NO configuradores separados por feature
+NO estado crítico sólo en localStorage / IndexedDB
+NO copiar la aplicación para cada restaurante
+NO tocar código para crear un nuevo restaurante
+NO abrir otra web para editar una capacidad del mismo proyecto
+```
+
+---
+
+# Próximas fases
+
+1. **Class 20 — Location + Social + WhatsApp dentro del Studio y Project State.**
+2. **Consolidación de UX:** todas las capacidades se previsualizan desde la misma plataforma.
+3. **Memories + Beverages:** diseño y construcción como Section Experiences configurables.
+4. **Platform Layer:** cuentas, proyectos, persistencia cloud, media cloud y cross-device.
+5. **Publish Layer:** drafts, preview y publicación desde el mismo proyecto.
+6. **Hardening:** mobile Studio, accesibilidad, performance, SEO, cross-browser y seguridad.
+7. **Prueba de producto:** crear un segundo restaurante totalmente diferente sin tocar código y continuar editándolo desde otro dispositivo.
+
+---
+
+# Documentación canónica
+
+- **Roadmap:** [`docs/ROADMAP-RESTAURANT-EXPERIENCE-ENGINE.md`](docs/ROADMAP-RESTAURANT-EXPERIENCE-ENGINE.md)
+- **Arquitectura de plataforma / cross-device:** [`docs/PLATFORM-ONE-STUDIO-CROSS-DEVICE.md`](docs/PLATFORM-ONE-STUDIO-CROSS-DEVICE.md)
+- **Class 19 Motion Library:** [`docs/CLASS-19-MOTION-STUDIO-INTEGRATION.md`](docs/CLASS-19-MOTION-STUDIO-INTEGRATION.md)
+
+La documentación histórica de Classes y LABs se conserva, pero estos tres documentos definen la dirección actual del producto.
