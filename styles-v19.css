@@ -1,0 +1,117 @@
+/* CLASS 19 · MOTION LIBRARY
+
+   The index of the Motion panel. It sits above the cards that tune each engine, so the
+   panel reads top-to-bottom as: what do we have → which one is on → how do I tune it.
+
+   The library scrolls with the panel rather than inside its own box: a scroll area
+   nested in a scrolling drawer is how you lose people on a laptop trackpad. The filter
+   row sticks instead, so from any depth you can narrow to a kind in one click.
+*/
+
+.ml-library{
+  margin:0 0 26px;
+  padding:0 0 22px;
+  border-bottom:1px solid rgba(0,0,0,.09)}
+
+.ml-head h3{
+  display:flex;align-items:center;gap:10px;
+  margin:2px 0 8px;font-size:22px;line-height:1.15}
+.ml-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:26px;height:22px;padding:0 7px;
+  border-radius:999px;background:#111;color:var(--accent,#d8ff4f);
+  font:600 12px/1 system-ui,sans-serif;letter-spacing:.04em}
+.ml-count-soft{background:rgba(0,0,0,.08);color:#3a3a38}
+.ml-lead{margin:0;max-width:62ch;font-size:12.5px;line-height:1.65;color:#5f5c55}
+
+/* ---------- filters ---------- */
+.ml-filters{
+  position:sticky;top:0;z-index:3;
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin:16px 0 14px;padding:10px 0;
+  background:linear-gradient(#faf7f1 78%,rgba(250,247,241,0))}
+#studio .ml-filter{
+  padding:6px 13px;border:1px solid rgba(0,0,0,.14);border-radius:999px;
+  background:transparent;color:#3a3a38;cursor:pointer;width:auto;
+  font:600 10.5px/1 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+  transition:background .16s ease,color .16s ease,border-color .16s ease}
+#studio .ml-filter:hover{border-color:rgba(0,0,0,.34)}
+#studio .ml-filter[aria-selected="true"]{background:#111;border-color:#111;color:#fff}
+
+/* ---------- cards ---------- */
+.ml-grid{display:grid;gap:10px}
+@media(min-width:760px){.ml-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.ml-card{
+  display:flex;flex-direction:column;gap:9px;
+  padding:14px 15px;border:1px solid rgba(0,0,0,.11);border-radius:14px;
+  background:#fffdf9;
+  transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.ml-card:hover{border-color:rgba(0,0,0,.26);box-shadow:0 10px 24px rgba(0,0,0,.06)}
+.ml-card[hidden]{display:none!important}
+
+/* the one that is on reads as on at a glance, without colour being the only signal */
+.ml-card[data-ml-state="activo"]{
+  border-color:#111;box-shadow:0 0 0 1px #111 inset}
+.ml-card[data-ml-state="cargando"]{opacity:.55}
+
+.ml-card-top{display:flex;align-items:flex-start;gap:11px}
+.ml-n{
+  flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:9px;
+  background:#111;color:var(--accent,#d8ff4f);
+  font:600 11px/1 system-ui,sans-serif;letter-spacing:.03em}
+.ml-n-module{background:rgba(0,0,0,.08);color:#3a3a38}
+.ml-id{flex:1 1 auto;min-width:0}
+.ml-id strong{display:block;font-size:14.5px;line-height:1.25;text-wrap:balance}
+/* the badge already says what kind it is, so the line under the name carries only the
+   provenance — three wrapped lines of "coreografía de producto" made every card tall */
+.ml-project{
+  display:block;margin-top:3px;
+  font:500 10px/1.4 system-ui,sans-serif;letter-spacing:.11em;text-transform:uppercase;
+  color:#8a877f}
+/* the kind now rides in the footer beside the state, so the name owns its row */
+
+.ml-note{margin:0;font-size:12.5px;line-height:1.6;color:#5f5c55}
+
+.ml-card-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:2px;padding-top:10px;border-top:1px solid rgba(0,0,0,.07)}
+.ml-state{
+  font:600 9.5px/1 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  color:#8a877f}
+.ml-card[data-ml-state="activo"] .ml-state{color:#111}
+
+/* `#studio button` is an id-level rule in the shell stylesheet, so a class on its own
+   loses: these buttons came out white on white. The library scopes its own controls
+   under #studio to win honestly, without !important. */
+#studio .ml-action,#studio a.ml-action{
+  padding:7px 14px;border-radius:999px;border:1px solid #111;
+  background:#111;color:#fff;cursor:pointer;text-decoration:none;
+  font:600 11px/1 system-ui,sans-serif;letter-spacing:.04em;white-space:nowrap;
+  transition:opacity .16s ease,background .16s ease,color .16s ease}
+#studio .ml-action:hover{opacity:.86}
+#studio .ml-action:disabled{opacity:.35;cursor:not-allowed}
+#studio .ml-activate[aria-current="true"]{
+  background:transparent;color:#111;cursor:default}
+#studio .ml-toggle[aria-pressed="false"]{background:transparent;color:#111}
+#studio a.ml-open{background:transparent;color:#111}
+#studio a.ml-open:hover{background:#111;color:#fff;opacity:1}
+
+/* ---------- modules: present, and visibly not part of the eleven ---------- */
+.ml-modules{margin-top:24px;padding-top:18px;border-top:1px dashed rgba(0,0,0,.16)}
+.ml-modules h4{
+  display:flex;align-items:center;gap:9px;margin:0 0 6px;
+  font-size:15px;line-height:1.2}
+.ml-modules .ml-lead{margin-bottom:12px}
+.ml-card-module{background:rgba(0,0,0,.02)}
+
+@media(max-width:600px){
+  .ml-card-foot{flex-direction:column;align-items:stretch}
+  .ml-action{text-align:center}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .ml-card,.ml-action,.ml-filter{transition:none}
+  .ml-card:hover{transform:none}
+}

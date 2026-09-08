@@ -1,10 +1,10 @@
-name: Motion Engine — Depth Carousel + Anchor Scenes + Orbital Food + Pizza Slice Orbit + Premium + Scroll Traveler
+name: Motion Engine — Depth Carousel + Anchor Scenes + Orbital Food + Pizza Slice Orbit + Premium + Scroll Traveler + Motion Library
 
 on:
   pull_request:
     branches: [main]
   push:
-    branches: ['feat/depth-carousel-lab','feat/anchor-swap-scenes-lab','feat/scroll-traveler-red-prawn']
+    branches: ['feat/depth-carousel-lab','feat/anchor-swap-scenes-lab','feat/scroll-traveler-red-prawn','feat/motion-studio-integration']
   workflow_dispatch:
 
 permissions:
@@ -31,6 +31,9 @@ jobs:
           node --check tests/class14-scroll-traveler-e2e.mjs
           node --check tests/capture-scroll-traveler.mjs
           node --check tests/record-scroll-traveler-video.mjs
+          node --check class19-motion-library.js
+          node --check scripts/check-motion-library.mjs
+          node --check tests/class19-motion-library-e2e.mjs
           node --check scripts/check-pizza-premium.mjs
           node --check tests/class12-pizza-premium-e2e.mjs
           node --check class6-detail-bridge.js
@@ -54,12 +57,15 @@ jobs:
           ! grep -q 'class12-pizza-premium.js' index.html
           ! grep -q 'class14-scroll-traveler.js' index.html
           ! grep -q 'styles-v14.css' index.html
+          ! grep -q 'class19-motion-library.js' index.html
+          ! grep -q 'styles-v19.css' index.html
           grep -q "s.src='class8-depth-carousel.js'" class4-runtime-guard.js
           grep -q "s.src='class9-anchor-scenes.js'" class4-runtime-guard.js
           grep -q "s.src='class10-orbital-food.js'" class4-runtime-guard.js
           grep -q "s.src='class11-pizza-slice-orbit.js'" class4-runtime-guard.js
           grep -q "s.src='class12-pizza-premium.js'" class4-runtime-guard.js
           grep -q "s.src='class14-scroll-traveler.js'" class4-runtime-guard.js
+          grep -q "s.src='class19-motion-library.js'" class4-runtime-guard.js
       - name: Install browser test runtime
         run: |
           test -f package.json || npm init -y >/dev/null 2>&1
@@ -138,6 +144,20 @@ jobs:
             const stray=fs.readdirSync('assets/scroll-traveler/runtime').filter(f=>!declared.has(f));
             if(stray.length)throw new Error('undeclared objects in the runtime folder: '+stray.join(', '));
             console.log('traveler objects: '+m.travelers.map(t=>t.id+' from '+t.source).join(', '))"
+
+      - name: Class 19 Motion Library E2E (desktop + mobile)
+        run: node tests/class19-motion-library-e2e.mjs
+
+      - name: Motion library contract — eleven real engines, no second selection
+        run: node scripts/check-motion-library.mjs
+
+      - name: Isolated engine contracts brought in by main
+        run: |
+          node tests/class15-cinematic-product-rail-contract.mjs
+          node tests/class17-social-reputation-contract.mjs
+          node tests/class18-whatsapp-contact-contract.mjs
+          node tests/class13-dish-stage-contract.mjs
+          node tests/project06-circular-dish-rotator-contract.mjs
 
       - name: Capture Scroll Traveler journey evidence
         run: node tests/capture-scroll-traveler.mjs
