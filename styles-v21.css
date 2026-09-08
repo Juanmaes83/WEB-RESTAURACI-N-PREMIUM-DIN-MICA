@@ -1,0 +1,108 @@
+/* CLASS 21 · UNIFIED PRODUCT DETAIL
+
+   Dos cosas, y nada más:
+
+   1. El diálogo del Product Engine, que existe SÓLO para el motor que no tenía ficha
+      (Pizza). Los seis motores que comparten `#dish-detail` conservan su ficha y su
+      transición Flip: aquí no se redefine ni una regla suya.
+   2. La tarjeta del Studio en el panel de Platos.
+
+   No es un rediseño. Toma la tipografía y el color del proyecto y se aparta.
+*/
+
+/* ---------- diálogo ---------- */
+.upd-dialog{
+  position:fixed;inset:0;z-index:120;
+  display:flex;align-items:center;justify-content:center;
+  padding:clamp(16px,4vw,48px);
+  opacity:0;pointer-events:none;
+  transition:opacity .32s ease}
+.upd-dialog.is-open{opacity:1;pointer-events:auto}
+.upd-dialog[aria-hidden="true"]{visibility:hidden}
+.upd-dialog.is-open[aria-hidden="false"]{visibility:visible}
+
+.upd-scrim{position:absolute;inset:0;background:rgba(8,8,7,.82);
+  backdrop-filter:blur(6px)}
+
+.upd-card{
+  position:relative;display:grid;gap:clamp(18px,3vw,34px);
+  width:min(980px,100%);max-height:88vh;overflow:auto;
+  padding:clamp(20px,3vw,38px);
+  border-radius:20px;background:#faf7f1;color:#151513;
+  box-shadow:0 40px 120px rgba(0,0,0,.5);
+  transform:translateY(14px) scale(.985);
+  transition:transform .38s cubic-bezier(.2,.8,.2,1)}
+.upd-dialog.is-open .upd-card{transform:none}
+@media(min-width:820px){.upd-card{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);
+  align-items:start}}
+
+.upd-close{
+  position:absolute;top:12px;right:12px;z-index:2;
+  width:38px;height:38px;border-radius:50%;
+  border:1px solid rgba(0,0,0,.16);background:#fffdf9;color:#151513;
+  font:400 20px/1 system-ui,sans-serif;cursor:pointer}
+.upd-close:hover{background:#151513;color:#fff}
+.upd-close:focus-visible{outline:2px solid #151513;outline-offset:3px}
+
+.upd-media{border-radius:14px;overflow:hidden;background:rgba(0,0,0,.05)}
+.upd-image{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain}
+.upd-image[hidden]{display:none}
+
+.upd-copy{min-width:0}
+.upd-meta{margin:0 0 8px;font:600 10px/1.5 system-ui,sans-serif;
+  letter-spacing:.16em;text-transform:uppercase;color:#8a877f}
+.upd-title{margin:0 0 10px;font-size:clamp(26px,4vw,40px);line-height:1.08}
+.upd-price{margin:0 0 14px;font:600 15px/1 system-ui,sans-serif;color:#151513}
+.upd-short{margin:0 0 20px;font-size:14.5px;line-height:1.7;color:#4a473f}
+
+.upd-grid{display:grid;gap:14px;margin:0 0 18px}
+@media(min-width:560px){.upd-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.upd-block dt{font:600 9.5px/1.4 system-ui,sans-serif;letter-spacing:.16em;
+  text-transform:uppercase;color:#8a877f}
+.upd-block dd{margin:4px 0 0;font-size:13px;line-height:1.6;color:#3a3a38}
+.upd-block[hidden]{display:none}
+
+.upd-story{margin:0;padding-top:16px;border-top:1px solid rgba(0,0,0,.1);
+  font-size:13.5px;line-height:1.75;color:#4a473f;font-style:italic}
+.upd-demo{margin:14px 0 0;font:600 9.5px/1.4 system-ui,sans-serif;
+  letter-spacing:.14em;text-transform:uppercase;color:#8a877f}
+
+/* el fondo no se desplaza mientras la ficha está abierta, igual que ya hace
+   `body.detail-open` para la ficha compartida */
+body.detail-open{overflow:hidden}
+
+@media(prefers-reduced-motion:reduce){
+  .upd-dialog,.upd-card{transition:none}
+  .upd-card{transform:none}
+  .upd-scrim{backdrop-filter:none}
+}
+
+/* ---------- tarjeta del Studio ---------- */
+.upd-studio{
+  margin-top:22px;padding:16px 17px;
+  border:1px solid rgba(0,0,0,.11);border-radius:14px;background:#fffdf9}
+.upd-studio-head{display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:8px}
+.upd-studio-head strong{font-size:14.5px}
+.upd-studio-n{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:26px;height:26px;margin-right:9px;border-radius:8px;
+  background:#111;color:var(--accent,#d8ff4f);
+  font:600 11px/1 system-ui,sans-serif;vertical-align:middle}
+.upd-studio-badge{
+  padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.06);color:#54514a;
+  font:600 9px/1 system-ui,sans-serif;letter-spacing:.13em;white-space:nowrap}
+.upd-studio p{margin:0 0 10px;font-size:12.5px;line-height:1.6;color:#5f5c55}
+
+/* `#studio label` apila el campo sobre su leyenda, que está bien para un input y mal
+   para una casilla y su palabra: esta pide fila explícitamente */
+#studio .upd-check{display:flex;flex-direction:row;align-items:center;
+  justify-content:flex-start;gap:9px;margin:9px 0;cursor:pointer}
+#studio .upd-check input{width:auto;margin:0}
+
+.upd-fields{margin:14px 0 0;padding:12px 13px;border:1px solid rgba(0,0,0,.1);
+  border-radius:11px}
+.upd-fields legend{padding:0 6px;font:600 9.5px/1 system-ui,sans-serif;
+  letter-spacing:.16em;text-transform:uppercase;color:#8a877f}
+.upd-studio small{display:block;margin-top:12px;font-size:10px;line-height:1.5;
+  letter-spacing:.1em;text-transform:uppercase;color:#9a978f}
