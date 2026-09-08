@@ -317,7 +317,63 @@
       if(!enabled()&&isOpen())close();
       syncStudio();
       publish();
+      if(isOpen())applyFieldGates();
     });
+  }
+
+  /* ---------- campos en la ficha COMPARTIDA ----------
+
+     `app-v4.fillDetail` escribe textContent en nodos con id propio y no conoce esta
+     capacidad, así que apagar un campo se hace ocultando su nodo — nunca borrando su
+     contenido ni editando Class 06. Se aplica al abrir y ante cualquier cambio de
+     configuración, porque el motor puede rellenarla de nuevo.
+
+     Un campo apagado se oculta. Un campo encendido que el producto no tiene TAMBIÉN
+     se oculta: es la misma regla que en el diálogo propio, y evita el bloque vacío
+     que la ficha compartida dejaba a la vista. */
+  const SHARED_FIELDS={
+    description:'#detail-description',
+    ingredients:'#detail-ingredients',
+    origin:'#detail-origin',
+    technique:'#detail-technique',
+    pairing:'#detail-pairing',
+    allergens:'#detail-allergens',
+    story:'#class6-story'
+  };
+  /* el prefijo fijo que la ficha compartida imprime cuando no hay alérgenos deja el
+     nodo "no vacío" sin decir nada, así que se mide el valor, no la cadena */
+  const meaningful=(name,text)=>{
+    const value=name==='allergens'?text.replace(/^[^·]*·\s*/,''):text;
+    return value.replace(/[“”"'\s·—-]/g,'').length>0;
+  };
+  function applyFieldGates(){
+    const detail=$('#dish-detail');
+    if(!detail)return;
+    Object.entries(SHARED_FIELDS).forEach(([name,sel])=>{
+      const node=$(sel,detail);
+      if(!node)return;
+      const host=node.closest('.detail-columns > div')||node;
+      const text=(node.textContent||'').trim();
+      const show=wants(name)&&meaningful(name,text);
+      host.hidden=!show;
+      if(host!==node)node.hidden=!show;
+    });
+    const columns=$('.detail-columns',detail);
+    if(columns){
+      const anyVisible=$$('.detail-columns > div',detail).some(d=>!d.hidden);
+      columns.hidden=!anyVisible;
+    }
+  }
+  function watchSharedDetail(){
+    const detail=$('#dish-detail');
+    if(!detail)return;
+    /* el contenido lo reescriben app-v4 y Class 06; observar el subárbol mantiene el
+       gateado correcto sin acoplarse a cuándo lo hacen */
+    new MutationObserver(()=>{if(isOpen())applyFieldGates()})
+      .observe(detail,{childList:true,characterData:true,subtree:true,
+        attributes:true,attributeFilter:['aria-hidden','class']});
+    window.addEventListener('restaurant:dish-detail-open',()=>
+      requestAnimationFrame(applyFieldGates));
   }
 
   function publish(){
@@ -389,6 +445,7 @@
     if(!window.RestaurantStudioConfig)return;
     ready=true;
     guard();
+    watchSharedDetail();
     publish();
     root.dataset.productDetailReady='ready';
   }
@@ -407,6 +464,8 @@
     activeProduct:()=>current()?.activeProduct?.()||null,
     describe:describeDish,
     fields,
+    /* seam de prueba: forzar una reevaluación del gateado sin esperar al observador */
+    applyFields:applyFieldGates,
     state(){
       const a=current();
       return {ready,enabled:enabled(),trigger:trigger(),
