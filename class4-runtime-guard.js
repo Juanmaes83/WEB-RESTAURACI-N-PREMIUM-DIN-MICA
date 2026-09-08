@@ -169,3 +169,21 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,240));
   else setTimeout(load,240);
 })();
+
+/* CLASS 22 — carga la shell de experiencias de forma aditiva.
+   Es superficie de producto, no un motor: abre las tres experiencias autónomas dentro
+   de la misma aplicación en lugar de mandar al usuario a /labs/. index.html no se
+   toca. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-experience-shell-runtime]'))return;
+    /* dentro de una experiencia enmarcada no se carga otra shell */
+    if(window.parent!==window)return;
+    const s=document.createElement('script');
+    s.src='class22-experience-shell.js';s.dataset.experienceShellRuntime='1';
+    document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,200));
+  else setTimeout(load,200);
+})();
