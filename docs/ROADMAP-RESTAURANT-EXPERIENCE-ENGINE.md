@@ -257,7 +257,16 @@ Incluye:
 
 ## 3.4 Fase activa
 
-**FASE 1C — PRODUCT CONSOLIDATION GATE: READY FOR HUMAN VISUAL REVIEW.**
+**FASE 2 — MEMORIES (CLASS 23): READY FOR HUMAN VISUAL REVIEW.**
+
+FASE 1A, 1B y **1C** están **CERRADAS y mergeadas**. Memories entra como capacidad
+completa del producto —Project State, Studio, media compartida, motor y web pública— y no
+como un LAB pendiente de integrar. Un dominio de datos, tres presentaciones: cambiar de
+preset no cambia los datos. Gate 39/39. Detalle en `docs/CLASS-23-MEMORIES.md`.
+
+Lo que cerró la fase anterior, que Memories no toca:
+
+**FASE 1C — PRODUCT CONSOLIDATION GATE: CERRADA.**
 
 FASE 1A y FASE 1B están **CERRADAS**. 1C no añade capacidad: demuestra que lo
 construido es un producto — un Studio, un Project State, un modelo de media, una
@@ -622,7 +631,7 @@ Publicar no debe requerir GitHub, otra web ni tocar código.
 
 ## Fase 1C — Consolidation Gate
 
-**READY FOR HUMAN VISUAL REVIEW — MERGED: NO.**
+**CERRADA Y MERGEADA.**
 
 - [x] once motion capabilities elegibles desde un solo Studio.
 - [x] Unified Product Detail ON/OFF con Pizza conservando su modelo.
@@ -632,7 +641,7 @@ Publicar no debe requerir GitHub, otra web ni tocar código.
 - [x] guard de DOM: ninguna acción productiva interna sale a `/labs/` ni a otra pestaña.
 - [x] catálogo de once intacto: nada añadido, quitado, renumerado ni rediseñado.
 - [x] limpieza acotada de copy estático, sin i18n ni dataset traducido.
-- [ ] human visual validation.
+- [x] human visual validation.
 
 Debe demostrarse:
 
@@ -656,17 +665,24 @@ UN SOLO PROYECTO
 
 ## Fase 2 — Memories
 
-1. diseño desktop;
-2. motion board;
-3. modelo de datos;
-4. Studio UX;
-5. imagen + vídeo;
-6. Media Engine;
-7. Project State;
-8. flagship Cinematic Memory Wall;
-9. segunda variante sólo después de validar flagship;
-10. public responsive;
-11. human visual validation.
+**READY FOR HUMAN VISUAL REVIEW — MERGED: NO.**
+
+- [x] diseño desktop.
+- [x] modelo de datos en `modules.memories` (un dominio, `type` como dato).
+- [x] Studio UX dentro del Studio existente: ON/OFF, preset, items, campos, media,
+      reorden accesible, preview inmediato.
+- [x] imagen **y** vídeo, con ciclo de vida de vídeo real.
+- [x] Media Engine compartido: `RestaurantMedia` + `RestaurantMediaPicker`, un solo
+      almacén, referencias lógicas en el Project State.
+- [x] Project State, autosave, Undo/Redo e import/export existentes; sin history propia.
+- [x] flagship Cinematic Memory Wall.
+- [x] Memory Stack y Editorial Journal sobre el MISMO motor y los MISMOS datos.
+- [x] public responsive (smoke real a 390 px).
+- [ ] human visual validation.
+
+Pendiente declarado, no olvidado: la media local **no** viaja entre ordenadores (el
+export lleva las referencias, no los bytes) y los *optional material artifacts* quedan
+como polish posterior.
 
 **Mobile Studio polish: no bloquea esta fase; arquitectura mobile-ready sí es obligatoria.**
 
