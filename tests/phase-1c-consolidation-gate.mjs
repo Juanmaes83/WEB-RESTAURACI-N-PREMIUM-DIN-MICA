@@ -457,16 +457,35 @@ async function openExp(page,id){
     names:(window.CircularDishRotator?.getNames?.()||[]).length,
     customizer:!!document.querySelector('#cdr-customizer'),
     uploads:document.querySelectorAll('input[type=file]').length,
+    /* El puente SIRVE las lecturas del perfil con la marca del proyecto y DESCARTA las
+       escrituras — es su comportamiento documentado. Así que la prueba correcta no es
+       «leer devuelve null»: es que lo que se lee viene del proyecto y que escribir no
+       persiste nada. La versión anterior de este check exigía null y pasaba sólo porque
+       en el Chromium de entonces la redefinición de `localStorage.getItem` fallaba en
+       silencio; con Chromium 153 la interceptación funciona y el check acusaba al puente
+       de hacer justo lo que debe. */
     ownProfile:(()=>{try{return localStorage.getItem('cdr.project06.phase2.profile.v1')}
-      catch(e){return 'bloqueado'}})()
+      catch(e){return 'bloqueado'}})(),
+    writeDiscarded:(()=>{
+      const KEY='cdr.project06.phase2.profile.v1';
+      try{
+        localStorage.setItem(KEY,'{"restaurantName":"ESCRITURA PROPIA"}');
+        return !String(localStorage.getItem(KEY)||'').includes('ESCRITURA PROPIA');
+      }catch(e){return true}
+    })()
   })).catch(()=>null):null;
 
   check('2 · los ocho sectores salen del proyecto, unidos por nombre',
     inside?.source==='project:8/8'&&inside?.names===8,
     `fuente: ${inside?.source} · ${inside?.names} sectores`);
-  check('2 · el perfil sale del proyecto, no de su localStorage',
-    inside?.profile?.collectionLabel==='Pizza selection'&&inside?.ownProfile===null,
-    `colección "${inside?.profile?.collectionLabel}" · perfil propio ${inside?.ownProfile}`);
+  const served=String(inside?.ownProfile||'');
+  const fromProject=inside?.ownProfile===null
+    || (served.includes('LÚMINA')&&!served.includes('Signature Pizza Collection'));
+  check('2 · el perfil sale del proyecto, no de un almacén propio del motor',
+    inside?.profile?.collectionLabel==='Pizza selection'
+    &&fromProject&&inside?.writeDiscarded===true,
+    `colección "${inside?.profile?.collectionLabel}" · leído del proyecto ${fromProject}`
+    +` · escritura descartada ${inside?.writeDiscarded}`);
   /* el ordinal del sector ES geometría y se conserva; el PRECIO no se conserva del
      demo a propósito — el proyecto es su autoridad y lo comprueban los checks P1-P5 */
   check('2 · la geometría sigue siendo del motor: el ordinal del sector se conserva',
