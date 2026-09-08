@@ -93,7 +93,7 @@ dos motores equivalentes:
 | Productos | 8 sectores | 8 products | **compatibles**: coincidencia exacta por nombre |
 | Campos | `name` `ingredients` `descriptor` `accent` `lead` `tail` `mood` `price` | superset, con `headlineLead`/`headlineTail` | **compatibles** |
 | Orden | atado a las porciones de **una** fotografía horneada | otro orden | **NO** → unir por nombre, nunca por índice |
-| `price` | se muestra en la composición | `null` a propósito en las ocho | **NO** → un nulo conserva el valor del motor |
+| `price` | se muestra en la composición | `null` a propósito en las ocho | **NO** → el proyecto es la autoridad: un nulo es *sin precio* |
 | `mood` | lleva el ordinal del sector (`FIRE · SIGNATURE 01`) | sólo el ánimo (`FUEGO`) | **NO** → se compone conservando el ordinal |
 | Media (logo/rueda/fondo) | uploader propio → IndexedDB | no existe equivalente | **contrato mínimo dentro del Project State** |
 
@@ -123,6 +123,25 @@ Efecto lateral relevante: el titular en inglés que la revisión anterior dejó 
 (`the slice with` / `Fire at the centre of the table.`) **desaparece dentro del producto**,
 porque ahí la historia la escribe el proyecto (`la porción de` / `Fuego en el centro de la
 mesa.`). No se tocó ni una línea de diseño para conseguirlo.
+
+#### `price: null` significa SIN precio
+
+Un nulo del proyecto **no** cae al precio demo del motor. Si el proyecto tiene el
+producto, es la autoridad sobre su precio, y `pizzaSliceOrbit` deja `null` en las ocho
+porque **no hay precio auténtico**: pintar €14 ahí sería inventar un dato del
+restaurante, y meterlo además en el evento de pedido.
+
+El adapter distingue tres casos:
+
+| | |
+|---|---|
+| producto **no** encontrado en el proyecto | el sector se queda como DEMO, entero |
+| producto encontrado, `price` nulo | **sin precio** |
+| producto encontrado, precio real | ese precio, exactamente |
+
+Y sin precio **no queda un rótulo colgando**: el bloque entero desaparece, `DESDE`
+incluido — ni guiones, ni ceros, ni valores inventados. El LAB abierto directamente no
+tiene proyecto detrás, así que conserva sus precios demo históricos.
 
 ### 3 · El LAB no puede ser la fuente autorada del producto
 
@@ -229,7 +248,7 @@ the table.`) ya no aparece dentro del producto: lo escribe el proyecto.
 
 ## El gate
 
-`tests/phase-1c-consolidation-gate.mjs` — **44/44 · PHASE_1C_GATE_PASS**. Cubre los 25
+`tests/phase-1c-consolidation-gate.mjs` — **50/50 · PHASE_1C_GATE_PASS**. Cubre los 25
 puntos de la misión, el guard de DOM, la paridad de motor canónico y los cuatro
 bloqueadores finales:
 
@@ -265,6 +284,7 @@ gratuitas. Ningún LAB ni rama se ha borrado.
 |---|---|
 | geometría propia | ✅ ocho sectores, 45°, orden del asset horneado — intacta |
 | mismo Project State | ✅ productos y perfil del proyecto, unidos por nombre |
+| el proyecto manda en sus datos | ✅ `price: null` es *sin precio*, no el precio demo |
 | misma Media layer | ✅ refs en el Project State, resueltas por la Media Library |
 | 0 store productivo paralelo | ✅ `cdr.project06.*` nulo; su IndexedDB no se abre |
 | 0 uploader paralelo | ✅ 0 `input[type=file]` |

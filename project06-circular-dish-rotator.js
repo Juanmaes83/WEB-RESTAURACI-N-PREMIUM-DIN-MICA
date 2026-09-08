@@ -115,6 +115,7 @@
   const tailEl = document.getElementById('cdr-headline-tail');
   const ingredientsEl = document.getElementById('cdr-ingredients');
   const priceEl = document.getElementById('cdr-price');
+  const priceWrap = priceEl?.closest('.cdr-price-wrap') || null;
   const descriptorEl = document.getElementById('cdr-descriptor');
   const copy = document.getElementById('cdr-copy');
   const live = document.getElementById('cdr-live');
@@ -182,7 +183,12 @@
     leadEl.textContent = pizza.lead;
     tailEl.textContent = pizza.tail;
     ingredientsEl.textContent = pizza.ingredients;
-    priceEl.textContent = pizza.price;
+    /* Sin precio no se deja el rótulo "DESDE" colgando, ni un guión, ni un valor
+       inventado: el bloque entero desaparece. El LAB sin proyecto sigue trayendo sus
+       precios demo, así que allí nunca se oculta. */
+    const price = typeof pizza.price === 'string' ? pizza.price.trim() : (pizza.price || '');
+    priceEl.textContent = price;
+    if (priceWrap) priceWrap.hidden = !price;
     descriptorEl.textContent = pizza.descriptor;
     document.documentElement.style.setProperty('--cdr-accent', pizza.accent);
     shell.dataset.pizza = pizza.name.toLowerCase().replace(/\s+/g,'-');

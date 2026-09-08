@@ -467,9 +467,11 @@ async function openExp(page,id){
   check('2 · el perfil sale del proyecto, no de su localStorage',
     inside?.profile?.collectionLabel==='Pizza selection'&&inside?.ownProfile===null,
     `colección "${inside?.profile?.collectionLabel}" · perfil propio ${inside?.ownProfile}`);
-  check('2 · la geometría sigue siendo del motor: precio y ordinal conservados',
-    !!inside?.first?.price&&/SIGNATURE 01$/.test(inside?.first?.mood||''),
-    `${inside?.first?.name} · ${inside?.first?.price} · ${inside?.first?.mood}`);
+  /* el ordinal del sector ES geometría y se conserva; el PRECIO no se conserva del
+     demo a propósito — el proyecto es su autoridad y lo comprueban los checks P1-P5 */
+  check('2 · la geometría sigue siendo del motor: el ordinal del sector se conserva',
+    /SIGNATURE 01$/.test(inside?.first?.mood||''),
+    `${inside?.first?.name} · ${inside?.first?.mood}`);
   check('2 · la historia del plato es la del proyecto',
     /porción/.test(inside?.first?.lead||''),
     `"${inside?.first?.lead}" · "${(inside?.first?.tail||'').slice(0,40)}"`);
@@ -478,6 +480,111 @@ async function openExp(page,id){
     `premium ${inside?.premium} · personalizador ${inside?.customizer} · uploaders ${inside?.uploads}`);
   await page.screenshot({path:path.join(SHOTS,'08-circular-sin-segundo-studio.png')});
   await page.context().close();
+}
+
+/* ============================================================
+   PRICE NULL = SIN PRECIO
+   `pizzaSliceOrbit` deja `price:null` en las ocho porque no hay precio auténtico. Si el
+   proyecto tiene el producto, es la AUTORIDAD sobre su precio: un nulo significa "sin
+   precio", no "usa el de la demo". Mostrar €14 ahí sería inventar un dato del
+   restaurante. El fallback demo sólo vale cuando no hay proyecto detrás — el LAB.
+   ============================================================ */
+{
+  const ctx=await browser.newContext({viewport:{width:1440,height:960}});
+  const page=await ctx.newPage();
+
+  async function openCircular(){
+    await page.goto(`${BASE}/`,{waitUntil:'domcontentloaded',timeout:45000});
+    await page.waitForFunction(()=>document.documentElement.dataset.experienceShellReady==='ready',
+      null,{timeout:30000});
+    await page.evaluate(()=>{document.querySelector('.studio-open')?.click()});
+    await page.waitForTimeout(800);
+    await page.evaluate(()=>document.querySelector('#studio [data-panel="motion"]')?.click());
+    await page.waitForFunction(()=>document.documentElement.dataset.motionLibrary==='ready',
+      null,{timeout:20000});
+    await page.evaluate(()=>
+      document.querySelector('[data-experience-open="circular-dish-rotator"]')?.click());
+    await page.waitForFunction(()=>
+      document.documentElement.dataset.experienceShell==='circular-dish-rotator',
+      null,{timeout:15000});
+    await page.waitForTimeout(3000);
+    return page.frames().find(f=>/\/experiences\//.test(f.url()));
+  }
+
+  /* lo que se ve de verdad: el texto del precio, si su bloque está pintado, y qué
+     precio viaja en el intento de pedido */
+  const priceFacts=frame=>frame.evaluate(()=>{
+    const el=document.querySelector('#cdr-price');
+    const wrap=el?.closest('.cdr-price-wrap')||null;
+    const seen=[];
+    const listener=e=>seen.push(e.detail?.product?.price ?? null);
+    window.addEventListener('cdr:commerce-intent',listener);
+    window.CircularDishPremium?.requestOrder?.();
+    window.removeEventListener('cdr:commerce-intent',listener);
+    const summary=(document.querySelector('#cdr-order-summary')?.textContent||'').trim();
+    document.querySelector('#cdr-order-dialog')?.close?.();
+    return {
+      text:(el?.textContent||'').trim(),
+      visible:!!wrap&&getComputedStyle(wrap).display!=='none'&&wrap.offsetParent!==null,
+      label:wrap?(wrap.querySelector('span')?.textContent||'').trim():'',
+      copy:(document.querySelector('#cdr-copy')?.innerText||''),
+      product:window.CircularDishRotator?.getProducts?.()[0]?.price ?? null,
+      intent:seen,summary
+    };
+  });
+
+  let child=await openCircular();
+  const nulled=await priceFacts(child);
+
+  check('P1 · price null: el precio demo €14 no aparece en el producto',
+    !/€14/.test(nulled.copy)&&nulled.text==='',
+    `precio pintado "${nulled.text}" · producto "${nulled.product}"`);
+  check('P2 · price null: el bloque de precio y su rótulo DESDE quedan ocultos',
+    nulled.visible===false,
+    `bloque visible ${nulled.visible} · rótulo "${nulled.label}"`);
+  check('P5 · price null: el pedido no incorpora el precio demo',
+    nulled.intent.length===1&&!nulled.intent[0]
+    &&!/€1[456]/.test(nulled.summary),
+    `intent ${JSON.stringify(nulled.intent)} · resumen "${nulled.summary}"`);
+
+  /* C) el proyecto trae un precio real: se muestra ese, exactamente */
+  await page.evaluate(()=>window.RestaurantExperienceShell.close());
+  await page.waitForTimeout(800);
+  const REAL='€19,50';
+  await page.evaluate(real=>{
+    const products=window.RestaurantStudioConfig.get('pizzaSliceOrbit.products')||[];
+    const i=products.findIndex(p=>p.id==='diavola');
+    window.RestaurantStudioConfig.set(`pizzaSliceOrbit.products.${i}.price`,real);
+  },REAL);
+  await page.waitForTimeout(600);
+  child=await openCircular();
+  const real=await priceFacts(child);
+  check('P3 · precio real del proyecto: se muestra exactamente ese',
+    real.text===REAL&&real.visible===true&&real.product===REAL,
+    `precio "${real.text}" · bloque visible ${real.visible}`);
+  check('P3 · el pedido lleva el precio real, no otro',
+    real.intent.length===1&&real.intent[0]===REAL&&real.summary.includes(REAL),
+    `intent ${JSON.stringify(real.intent)}`);
+  await page.screenshot({path:path.join(SHOTS,'09-circular-precio-real.png')});
+
+  /* D) el LAB abierto directamente no tiene proyecto detrás: conserva su precio demo */
+  const lab=await ctx.newPage();
+  await lab.goto(`${BASE}/labs/project06-circular-dish-rotator/index.html`,
+    {waitUntil:'load',timeout:45000});
+  await lab.waitForTimeout(2000);
+  const labFacts=await lab.evaluate(()=>{
+    const el=document.querySelector('#cdr-price');
+    const wrap=el?.closest('.cdr-price-wrap')||null;
+    return {text:(el?.textContent||'').trim(),
+      visible:!!wrap&&getComputedStyle(wrap).display!=='none',
+      source:document.documentElement.dataset.circularSource||'(sin adapter)'};
+  });
+  check('P4 · el LAB directo conserva su precio demo histórico',
+    /^€\d/.test(labFacts.text)&&labFacts.visible===true
+    &&labFacts.source==='(sin adapter)',
+    `${labFacts.text} · fuente ${labFacts.source}`);
+  await lab.close();
+  await ctx.close();
 }
 
 await browser.close();server.close();

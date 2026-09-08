@@ -50,7 +50,10 @@ check('the project adapter only reads: no store of its own', (() => {
 })());
 check('the product door has no second Studio', !product.includes('cdr-customizer') && !product.includes('type="file"') && !product.includes('Guardar cambios'));
 check('ingredients are driven by selected pizza', html.includes('id="cdr-ingredients"') && js.includes('ingredientsEl.textContent = pizza.ingredients'));
-check('price is driven by selected pizza', html.includes('id="cdr-price"') && js.includes('priceEl.textContent = pizza.price'));
+check('price is driven by selected pizza', html.includes('id="cdr-price"') && js.includes('priceEl.textContent = price'));
+/* null en el proyecto significa "sin precio auténtico", no "usa el de la demo": sin
+   precio el bloque entero desaparece, rótulo DESDE incluido, sin guiones ni inventos. */
+check('no price means no price block at all', js.includes('priceWrap.hidden = !price') && js.includes("closest('.cdr-price-wrap')"));
 check('descriptor is driven by selected pizza', html.includes('id="cdr-descriptor"') && js.includes('descriptorEl.textContent = pizza.descriptor'));
 check('wow headline has dynamic lead, hero name and tail', html.includes('id="cdr-headline-lead"') && html.includes('id="cdr-hero-name"') && html.includes('id="cdr-headline-tail"') && js.includes('leadEl.textContent = pizza.lead') && js.includes('tailEl.textContent = pizza.tail'));
 check('mood line is data driven', html.includes('id="cdr-mood"') && js.includes('moodEl.textContent = pizza.mood'));

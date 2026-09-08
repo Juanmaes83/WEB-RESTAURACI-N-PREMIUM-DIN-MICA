@@ -68,6 +68,7 @@
     let joined = 0;
     const out = base.map((sector, i) => {
       const p = byName.get(norm(sector.name));
+      /* A) el proyecto no tiene este producto: el sector se queda como DEMO, entero */
       if (!p) return {...sector};
       joined++;
       return {
@@ -84,9 +85,17 @@
         mood: text(p.mood)
           ? `${text(p.mood).toUpperCase()} · SIGNATURE ${String(i + 1).padStart(2, '0')}`
           : sector.mood,
-        /* price null en el proyecto significa "todavía no hay precio auténtico": se
-           conserva el del motor en vez de vaciar la composición */
-        price: text(p.price) || sector.price
+        /* El precio NO cae al demo. Si el proyecto tiene este producto, es la
+           autoridad sobre su precio, y `null` significa exactamente "sin precio
+           auténtico" — no "usa el de la demo". Mostrar €14 aquí sería inventar un
+           dato del restaurante.
+
+             B) producto encontrado y `price` nulo/vacío → sin precio ('')
+             C) producto encontrado con precio real      → ese precio
+
+           Cadena vacía y no `null` porque es lo que consumen el DOM y el resumen de
+           pedido, que ya la tratan como ausencia. */
+        price: text(p.price)
       };
     });
 
