@@ -12,8 +12,9 @@
 
    Este script es la autoría de esa puerta productiva, no una dependencia de runtime:
    se ejecuta a mano cuando el DOM que un motor exige cambia, y su salida se commitea.
-   El guard `scripts/check-experience-runtime.mjs` comprueba después que las dos
-   puertas cargan exactamente los mismos ficheros de motor.
+   `tests/phase-1c-consolidation-gate.mjs` comprueba después que las dos puertas cargan
+   exactamente los mismos ficheros de motor y que no queda ningún `.js`/`.css` dentro del
+   LAB del rotador.
 
    Lo que hace con el marcado del lab:
      · reescribe las rutas para la profundidad de `experiences/<id>/` (la misma que

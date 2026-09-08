@@ -40,9 +40,9 @@ Stage y el Rail ya tenían su motor en la raíz: sólo les faltaba la puerta pro
 
 Los tres `experiences/<id>/index.html` los **genera** `scripts/build-experience-entrypoints.mjs`
 a partir del marcado del LAB, y su salida se commitea: una sola fuente de marcado
-autorado, sin dependencia de `/labs/` en runtime. El guard comprueba después que ambas
-puertas cargan exactamente los mismos ficheros de motor y que no queda ningún `.js`/`.css`
-dentro del LAB del rotador.
+autorado, sin dependencia de `/labs/` en runtime. El gate (`tests/phase-1c-consolidation-gate.mjs`)
+comprueba después que ambas puertas cargan exactamente los mismos ficheros de motor y que
+no queda ningún `.js`/`.css` dentro del LAB del rotador.
 
 ## Tabla de consolidación
 
