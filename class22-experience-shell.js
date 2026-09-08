@@ -16,8 +16,10 @@
      · cerrar, Escape y el botón Atrás del navegador hacen lo mismo: volver al Studio;
      · el foco entra en la shell y vuelve a quien la abrió.
 
-   `labs/` sigue existiendo para evidencia y regresión. Deja de ser el punto de entrada
-   del producto: eso es todo lo que cambia.
+   La shell carga los entrypoints PRODUCTIVOS de `experiences/`, no páginas de `/labs/`:
+   un LAB es evidencia, no la fuente operativa del producto. Ambas puertas cargan el
+   MISMO motor canónico de la raíz — una implementación, dos entradas — y los labs
+   siguen existiendo intactos para evidencia y regresión.
 */
 (() => {
   'use strict';
@@ -28,11 +30,11 @@
      es una fila. Los mismos ids que usa el catálogo de Class 19. */
   const EXPERIENCES=[
     {id:'circular-dish-rotator',name:'Circular Dish Rotator',project:'Project 06',
-      url:'labs/project06-circular-dish-rotator/index.html'},
+      url:'experiences/circular-dish-rotator/index.html'},
     {id:'dish-stage',name:'Dish Stage',project:'Project 10',
-      url:'labs/project10-dish-stage/index.html'},
+      url:'experiences/dish-stage/index.html'},
     {id:'cinematic-product-rail',name:'Cinematic Product Rail',project:'Project 11',
-      url:'labs/project11-cinematic-product-rail/index.html'}
+      url:'experiences/cinematic-product-rail/index.html'}
   ];
   const find=id=>EXPERIENCES.find(e=>e.id===id)||null;
 

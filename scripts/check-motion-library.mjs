@@ -58,11 +58,21 @@ if(!/path:'scrollTraveler\.enabled'/.test(code))
    here only made the guard fail for doing its job. What must hold is that every module
    listed is real, that none of them is smuggled into the eleven, and that the engine
    count above stays at eleven. */
-const modules=[...code.matchAll(/\{id:'([a-z0-9-]+)',href:'(labs\/[^']+)'/g)];
+/* Phase 1C removed the module `href`: a module is configured in the Studio and seen on
+   the public site, so there is no page for the product to link to. The invariant is
+   better for it — every module listed must be CONFIGURABLE, which ties the library to
+   the Studio instead of to a lab. */
+const moduleBlock=code.slice(code.indexOf('const MODULES=['));
+const modules=[...moduleBlock.matchAll(/\{id:'([a-z0-9-]+)',\s*\n?\s*name:/g)].map(m=>m[1]);
 if(!modules.length)fail('no modules are listed at all');
-for(const [,id,href] of modules){
-  if(!fs.existsSync(path.join(ROOT,href)))fail(`module page missing: ${href} (${id})`);
+if(/href:'labs\//.test(moduleBlock))fail('a module card still points at a lab');
+const studio=read('class20-modules-studio.js');
+const KEY={'social-reputation':'social','whatsapp-contact':'whatsapp'};
+for(const id of modules){
   if(entries.some(e=>e.id===id))fail(`${id} is counted both as a module and as an engine`);
+  const key=KEY[id]||id;
+  if(!studio.includes(`${key}:{name:`)&&!studio.includes(`'${key}'`)&&!studio.includes(`${key}:{`))
+    fail(`module ${id} is listed but the Studio cannot configure it`);
 }
 
 /* ---- 3. it owns no engine and no second selection ---- */
@@ -110,5 +120,6 @@ for(const f of ['class8-depth-carousel.js','class10-orbital-food.js','class11-pi
 
 console.log(`motion library contract: 11 engines numbered 01..11 (7 orbit presets, 1 page motion, `
   +`3 full-screen experiences), every preset registered by a real runtime and every experience a `
-  +`page that exists, ${modules.length} modules listed outside the count, no second selection, `
+  +`page that exists, ${modules.length} configurable modules listed outside the count, `
+  +`no second selection, `
   +`no persistence of its own, index.html untouched and every engine runtime still loaded`);

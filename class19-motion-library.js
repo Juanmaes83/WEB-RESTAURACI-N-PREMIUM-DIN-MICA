@@ -51,7 +51,7 @@
       name:'Orbital Food Slider',project:'Project 03',
       note:'La colección entera en órbita, con el héroe descentrado y tipografía de fondo.'},
     {n:'07',id:'circular-dish-rotator',kind:'experience',
-      href:'labs/project06-circular-dish-rotator/index.html',
+      href:'experiences/circular-dish-rotator/index.html',
       name:'Circular Dish Rotator',project:'Project 06',
       note:'Rueda circular de sectores con su propia narrativa y personalización.'},
     {n:'08',id:'pizza-slice-orbit',kind:'preset',value:'pizza-slice-orbit',
@@ -61,25 +61,30 @@
       name:'Scroll Traveler',project:'Project 09',
       note:'Un objeto atraviesa la página al hacer scroll. Convive con cualquier coreografía.'},
     {n:'10',id:'dish-stage',kind:'experience',
-      href:'labs/project10-dish-stage/index.html',
+      href:'experiences/dish-stage/index.html',
       name:'Dish Stage',project:'Project 10',
       note:'Escenario a pantalla completa: un plato, su mundo y su ficha.'},
     {n:'11',id:'cinematic-product-rail',kind:'experience',
-      href:'labs/project11-cinematic-product-rail/index.html',
+      href:'experiences/cinematic-product-rail/index.html',
       name:'Cinematic Product Rail',project:'Project 11',
       note:'Raíl cinematográfico de producto con avance continuo.'}
   ];
 
   /* Not engines. They are listed so Studio shows everything the product has, and they
-     are deliberately outside the count of eleven. */
+     are deliberately outside the count of eleven.
+
+     Sin `href`: un módulo se configura en el Studio y se ve en la propia web pública
+     sobre el proyecto real, así que no hay ninguna página a la que enlazar desde el
+     producto. Sus labs siguen existiendo para tests y evidencia — dejaron de ser una
+     acción del recorrido. */
   const MODULES=[
-    {id:'location',href:'labs/module-location-maps/index.html',
+    {id:'location',
       name:'Location / Google Maps',project:'Class 16 · Class 20',
       note:'Dirección, horarios y mapas con carga bajo consentimiento.'},
-    {id:'social-reputation',href:'labs/module-social-reputation/index.html',
+    {id:'social-reputation',
       name:'Social / Reputation',project:'Class 17',
       note:'Prueba social y reputación: reseñas, valoraciones y credibilidad.'},
-    {id:'whatsapp-contact',href:'labs/module-whatsapp-contact/index.html',
+    {id:'whatsapp-contact',
       name:'WhatsApp Contact',project:'Class 18',
       note:'Contacto directo por WhatsApp con mensaje y horario configurables.'}
   ];
@@ -176,9 +181,11 @@
       <p class="ml-note">${mod.note}</p>
       <div class="ml-card-foot">
         <span class="ml-state" data-ml-module-state="${mod.id}">MÓDULO · OFF</span>
+        <!-- Sin enlace al LAB. El módulo se configura en el Studio y se ve en la propia
+             web pública, sobre el proyecto real: abrir un lab en otra pestaña era el
+             último rastro de /labs/ en el recorrido productivo. Los labs siguen
+             existiendo para tests y evidencia. -->
         <button class="ml-action" type="button" data-configure-module="${mod.id}">Configurar</button>
-        <a class="ml-action ml-open" href="${mod.href}" target="_blank" rel="noopener"
-           data-ml-open="${mod.id}">Abrir módulo →</a>
       </div>
     </article>`;
   }
