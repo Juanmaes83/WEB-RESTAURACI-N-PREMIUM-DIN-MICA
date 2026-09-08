@@ -152,6 +152,55 @@ panel se construiría sin llegar a verse. Se replica el mismo contrato de DOM de
 El panel se construye **perezosamente**, en el primer click: Class 19 provocó una carrera
 de restauración de preset por construirse con el cajón cerrado.
 
+### Encontrarlo
+
+La entrega anterior se rechazó, entre otras cosas, porque abrir la web real no llevaba a
+Memories: la capacidad existía y no se encontraba. Ahora la pestaña se llama
+**«Memorias»** —en el idioma del resto del Studio, no `Memories`— y hay tres caminos
+hacia ella que no dependen de saber que existe:
+
+- **`[data-mem-entry]` «Memorias del restaurante»** en el panel de Módulos, donde ya se
+  buscan las capacidades del proyecto.
+- **`[data-mem-preview]` «Ver Memories»**: cierra el cajón, enciende el módulo si estaba
+  apagado, y baja a la **sección real** de la página. No abre un preview propio: no hay
+  segundo renderizador que pueda discrepar del público.
+- **`PRESET_CARDS`**: los tres pesos visuales son **tres tarjetas** con nombre,
+  descripción y previsualización —`Wall`, `Stack`, `Journal`— en vez de un `<select>` con
+  tres identificadores en inglés. Cada una lleva su `Previsualizar`, que hace lo mismo que
+  «Ver Memories» pero fijando ese preset.
+
+### AÑADIR, REEMPLAZAR, QUITAR
+
+Tres verbos distintos, porque confundirlos fue **el** defecto de fondo del rechazo: subir
+una segunda imagen **añadía** una referencia y la portada seguía siendo la vieja, así que
+la web parecía no enterarse de la subida.
+
+| Verbo | Qué hace | Qué **no** hace |
+|---|---|---|
+| `+ Añadir imagen` / `+ Añadir vídeo` | añade una media **al final** de `media[]` | no toca las existentes |
+| `Reemplazar` (por fila) | sustituye **esa** referencia **en su posición** | no conserva la antigua en el ítem; no borra el asset físico |
+| `Quitar` (por fila) | **desvincula** la referencia del recuerdo | no borra el asset de la Media Library |
+
+`replaceMedia(id, ref, kind, file)` guarda el archivo nuevo, escribe la referencia nueva
+en el mismo índice y **suelta la anterior del ítem**. Si la fila era la portada, la
+portada pasa a ser el archivo nuevo — que es lo que uno espera al reemplazar una portada.
+El asset antiguo sobrevive en la Media Library a propósito: Undo tiene que poder devolver
+el estado anterior **con su referencia resoluble**, y limpiar huérfanos es otra
+responsabilidad (ver `restaurant-media.js`, `forget`).
+
+### RESTABLECER MEMORIES
+
+`[data-mem-reset]`, con `window.confirm` antes de escribir, deja `modules.memories` en sus
+DEFAULTS —es decir, apagado y sin recuerdos— y **nada más**: no toca la carta, ni el
+branding, ni los otros módulos, ni la Media Library global, ni el resto del Project State.
+Es un `set(PATH, clone(DEFAULTS))`, así que entra en el historial como **una** operación y
+Undo lo devuelve entero. Va en su propia `.mem-danger-zone`, separada de los controles de
+edición.
+
+Existe porque durante la revisión no había forma de volver al punto de partida: quedaban
+imágenes de pruebas anteriores persistidas y la única salida era borrar el proyecto
+completo.
+
 ### Reordenar
 
 El orden **es** data: `modules.memories.items[]`. `↑ Subir` / `↓ Bajar` son la vía
@@ -267,6 +316,19 @@ Dos detalles que salieron de tests que fallaban con razón:
 La sección entra **antes de `#visit`**: la memoria cierra el relato justo antes de la
 invitación a reservar. Queda `… chef → MEMORIES → visit → location → footer`.
 
+### El enlace público
+
+Con el módulo encendido aparece **`Memoria` en la navegación** apuntando a `#memories`, y
+al apagarlo **desaparece** — `mountNavLink()` / `unmountNavLink()`. Sin él la sección
+existía pero no se anunciaba: había que saber que estaba y bajar a buscarla.
+
+El enlace se añade **al final** de `.desktop-nav`, y esa posición no es estética.
+`class6-product.js` reetiqueta `.desktop-nav a` **por índice**: un enlace insertado en
+medio hacía que el rótulo de un hermano se escribiera encima del suyo y la navegación
+mostraba «Visita» dos veces. Al final del contenedor no desplaza ningún índice existente.
+Aun así el rótulo se **vuelve a afirmar en cada `applyConfig`**, porque depender de que
+otro módulo no cuente es exactamente la clase de acoplamiento que produjo el fallo.
+
 ### Scroll Traveler
 
 Su ruta ancla en `.chef-section` y `#visit`, y Memories entra justo en medio, así que el
@@ -293,13 +355,53 @@ recarga con el mismo estado y las mismas referencias, y Undo/Redo sobre el histo
 la casa — **sin history propia**. El export del proyecto incluye `modules.memories` con
 sus `mediaRef`.
 
+## Ruta de revisión — `?review=memories`
+
+Hay **dos URL**, y la distinción importa:
+
+| URL | Qué es |
+|---|---|
+| `<base>/` | **PRODUCTO.** El proyecto del restaurante. Memories apagado por defecto, sin recuerdos inventados. |
+| `<base>/?review=memories` | **REVISIÓN.** Una composición completa lista para juzgar, con assets versionados. |
+
+La razón de existir de la segunda: la demostración visual dependía de que Playwright
+inyectara estado **después** de cargar la página, y eso no es el producto. Aquí basta un
+`goto`. Admite `&preset=` y trae una banda fija con conmutador `Wall / Stack / Journal`.
+
+Composición: **5 recuerdos · 12 medias · 9 imágenes · 3 vídeos**, uno con cuatro medias
+mezcladas, uno con imagen+vídeo+imagen, un destacado hero, uno de papel, uno de tejido.
+
+Tres reglas la separan de una trampa:
+
+1. **No escribe en el Project State.** Publica `window.RestaurantMemoriesReview` y el
+   motor lo prefiere mientras exista: `config()` lee `review() || cfg().get(PATH)`. Ni un
+   `set`, ni un guardado, ni una entrada de Undo — el gate lo comprueba con
+   `projectUntouched`. Es literalmente el problema que se reportó («aparecen imágenes
+   antiguas»), y esta ruta no puede volver a causarlo.
+2. **La media es estática y del repositorio.** Las refs conservan la forma del dominio
+   (`project/memories/<item>/<media>`) y se resuelven con `RestaurantMedia.map(ref, url)`,
+   que registra una URL **sin guardar nada**. No hay segundo almacén: es la capa de
+   resolución haciendo su trabajo, y es la misma vía por la que Cloud Media resolverá una
+   ref remota. Los tres vídeos —`assets/memories-review/*.webm`, 160–214 KB— están
+   versionados, así que la URL no necesita subidas.
+3. **El contenido está etiquetado como DEMO.** El antetítulo, la entradilla, cada texto
+   alternativo y la banda fija lo dicen. Sirve para valorar Wall, Stack y Journal; no para
+   publicar.
+
+**No es un LAB, ni un segundo motor, ni un iframe:** es el motor productivo pintando otro
+conjunto de datos. Si dejara de funcionar el producto, dejaría de funcionar la review.
+
 ## Ficheros
 
 **Nuevos:** `class23-memories-model.js` · `class23-memories-engine.js` ·
-`class23-memories-studio.js` · `restaurant-media.js` · `restaurant-media-picker.js` ·
-`styles-v23.css` · `tests/class23-memories-e2e.mjs` · `tests/memories-fixtures.mjs` ·
-`tests/capture-class23-live.mjs` · `docs/CLASS-23-MEMORIES-AUDIT.md` · este documento.
-**Modificado:** `class4-runtime-guard.js` (una cadena de carga aditiva).
+`class23-memories-studio.js` · `class23-memories-review.js` · `restaurant-media.js` ·
+`restaurant-media-picker.js` · `styles-v23.css` · `assets/memories-review/*.webm` ·
+`tests/class23-memories-e2e.mjs` · `tests/class23-human-review-gate.mjs` ·
+`tests/memories-fixtures.mjs` · `tests/capture-class23-live.mjs` ·
+`tests/capture-class23-final-video.mjs` · `docs/CLASS-23-MEMORIES-AUDIT.md` ·
+`docs/CLASS-23-MEMORIES-VISUAL-RECOVERY-AUDIT.md` · este documento.
+**Modificado:** `class4-runtime-guard.js` (una cadena de carga aditiva) ·
+`restaurant-media.js` (`map()`, y `revoke` sólo revoca `blob:`).
 **`index.html` no se toca**, como en Class 21 y Class 22.
 
 ## Gate
@@ -321,6 +423,42 @@ Los fixtures cumplen §34 al pie de la letra: 5 recuerdos, 12 medias (9 imágene
 vídeos), uno con cuatro medias, uno con imagen+vídeo+imagen, uno de papel, uno de tela, un
 destacado hero y los tres pesos. Las imágenes salen de assets del repositorio y los vídeos
 se **generan** con MediaRecorder, así que la subida se recorre de verdad.
+
+### El gate de revisión humana
+
+`tests/class23-human-review-gate.mjs` — **36/36 · `CLASS23_HUMAN_REVIEW_GATE_PASS`**.
+Es el que comprueba lo que se rechazó, y por eso **Playwright actúa como auditor, no como
+actor**: la URL de revisión se abre con un `goto` y nada más. Si necesitara inyección para
+verse bien, es un FAIL.
+
+- **Perfil limpio**: módulo apagado, cero medias, cero recuerdos inventados y **ningún
+  enlace `#memories` huérfano** en la navegación.
+- **Encontrabilidad**: la entrada en Módulos, las tres tarjetas de preset, «Ver Memories»,
+  los tres `Previsualizar` y la zona de restablecer existen y hacen lo que dicen.
+- **El recorrido humano completo**: cuatro medias subidas, las cuatro visibles; un
+  `Reemplazar` que deja de vincular la anterior **y conserva el asset**; un `Restablecer`
+  que toca `modules.memories` **y nada más** y que Undo revierte.
+- **La URL de revisión** desde `goto`: 5 recuerdos, 12 medias, 9+3, el hero con cuatro,
+  papel y tejido, `projectUntouched: true`.
+- **Auditoría de movimiento**, midiendo en vez de suponer: cuatro `transform` distintos
+  durante un arrastre, la transición `DRAGGING → SETTLING → IDLE`, desplazamientos de
+  parallax que cambian, `currentTime` avanzando inline y en el story, y **cero secuestro
+  de la rueda**.
+- **390 px** de viewport, sin desbordamiento horizontal.
+
+### Evidencia visual
+
+`output/playwright/class23-review/` — **11 capturas** a 1440×1000
+(`01-review-wall` … `11-review-mobile`) y **un vídeo** de **42,9 s**,
+`video/class23-memories-final.webm`, grabado por
+`tests/capture-class23-final-video.mjs`: **una sola sesión, sin montaje**, que empieza en
+la URL de revisión con un `goto` y termina en la URL de producto abriendo el Studio,
+gestionando cuatro medias, reemplazando la portada y bajando a ver el resultado en la
+página pública.
+
+Dos cosas se ajustaron **por mirar los fotogramas**, no por un test: el papel se veía como
+una banda porque la cámara llegaba mientras el scroll suave aún viajaba —se le da reposo
+fijo, no escalado—, y el remate se cortaba justo al aparecer la sección.
 
 ### Defectos que salieron de MIRAR el resultado, no de un test en rojo
 
@@ -357,10 +495,21 @@ se **generan** con MediaRecorder, así que la subida se recorre de verdad.
   sombras proyectadas ni refracción. Si algún día se quiere ir más allá, el sitio tendrá
   que decidir si trae Three.js — hoy no lo trae.
 
-### Dos limitaciones de la entrega anterior que quedan RETIRADAS
+- **El Scroll Traveler sobrevuela también los textos de Memories** en parte del
+  recorrido, como sobrevuela el resto de las secciones que cruza. Es comportamiento
+  histórico de Project 09, no una regresión de Class 23, y no se toca aquí: cambiarlo es
+  rediseñar la ruta del viajero para todo el sitio. Queda anotado para revisión humana.
+- **La ruta de revisión no sustituye una prueba con contenido del restaurante.** Demuestra
+  Wall, Stack, Journal, papel y tejido con una composición rica; lo que no puede demostrar
+  es qué tal se ve la casa con **sus** fotos, que es justo lo que decide la revisión
+  humana.
+
+### Tres limitaciones de entregas anteriores que quedan RETIRADAS
 
 - ~~«una celda compone con la primera media»~~ — falso ya: **todas** las medias de un
   recuerdo son alcanzables en los cuatro destinos.
 - ~~«los material artifacts quedan como polish posterior»~~ — **Paper Artifact y Heritage
   Cloth están implementados** dentro de este mismo motor, elegibles por recuerdo desde el
   Studio.
+- ~~«la demostración visual necesita estado inyectado por Playwright»~~ — la URL de
+  revisión funciona con un `goto` y assets versionados, y el gate lo comprueba.
