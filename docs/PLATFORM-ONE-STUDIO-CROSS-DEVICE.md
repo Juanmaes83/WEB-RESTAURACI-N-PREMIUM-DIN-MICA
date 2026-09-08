@@ -614,8 +614,13 @@ Toda feature nueva debe responder antes de implementarse:
   que siguen ahí. Gate 28/28 en `tests/phase-1c-consolidation-gate.mjs`, tabla capacidad
   por capacidad en `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
 
-  Sigue pendiente para ONE MEDIA MODEL completo: el rotador aún no consume la carta del
-  proyecto, documentado en `docs/IN-APP-EXPERIENCE-AUDIT.md`.
+  **ONE PROJECT / ONE MEDIA queda cerrado también para el rotador**, que era el último
+  pendiente. Dentro del producto, Circular lee sus ocho sectores de los productos del
+  proyecto (unidos por NOMBRE, conservando su geometría), su perfil de restaurante del
+  proyecto, y su media de la Media Library del proyecto mediante refs que viven en el
+  Project State. Su personalizador, su uploader y su almacén propios **no existen en la
+  puerta productiva** — el LAB los conserva para regresión. Auditoría en
+  `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
 
   Nada de esto cierra la Platform Layer: cuentas, cloud, Project State remoto, Media
   Library remota y autosave cross-computer siguen pendientes y siguen siendo

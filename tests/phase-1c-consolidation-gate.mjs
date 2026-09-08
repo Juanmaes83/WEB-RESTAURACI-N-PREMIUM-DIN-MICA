@@ -364,6 +364,122 @@ async function openExp(page,id){
     `en el lab quedan: ${inLab.join(', ')}`);
 }
 
+/* ============================================================
+   FINAL BLOCKERS — un producto no puede tener un segundo Studio
+   ============================================================ */
+{
+  const GEN=read('scripts/build-experience-entrypoints.mjs');
+  const SOURCES=fs.readdirSync(path.join(ROOT,'experiences','_source'));
+
+  /* 5 · el LAB no puede ser la fuente AUTORADA del producto. Quitar la dependencia de
+     runtime no basta: si el generador lee `labs/`, el producto sigue derivando de un
+     laboratorio. */
+  /* sobre las LECTURAS del generador, no sobre menciones: sus comentarios nombran los
+     labs para documentar qué escribe, y eso no es una dependencia */
+  const reads=[...GEN.matchAll(/readFileSync\(([^)]*)\)/g)].map(m=>m[1]);
+  const readsLabs=reads.some(a=>a.includes('labs')||a.includes('exp.lab'));
+  check('5 · el generador productivo NO lee desde /labs/',!readsLabs,
+    `lee de: ${reads.map(a=>a.split(',')[0].trim()).join(' · ')}`);
+  check('5 · la fuente autorada vive fuera de /labs/',
+    SOURCES.length===3&&SOURCES.every(f=>f.endsWith('.html')),
+    `experiences/_source/ · ${SOURCES.length} ficheros`);
+
+  const doors=[];
+  for(const id of ['circular-dish-rotator','dish-stage','cinematic-product-rail'])
+    doors.push({id,html:read(`experiences/${id}/index.html`)});
+
+  /* 5 · ninguna puerta productiva puede identificarse como laboratorio */
+  const labPlates=doors.filter(d=>/ISOLATED LAB/.test(d.html)||/HUMAN REVIEW/.test(d.html));
+  check('5 · ninguna puerta productiva dice ISOLATED LAB ni HUMAN REVIEW',
+    !labPlates.length,
+    labPlates.length?labPlates.map(d=>d.id).join(', '):'las tres limpias');
+
+  /* 5 · una navegación de marca a `index.html` dentro del iframe recarga la experiencia
+     sin `#shell` —o abre una app raíz anidada— y el proyecto activo se pierde */
+  const navOut=doors.filter(d=>[...d.html.matchAll(/(?:href|src)="([^"]+)"/g)]
+    .some(([,u])=>u==='index.html'||u==='../../index.html'||/(^|\/)labs\//.test(u)));
+  check('5 · ninguna puerta productiva navega a una app raíz ni a /labs/',
+    !navOut.length,
+    navOut.length?navOut.map(d=>d.id).join(', '):'sin navegación fuera del producto');
+
+  /* 1 · CIRCULAR — NO SECOND STUDIO. No basta bloquear la persistencia: no puede existir
+     una UI que prometa guardar algo que el proyecto descarta. */
+  const cdr=doors.find(d=>d.id==='circular-dish-rotator').html;
+  const cdrLab=read('labs/project06-circular-dish-rotator/index.html');
+  check('1 · la puerta productiva de Circular no contiene su personalizador',
+    !/cdr-customizer/.test(cdr)&&!/cdr-personalize-open/.test(cdr),
+    'sin #cdr-customizer ni botón Personalizar');
+  check('1 · la puerta productiva de Circular no contiene uploaders propios',
+    !/type="file"/.test(cdr),'0 input[type=file]');
+  check('1 · la puerta productiva de Circular no promete guardar nada',
+    !/Guardar cambios/.test(cdr)&&!/cdr-profile-save/.test(cdr)&&!/cdr-profile-reset/.test(cdr),
+    'sin Guardar cambios ni Reset');
+  check('1 · la puerta productiva de Circular no muestra cromo de LAB',
+    !/RESTAURANT PROFILE/.test(cdr)&&!/ASSETS/.test(cdr)&&!/COMMERCE/.test(cdr)
+    &&!/TABLE REQUEST/.test(cdr)&&!/LAB:/.test(cdr),
+    'sin RESTAURANT PROFILE · ASSETS · COMMERCE · TABLE REQUEST · LAB:');
+  check('1 · el LAB conserva su personalizador histórico',
+    /cdr-customizer/.test(cdrLab)&&/type="file"/.test(cdrLab)&&/Guardar cambios/.test(cdrLab),
+    'evidencia intacta');
+
+  /* 2 · CIRCULAR — MISMO PROJECT STATE Y MISMA MEDIA */
+  const adapter=read('circular-project-adapter.js');
+  check('2 · Circular lee del Project State existente, sin store nuevo',
+    /RestaurantStudioConfig/.test(adapter)&&/RestaurantDefaults/.test(adapter)
+    &&!/localStorage|indexedDB|sessionStorage/.test(adapter),
+    'adapter de sólo lectura sobre el proyecto');
+  check('2 · el catálogo no se duplica: los productos vienen del proyecto',
+    /productsFrom/.test(read('class4-config.js'))
+    &&/circularDishRotator/.test(read('class4-config.js')),
+    'contrato mínimo dentro del Project State');
+
+  const page=await (await browser.newContext({viewport:{width:1440,height:960}})).newPage();
+  await page.goto(`${BASE}/`,{waitUntil:'domcontentloaded',timeout:45000});
+  await page.waitForFunction(()=>document.documentElement.dataset.experienceShellReady==='ready',
+    null,{timeout:30000});
+  await page.evaluate(()=>{document.querySelector('.studio-open')?.click()});
+  await page.waitForTimeout(800);
+  await page.evaluate(()=>document.querySelector('#studio [data-panel="motion"]')?.click());
+  await page.waitForFunction(()=>document.documentElement.dataset.motionLibrary==='ready',
+    null,{timeout:20000});
+  await page.evaluate(()=>
+    document.querySelector('[data-experience-open="circular-dish-rotator"]')?.click());
+  await page.waitForFunction(()=>
+    document.documentElement.dataset.experienceShell==='circular-dish-rotator',
+    null,{timeout:15000});
+  await page.waitForTimeout(3200);
+  const child=page.frames().find(f=>/\/experiences\//.test(f.url()));
+  const inside=child?await child.evaluate(()=>({
+    source:document.documentElement.dataset.circularSource||'',
+    premium:!!window.CircularDishPremium,
+    profile:window.CircularDishPremium?.getProfile?.()||{},
+    first:window.CircularDishRotator?.getProducts?.()[0]||{},
+    names:(window.CircularDishRotator?.getNames?.()||[]).length,
+    customizer:!!document.querySelector('#cdr-customizer'),
+    uploads:document.querySelectorAll('input[type=file]').length,
+    ownProfile:(()=>{try{return localStorage.getItem('cdr.project06.phase2.profile.v1')}
+      catch(e){return 'bloqueado'}})()
+  })).catch(()=>null):null;
+
+  check('2 · los ocho sectores salen del proyecto, unidos por nombre',
+    inside?.source==='project:8/8'&&inside?.names===8,
+    `fuente: ${inside?.source} · ${inside?.names} sectores`);
+  check('2 · el perfil sale del proyecto, no de su localStorage',
+    inside?.profile?.collectionLabel==='Pizza selection'&&inside?.ownProfile===null,
+    `colección "${inside?.profile?.collectionLabel}" · perfil propio ${inside?.ownProfile}`);
+  check('2 · la geometría sigue siendo del motor: precio y ordinal conservados',
+    !!inside?.first?.price&&/SIGNATURE 01$/.test(inside?.first?.mood||''),
+    `${inside?.first?.name} · ${inside?.first?.price} · ${inside?.first?.mood}`);
+  check('2 · la historia del plato es la del proyecto',
+    /porción/.test(inside?.first?.lead||''),
+    `"${inside?.first?.lead}" · "${(inside?.first?.tail||'').slice(0,40)}"`);
+  check('1 · dentro del producto no hay Studio ni uploader paralelos, y la capa premium vive',
+    inside?.premium===true&&inside?.customizer===false&&inside?.uploads===0,
+    `premium ${inside?.premium} · personalizador ${inside?.customizer} · uploaders ${inside?.uploads}`);
+  await page.screenshot({path:path.join(SHOTS,'08-circular-sin-segundo-studio.png')});
+  await page.context().close();
+}
+
 await browser.close();server.close();
 const failed=results.filter(r=>!r.ok);
 console.log(`\n${results.length-failed.length}/${results.length} checks passed`);

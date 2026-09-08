@@ -40,7 +40,15 @@ check('selector itself is not rotated by JS', !js.includes('cdr-selector'));
 check('selected sector uses independent clipped hero layer', html.includes('class="cdr-active-sector"') && html.includes('id="cdr-sector-disc"') && css.includes('clip-path:polygon'));
 check('settled hero sector receives stronger phase-1 lift', css.includes('data-settled="true"] .cdr-active-sector') && css.includes('translateY(-14px) scale(1.055)'));
 check('base pizza is visually subordinated when hero settles', css.includes('data-settled="true"] .cdr-disc') && css.includes('brightness(.88)'));
-check('phase-1 product data has eight authored pizzas', js.includes('const PIZZAS = [') && (js.match(/ingredients:/g) || []).length === 8);
+/* FASE 1C: los ocho siguen autorados en el motor, pero como DEMO — el fallback cuando
+   nadie sirve el proyecto. Dentro del producto los sirve el Project State. */
+check('phase-1 product data has eight authored demo pizzas', js.includes('const DEMO_PIZZAS = [') && (js.match(/ingredients:/g) || []).length === 8);
+check('the engine takes its sectors from the project when a source serves them', js.includes('window.RestaurantCircularSource?.sectors?.(DEMO_PIZZAS) || DEMO_PIZZAS'));
+check('the project adapter only reads: no store of its own', (() => {
+  const adapter = fs.readFileSync('circular-project-adapter.js', 'utf8');
+  return !/localStorage|indexedDB|sessionStorage/.test(adapter) && adapter.includes('RestaurantStudioConfig');
+})());
+check('the product door has no second Studio', !product.includes('cdr-customizer') && !product.includes('type="file"') && !product.includes('Guardar cambios'));
 check('ingredients are driven by selected pizza', html.includes('id="cdr-ingredients"') && js.includes('ingredientsEl.textContent = pizza.ingredients'));
 check('price is driven by selected pizza', html.includes('id="cdr-price"') && js.includes('priceEl.textContent = pizza.price'));
 check('descriptor is driven by selected pizza', html.includes('id="cdr-descriptor"') && js.includes('descriptorEl.textContent = pizza.descriptor'));
@@ -78,7 +86,7 @@ check('phase-2 remains isolated from shared Studio runtime', !premiumJs.includes
 
 check('reduced motion preserves selection path', js.includes('reducedMotion.matches'));
 check('keyboard navigation exists', js.includes("event.key === 'ArrowRight'") && js.includes("event.key === 'ArrowLeft'"));
-check('accessibility live region exists', html.includes('id="cdr-live"') && js.includes('Selected pizza:'));
+check('accessibility live region exists', html.includes('id="cdr-live"') && js.includes('Pizza seleccionada:'));
 check('isolated lab does not depend on shared motion engine JS', !html.includes('app-v4.js') && !html.includes('class10-orbital-food.js'));
 
 console.log(`Project 06 Phase 2 contract PASS — ${checks.length}/${checks.length}`);

@@ -38,11 +38,107 @@ Las dos puertas están a la misma profundidad (`experiences/<id>/` y `labs/<lab>
 que las rutas `../../assets/…` resuelven igual y el `url()` del CSS no se rompe. Dish
 Stage y el Rail ya tenían su motor en la raíz: sólo les faltaba la puerta productiva.
 
-Los tres `experiences/<id>/index.html` los **genera** `scripts/build-experience-entrypoints.mjs`
-a partir del marcado del LAB, y su salida se commitea: una sola fuente de marcado
-autorado, sin dependencia de `/labs/` en runtime. El gate (`tests/phase-1c-consolidation-gate.mjs`)
-comprueba después que ambas puertas cargan exactamente los mismos ficheros de motor y que
-no queda ningún `.js`/`.css` dentro del LAB del rotador.
+### La autoría también sale de `/labs/`
+
+La primera versión de esta fase generaba la puerta productiva **desde el marcado del
+LAB**. Eso quitaba la dependencia de *runtime*, pero dejaba al LAB como fuente **autorada**
+del producto, incoherente con `LAB = evidencia / regresión`. Corregido: la autoría vive en
+una fuente neutral fuera de `/labs/`, y el generador escribe **las dos** puertas desde ella.
+
+```
+experiences/_source/<id>.html            ← FUENTE NEUTRAL (autoría)
+          +--------------+--------------+
+experiences/<id>/index.html      labs/<lab>/index.html
+   puerta PRODUCTIVA                puerta de evidencia
+          +--------------+--------------+
+                MOTOR CANÓNICO en la raíz
+```
+
+`scripts/build-experience-entrypoints.mjs` **no lee nada de `/labs/`**: sólo escribe ahí.
+Las regiones marcadas `@door:lab` / `@door:product` deciden qué va a cada puerta, así que
+no hay dos marcados que puedan divergir. La regeneración del LAB salió byte a byte igual
+que el fichero aprobado salvo las localizaciones compartidas y su cabecera: el LAB no
+perdió nada.
+
+El gate (`tests/phase-1c-consolidation-gate.mjs`) comprueba después que ambas puertas
+cargan exactamente los mismos ficheros de motor, que no queda ningún `.js`/`.css` dentro
+del LAB del rotador, y que el generador no lee de `/labs/`.
+
+## Los cuatro bloqueadores de consolidación
+
+Tras la primera revisión la arquitectura quedó aprobada y aparecieron cuatro bloqueadores.
+Los cuatro están cerrados.
+
+### 1 · Circular no puede tener un segundo Studio
+
+La puerta productiva todavía traía el personalizador del LAB: botón *Personalizar*,
+`#cdr-customizer`, tres uploaders propios, *Guardar cambios*, *Reset*, y los rótulos
+`RESTAURANT PROFILE` / `BRAND` / `ASSETS` / `COMMERCE`. Bloquear la persistencia no
+arregla eso: **no puede existir una UI que prometa guardar algo que el proyecto
+descarta**. Dentro del producto ya no existe; la configuración se hace en el Studio. El
+LAB conserva el suyo intacto para regresión.
+
+Al quitarlo apareció la trampa: `project06-phase2-premium.js` **abortaba** si faltaba
+`#cdr-customizer`. Quitar el panel sin tocar esa guarda habría apagado en silencio toda la
+capa premium -mundos cromáticos, marca, CTA- en la puerta productiva. El personalizador
+salió de la guarda: es cromo opcional, no un requisito de runtime.
+
+### 2 · Circular sobre el mismo Project State y la misma Media
+
+**Auditado antes de escribir una línea**, porque tener ocho pizzas no basta para declarar
+dos motores equivalentes:
+
+| | P06 Circular | P07 `pizzaSliceOrbit` | Veredicto |
+|---|---|---|---|
+| Productos | 8 sectores | 8 products | **compatibles**: coincidencia exacta por nombre |
+| Campos | `name` `ingredients` `descriptor` `accent` `lead` `tail` `mood` `price` | superset, con `headlineLead`/`headlineTail` | **compatibles** |
+| Orden | atado a las porciones de **una** fotografía horneada | otro orden | **NO** → unir por nombre, nunca por índice |
+| `price` | se muestra en la composición | `null` a propósito en las ocho | **NO** → un nulo conserva el valor del motor |
+| `mood` | lleva el ordinal del sector (`FIRE · SIGNATURE 01`) | sólo el ánimo (`FUEGO`) | **NO** → se compone conservando el ordinal |
+| Media (logo/rueda/fondo) | uploader propio → IndexedDB | no existe equivalente | **contrato mínimo dentro del Project State** |
+
+Resultado: **adapter de sólo lectura** (`circular-project-adapter.js`) sobre los productos
+del proyecto, más el contrato mínimo que le faltaba -sus tres refs de media- dentro del
+Project State existente (`RestaurantDefaults.circularDishRotator`). Ningún store nuevo,
+ningún catálogo duplicado, ninguna conversión a `dishes`, ninguna geometría tocada.
+
+```
+PROJECT STATE                          MEDIA LIBRARY
+  |-- pizzaSliceOrbit.products  --+      refs → logo · rueda · fondo
+  |-- pizzaSliceOrbit.brand     --+      ('' → asset demo como fallback,
+  +-- circularDishRotator.media --+       slot:<nombre> → ranura del proyecto)
+                                  v
+                    adapter de sólo lectura
+                                  v
+              MOTOR CANÓNICO · 8 sectores · geometría intacta
+```
+
+Verificado en ejecución dentro del producto: `data-circular-source="project:8/8"`, perfil
+`Pizza selection` con el acento del proyecto, `cdr.project06.*` en `localStorage` **nulo**,
+0 uploaders, y la historia del plato en el idioma del proyecto. La tubería de media se
+probó de punta a punta poniendo una ref a una ranura del proyecto: el fondo la tomó de la
+Media Library sin que exista ninguna subida propia.
+
+Efecto lateral relevante: el titular en inglés que la revisión anterior dejó listado
+(`the slice with` / `Fire at the centre of the table.`) **desaparece dentro del producto**,
+porque ahí la historia la escribe el proyecto (`la porción de` / `Fuego en el centro de la
+mesa.`). No se tocó ni una línea de diseño para conseguirlo.
+
+### 3 · El LAB no puede ser la fuente autorada del producto
+
+Resuelto con la fuente neutral descrita arriba.
+
+### 4 · Cromo de producto
+
+Fuera de las puertas productivas: `ISOLATED LAB · PHASE 2`, `ISOLATED LAB · HUMAN REVIEW`
+y las notas `LAB: emite ...`. Localizado en la fuente, para las dos puertas: `PRICE` →
+`PRECIO`, `TABLE REQUEST` → `SOLICITUD DE MESA`, `DRAG · WHEEL · ARROWS` → `ARRASTRA ·
+RUEDA · FLECHAS`, las instrucciones del Rail, y los avisos que inyectan los motores.
+
+Y la navegación de marca: el Rail llevaba `href="index.html"`, que **dentro del iframe**
+recarga la experiencia sin `#shell` -perdiendo el proyecto- o abre una app raíz anidada.
+En la puerta productiva la marca ya no navega: se conserva la etiqueta como `<span>` con
+sus clases y su id, que es lo que usan el CSS y el motor.
 
 ## Tabla de consolidación
 
@@ -57,7 +153,7 @@ no queda ningún `.js`/`.css` dentro del LAB del rotador.
 | 04 Cinematic Depth Carousel | Studio → Motion → preset | `RestaurantStudioConfig` | Project media + assets precompuestos | NO | NO | NO | ✅ |
 | 05 Precomposed Anchor Scenes | Studio → Motion → preset | `RestaurantStudioConfig` | Project media + assets precompuestos | NO | NO | NO | ✅ |
 | 06 Orbital Food Slider | Studio → Motion → preset | `RestaurantStudioConfig` | Project media | NO | NO | NO | ✅ |
-| 07 Circular Dish Rotator | Studio → Motion → **In-App Shell** | Project State del padre vía `experience-shell-bridge.js` | Project media del padre (misma sesión) | NO | NO | NO | ✅ |
+| 07 Circular Dish Rotator | Studio → Motion → **In-App Shell** | `pizzaSliceOrbit` del proyecto vía `circular-project-adapter.js` (sólo lectura) | Media Library del proyecto vía refs en `circularDishRotator.media` | NO | NO | NO | ✅ |
 | 08 Pizza Slice Orbit · Premium | Studio → Motion → preset | `RestaurantStudioConfig` + modelo propio de pizza | Project media + assets de porción | NO | NO | NO | ✅ |
 | 09 Scroll Traveler | Studio → Motion (transversal, `scrollTraveler.enabled`) | `RestaurantStudioConfig` | Project media (asset del viajero) | NO | NO | NO | ✅ |
 | 10 Dish Stage | Studio → Motion → **In-App Shell** | Project State del padre vía bridge | Project media del padre | NO | NO | NO | ✅ |
@@ -123,17 +219,19 @@ Dos correcciones salieron de MIRAR las capturas, no de los tests:
 
 ### Lo que sigue en inglés, a propósito
 
-Dentro del rotador queda copy en inglés que **no** entra en esta limpieza acotada y que
-se deja explícitamente a decisión humana: el titular de demo (`the slice with` / `Fire at
-the centre of the table.`), y los rótulos tipográficos `NOW SERVING`, `DISCOVER`, `FROM`
-y `SPICY · SMOKY · BOLD`. Son composición tipográfica y narrativa de demo de ese motor,
-no chrome de producto; tocarlos cambia longitudes de línea y entra en terreno de diseño,
-que esta fase tiene prohibido. Quedan listados aquí para que se decidan aparte.
+En el rotador quedan los rótulos tipográficos `NOW SERVING`, `DISCOVER`, `FROM` y
+`SPICY · SMOKY · BOLD`. Son composición tipográfica de ese motor, no chrome de producto;
+tocarlos cambia longitudes de línea y entra en terreno de diseño, que esta fase tiene
+prohibido. Quedan listados aquí para decidirse aparte.
+
+El titular de demo que esta lista incluía antes (`the slice with` / `Fire at the centre of
+the table.`) ya no aparece dentro del producto: lo escribe el proyecto.
 
 ## El gate
 
-`tests/phase-1c-consolidation-gate.mjs` — **28/28 · PHASE_1C_GATE_PASS**. Cubre los 25
-puntos de la misión más el guard de DOM y la paridad de motor canónico:
+`tests/phase-1c-consolidation-gate.mjs` — **44/44 · PHASE_1C_GATE_PASS**. Cubre los 25
+puntos de la misión, el guard de DOM, la paridad de motor canónico y los cuatro
+bloqueadores finales:
 
 - once motores numerados y elegibles; los siete presets aplican de verdad; Scroll
   Traveler es transversal;
@@ -146,13 +244,31 @@ puntos de la misión más el guard de DOM y la paridad de motor canónico:
 - **guard de DOM:** ninguna acción productiva interna con `href` a `/labs/` ni
   `target="_blank"` a un LAB — y los enlaces comerciales públicos siguen presentes;
 - las dos puertas cargan el mismo motor canónico; no queda `.js`/`.css` en el LAB del
-  rotador; los tres LABs siguen respondiendo 200 y funcionando sin marco.
+  rotador; los tres LABs siguen respondiendo 200 y funcionando sin marco;
+- **el generador no lee de `/labs/`** y la fuente autorada vive fuera;
+- **ninguna puerta productiva** dice `ISOLATED LAB` ni `HUMAN REVIEW`, contiene
+  `#cdr-customizer`, un `input[type=file]` propio, una UI que prometa guardar, ni una
+  navegación hacia una app raíz o hacia `/labs/`;
+- **el LAB conserva** su personalizador histórico;
+- **Circular dentro del producto**: ocho sectores del proyecto unidos por nombre, perfil
+  del proyecto, `localStorage` propio nulo, cero uploaders y la capa premium viva.
 
 ## Fuera de alcance (explícito)
 
 Memories, Beverages, Auth, Cloud, backend, capa de publicación, router general,
 refactor global, motor nuevo, Product Detail nuevo, framework de i18n, mejoras de diseño
 gratuitas. Ningún LAB ni rama se ha borrado.
+
+## Gate real de ONE PROJECT / ONE MEDIA
+
+| Circular dentro del producto | |
+|---|---|
+| geometría propia | ✅ ocho sectores, 45°, orden del asset horneado — intacta |
+| mismo Project State | ✅ productos y perfil del proyecto, unidos por nombre |
+| misma Media layer | ✅ refs en el Project State, resueltas por la Media Library |
+| 0 store productivo paralelo | ✅ `cdr.project06.*` nulo; su IndexedDB no se abre |
+| 0 uploader paralelo | ✅ 0 `input[type=file]` |
+| 0 Studio paralelo | ✅ sin `#cdr-customizer`, sin Guardar/Reset |
 
 ## Estado de las fases
 

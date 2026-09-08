@@ -1,3 +1,8 @@
+> **Actualización FASE 1C.** El pendiente que esta auditoría dejó abierto —el rotador
+> no consumía la carta del proyecto— está **cerrado**: dentro del producto sus datos, su
+> perfil y su media salen del Project State y de la Media Library existentes, sin
+> configurador ni almacén propios. Ver `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
+
 # IN-APP EXPERIENCE AUDIT — FASE 1B
 
 Estado real de las tres experiencias autónomas, leído del código en `ebf6e8d` (main),
