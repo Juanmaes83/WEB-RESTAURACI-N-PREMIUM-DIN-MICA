@@ -45,7 +45,13 @@
   const wants=name=>fields()[name]!==false;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ---------- adaptadores ---------- */
+  /* ---------- adaptadores ----------
+
+     El orden importa y es explícito: gana el primero cuyo `match()` sea cierto, así
+     que los motores que se APODERAN del escenario se registran antes que el genérico.
+     Los platos base siguen existiendo en el DOM cuando un preset los oculta, así que
+     "hay platos" no distingue a un motor que se apodera del escenario: eso lo dice su
+     preset, y el orden de registro lo resuelve sin condicionales cruzados. */
   const adapters=new Map();
   const register=(id,adapter)=>{adapters.set(id,adapter);return id};
   const current=()=>{
@@ -55,10 +61,48 @@
     return null;
   };
 
+  /* GROUP C — Pizza. Conserva su modelo propio (`pizzaSliceOrbit.products[]`,
+     `demoContent:true`, `price:null`) y no se convierte en un plato normal: se traduce
+     al contrato. Es el único motor que no tenía ficha, así que aquí sí hace falta un
+     diálogo, y es del Product Engine — uno, no cinco. */
+  register('pizza',{
+    match:()=>root.dataset.orbitalMotion==='pizza-slice-orbit'
+      &&!!window.RestaurantPizzaSliceOrbit,
+    activeProduct(){
+      const i=window.RestaurantPizzaSliceOrbit?.state?.().activeIndex??0;
+      const list=window.RestaurantStudioConfig?.get?.('pizzaSliceOrbit.products')||[];
+      const p=list[i];
+      if(!p)return null;
+      return {
+        id:p.id,source:'pizza',index:i,
+        name:p.name,
+        meta:[p.descriptor,p.mood].filter(Boolean).join(' · '),
+        /* price:null significa "no hay precio", no "cero" */
+        price:p.price??null,
+        short:p.story||p.lead||'',
+        ingredients:p.ingredients||'',
+        origin:p.origin||'',
+        technique:p.technique||'',
+        pairing:p.pairing||'',
+        allergens:p.allergens||'',
+        story:p.tale||p.story||'',
+        image:p.runtimeAsset||p.asset||'',
+        demoContent:p.demoContent===true
+      };
+    },
+    open(product){return openOwnDialog(product)},
+    close(){return closeOwnDialog()},
+    isOpen:()=>!!dialog&&dialog.classList.contains('is-open')
+  });
+
   /* GROUP A — los seis motores que ya comparten `#dish-detail`.
      El adaptador no abre nada por su cuenta: pide a Class 06 que abra, porque ahí vive
      la regla de héroe/lateral y la transición Flip. */
   register('orbit',{
+    /* NO se exige que el escenario base esté "vivo": Depth Carousel y Anchor Scenes
+       lo ocultan porque se apoderan del shell, y siguen siendo del GROUP A — usan
+       esta misma ficha compartida. Lo que distingue a Pizza es su preset, y para eso
+       basta con que su adaptador se registre antes. */
     match:()=>!!$('#dish-detail')&&$$('#orbit-stage .orbit-dish').length>0,
     activeProduct(){
       /* el estado del motor, no uno nuevo: el marcador de héroe manda cuando existe
@@ -113,40 +157,6 @@
     open(){const b=$('#cpr-explore');if(!b)return false;b.click();return true},
     close(){$('#cpr-detail-close')?.click();return true},
     isOpen:()=>{const d=$('#cpr-detail');return !!d&&(d.open===true||d.hasAttribute('open'))}
-  });
-
-  /* GROUP C — Pizza. Conserva su modelo propio (`pizzaSliceOrbit.products[]`,
-     `demoContent:true`, `price:null`) y no se convierte en un plato normal: se traduce
-     al contrato. Es el único motor que no tenía ficha, así que aquí sí hace falta un
-     diálogo, y es del Product Engine — uno, no cinco. */
-  register('pizza',{
-    match:()=>root.dataset.orbitalMotion==='pizza-slice-orbit'
-      &&!!window.RestaurantPizzaSliceOrbit,
-    activeProduct(){
-      const i=window.RestaurantPizzaSliceOrbit?.state?.().activeIndex??0;
-      const list=window.RestaurantStudioConfig?.get?.('pizzaSliceOrbit.products')||[];
-      const p=list[i];
-      if(!p)return null;
-      return {
-        id:p.id,source:'pizza',index:i,
-        name:p.name,
-        meta:[p.descriptor,p.mood].filter(Boolean).join(' · '),
-        /* price:null significa "no hay precio", no "cero" */
-        price:p.price??null,
-        short:p.story||p.lead||'',
-        ingredients:p.ingredients||'',
-        origin:p.origin||'',
-        technique:p.technique||'',
-        pairing:p.pairing||'',
-        allergens:p.allergens||'',
-        story:p.tale||p.story||'',
-        image:p.runtimeAsset||p.asset||'',
-        demoContent:p.demoContent===true
-      };
-    },
-    open(product){return openOwnDialog(product)},
-    close(){return closeOwnDialog()},
-    isOpen:()=>!!dialog&&dialog.classList.contains('is-open')
   });
 
   /* ---------- el producto, desde la única fuente que ya existe ---------- */
