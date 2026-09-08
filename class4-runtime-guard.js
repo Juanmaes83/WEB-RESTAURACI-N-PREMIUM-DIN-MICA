@@ -191,13 +191,16 @@
 /* CLASS 23 — MEMORIES. Capacidad completa del producto, cargada de forma aditiva.
    `index.html` no se toca, como en Class 21 y Class 22.
 
-   El orden importa y es el único motivo de que sean cuatro ficheros:
+   El orden importa, y es el único motivo de que sean varios ficheros:
 
-     restaurant-media.js         → la Media Library COMPARTIDA (resolución, no almacén)
-     restaurant-media-picker.js  → el selector compartido (lo usará Beverages)
-     class23-memories-model.js   → el dominio: esquema, normalización y siembra
-     class23-memories-engine.js  → el motor y sus tres presentaciones
-     class23-memories-studio.js  → el panel, dentro del Studio de siempre
+     restaurant-media.js            → la Media Library COMPARTIDA (resolución, no almacén)
+     restaurant-media-picker.js     → el selector compartido (lo usará Beverages)
+     class23-memories-model.js      → el dominio: esquema, normalización y siembra
+     class23-memories-video.js      → las reglas de reproducción
+     class23-memories-artifacts.js  → papel y tejido, en canvas 2D
+     class23-memories-review.js     → la composición de `?review=memories`, antes del motor
+     class23-memories-engine.js     → el motor y sus tres presentaciones
+     class23-memories-studio.js     → el panel, dentro del Studio de siempre
 
    Dentro de una experiencia enmarcada no se carga: ahí el producto es la shell padre. */
 (() => {
