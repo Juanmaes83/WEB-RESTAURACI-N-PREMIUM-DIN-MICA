@@ -265,3 +265,27 @@ Cuando una implementación ofrezca dos caminos, elegir:
 - Si el coste es puramente polish móvil → diferirlo.
 
 Esta regla tiene prioridad sobre la búsqueda de paridad móvil prematura.
+
+---
+
+# 8. APLICACIÓN DE LA REGLA — FASES 1A / 1B / 1C
+
+| Fase | Estado | Validación de dispositivo |
+|---|---|---|
+| FASE 1A — Unified Product Detail + defaults públicos en español | **CLOSED** | desktop prioritario; web pública responsive |
+| FASE 1B — In-App Experience Consolidation | **CLOSED** | desktop prioritario; smoke móvil real a 390 px |
+| FASE 1C — Product Consolidation Gate | **READY FOR HUMAN VISUAL REVIEW** | desktop prioritario; smoke móvil |
+
+Las tres siguieron la DECISION RULE de §7 sin pagar deuda móvil:
+
+- La consolidación de 1C **no** introdujo ninguna dependencia rígida nueva. Movió el
+  motor del rotador a la raíz y le dio al producto un entrypoint propio en
+  `experiences/`; dominio, media y estado siguen siendo los mismos objetos, así que el
+  futuro Mobile Studio no hereda ninguna reescritura.
+- La evidencia visual de 1C es **desktop prioritario con smoke móvil**, exactamente lo
+  que §2 permite: pulir el Studio en móvil no bloquea V1.
+- La web pública sigue siendo responsive (§1.3) y se comprueba en el gate.
+- El compromiso de §5 sigue en pie: **Mobile Studio está diferido, no cancelado**, y
+  aparece como Fase 9 del roadmap.
+- Memories y Beverages mantienen intacta su regla de §4: panel de personalización,
+  imagen **y** vídeo, una sola Media Library y el mismo Project State.

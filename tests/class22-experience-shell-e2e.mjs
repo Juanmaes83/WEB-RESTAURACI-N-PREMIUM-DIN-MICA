@@ -63,7 +63,11 @@ async function openExperience(page,id){
     null,{timeout:20000}).catch(()=>{});
   await page.waitForTimeout(2600);
 }
-const childOf=page=>page.frames().find(f=>/labs\//.test(f.url()))||null;
+/* FASE 1C: el hijo es el entrypoint PRODUCTIVO de `experiences/`, no una página de
+   `/labs/`. Localizarlo por su URL sigue siendo lo más específico —hay otros iframes
+   posibles en la página, como el mapa del módulo Location— pero la URL que buscamos
+   cambió de puerta. */
+const childOf=page=>page.frames().find(f=>/\/experiences\//.test(f.url()))||null;
 
 /* ============================================================
    1. DESKTOP — abre dentro, hereda el proyecto, cierra bien

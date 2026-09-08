@@ -7,7 +7,7 @@
 
   // Demo content only. The motor consumes data; the final Studio integration will
   // expose these fields for restaurant-specific authoring.
-  const PIZZAS = [
+  const DEMO_PIZZAS = [
     {
       name:'Diavola',
       ingredients:'Tomate San Marzano · fior di latte · salami picante · albahaca',
@@ -90,6 +90,18 @@
     }
   ];
 
+  /* FASE 1C — UN SOLO PROJECT STATE.
+
+     La GEOMETRÍA es de este motor y no se negocia: ocho sectores de 45°, en este orden,
+     porque el orden corresponde a las porciones de una única fotografía horneada. Los
+     DATOS, en cambio, son del restaurante, y dentro del producto tienen que venir del
+     proyecto. Si alguien sirve una fuente, se usa; si no, el demo sigue siendo la
+     fuente, como en el LAB abierto directamente.
+
+     La fuente recibe el demo para poder hacer el fallback campo a campo: nada queda
+     inventado ni vacío si el proyecto no trae un valor. */
+  const PIZZAS = window.RestaurantCircularSource?.sectors?.(DEMO_PIZZAS) || DEMO_PIZZAS;
+
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const shell = document.getElementById('cdr-shell');
   const disc = document.getElementById('cdr-disc');
@@ -103,6 +115,7 @@
   const tailEl = document.getElementById('cdr-headline-tail');
   const ingredientsEl = document.getElementById('cdr-ingredients');
   const priceEl = document.getElementById('cdr-price');
+  const priceWrap = priceEl?.closest('.cdr-price-wrap') || null;
   const descriptorEl = document.getElementById('cdr-descriptor');
   const copy = document.getElementById('cdr-copy');
   const live = document.getElementById('cdr-live');
@@ -170,7 +183,12 @@
     leadEl.textContent = pizza.lead;
     tailEl.textContent = pizza.tail;
     ingredientsEl.textContent = pizza.ingredients;
-    priceEl.textContent = pizza.price;
+    /* Sin precio no se deja el rótulo "DESDE" colgando, ni un guión, ni un valor
+       inventado: el bloque entero desaparece. El LAB sin proyecto sigue trayendo sus
+       precios demo, así que allí nunca se oculta. */
+    const price = typeof pizza.price === 'string' ? pizza.price.trim() : (pizza.price || '');
+    priceEl.textContent = price;
+    if (priceWrap) priceWrap.hidden = !price;
     descriptorEl.textContent = pizza.descriptor;
     document.documentElement.style.setProperty('--cdr-accent', pizza.accent);
     shell.dataset.pizza = pizza.name.toLowerCase().replace(/\s+/g,'-');
@@ -192,7 +210,7 @@
 
     if (announce && lastAnnounced !== index) {
       lastAnnounced = index;
-      live.textContent = `Selected pizza: ${PIZZAS[index].name}`;
+      live.textContent = `Pizza seleccionada: ${PIZZAS[index].name}`;
     }
   }
 
@@ -315,7 +333,7 @@
       prev.disabled = true;
       next.disabled = true;
       spin.disabled = true;
-      spinLabel.textContent = 'Spinning';
+      spinLabel.textContent = 'Girando';
     }
 
     const duration = reducedMotion.matches ? 0 : clamp(520 + distance * 100, 560, 2200);
@@ -332,9 +350,9 @@
       prev.disabled = false;
       next.disabled = false;
       spin.disabled = false;
-      spinLabel.textContent = 'Discover';
+      spinLabel.textContent = 'Descubrir';
     }
-    hint.textContent = 'Drag circular · Flick para lanzar · ← → · Discover';
+    hint.textContent = 'Arrastra · Lanza para girar · ← → · Descubrir';
   }
 
   function endDrag(event) {
@@ -383,7 +401,7 @@
     spin.disabled = true;
     prev.disabled = true;
     next.disabled = true;
-    spinLabel.textContent = 'Ready';
+    spinLabel.textContent = 'Listo';
     hint.textContent = 'Finding your next obsession…';
 
     const current = Math.round(rotationProgress);
@@ -402,7 +420,7 @@
     }
 
     shell.dataset.spinPhase = 'travel';
-    spinLabel.textContent = 'Spinning';
+    spinLabel.textContent = 'Girando';
 
     const launchBase = Math.round(rotationProgress);
     const launchIndex = mod(launchBase, COUNT);
@@ -423,8 +441,8 @@
     spin.disabled = false;
     prev.disabled = false;
     next.disabled = false;
-    spinLabel.textContent = 'Discover';
-    hint.textContent = `Selected · ${PIZZAS[targetIndex].name}`;
+    spinLabel.textContent = 'Descubrir';
+    hint.textContent = `Elegida · ${PIZZAS[targetIndex].name}`;
     return targetIndex;
   }
 

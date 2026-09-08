@@ -49,9 +49,24 @@
     brand:{...(base.brand||{}),...(project.brand||{})},
     dishes,
     media:{...(base.media||{}),...(project.media||{})},
-    productDetail:{...(base.productDetail||{}),...(project.productDetail||{})}
+    productDetail:{...(base.productDetail||{}),...(project.productDetail||{})},
+    /* FASE 1C: Circular lee del proyecto sus ocho productos, su perfil y sus refs de
+       media a través de `circular-project-adapter.js`. Las dos claves viajan igual que
+       las demás — sin almacén nuevo, sin catálogo duplicado. */
+    pizzaSliceOrbit:{...(base.pizzaSliceOrbit||{}),...(project.pizzaSliceOrbit||{})},
+    circularDishRotator:{...(base.circularDishRotator||{}),...(project.circularDishRotator||{})}
   };
   if(project.locale)document.documentElement.dataset.locale=project.locale;
+
+  /* La MEDIA LIBRARY del proyecto, resuelta por el padre: la media subida vive como blob
+     en su store y el padre ya tiene la URL. Se pasa la referencia; no se duplica el
+     asset ni se abre un almacén aquí. */
+  window.RestaurantProjectMedia=Object.freeze({
+    resolve:slot=>{
+      try{return project.resolveMedia?.(slot)||window.RestaurantDefaults?.media?.[slot]?.url||''}
+      catch(e){return ''}
+    }
+  });
 
   /* ---------- 2. ninguna persistencia paralela dentro del producto ----------
 

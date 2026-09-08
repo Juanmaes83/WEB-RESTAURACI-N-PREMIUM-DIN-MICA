@@ -1,0 +1,96 @@
+<!-- FUENTE NEUTRAL de la experiencia — la autoría vive AQUÍ, fuera de /labs/.
+
+     `scripts/build-experience-entrypoints.mjs` genera desde este fichero las DOS
+     puertas, y no lee nada de /labs/:
+
+         experiences/<id>/index.html    · puerta PRODUCTIVA
+         labs/<lab>/index.html          · puerta de evidencia y regresión
+
+     Ambas cargan el MISMO motor canónico de la raíz: una implementación, dos puertas.
+
+     Regiones por puerta:
+       <!-- @door:lab -->     ... <!-- @/door -->   sólo en el LAB
+       <!-- @door:product --> ... <!-- @/door -->   sólo en el PRODUCTO
+-->
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080807">
+  <base href="../../">
+  <title>Project 10 — Dish Stage LAB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Italiana&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles-v13.css">
+</head>
+<body>
+  <main class="ds-lab" data-dish-stage-lab tabindex="0" aria-label="Dish Stage. Arrastra, usa la rueda o las flechas para cambiar de plato.">
+    <div class="ds-world ds-world-a" data-ds-world-a aria-hidden="true"></div>
+    <div class="ds-world ds-world-b" data-ds-world-b aria-hidden="true"></div>
+    <div class="ds-grain" aria-hidden="true"></div>
+    <header class="ds-topbar">
+      <strong class="ds-brand">LÚMINA</strong>
+      <span class="ds-mode">Restaurant Motion Engine · Project 10</span>
+      <span class="ds-hint">ARRASTRA · RUEDA · FLECHAS</span>
+    </header>
+
+    <section class="ds-layout">
+      <article class="ds-copy" aria-live="polite">
+        <p class="ds-index" data-ds-index></p>
+        <p class="ds-meta" data-ds-meta></p>
+        <h1 class="ds-title" data-ds-title></h1>
+        <p class="ds-short" data-ds-short></p>
+        <p class="ds-ingredients" data-ds-ingredients></p>
+        <div class="ds-commerce">
+          <strong class="ds-price" data-ds-price></strong>
+          <button class="ds-explore" data-ds-explore type="button">Ver plato +</button>
+        </div>
+      </article>
+
+      <div class="ds-stage-wrap">
+        <div class="ds-beam" aria-hidden="true"></div>
+        <div class="ds-orbit-mark" aria-hidden="true"></div>
+        <div class="ds-stage" data-ds-stage></div>
+      </div>
+    </section>
+
+    <div class="ds-word" data-ds-word aria-hidden="true"></div>
+    <nav class="ds-controls" aria-label="Navegación de platos">
+      <button type="button" data-ds-prev aria-label="Plato anterior">←</button>
+      <span class="ds-counter" data-ds-counter></span>
+      <button type="button" data-ds-next aria-label="Plato siguiente">→</button>
+    </nav>
+    <div class="ds-live" data-ds-live aria-live="polite"></div>
+
+    <div class="ds-detail" data-ds-detail aria-hidden="true" role="dialog" aria-modal="true" aria-label="Ficha del plato">
+      <div class="ds-detail-card">
+        <button class="ds-detail-close" data-ds-detail-close type="button" aria-label="Cerrar la ficha del plato">×</button>
+        <div class="ds-detail-media-wrap"><img class="ds-detail-media" data-detail-media alt=""></div>
+        <div>
+          <p class="ds-detail-meta" data-detail-meta></p>
+          <h2 class="ds-detail-title" data-detail-title></h2>
+          <div class="ds-detail-price" data-detail-price></div>
+          <p class="ds-detail-description" data-detail-description></p>
+          <div class="ds-detail-grid">
+            <div><span>Ingredientes</span><p data-detail-ingredients></p></div>
+            <div><span>Origen</span><p data-detail-origin></p></div>
+            <div><span>Técnica</span><p data-detail-technique></p></div>
+            <div><span>Maridaje</span><p data-detail-pairing></p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <!-- IN-APP EXPERIENCE: el puente sólo actúa si la shell del producto enmarca esta página.
+       Abierta directamente, este lab se comporta exactamente como siempre. -->
+  <script src="experience-shell-bridge.js"></script>
+  <script src="class4-config.js"></script>
+  <script src="class13-dish-stage.js"></script>
+  <!-- CLASS 21: el contrato de ficha de producto, para que este motor lo cumpla.
+       Nada de su experiencia cambia: el adaptador abre SU propia ficha aprobada. -->
+  <script src="class21-unified-product-detail.js"></script>
+</body>
+</html>

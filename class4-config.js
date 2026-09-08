@@ -130,6 +130,38 @@ window.RestaurantDefaults.pizzaSliceOrbit={
   ]
 };
 
+/* PROJECT 06 — CIRCULAR DISH ROTATOR, dentro del Project State.
+
+   AUDITADO antes de escribir esto, porque tener ocho pizzas no basta para declarar dos
+   motores equivalentes:
+
+     · los PRODUCTOS sí son los mismos. Las ocho pizzas de `pizzaSliceOrbit` coinciden
+       una a una por nombre con los ocho sectores de Circular, y sus campos son un
+       superset (`headlineLead`/`headlineTail` cubren `lead`/`tail`). Así que Circular
+       NO recibe un catálogo propio: los lee de ahí mediante un adapter de sólo lectura.
+     · la GEOMETRÍA no. El orden de los ocho sectores de Circular corresponde a las
+       porciones de UNA fotografía horneada, así que la unión se hace por NOMBRE y el
+       orden lo sigue mandando el motor. Unir por índice desincronizaría foto y etiqueta.
+     · el PRECIO tampoco. `pizzaSliceOrbit` deja `price:null` a propósito en las ocho
+       —no hay precio auténtico— y Circular sí muestra precio en su composición. Un
+       `price` nulo del proyecto conserva el valor demo del motor en vez de vaciarlo.
+
+   Lo único que le faltaba a Circular en el proyecto es esto: sus tres referencias de
+   media. No es un almacén nuevo — es el contrato mínimo dentro del Project State que ya
+   existe, resuelto por la Media Library de siempre:
+
+     ''                  → se mantiene el asset demo del motor (fallback legítimo)
+     'slot:atmosphere'   → la ranura de media del proyecto con ese nombre
+     'https://…' | 'assets/…' → una URL directa
+
+   Se dejan vacías a propósito: pre-cablear una ranura sería inventar contenido que el
+   restaurante no ha elegido. */
+window.RestaurantDefaults.circularDishRotator={
+  /* de dónde salen los productos; no se duplica el catálogo */
+  productsFrom:'pizzaSliceOrbit',
+  media:{logo:'',wheel:'',background:''}
+};
+
 /* PROJECT 09 — SCROLL TRAVELER.
 
    A page-level capability, not another product carousel: ONE object persists across

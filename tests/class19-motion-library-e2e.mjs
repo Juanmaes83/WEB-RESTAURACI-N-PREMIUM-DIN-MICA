@@ -161,12 +161,17 @@ async function openLibrary(page){
     openers.map(o=>`${o.card}:${o.tag.toLowerCase()}`).join(' '));
   const shellPages=await page.evaluate(()=>
     (window.RestaurantExperienceShell?.experiences?.()||[]).map(e=>({id:e.id,url:e.url})));
-  check('the shell knows all three, and their pages are still on disk for regression',
+  /* FASE 1C: la shell abre el entrypoint PRODUCTIVO, no una página de `/labs/`. Los labs
+     siguen en disco —no se borra ninguno— pero dejaron de ser el runtime del producto. */
+  const labsOnDisk=fs.readdirSync(path.join(ROOT,'labs'))
+    .filter(d=>fs.existsSync(path.join(ROOT,'labs',d,'index.html'))).length;
+  check('the shell opens the productive entrypoint, and the labs are still on disk',
     shellPages.length===3
     &&openers.every(o=>shellPages.some(p=>p.id===o.card))
-    &&shellPages.every(p=>/^labs\/.+\/index\.html$/.test(p.url)
-      &&fs.existsSync(path.join(ROOT,p.url))),
-    shellPages.map(p=>p.url.split('/')[1]).join(' '));
+    &&shellPages.every(p=>p.url===`experiences/${p.id}/index.html`
+      &&fs.existsSync(path.join(ROOT,p.url)))
+    &&labsOnDisk>=3,
+    `${shellPages.map(p=>p.url.split('/')[0]).join(' ')} · ${labsOnDisk} labs intactos`);
   check('no experience pretends to be an orbit preset',
     !(await page.evaluate(()=>[...document.querySelectorAll('#motion-orbital-style option')]
       .map(o=>o.value))).some(v=>['dish-stage','circular-dish-rotator','cinematic-product-rail'].includes(v)),

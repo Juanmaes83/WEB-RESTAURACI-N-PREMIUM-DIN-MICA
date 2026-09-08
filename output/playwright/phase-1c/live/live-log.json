@@ -1,0 +1,99 @@
+{
+  "url": "https://juanmaes83.github.io/WEB-RESTAURACI-N-PREMIUM-DIN-MICA",
+  "desktop": {
+    "engines": {
+      "count": 11,
+      "numbers": "01 02 03 04 05 06 07 08 09 10 11",
+      "modules": 3,
+      "labLinks": 0
+    },
+    "experiences": [
+      {
+        "id": "circular-dish-rotator",
+        "src": "experiences/circular-dish-rotator/index.html#shell",
+        "fromLabs": false,
+        "onTop": true,
+        "topTag": "IFRAME.xs-frame",
+        "back": "← Volver al Studio",
+        "name": "Circular Dish Rotator"
+      },
+      {
+        "id": "dish-stage",
+        "src": "experiences/dish-stage/index.html#shell",
+        "fromLabs": false,
+        "onTop": true,
+        "topTag": "IFRAME.xs-frame",
+        "back": "← Volver al Studio",
+        "name": "Dish Stage"
+      },
+      {
+        "id": "cinematic-product-rail",
+        "src": "experiences/cinematic-product-rail/index.html#shell",
+        "fromLabs": false,
+        "onTop": true,
+        "topTag": "IFRAME.xs-frame",
+        "back": "← Volver al Studio",
+        "name": "Cinematic Product Rail"
+      }
+    ],
+    "modules": {
+      "location": "Encuéntranos Ven a cenar. Quédate a disfrutar de la noche. Añade una dirección en el confi",
+      "social": "SOCIAL · RESEÑAS · COMUNIDAD Sigue cerca de nuestra mesa. Sigue la cocina, lee lo que recu",
+      "whatsapp": "",
+      "fields": 56
+    },
+    "detail": {
+      "adapter": "orbit",
+      "open": 1,
+      "name": "Gamba roja salvaje"
+    },
+    "session": {
+      "restaurant": "LÚMINA",
+      "modulesOn": 3,
+      "detailOn": true,
+      "shellOpen": false,
+      "engines": 11
+    },
+    "newTabs": 0,
+    "pageErrors": []
+  },
+  "mobile": {
+    "engines": {
+      "count": 11,
+      "numbers": "01 02 03 04 05 06 07 08 09 10 11",
+      "modules": 3,
+      "labLinks": 0
+    },
+    "experiences": [
+      {
+        "id": "circular-dish-rotator",
+        "src": "experiences/circular-dish-rotator/index.html#shell",
+        "fromLabs": false,
+        "onTop": true,
+        "topTag": "IFRAME.xs-frame",
+        "back": "← Volver al Studio",
+        "name": "Circular Dish Rotator"
+      },
+      {
+        "id": "dish-stage",
+        "src": "experiences/dish-stage/index.html#shell",
+        "fromLabs": false,
+        "onTop": true,
+        "topTag": "IFRAME.xs-frame",
+        "back": "← Volver al Studio",
+        "name": "Dish Stage"
+      },
+      {
+        "id": "cinematic-product-rail",
+        "src": "experiences/cinematic-product-rail/index.html#shell",
+        "fromLabs": false,
+        "onTop": true,
+        "topTag": "IFRAME.xs-frame",
+        "back": "← Volver al Studio",
+        "name": "Cinematic Product Rail"
+      }
+    ],
+    "newTabs": 0,
+    "pageErrors": []
+  }
+}

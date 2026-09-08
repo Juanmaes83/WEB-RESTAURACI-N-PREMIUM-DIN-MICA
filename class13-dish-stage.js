@@ -158,7 +158,7 @@
       root.style.setProperty('--ds-active-accent', ds.accent);
       root.dataset.activeDish = d.id || String(index);
       requestAnimationFrame(() => root.classList.remove('ds-copy-changing'));
-      if (announce && liveEl) liveEl.textContent = `Selected dish: ${d.name}`;
+      if (announce && liveEl) liveEl.textContent = `Plato seleccionado: ${d.name}`;
     });
   }
 

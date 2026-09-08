@@ -257,7 +257,17 @@ Incluye:
 
 ## 3.4 Fase activa
 
-**FASE 1B — IN-APP EXPERIENCE CONSOLIDATION: READY FOR HUMAN VISUAL REVIEW.**
+**FASE 1C — PRODUCT CONSOLIDATION GATE: READY FOR HUMAN VISUAL REVIEW.**
+
+FASE 1A y FASE 1B están **CERRADAS**. 1C no añade capacidad: demuestra que lo
+construido es un producto — un Studio, un Project State, un modelo de media, una
+experiencia de producto y once capacidades de movimiento — y retira el último uso de
+`/labs/` en el recorrido productivo. Las tres experiencias abren desde
+`experiences/<id>/index.html`, que carga el **mismo motor canónico** que la puerta
+histórica del LAB: una implementación, dos puertas. Gate 28/28 con guard de DOM. Detalle
+en `docs/PHASE-1C-PRODUCT-CONSOLIDATION-GATE.md`.
+
+Lo entregado en 1B, que 1C conserva intacto:
 
 Entregado: la In-App Experience Shell (`class22-experience-shell.js` + `styles-v22.css`)
 abre las tres experiencias dentro de la misma aplicación mediante un iframe same-origin,
@@ -596,20 +606,33 @@ Publicar no debe requerir GitHub, otra web ni tocar código.
 
 ## Fase 1B — In-App Experience Consolidation
 
-- [ ] Circular dentro del mismo app shell.
-- [ ] Dish Stage dentro del mismo app shell.
-- [ ] Product Rail dentro del mismo app shell.
-- [ ] mismo Project State.
-- [ ] misma Media.
-- [ ] lifecycle limpio.
-- [ ] no nuevas pestañas / no flujo operativo LAB.
-- [ ] preservar LABs como evidencia.
+- [x] Circular dentro del mismo app shell.
+- [x] Dish Stage dentro del mismo app shell.
+- [x] Product Rail dentro del mismo app shell.
+- [x] mismo Project State.
+- [x] misma Media.
+- [x] lifecycle limpio.
+- [x] no nuevas pestañas / no flujo operativo LAB.
+- [x] preservar LABs como evidencia.
+- [x] human visual validation.
 
-**EN CURSO.**
+**CERRADA.**
 
 ---
 
 ## Fase 1C — Consolidation Gate
+
+**READY FOR HUMAN VISUAL REVIEW — MERGED: NO.**
+
+- [x] once motion capabilities elegibles desde un solo Studio.
+- [x] Unified Product Detail ON/OFF con Pizza conservando su modelo.
+- [x] Location + Social + WhatsApp configurables desde el mismo Studio.
+- [x] runtime productivo fuera de `/labs/` (`experiences/`), sin duplicar motor.
+- [x] un solo Project State y un solo modelo de media.
+- [x] guard de DOM: ninguna acción productiva interna sale a `/labs/` ni a otra pestaña.
+- [x] catálogo de once intacto: nada añadido, quitado, renumerado ni rediseñado.
+- [x] limpieza acotada de copy estático, sin i18n ni dataset traducido.
+- [ ] human visual validation.
 
 Debe demostrarse:
 

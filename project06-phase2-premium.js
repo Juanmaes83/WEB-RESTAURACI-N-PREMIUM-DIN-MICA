@@ -31,7 +31,10 @@
   const orderForm = $('cdr-order-form');
   const reserveForm = $('cdr-reserve-form');
 
-  if (!page || !shell || !disc || !sectorDisc || !customizer || !primaryCta || !secondaryCta) return;
+  /* El personalizador NO entra en esta guarda a propósito: dentro del producto no
+     existe —la configuración vive en el Studio— y exigirlo aquí apagaba en silencio
+     toda la capa premium (mundos cromáticos, CTA, marca) en la puerta productiva. */
+  if (!page || !shell || !disc || !sectorDisc || !primaryCta || !secondaryCta) return;
 
   const SOURCE_WHEEL = '../../assets/pizza-motion/source/full-pizza/PIZZA%20COMPLETA%20DE%208%20TROZOS.png';
   const PROFILE_KEY = 'cdr.project06.phase2.profile.v1';
@@ -59,12 +62,19 @@
     {word:'CLASSIC',accent:'#e35d50',accent2:'#4f9a67',worldA:'#25100d',worldB:'#09090b',soft:'rgba(227,93,80,.20)'}
   ];
 
+  /* FASE 1C — ONE PROJECT STATE / ONE STUDIO.
+     Dentro del producto, `RestaurantCircularSource` sirve el perfil desde el proyecto
+     activo. Con fuente presente este motor NO lee ni escribe su propio localStorage:
+     no basta con descartar la escritura si la UI sigue prometiendo guardarla, así que
+     tampoco existe la UI. Abierto directamente, el LAB conserva su perfil histórico. */
+  const source = window.RestaurantCircularSource || null;
   let profile = loadProfile();
   let lastIndex = -1;
   let toastTimer = 0;
   const objectUrls = new Map();
 
   function loadProfile() {
+    if (source) return source.profile?.(DEFAULT_PROFILE) || {...DEFAULT_PROFILE};
     try {
       const saved = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
       return {...DEFAULT_PROFILE, ...saved};
@@ -74,6 +84,7 @@
   }
 
   function saveProfile() {
+    if (source) return;            // el proyecto es la fuente; aquí no hay nada que guardar
     localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
   }
 
@@ -129,11 +140,13 @@
   }
 
   function updateContextCta(product = activeProduct()) {
-    const name = product.name || 'selected pizza';
+    const name = product.name || 'la porción elegida';
     const orderFirst = profile.primaryAction === 'order';
-    primaryCta.querySelector('span').textContent = orderFirst ? `Order ${name}` : 'Reserve table';
-    secondaryCta.textContent = orderFirst ? 'Reserve table' : `Order ${name}`;
-    ctaNote.textContent = `${profile.collectionLabel} · ${product.descriptor || 'selected product'}`;
+    /* Estas dos etiquetas se reescriben en CADA cambio de porción, así que el marcado
+       inicial del lab no las decide: la fuente canónica del copy es esta función. */
+    primaryCta.querySelector('span').textContent = orderFirst ? `Pedir ${name}` : 'Reservar mesa';
+    secondaryCta.textContent = orderFirst ? 'Reservar mesa' : `Pedir ${name}`;
+    ctaNote.textContent = `${profile.collectionLabel} · ${product.descriptor || 'producto seleccionado'}`;
   }
 
   function showToast(message) {
@@ -144,6 +157,7 @@
   }
 
   function populatePanel() {
+    if (!customizer) return;
     $('cdr-profile-name').value = profile.restaurantName;
     $('cdr-profile-collection').value = profile.collectionLabel;
     $('cdr-profile-palette').checked = profile.usePizzaPalette;
@@ -154,6 +168,7 @@
   }
 
   function openCustomizer() {
+    if (!customizer) return;
     populatePanel();
     customizer.setAttribute('aria-hidden', 'false');
     backdrop.hidden = false;
@@ -161,12 +176,14 @@
   }
 
   function closeCustomizer() {
+    if (!customizer) return;
     customizer.setAttribute('aria-hidden', 'true');
     backdrop.hidden = true;
     personalizeOpen?.focus();
   }
 
   function readPanel() {
+    if (!customizer) return;
     profile = {
       restaurantName: $('cdr-profile-name').value.trim() || DEFAULT_PROFILE.restaurantName,
       collectionLabel: $('cdr-profile-collection').value.trim() || DEFAULT_PROFILE.collectionLabel,
@@ -183,7 +200,7 @@
     saveProfile();
     applyBrand();
     applyWorld(activeIndex(), {animate:true});
-    showToast('Restaurant profile saved');
+    showToast('Perfil guardado');
     closeCustomizer();
   }
 
@@ -193,7 +210,7 @@
     populatePanel();
     applyBrand();
     applyWorld(activeIndex(), {animate:true});
-    showToast('Profile reset');
+    showToast('Perfil restaurado');
   }
 
   function integrationUrl(base, type, product) {
@@ -297,7 +314,13 @@
 
   function applyAsset(key, blob) {
     if (!blob) return;
-    const url = objectUrl(key, blob);
+    applyAssetUrl(key, objectUrl(key, blob));
+  }
+
+  /* El LAB trae Blobs de su IndexedDB; el producto trae URLs de la Media Library del
+     proyecto. La aplicación al DOM es la misma, así que se comparte. */
+  function applyAssetUrl(key, url) {
+    if (!url) return;
     if (key === 'wheel') {
       disc.src = url;
       sectorDisc.src = url;
@@ -315,16 +338,24 @@
     const file = input.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      showToast('Only image assets are supported in this LAB');
+      showToast('Sólo se admiten imágenes');
       input.value = '';
       return;
     }
     await storeAsset(key, file);
     applyAsset(key, file);
-    showToast(`${key} asset loaded`);
+    showToast(`Asset ${key} cargado`);
   }
 
   async function restoreAssets() {
+    /* Con fuente de proyecto, la media sale de sus refs y este motor NO abre su
+       IndexedDB: cero almacén paralelo dentro del producto. Una ref vacía deja el
+       asset demo en su sitio, que sigue siendo fallback legítimo. */
+    if (source) {
+      const refs = source.media?.() || {};
+      for (const key of ['logo','wheel','background']) applyAssetUrl(key, refs[key]);
+      return;
+    }
     for (const key of ['logo','wheel','background']) {
       try {
         const blob = await getAsset(key);
@@ -349,7 +380,7 @@
     brandLogo.removeAttribute('src');
     brandText.hidden = false;
     page.style.setProperty('--cdr-restaurant-bg-image', 'none');
-    showToast('Demo assets restored');
+    showToast('Assets demo restaurados');
   }
 
   const observer = new MutationObserver(() => {
@@ -384,7 +415,7 @@
     };
     emit('cdr:order-request', detail);
     orderDialog.close();
-    showToast(`Order event ready · ${product.name}`);
+    showToast(`Pedido preparado · ${product.name}`);
   });
 
   reserveForm?.addEventListener('submit', event => {
@@ -400,11 +431,11 @@
     };
     emit('cdr:reservation-request', detail);
     reserveDialog.close();
-    showToast(`Reservation event ready · ${product.name}`);
+    showToast(`Reserva preparada · ${product.name}`);
   });
 
   addEventListener('keydown', event => {
-    if (event.key === 'Escape' && customizer.getAttribute('aria-hidden') === 'false') closeCustomizer();
+    if (event.key === 'Escape' && customizer?.getAttribute('aria-hidden') === 'false') closeCustomizer();
   });
 
   window.CircularDishPremium = Object.freeze({

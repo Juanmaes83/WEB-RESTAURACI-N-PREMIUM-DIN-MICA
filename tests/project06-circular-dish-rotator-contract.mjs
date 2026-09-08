@@ -1,10 +1,16 @@
 import fs from 'node:fs';
 
+/* FASE 1C promovió el motor a la raíz, donde ya viven los otros diez, para que la puerta
+   productiva y la del LAB carguen la MISMA implementación. El contrato lee ahora el motor
+   canónico, y comprueba además que las dos puertas siguen apuntando a él. */
+const ENGINE = ['project06-circular-dish-rotator.js', 'project06-circular-dish-rotator.css',
+  'project06-phase2-premium.js', 'project06-phase2-premium.css'];
 const html = fs.readFileSync('labs/project06-circular-dish-rotator/index.html', 'utf8');
-const js = fs.readFileSync('labs/project06-circular-dish-rotator/project06-circular-dish-rotator.js', 'utf8');
-const css = fs.readFileSync('labs/project06-circular-dish-rotator/project06-circular-dish-rotator.css', 'utf8');
-const premiumJs = fs.readFileSync('labs/project06-circular-dish-rotator/project06-phase2-premium.js', 'utf8');
-const premiumCss = fs.readFileSync('labs/project06-circular-dish-rotator/project06-phase2-premium.css', 'utf8');
+const product = fs.readFileSync('experiences/circular-dish-rotator/index.html', 'utf8');
+const js = fs.readFileSync('project06-circular-dish-rotator.js', 'utf8');
+const css = fs.readFileSync('project06-circular-dish-rotator.css', 'utf8');
+const premiumJs = fs.readFileSync('project06-phase2-premium.js', 'utf8');
+const premiumCss = fs.readFileSync('project06-phase2-premium.css', 'utf8');
 
 const checks = [];
 const check = (name, pass) => {
@@ -34,9 +40,20 @@ check('selector itself is not rotated by JS', !js.includes('cdr-selector'));
 check('selected sector uses independent clipped hero layer', html.includes('class="cdr-active-sector"') && html.includes('id="cdr-sector-disc"') && css.includes('clip-path:polygon'));
 check('settled hero sector receives stronger phase-1 lift', css.includes('data-settled="true"] .cdr-active-sector') && css.includes('translateY(-14px) scale(1.055)'));
 check('base pizza is visually subordinated when hero settles', css.includes('data-settled="true"] .cdr-disc') && css.includes('brightness(.88)'));
-check('phase-1 product data has eight authored pizzas', js.includes('const PIZZAS = [') && (js.match(/ingredients:/g) || []).length === 8);
+/* FASE 1C: los ocho siguen autorados en el motor, pero como DEMO — el fallback cuando
+   nadie sirve el proyecto. Dentro del producto los sirve el Project State. */
+check('phase-1 product data has eight authored demo pizzas', js.includes('const DEMO_PIZZAS = [') && (js.match(/ingredients:/g) || []).length === 8);
+check('the engine takes its sectors from the project when a source serves them', js.includes('window.RestaurantCircularSource?.sectors?.(DEMO_PIZZAS) || DEMO_PIZZAS'));
+check('the project adapter only reads: no store of its own', (() => {
+  const adapter = fs.readFileSync('circular-project-adapter.js', 'utf8');
+  return !/localStorage|indexedDB|sessionStorage/.test(adapter) && adapter.includes('RestaurantStudioConfig');
+})());
+check('the product door has no second Studio', !product.includes('cdr-customizer') && !product.includes('type="file"') && !product.includes('Guardar cambios'));
 check('ingredients are driven by selected pizza', html.includes('id="cdr-ingredients"') && js.includes('ingredientsEl.textContent = pizza.ingredients'));
-check('price is driven by selected pizza', html.includes('id="cdr-price"') && js.includes('priceEl.textContent = pizza.price'));
+check('price is driven by selected pizza', html.includes('id="cdr-price"') && js.includes('priceEl.textContent = price'));
+/* null en el proyecto significa "sin precio auténtico", no "usa el de la demo": sin
+   precio el bloque entero desaparece, rótulo DESDE incluido, sin guiones ni inventos. */
+check('no price means no price block at all', js.includes('priceWrap.hidden = !price') && js.includes("closest('.cdr-price-wrap')"));
 check('descriptor is driven by selected pizza', html.includes('id="cdr-descriptor"') && js.includes('descriptorEl.textContent = pizza.descriptor'));
 check('wow headline has dynamic lead, hero name and tail', html.includes('id="cdr-headline-lead"') && html.includes('id="cdr-hero-name"') && html.includes('id="cdr-headline-tail"') && js.includes('leadEl.textContent = pizza.lead') && js.includes('tailEl.textContent = pizza.tail'));
 check('mood line is data driven', html.includes('id="cdr-mood"') && js.includes('moodEl.textContent = pizza.mood'));
@@ -47,6 +64,13 @@ check('sector crossings create physical pointer feedback', js.includes('cdr-tick
 check('landing creates hero + copy choreography', js.includes('cdr-land') && js.includes('cdr-copy-land') && css.includes('cdrSliceLand') && css.includes('cdrStoryReveal'));
 
 check('phase-2 premium files are loaded after core', html.includes('project06-phase2-premium.css') && html.includes('project06-phase2-premium.js'));
+check('one canonical engine, two doors', ENGINE.every(f => html.includes(`../../${f}`) && product.includes(`../../${f}`)));
+check('the lab keeps no engine copy of its own', !fs.readdirSync('labs/project06-circular-dish-rotator').some(f => /\.(js|css)$/.test(f)));
+/* sobre el marcado, no sobre los comentarios: la cabecera generada NOMBRA el lab para
+   documentar de dónde sale, y eso no es una dependencia */
+check('the productive door does not link back out of the product',
+  ![...product.matchAll(/(?:href|src)="([^"]+)"/g)]
+    .some(([, u]) => u === '../../index.html' || /(^|\/)labs\//.test(u)));
 check('eight chromatic worlds exist', premiumJs.includes('const PALETTES = [') && (premiumJs.match(/worldA:'/g) || []).length >= 8 && (premiumJs.match(/worldB:'/g) || []).length >= 8);
 check('chromatic world derives from canonical active index', premiumJs.includes('engine.getActiveIndex') && premiumJs.includes('applyWorld(index'));
 check('background typography is product aware', html.includes('id="cdr-world-word"') && html.includes('id="cdr-world-index"') && html.includes('id="cdr-world-sub"') && premiumJs.includes('worldSub.textContent'));
@@ -65,7 +89,7 @@ check('phase-2 remains isolated from shared Studio runtime', !premiumJs.includes
 
 check('reduced motion preserves selection path', js.includes('reducedMotion.matches'));
 check('keyboard navigation exists', js.includes("event.key === 'ArrowRight'") && js.includes("event.key === 'ArrowLeft'"));
-check('accessibility live region exists', html.includes('id="cdr-live"') && js.includes('Selected pizza:'));
+check('accessibility live region exists', html.includes('id="cdr-live"') && js.includes('Pizza seleccionada:'));
 check('isolated lab does not depend on shared motion engine JS', !html.includes('app-v4.js') && !html.includes('class10-orbital-food.js'));
 
 console.log(`Project 06 Phase 2 contract PASS — ${checks.length}/${checks.length}`);
