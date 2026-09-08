@@ -304,17 +304,30 @@
      apagar la ficha se hace deteniendo la propagación ahí, sin editar ni un motor.  */
   function guard(){
     const swallow=e=>{e.preventDefault();e.stopImmediatePropagation()};
+    /* Sólo se detiene el clic que ABRIRÍA la ficha, nunca el que navega.
+
+       Es la diferencia entre "apagada" y "roto": Class 06 abre únicamente cuando el
+       plato pulsado es el héroe, y el motor usa el resto de los clics para moverse.
+       Tragarse todos dejaba la carta inmóvil con la ficha apagada. Cuál es el héroe
+       se pregunta al motor, no se decide aquí. */
+    const wouldOpen=target=>{
+      const dish=target.closest?.('#orbit-stage .orbit-dish');
+      if(dish){
+        const active=current()?.activeProduct?.()?.id;
+        return !!active&&dish.dataset.id===active;
+      }
+      /* un clic en el shell que no cae en un plato sólo puede ser el bridge abriendo
+         el héroe: ahí no hay navegación que preservar */
+      return !!target.closest?.('.orbit-shell');
+    };
     document.addEventListener('click',e=>{
       if(isOpen())return;
       if(e.target.closest('#explore-dish')){if(!allowButton())swallow(e);return}
-      if(e.target.closest('.orbit-shell')||e.target.closest('#orbit-stage')){
-        if(!allowProductClick())swallow(e);
-      }
+      if(!allowProductClick()&&wouldOpen(e.target))swallow(e);
     },true);
     document.addEventListener('keydown',e=>{
       if(e.key!=='Enter'||isOpen())return;
-      if((e.target.closest?.('.orbit-shell')||e.target.closest?.('#orbit-stage'))
-        &&!allowProductClick())swallow(e);
+      if(!allowProductClick()&&wouldOpen(e.target))swallow(e);
     },true);
     /* Escape cierra el diálogo propio; el de Class 06 ya lo gestiona app-v4 */
     document.addEventListener('keydown',e=>{

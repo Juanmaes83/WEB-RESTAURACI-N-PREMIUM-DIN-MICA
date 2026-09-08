@@ -185,6 +185,43 @@ async function selectPreset(page,value,flag){
     `${offNav.before} -> ${offNav.after}`);
   await page.screenshot({path:path.join(SHOTS,'desktop-02-ficha-off.png')});
 
+  /* La diferencia entre "apagada" y "roto": con OFF, un plato lateral tiene que seguir
+     navegando y el héroe no tiene que abrir. Detener todos los clics del escenario
+     dejaba la carta inmóvil, y el check anterior no lo veía porque usaba #next-dish. */
+  const offClicks=await page.evaluate(async()=>{
+    window.RestaurantStudioConfig.set('productDetail.enabled',false);
+    await new Promise(x=>setTimeout(x,1100));
+    const activeId=window.RestaurantProductDetail.activeProduct()?.id;
+    const before=window.RestaurantOrbit.getActiveIndex();
+    const lateral=[...document.querySelectorAll('#orbit-stage .orbit-dish')]
+      .find(d=>d.dataset.id!==activeId);
+    lateral?.click();
+    await new Promise(x=>setTimeout(x,1900));
+    const nav={before,after:window.RestaurantOrbit.getActiveIndex(),
+      opened:window.RestaurantProductDetail.isOpen()};
+    const heroId=window.RestaurantProductDetail.activeProduct()?.id;
+    document.querySelector(`#orbit-stage .orbit-dish[data-id="${heroId}"]`)?.click();
+    await new Promise(x=>setTimeout(x,1600));
+    return {nav,heroOpened:window.RestaurantProductDetail.isOpen()};
+  });
+  check('2 · con OFF un plato lateral sigue navegando y el héroe no abre ficha',
+    offClicks.nav.after!==offClicks.nav.before&&!offClicks.nav.opened
+    &&!offClicks.heroOpened,
+    `navegación ${offClicks.nav.before} -> ${offClicks.nav.after}, héroe abre ${offClicks.heroOpened}`);
+  const onHero=await page.evaluate(async()=>{
+    window.RestaurantStudioConfig.set('productDetail.enabled',true);
+    await new Promise(x=>setTimeout(x,1100));
+    const heroId=window.RestaurantProductDetail.activeProduct()?.id;
+    document.querySelector(`#orbit-stage .orbit-dish[data-id="${heroId}"]`)?.click();
+    await new Promise(x=>setTimeout(x,2100));
+    const shown=document.querySelector('#detail-visual .orbit-dish')?.dataset.id||null;
+    window.RestaurantProductDetail.close();
+    await new Promise(x=>setTimeout(x,1500));
+    return {heroId,shown};
+  });
+  check('3 · con ON el clic en el héroe abre exactamente ese producto',
+    onHero.shown===onHero.heroId,`${onHero.shown} === ${onHero.heroId}`);
+
   /* trigger: sólo botón / sólo producto */
   const triggers=await page.evaluate(async()=>{
     const out={};
