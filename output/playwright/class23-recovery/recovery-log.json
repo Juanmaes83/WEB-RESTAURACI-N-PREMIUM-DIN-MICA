@@ -1,0 +1,51 @@
+{
+  "url": "http://127.0.0.1:60024",
+  "references": {
+    "koi-studies": "stacked physical studies · arrastre y lanzamiento",
+    "kinetic-certificate": "papel · roseta y guilloché cinéticos",
+    "heritage-cloth": "tela · Verlet + viento",
+    "sketchbook": "página · collage editorial",
+    "character-filmstrip": "filmstrip · estado continuo por foco"
+  },
+  "implementation": {
+    "media": 12,
+    "picker": {
+      "archivos": 12,
+      "kinds": [
+        "image",
+        "video"
+      ]
+    },
+    "stack": {
+      "focus": 1,
+      "target": 1,
+      "state": "IDLE"
+    },
+    "storyVideo": {
+      "reproduciendo": true,
+      "segundo": 1.11
+    },
+    "off": {
+      "seccion": 0,
+      "canvas": 0,
+      "videos": 0,
+      "altoAntes": 11021,
+      "altoDespues": 7120
+    },
+    "reload": {
+      "igual": true,
+      "medias": 12,
+      "imagenes": 9,
+      "videos": 3
+    },
+    "errores": [],
+    "movil": {
+      "overflow": false,
+      "recuerdos": 5
+    }
+  },
+  "video": {
+    "file": "output\\playwright\\class23-recovery\\video\\class23-memories-recovery.webm",
+    "kb": 6491
+  }
+}
