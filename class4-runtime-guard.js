@@ -204,6 +204,9 @@
   'use strict';
   const CHAIN=['restaurant-media.js','restaurant-media-picker.js',
     'class23-memories-model.js','class23-memories-video.js','class23-memories-artifacts.js',
+    /* la composición de revisión va ANTES del motor: publica su override y sus refs
+       estáticas para que el primer pintado ya sea el correcto */
+    'class23-memories-review.js',
     'class23-memories-engine.js','class23-memories-studio.js'];
   const load=(i=0)=>{
     if(i>=CHAIN.length)return;
