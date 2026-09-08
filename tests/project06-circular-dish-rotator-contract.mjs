@@ -1,10 +1,16 @@
 import fs from 'node:fs';
 
+/* FASE 1C promovió el motor a la raíz, donde ya viven los otros diez, para que la puerta
+   productiva y la del LAB carguen la MISMA implementación. El contrato lee ahora el motor
+   canónico, y comprueba además que las dos puertas siguen apuntando a él. */
+const ENGINE = ['project06-circular-dish-rotator.js', 'project06-circular-dish-rotator.css',
+  'project06-phase2-premium.js', 'project06-phase2-premium.css'];
 const html = fs.readFileSync('labs/project06-circular-dish-rotator/index.html', 'utf8');
-const js = fs.readFileSync('labs/project06-circular-dish-rotator/project06-circular-dish-rotator.js', 'utf8');
-const css = fs.readFileSync('labs/project06-circular-dish-rotator/project06-circular-dish-rotator.css', 'utf8');
-const premiumJs = fs.readFileSync('labs/project06-circular-dish-rotator/project06-phase2-premium.js', 'utf8');
-const premiumCss = fs.readFileSync('labs/project06-circular-dish-rotator/project06-phase2-premium.css', 'utf8');
+const product = fs.readFileSync('experiences/circular-dish-rotator/index.html', 'utf8');
+const js = fs.readFileSync('project06-circular-dish-rotator.js', 'utf8');
+const css = fs.readFileSync('project06-circular-dish-rotator.css', 'utf8');
+const premiumJs = fs.readFileSync('project06-phase2-premium.js', 'utf8');
+const premiumCss = fs.readFileSync('project06-phase2-premium.css', 'utf8');
 
 const checks = [];
 const check = (name, pass) => {
@@ -47,6 +53,13 @@ check('sector crossings create physical pointer feedback', js.includes('cdr-tick
 check('landing creates hero + copy choreography', js.includes('cdr-land') && js.includes('cdr-copy-land') && css.includes('cdrSliceLand') && css.includes('cdrStoryReveal'));
 
 check('phase-2 premium files are loaded after core', html.includes('project06-phase2-premium.css') && html.includes('project06-phase2-premium.js'));
+check('one canonical engine, two doors', ENGINE.every(f => html.includes(`../../${f}`) && product.includes(`../../${f}`)));
+check('the lab keeps no engine copy of its own', !fs.readdirSync('labs/project06-circular-dish-rotator').some(f => /\.(js|css)$/.test(f)));
+/* sobre el marcado, no sobre los comentarios: la cabecera generada NOMBRA el lab para
+   documentar de dónde sale, y eso no es una dependencia */
+check('the productive door does not link back out of the product',
+  ![...product.matchAll(/(?:href|src)="([^"]+)"/g)]
+    .some(([, u]) => u === '../../index.html' || /(^|\/)labs\//.test(u)));
 check('eight chromatic worlds exist', premiumJs.includes('const PALETTES = [') && (premiumJs.match(/worldA:'/g) || []).length >= 8 && (premiumJs.match(/worldB:'/g) || []).length >= 8);
 check('chromatic world derives from canonical active index', premiumJs.includes('engine.getActiveIndex') && premiumJs.includes('applyWorld(index'));
 check('background typography is product aware', html.includes('id="cdr-world-word"') && html.includes('id="cdr-world-index"') && html.includes('id="cdr-world-sub"') && premiumJs.includes('worldSub.textContent'));
