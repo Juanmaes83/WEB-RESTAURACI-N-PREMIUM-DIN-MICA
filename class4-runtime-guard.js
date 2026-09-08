@@ -203,7 +203,8 @@
 (() => {
   'use strict';
   const CHAIN=['restaurant-media.js','restaurant-media-picker.js',
-    'class23-memories-model.js','class23-memories-engine.js','class23-memories-studio.js'];
+    'class23-memories-model.js','class23-memories-video.js','class23-memories-artifacts.js',
+    'class23-memories-engine.js','class23-memories-studio.js'];
   const load=(i=0)=>{
     if(i>=CHAIN.length)return;
     const s=document.createElement('script');

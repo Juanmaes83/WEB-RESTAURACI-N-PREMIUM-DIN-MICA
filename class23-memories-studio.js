@@ -46,6 +46,9 @@
     ['press', 'Prensa'], ['milestone', 'Hito']
   ];
   const WEIGHT_LABELS = [['hero', 'Grande (hero)'], ['medium', 'Media'], ['small', 'Pequeña']];
+  /* TRATAMIENTO: lo elige el restaurante y nunca se deduce del tipo. Cambiarlo conserva
+     el recuerdo, sus datos y su media — sólo cambia cómo se presenta. */
+  const ARTIFACT_LABELS = [['none', 'Normal'], ['paper', 'Papel / Archivo'], ['cloth', 'Tejido / Heritage']];
   const PRESET_LABELS = [
     ['cinematic-memory-wall', 'Cinematic Memory Wall'],
     ['memory-stack', 'Memory Stack'],
@@ -177,6 +180,41 @@
     engine()?.refresh?.();
   }
 
+  /* El ORDEN de `media[]` es dato, igual que el de los recuerdos: se escribe el array
+     completo, así que cada operación es UNA entrada de historial y Undo devuelve el
+     orden anterior con sus referencias intactas. */
+  function moveMedia(id, ref, delta) {
+    const next = itemsNow();
+    const item = next.find(i => i.id === id);
+    if (!item) return;
+    item.media = M().moveMedia(item.media, ref, delta);
+    set(`${PATH}.items`, next);
+    openItem = id;
+    render();
+    engine()?.refresh?.();
+    focusMediaRow(id, ref);
+  }
+
+  /* "Usar como portada" = mover esa media al índice 0. No hace falta un `primaryMediaId`
+     que pueda discrepar del array. */
+  function makeCover(id, ref) {
+    const next = itemsNow();
+    const item = next.find(i => i.id === id);
+    if (!item) return;
+    item.media = M().makeCover(item.media, ref);
+    set(`${PATH}.items`, next);
+    openItem = id;
+    render();
+    engine()?.refresh?.();
+    status('Portada actualizada.');
+    focusMediaRow(id, ref);
+  }
+
+  const focusMediaRow = (id, ref) => {
+    const row = panel?.querySelector(`[data-mem-card="${id}"] [data-mem-media-ref="${ref}"]`);
+    row?.querySelector('[data-mem-cover]')?.focus();
+  };
+
   function setAlt(id, ref, alt) {
     const next = itemsNow();
     const item = next.find(i => i.id === id);
@@ -226,6 +264,7 @@
     body.append(field('Visible en la web', `${base}.enabled`, {type: 'checkbox', value: item.enabled !== false}));
     body.append(field('Destacado', `${base}.featured`, {type: 'checkbox', value: item.featured === true}));
     body.append(field('Peso visual', `${base}.visualWeight`, {options: WEIGHT_LABELS, value: item.visualWeight}));
+    body.append(field('Tratamiento', `${base}.artifactStyle`, {options: ARTIFACT_LABELS, value: item.artifactStyle}));
     body.append(field('Tipo', `${base}.type`, {options: TYPE_LABELS, value: item.type}));
     body.append(field('Título', `${base}.title`, {value: item.title}));
     body.append(field('Historia', `${base}.text`, {type: 'textarea', value: item.text}));
@@ -236,39 +275,95 @@
     body.append(field('Enlace (https)', `${base}.link`, {type: 'url', value: item.link}));
 
     /* media */
+    /* El editor tiene que ENSEÑAR lo que contiene el recuerdo, no sólo ofrecer botones
+       de subir: miniatura real, orden, portada, alt y Play para el vídeo. */
     const mediaBox = el('div', 'mem-media-box');
-    mediaBox.append(el('span', 'mem-sub', 'Media'));
-    for (const m of item.media || []) {
+    const mediaHead = el('div', 'mem-media-head');
+    mediaHead.append(el('span', 'mem-sub', 'Media del recuerdo'));
+    const mediaCount = el('span', 'mem-badge',
+      `${(item.media || []).length} ${(item.media || []).length === 1 ? 'archivo' : 'archivos'}`);
+    mediaHead.append(mediaCount);
+    mediaBox.append(mediaHead);
+
+    (item.media || []).forEach((m, mi, all) => {
       const row = el('div', 'mem-media-row');
       row.dataset.memMediaRef = m.ref;
-      /* Una MINIATURA, no la referencia cruda: `project/memories/mem-…/image-…` le dice
-         al desarrollador dónde está el asset y al restaurante absolutamente nada. La
-         ref queda en el `title`, para cuando hace falta leerla. */
+      row.dataset.memMediaIndex = String(mi);
+      if (mi === 0) row.dataset.cover = '1';
+
+      /* miniatura de verdad; la ref cruda se guarda en el `title` para quien la necesite */
       const thumb = el('span', 'mem-media-thumb');
       thumb.title = m.ref;
+      thumb.dataset.kind = m.kind;
       media().url(m.ref).then(url => {
         if (!url) { thumb.textContent = m.kind === 'video' ? 'VÍDEO' : 'IMAGEN'; return; }
-        const node = document.createElement(m.kind === 'video' ? 'video' : 'img');
-        node.src = url;
-        if (m.kind === 'video') { node.muted = true; node.playsInline = true; node.preload = 'metadata'; }
-        else node.alt = '';
-        thumb.append(node);
+        if (m.kind === 'video') {
+          const v = document.createElement('video');
+          v.src = url; v.muted = true; v.playsInline = true; v.preload = 'metadata';
+          v.dataset.memStudioVideo = m.ref;
+          thumb.append(v);
+          /* Play/Pause MANUAL en el editor: nunca autoplay mientras se edita */
+          const play = el('button', 'mem-studio-play');
+          play.type = 'button';
+          play.dataset.memStudioPlay = m.ref;
+          play.setAttribute('aria-label', 'Reproducir el vídeo');
+          play.addEventListener('click', e => {
+            e.preventDefault();
+            if (v.paused) { v.play().catch(() => {}); play.dataset.state = 'playing'; }
+            else { v.pause(); play.dataset.state = 'paused'; }
+          });
+          v.addEventListener('pause', () => { play.dataset.state = 'paused'; });
+          v.addEventListener('play', () => { play.dataset.state = 'playing'; });
+          thumb.append(play);
+        } else {
+          const img = document.createElement('img');
+          img.src = url; img.alt = '';
+          thumb.append(img);
+        }
       }).catch(() => {});
       row.append(thumb);
-      row.append(el('span', 'mem-media-kind', m.kind === 'video' ? 'VÍDEO' : 'IMAGEN'));
+
+      const info = el('div', 'mem-media-info');
+      const kindLine = el('div', 'mem-media-kindline');
+      kindLine.append(el('span', 'mem-media-kind', m.kind === 'video' ? 'VÍDEO' : 'IMAGEN'));
+      kindLine.append(el('span', 'mem-media-pos', String(mi + 1).padStart(2, '0')));
+      if (mi === 0) kindLine.append(el('span', 'mem-media-coverbadge', 'PORTADA'));
+      info.append(kindLine);
       const alt = el('input');
       alt.type = 'text';
       alt.placeholder = m.kind === 'video' ? 'Descripción del vídeo' : 'Texto alternativo';
       alt.value = m.alt || '';
       alt.dataset.memAlt = m.ref;
       alt.addEventListener('input', () => setAlt(item.id, m.ref, alt.value));
-      row.append(alt);
-      const drop = el('button', 'mem-op', 'Quitar');
+      info.append(alt);
+      row.append(info);
+
+      const ops = el('div', 'mem-media-ops');
+      const up = el('button', 'mem-op', '↑');
+      up.type = 'button'; up.dataset.memMediaUp = m.ref; up.disabled = mi === 0;
+      up.setAttribute('aria-label', 'Subir esta media');
+      up.addEventListener('click', () => moveMedia(item.id, m.ref, -1));
+      const down = el('button', 'mem-op', '↓');
+      down.type = 'button'; down.dataset.memMediaDown = m.ref; down.disabled = mi === all.length - 1;
+      down.setAttribute('aria-label', 'Bajar esta media');
+      down.addEventListener('click', () => moveMedia(item.id, m.ref, 1));
+      const cover = el('button', 'mem-op', 'Portada');
+      cover.type = 'button'; cover.dataset.memCover = m.ref; cover.disabled = mi === 0;
+      cover.setAttribute('aria-label', 'Usar como portada');
+      cover.addEventListener('click', () => makeCover(item.id, m.ref));
+      const drop = el('button', 'mem-op mem-op-danger', 'Quitar');
       drop.type = 'button';
       drop.dataset.memUnlink = m.ref;
       drop.addEventListener('click', () => unlink(item.id, m.ref));
-      row.append(drop);
+      ops.append(up, down, cover, drop);
+      row.append(ops);
       mediaBox.append(row);
+    });
+
+    if (!(item.media || []).length) {
+      const none = el('p', 'mem-hint', 'Sin media todavía. Sube una imagen o un vídeo, o elige algo que ya esté en la Media Library.');
+      none.dataset.memMediaEmpty = item.id;
+      mediaBox.append(none);
     }
     const actions = el('div', 'mem-media-actions');
     for (const [kind, label, accept] of [['image', 'Subir imagen', 'image/*'], ['video', 'Subir vídeo', 'video/*']]) {
@@ -289,6 +384,9 @@
     pick.dataset.memPick = item.id;
     pick.addEventListener('click', () => chooseExisting(item.id, ''));
     actions.append(pick);
+    const hint = el('p', 'mem-hint',
+      'Un recuerdo admite varias imágenes y vídeos. El primero es la portada; el resto se recorren en la web y en la ficha ampliada.');
+    actions.append(hint);
     mediaBox.append(actions);
     body.append(mediaBox);
 
@@ -419,13 +517,27 @@
   document.querySelector('.studio-nav [data-panel="project"]')?.before(button);
   button.addEventListener('click', () => { build(); showPanel(); });
 
-  /* el proyecto cambia (edición, Undo, Redo, import, reset) → el panel se refleja */
+  /* El proyecto cambia (edición, Undo, Redo, import, reset) → el panel se refleja.
+
+     Comparar CANTIDADES era un bug real y estaba pendiente: un reorder —o un Undo de un
+     reorder, o un import con el mismo número de recuerdos— deja el mismo total y el DOM
+     se quedaba en el orden viejo, con cada input apuntando por índice a OTRO recuerdo.
+     Se comparan los IDs EN ORDEN, que es lo único que describe el estado pintado.
+
+     Lo mismo con la media: si el orden de `media[]` del recuerdo abierto cambió, hay que
+     repintar su ficha para que la portada y las posiciones digan la verdad. */
+  const paintedSignature = () => [...(panel?.querySelectorAll('[data-mem-card]') || [])]
+    .map(card => {
+      const refs = [...card.querySelectorAll('[data-mem-media-ref]')]
+        .map(r => r.dataset.memMediaRef).join(',');
+      return `${card.dataset.memCard}:${refs}`;
+    }).join('|');
+  const stateSignature = () => state().items
+    .map(i => `${i.id}:${(i.media || []).map(m => m.ref).join(',')}`).join('|');
+
   document.addEventListener('restaurant:config-applied', () => {
     if (!built) return;
-    /* una edición estructural (Undo de un borrado, un import) cambia la lista entera */
-    const value = state();
-    const painted = panel.querySelectorAll('[data-mem-card]').length;
-    if (painted !== value.items.length) render(); else sync();
+    if (paintedSignature() !== stateSignature()) render(); else sync();
   });
 
   window.RestaurantMemoriesStudio = Object.freeze({

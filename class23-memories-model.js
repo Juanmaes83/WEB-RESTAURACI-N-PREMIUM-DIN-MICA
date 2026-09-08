@@ -25,6 +25,10 @@
   const PRESETS = Object.freeze(['cinematic-memory-wall', 'memory-stack', 'editorial-journal']);
   const TYPES = Object.freeze(['memory', 'event', 'testimonial', 'press', 'milestone']);
   const WEIGHTS = Object.freeze(['hero', 'medium', 'small']);
+  /* TRATAMIENTO de presentación, elegido por el restaurante y nunca deducido del `type`:
+     un hito puede querer papel y una apertura puede querer tela. Cambiar el tratamiento
+     conserva el ítem, sus datos y su media. */
+  const ARTIFACTS = Object.freeze(['none', 'paper', 'cloth']);
   const KINDS = Object.freeze(['image', 'video']);
 
   /* El proyecto base NO afirma recuerdos que no existen: apagado y vacío.
@@ -53,6 +57,7 @@
     link: patch.link || '',
     featured: patch.featured === true,
     visualWeight: WEIGHTS.includes(patch.visualWeight) ? patch.visualWeight : 'medium',
+    artifactStyle: ARTIFACTS.includes(patch.artifactStyle) ? patch.artifactStyle : 'none',
     media: Array.isArray(patch.media) ? patch.media.map(mediaRef).filter(Boolean) : []
   });
 
@@ -73,6 +78,27 @@
   /* La ref se compone del dominio, no del almacén: si mañana el proveedor es remoto,
      la misma cadena sigue identificando el asset. */
   const refFor = (itemId, mediaId) => `project/memories/${itemId}/${mediaId}`;
+
+  /* El ORDEN de `media[]` también es dato: `media[0]` es la portada. Mover una media a la
+     posición 0 ES "usar como portada", así que no hace falta un `primaryMediaId` que
+     pueda discrepar del array. Devuelve un array nuevo para que el llamante lo escriba
+     por `set` y quede UNA entrada de historial. */
+  function moveMedia(media, ref, delta) {
+    const next = (media || []).map(m => ({...m}));
+    const from = next.findIndex(m => m.ref === ref);
+    const to = from + delta;
+    if (from < 0 || to < 0 || to >= next.length) return next;
+    [next[from], next[to]] = [next[to], next[from]];
+    return next;
+  }
+  function makeCover(media, ref) {
+    const next = (media || []).map(m => ({...m}));
+    const from = next.findIndex(m => m.ref === ref);
+    if (from <= 0) return next;
+    const [picked] = next.splice(from, 1);
+    next.unshift(picked);
+    return next;
+  }
   const newMediaId = kind => `${kind}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
 
   /* Normaliza sin inventar: un campo ausente queda vacío, y un campo vacío no se
@@ -122,7 +148,8 @@
   }
 
   window.RestaurantMemoriesModel = Object.freeze({
-    PRESETS, TYPES, WEIGHTS, KINDS, DEFAULTS,
-    item, mediaRef, refFor, newMediaId, normalize, visible, seed, clone
+    PRESETS, TYPES, WEIGHTS, KINDS, ARTIFACTS, DEFAULTS,
+    item, mediaRef, refFor, newMediaId, normalize, visible, seed, clone,
+    moveMedia, makeCover
   });
 })();
