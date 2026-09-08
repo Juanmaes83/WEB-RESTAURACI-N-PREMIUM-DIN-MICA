@@ -1,27 +1,28 @@
-/* FASE 1C — genera los entrypoints PRODUCTIVOS de las tres experiencias autónomas.
+/* FASE 1C — genera las DOS puertas de cada experiencia autónoma desde UNA fuente neutral.
 
-   El producto no puede cargar `/labs/` en runtime: un LAB es evidencia, no la fuente
-   operativa. Pero tampoco puede existir un segundo motor. La solución es una sola
-   implementación con dos puertas:
+   Antes este script leía `labs/<lab>/index.html` y generaba el entrypoint productivo.
+   Eso quitaba la dependencia de RUNTIME, pero dejaba al LAB como fuente AUTORADA del
+   producto, que es incoherente con `LAB = evidencia / regresión`. La autoría vive ahora
+   fuera de `/labs/`:
 
-       experiences/<id>/index.html   ← puerta PRODUCTIVA (la que abre Class 22)
-                    ↓
-            MOTOR CANÓNICO en la raíz
-                    ↑
-       labs/<lab>/index.html         ← puerta histórica de evidencia y regresión
+       experiences/_source/<id>.html          ← FUENTE NEUTRAL (autoría)
+                 ┌──────────┴──────────┐
+       experiences/<id>/index.html      labs/<lab>/index.html
+        puerta PRODUCTIVA                puerta de evidencia
+                 └──────────┬──────────┘
+                    MOTOR CANÓNICO en la raíz
+                  (una implementación, dos puertas)
 
-   Este script es la autoría de esa puerta productiva, no una dependencia de runtime:
-   se ejecuta a mano cuando el DOM que un motor exige cambia, y su salida se commitea.
-   `tests/phase-1c-consolidation-gate.mjs` comprueba después que las dos puertas cargan
-   exactamente los mismos ficheros de motor y que no queda ningún `.js`/`.css` dentro del
-   LAB del rotador.
+   Este script NO lee nada de `/labs/`: sólo escribe ahí. El gate lo comprueba.
 
-   Lo que hace con el marcado del lab:
-     · reescribe las rutas para la profundidad de `experiences/<id>/` (la misma que
-       `labs/<lab>/`, así que en la práctica sólo cambian las que apuntaban al propio
-       directorio del lab);
-     · quita el cromo que sólo tiene sentido en un lab (el enlace de vuelta al índice);
-     · deja el puente del proyecto, que es el que entrega el Project State.
+   Qué hace con la fuente:
+     · resuelve las regiones por puerta — `@door:lab` sólo va al LAB, `@door:product`
+       sólo va al producto;
+     · en la puerta productiva convierte la navegación de marca en un elemento NO
+       navegable: dentro del iframe, un enlace a `index.html` recarga la experiencia sin
+       `#shell` —o abre una app raíz anidada— y el proyecto activo se pierde;
+     · las dos salidas están a la misma profundidad, así que las rutas `../../` del motor
+       y de los assets resuelven igual en ambas.
 
    Uso: node scripts/build-experience-entrypoints.mjs
 */
@@ -30,6 +31,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const SOURCE_DIR=path.join(ROOT,'experiences','_source');
 
 const EXPERIENCES=[
   {id:'circular-dish-rotator',name:'Circular Dish Rotator',project:'Project 06',
@@ -40,53 +42,69 @@ const EXPERIENCES=[
     lab:'labs/project11-cinematic-product-rail/index.html'}
 ];
 
-const HEADER=(exp)=>`<!doctype html>
-<!-- GENERADO por scripts/build-experience-entrypoints.mjs — no editar a mano.
+const HEAD_PRODUCT=exp=>`<!doctype html>
+<!-- GENERADO por scripts/build-experience-entrypoints.mjs desde
+     experiences/_source/${exp.id}.html — no editar a mano.
 
-     Entrypoint PRODUCTIVO de ${exp.name} (${exp.project}). Es la puerta que abre la
-     In-App Experience Shell (Class 22). Carga el MOTOR CANÓNICO de la raíz, el mismo
-     que carga la puerta histórica de ${exp.lab}: una implementación, dos puertas.
+     Entrypoint PRODUCTIVO de ${exp.name} (${exp.project}): la puerta que abre la In-App
+     Experience Shell (Class 22). Carga el MOTOR CANÓNICO de la raíz y consume el
+     proyecto activo. Sin configurador propio, sin almacén propio, sin volver a /labs/. -->`;
 
-     El producto no depende de /labs/ en runtime. -->`;
+const HEAD_LAB=exp=>`<!doctype html>
+<!-- GENERADO por scripts/build-experience-entrypoints.mjs desde
+     experiences/_source/${exp.id}.html — no editar a mano.
 
-let changed=0;
-for(const exp of EXPERIENCES){
-  const labPath=path.join(ROOT,exp.lab);
-  if(!fs.existsSync(labPath)){console.error(`falta el lab: ${exp.lab}`);process.exit(2)}
-  let html=fs.readFileSync(labPath,'utf8').replace(/\r\n/g,'\n');
+     LAB: entrypoint histórico de evidencia y regresión. Conserva su cromo y sus
+     controles propios; abierto directamente se comporta como siempre. El motor es el
+     canónico de la raíz, el mismo que carga experiences/${exp.id}/. -->`;
 
-  /* el doctype y los comentarios de cabecera del lab se sustituyen por los propios */
-  html=html.slice(html.indexOf('<html'));
+/* Resuelve las regiones por puerta. Se hace sobre las marcas y no con un parser de HTML
+   a propósito: la fuente es marcado autorado, no un documento que haya que normalizar. */
+function forDoor(html,door){
+  const other=door==='lab'?'product':'lab';
+  const keep=new RegExp(`[ \\t]*<!-- @door:${door} -->\\n?([\\s\\S]*?)[ \\t]*<!-- @/door -->\\n?`,'g');
+  const drop=new RegExp(`[ \\t]*<!-- @door:${other} -->\\n?[\\s\\S]*?[ \\t]*<!-- @/door -->\\n?`,'g');
+  const out=html.replace(drop,'').replace(keep,(_m,inner)=>inner);
+  if(/@door:|@\/door/.test(out)){
+    console.error(`marcas de puerta sin resolver en la salida ${door}`);process.exit(2);
+  }
+  return out;
+}
 
-  /* El enlace de vuelta al índice del repositorio es cromo de lab: dentro del producto
-     la vuelta la da la barra de la shell.
-
-     Se DESENVUELVE, no se borra: en el rotador ese enlace envuelve su bloque de marca
-     (#cdr-brand-text, #cdr-brand-logo) y su motor le escribe el nombre del restaurante
-     al arrancar. Borrar el elemento se llevaba esos nodos y `applyBrand()` reventaba.
-     Se conservan la etiqueta como <span>, sus clases y su id — que es lo que usan el
-     CSS y el motor — y se pierde sólo la navegación fuera del producto. */
-  html=html.replace(/<a\s([^>]*?)href="\.\.\/\.\.\/index\.html"([^>]*?)>([\s\S]*?)<\/a>/g,
+/* Dentro del producto, la marca no navega. Se conserva la etiqueta como <span> con sus
+   clases y su id —que es lo que usan el CSS y el motor— y se pierde sólo la navegación:
+   en el rotador ese enlace ENVUELVE su bloque de marca (#cdr-brand-text,
+   #cdr-brand-logo), y borrar el elemento se llevaba esos nodos y reventaba applyBrand(). */
+function unlinkBrand(html){
+  return html.replace(/<a\s([^>]*?)href="(?:\.\.\/\.\.\/)?index\.html"([^>]*?)>([\s\S]*?)<\/a>/g,
     (_m,before,after,inner)=>{
       const attrs=`${before} ${after}`.replace(/\s(target|rel)="[^"]*"/g,'').trim();
       return `<span ${attrs}>${inner}</span>`;
     });
-
-  /* La placa que identifica al LAB no puede viajar al producto: dentro de la aplicación
-     esta pantalla es una vista previa del proyecto, no un laboratorio aislado. El lab
-     conserva la suya intacta. */
-  html=html.replace(/(<span class="cdr-status">)ISOLATED LAB · PHASE 2(<\/span>)/,
-    '$1VISTA PREVIA DEL PROYECTO$2');
-
-  /* las rutas propias del directorio del lab pasan a la raíz canónica; el resto ya era
-     relativo a la raíz y `experiences/<id>/` está a la misma profundidad */
-  html=html.replace(/(href|src)="\.\/([^"]+)"/g,'$1="../../$2"');
-
-  const out=`${HEADER(exp)}\n${html}`;
-  const outPath=path.join(ROOT,'experiences',exp.id,'index.html');
-  fs.mkdirSync(path.dirname(outPath),{recursive:true});
-  const previous=fs.existsSync(outPath)?fs.readFileSync(outPath,'utf8').replace(/\r\n/g,'\n'):null;
-  if(previous!==out){fs.writeFileSync(outPath,out);changed++}
-  console.log(`${exp.id.padEnd(24)} <- ${exp.lab}`);
 }
-console.log(`\n${EXPERIENCES.length} entrypoints productivos en experiences/ (${changed} escritos)`);
+
+let written=0;
+for(const exp of EXPERIENCES){
+  const src=path.join(SOURCE_DIR,`${exp.id}.html`);
+  if(!fs.existsSync(src)){
+    console.error(`falta la fuente: ${path.relative(ROOT,src)}`);process.exit(2);
+  }
+  let html=fs.readFileSync(src,'utf8').replace(/\r\n/g,'\n');
+  html=html.slice(html.indexOf('<html'));            /* la cabecera la pone cada puerta */
+
+  const outputs=[
+    {file:path.join(ROOT,'experiences',exp.id,'index.html'),
+      body:`${HEAD_PRODUCT(exp)}\n${unlinkBrand(forDoor(html,'product'))}`},
+    {file:path.join(ROOT,exp.lab),
+      body:`${HEAD_LAB(exp)}\n${forDoor(html,'lab')}`}
+  ];
+
+  for(const out of outputs){
+    fs.mkdirSync(path.dirname(out.file),{recursive:true});
+    const previous=fs.existsSync(out.file)
+      ? fs.readFileSync(out.file,'utf8').replace(/\r\n/g,'\n') : null;
+    if(previous!==out.body){fs.writeFileSync(out.file,out.body);written++}
+  }
+  console.log(`${exp.id.padEnd(24)} -> experiences/${exp.id}/ + ${path.dirname(exp.lab)}/`);
+}
+console.log(`\n2 puertas por experiencia desde experiences/_source/ (${written} escritas)`);

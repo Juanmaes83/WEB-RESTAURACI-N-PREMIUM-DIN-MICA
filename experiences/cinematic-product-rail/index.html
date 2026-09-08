@@ -1,11 +1,10 @@
 <!doctype html>
-<!-- GENERADO por scripts/build-experience-entrypoints.mjs — no editar a mano.
+<!-- GENERADO por scripts/build-experience-entrypoints.mjs desde
+     experiences/_source/cinematic-product-rail.html — no editar a mano.
 
-     Entrypoint PRODUCTIVO de Cinematic Product Rail (Project 11). Es la puerta que abre la
-     In-App Experience Shell (Class 22). Carga el MOTOR CANÓNICO de la raíz, el mismo
-     que carga la puerta histórica de labs/project11-cinematic-product-rail/index.html: una implementación, dos puertas.
-
-     El producto no depende de /labs/ en runtime. -->
+     Entrypoint PRODUCTIVO de Cinematic Product Rail (Project 11): la puerta que abre la In-App
+     Experience Shell (Class 22). Carga el MOTOR CANÓNICO de la raíz y consume el
+     proyecto activo. Sin configurador propio, sin almacén propio, sin volver a /labs/. -->
 <html lang="es">
 <head>
   <meta charset="utf-8">
@@ -21,9 +20,9 @@
 <body>
   <main class="cpr-page" id="cpr-page">
     <header class="cpr-topbar">
-      <a class="cpr-brand" href="index.html">LÚMINA</a>
+      <span class="cpr-brand">LÚMINA</span>
       <div class="cpr-project-mark"><span>RESTAURANT MOTION ENGINE</span><strong>PROJECT 11 · CINEMATIC PRODUCT RAIL</strong></div>
-      <span class="cpr-status">ISOLATED LAB · HUMAN REVIEW</span>
+      <span class="cpr-status">VISTA PREVIA DEL PROYECTO</span>
     </header>
 
     <section class="cpr-stage" aria-labelledby="cpr-title">
@@ -40,7 +39,7 @@
         </div>
 
         <div class="cpr-meta-row">
-          <div class="cpr-price-block"><span>PRICE</span><strong id="cpr-price">€28</strong></div>
+          <div class="cpr-price-block"><span>PRECIO</span><strong id="cpr-price">€28</strong></div>
           <button id="cpr-explore" class="cpr-explore" type="button">Ver plato →</button>
         </div>
 
@@ -57,7 +56,7 @@
           <div id="cpr-track" class="cpr-track"></div>
           <div class="cpr-axis" aria-hidden="true"></div>
         </div>
-        <p class="cpr-hint">Drag · Swipe · Wheel · ← → · Enter</p>
+        <p class="cpr-hint">Arrastra · Desliza · Rueda · ← → · Enter</p>
       </div>
     </section>
   </main>

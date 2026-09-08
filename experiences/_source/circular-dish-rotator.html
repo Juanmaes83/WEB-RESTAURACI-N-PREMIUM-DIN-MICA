@@ -1,10 +1,17 @@
-<!doctype html>
-<!-- GENERADO por scripts/build-experience-entrypoints.mjs desde
-     experiences/_source/circular-dish-rotator.html — no editar a mano.
+<!-- FUENTE NEUTRAL de la experiencia — la autoría vive AQUÍ, fuera de /labs/.
 
-     Entrypoint PRODUCTIVO de Circular Dish Rotator (Project 06): la puerta que abre la In-App
-     Experience Shell (Class 22). Carga el MOTOR CANÓNICO de la raíz y consume el
-     proyecto activo. Sin configurador propio, sin almacén propio, sin volver a /labs/. -->
+     `scripts/build-experience-entrypoints.mjs` genera desde este fichero las DOS
+     puertas, y no lee nada de /labs/:
+
+         experiences/<id>/index.html    · puerta PRODUCTIVA
+         labs/<lab>/index.html          · puerta de evidencia y regresión
+
+     Ambas cargan el MISMO motor canónico de la raíz: una implementación, dos puertas.
+
+     Regiones por puerta:
+       <!-- @door:lab -->     ... <!-- @/door -->   sólo en el LAB
+       <!-- @door:product --> ... <!-- @/door -->   sólo en el PRODUCTO
+-->
 <html lang="es">
 <head>
   <meta charset="utf-8">
@@ -22,10 +29,16 @@
     <div id="cdr-restaurant-bg" class="cdr-restaurant-bg" aria-hidden="true"></div>
 
     <header class="cdr-topbar">
-      <span class="cdr-brand" id="cdr-brand"><span id="cdr-brand-text">LÚMINA</span><img id="cdr-brand-logo" alt="" hidden></span>
+      <a class="cdr-brand" id="cdr-brand" href="../../index.html"><span id="cdr-brand-text">LÚMINA</span><img id="cdr-brand-logo" alt="" hidden></a>
       <div class="cdr-project-mark"><span>RESTAURANT MOTION ENGINE</span><strong>PROJECT 06 · CIRCULAR DISH ROTATOR</strong></div>
       <div class="cdr-top-actions">
+<!-- @door:lab -->
+        <button id="cdr-personalize-open" class="cdr-personalize-btn" type="button">Personalizar</button>
+        <span class="cdr-status">ISOLATED LAB · PHASE 2</span>
+<!-- @/door -->
+<!-- @door:product -->
         <span class="cdr-status">VISTA PREVIA DEL PROYECTO</span>
+<!-- @/door -->
       </div>
     </header>
 
@@ -111,6 +124,44 @@
     </section>
   </main>
 
+<!-- @door:lab -->
+  <aside id="cdr-customizer" class="cdr-customizer" aria-hidden="true" aria-label="Personalización del restaurante">
+    <div class="cdr-customizer-head">
+      <div><small>RESTAURANT PROFILE</small><strong>Personalización</strong></div>
+      <button id="cdr-personalize-close" type="button" aria-label="Cerrar personalización">×</button>
+    </div>
+    <div class="cdr-customizer-scroll">
+      <section>
+        <span class="cdr-panel-kicker">01 · BRAND</span>
+        <label>Nombre del restaurante<input id="cdr-profile-name" type="text" value="LÚMINA"></label>
+        <label>Etiqueta de colección<input id="cdr-profile-collection" type="text" value="Signature Pizza Collection"></label>
+        <label class="cdr-inline-check"><input id="cdr-profile-palette" type="checkbox" checked> Usar identidad cromática por pizza</label>
+        <label>Color de marca<input id="cdr-profile-accent" type="color" value="#ff5a36"></label>
+      </section>
+
+      <section>
+        <span class="cdr-panel-kicker">02 · ASSETS</span>
+        <label class="cdr-upload">Logo / wordmark<input id="cdr-logo-upload" type="file" accept="image/*"></label>
+        <label class="cdr-upload">Producto circular completo<input id="cdr-wheel-upload" type="file" accept="image/*"></label>
+        <label class="cdr-upload">Fondo / atmósfera<input id="cdr-background-upload" type="file" accept="image/*"></label>
+        <button id="cdr-assets-reset" class="cdr-panel-ghost" type="button">Restaurar assets demo</button>
+      </section>
+
+      <section>
+        <span class="cdr-panel-kicker">03 · COMMERCE</span>
+        <label>CTA principal<select id="cdr-profile-primary"><option value="order">Pedido</option><option value="reserve">Reserva</option></select></label>
+        <label>URL de pedido<input id="cdr-profile-order-url" type="url" placeholder="https://..."></label>
+        <label>URL de reservas<input id="cdr-profile-reserve-url" type="url" placeholder="https://..."></label>
+        <p class="cdr-panel-help">Si una URL queda vacía, el LAB abre un flujo demo y emite un evento de integración en vez de simular un backend real.</p>
+      </section>
+    </div>
+    <div class="cdr-customizer-actions">
+      <button id="cdr-profile-reset" class="cdr-panel-ghost" type="button">Reset</button>
+      <button id="cdr-profile-save" class="cdr-panel-save" type="button">Guardar cambios</button>
+    </div>
+  </aside>
+  <div id="cdr-customizer-backdrop" class="cdr-customizer-backdrop" hidden></div>
+<!-- @/door -->
 
   <dialog id="cdr-order-dialog" class="cdr-commerce-dialog">
     <button class="cdr-dialog-close" type="button" data-close-dialog aria-label="Cerrar">×</button>
@@ -122,6 +173,9 @@
       <label>Notas<textarea id="cdr-order-notes" rows="3" placeholder="Sin cebolla, extra picante…"></textarea></label>
       <button type="submit" class="cdr-dialog-primary">Preparar pedido</button>
     </form>
+<!-- @door:lab -->
+    <small>LAB: emite <code>cdr:order-request</code>. No se realiza ningún cobro.</small>
+<!-- @/door -->
   </dialog>
 
   <dialog id="cdr-reserve-dialog" class="cdr-commerce-dialog">
@@ -134,6 +188,9 @@
       <label>Notas<textarea id="cdr-reserve-notes" rows="3" placeholder="Celebración, alergias, preferencias…"></textarea></label>
       <button type="submit" class="cdr-dialog-primary">Preparar reserva</button>
     </form>
+<!-- @door:lab -->
+    <small>LAB: emite <code>cdr:reservation-request</code>. No envía datos a un restaurante real.</small>
+<!-- @/door -->
   </dialog>
 
   <div id="cdr-toast" class="cdr-toast" role="status" aria-live="polite"></div>
@@ -141,8 +198,10 @@
   <!-- IN-APP EXPERIENCE: el puente sólo actúa si la shell del producto enmarca esta página.
        Abierta directamente, este lab se comporta exactamente como siempre. -->
   <script src="../../experience-shell-bridge.js"></script>
+<!-- @door:product -->
   <!-- El proyecto activo es la única fuente de datos y media de esta pantalla. -->
   <script src="../../circular-project-adapter.js"></script>
+<!-- @/door -->
   <script src="../../project06-circular-dish-rotator.js"></script>
   <script src="../../project06-phase2-premium.js"></script>
 </body>

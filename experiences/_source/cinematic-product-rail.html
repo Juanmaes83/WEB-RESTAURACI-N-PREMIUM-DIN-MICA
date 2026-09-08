@@ -1,10 +1,17 @@
-<!doctype html>
-<!-- GENERADO por scripts/build-experience-entrypoints.mjs desde
-     experiences/_source/cinematic-product-rail.html — no editar a mano.
+<!-- FUENTE NEUTRAL de la experiencia — la autoría vive AQUÍ, fuera de /labs/.
 
-     LAB: entrypoint histórico de evidencia y regresión. Conserva su cromo y sus
-     controles propios; abierto directamente se comporta como siempre. El motor es el
-     canónico de la raíz, el mismo que carga experiences/cinematic-product-rail/. -->
+     `scripts/build-experience-entrypoints.mjs` genera desde este fichero las DOS
+     puertas, y no lee nada de /labs/:
+
+         experiences/<id>/index.html    · puerta PRODUCTIVA
+         labs/<lab>/index.html          · puerta de evidencia y regresión
+
+     Ambas cargan el MISMO motor canónico de la raíz: una implementación, dos puertas.
+
+     Regiones por puerta:
+       <!-- @door:lab -->     ... <!-- @/door -->   sólo en el LAB
+       <!-- @door:product --> ... <!-- @/door -->   sólo en el PRODUCTO
+-->
 <html lang="es">
 <head>
   <meta charset="utf-8">
@@ -22,7 +29,12 @@
     <header class="cpr-topbar">
       <a class="cpr-brand" href="index.html">LÚMINA</a>
       <div class="cpr-project-mark"><span>RESTAURANT MOTION ENGINE</span><strong>PROJECT 11 · CINEMATIC PRODUCT RAIL</strong></div>
+<!-- @door:lab -->
       <span class="cpr-status">ISOLATED LAB · HUMAN REVIEW</span>
+<!-- @/door -->
+<!-- @door:product -->
+      <span class="cpr-status">VISTA PREVIA DEL PROYECTO</span>
+<!-- @/door -->
     </header>
 
     <section class="cpr-stage" aria-labelledby="cpr-title">
