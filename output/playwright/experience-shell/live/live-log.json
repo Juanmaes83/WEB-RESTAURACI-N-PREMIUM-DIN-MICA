@@ -1,5 +1,5 @@
 {
-  "url": "http://127.0.0.1:63983",
+  "url": "https://juanmaes83.github.io/WEB-RESTAURACI-N-PREMIUM-DIN-MICA",
   "newTabs": {
     "desktop": 0,
     "mobile": 0
@@ -11,7 +11,7 @@
       "name": "Circular Dish Rotator",
       "back": "← Volver al Studio",
       "frames": 1,
-      "url": "/#experience/circular-dish-rotator"
+      "url": "/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/#experience/circular-dish-rotator"
     },
     {
       "label": "desktop",
@@ -19,7 +19,7 @@
       "name": "Dish Stage",
       "back": "← Volver al Studio",
       "frames": 1,
-      "url": "/#experience/dish-stage"
+      "url": "/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/#experience/dish-stage"
     },
     {
       "label": "desktop",
@@ -27,7 +27,7 @@
       "name": "Cinematic Product Rail",
       "back": "← Volver al Studio",
       "frames": 1,
-      "url": "/#experience/cinematic-product-rail"
+      "url": "/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/#experience/cinematic-product-rail"
     },
     {
       "label": "mobile",
@@ -35,7 +35,7 @@
       "name": "Circular Dish Rotator",
       "back": "← Volver al Studio",
       "frames": 1,
-      "url": "/#experience/circular-dish-rotator"
+      "url": "/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/#experience/circular-dish-rotator"
     },
     {
       "label": "mobile",
@@ -43,7 +43,7 @@
       "name": "Dish Stage",
       "back": "← Volver al Studio",
       "frames": 1,
-      "url": "/#experience/dish-stage"
+      "url": "/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/#experience/dish-stage"
     },
     {
       "label": "mobile",
@@ -51,7 +51,7 @@
       "name": "Cinematic Product Rail",
       "back": "← Volver al Studio",
       "frames": 1,
-      "url": "/#experience/cinematic-product-rail"
+      "url": "/WEB-RESTAURACI-N-PREMIUM-DIN-MICA/#experience/cinematic-product-rail"
     }
   ]
 }
