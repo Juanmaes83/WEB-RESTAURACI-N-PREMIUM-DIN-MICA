@@ -7,7 +7,7 @@
 
   // Demo content only. The motor consumes data; the final Studio integration will
   // expose these fields for restaurant-specific authoring.
-  const PIZZAS = [
+  const DEMO_PIZZAS = [
     {
       name:'Diavola',
       ingredients:'Tomate San Marzano · fior di latte · salami picante · albahaca',
@@ -89,6 +89,18 @@
       accent:'#e05b4f'
     }
   ];
+
+  /* FASE 1C — UN SOLO PROJECT STATE.
+
+     La GEOMETRÍA es de este motor y no se negocia: ocho sectores de 45°, en este orden,
+     porque el orden corresponde a las porciones de una única fotografía horneada. Los
+     DATOS, en cambio, son del restaurante, y dentro del producto tienen que venir del
+     proyecto. Si alguien sirve una fuente, se usa; si no, el demo sigue siendo la
+     fuente, como en el LAB abierto directamente.
+
+     La fuente recibe el demo para poder hacer el fallback campo a campo: nada queda
+     inventado ni vacío si el proyecto no trae un valor. */
+  const PIZZAS = window.RestaurantCircularSource?.sectors?.(DEMO_PIZZAS) || DEMO_PIZZAS;
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const shell = document.getElementById('cdr-shell');
@@ -192,7 +204,7 @@
 
     if (announce && lastAnnounced !== index) {
       lastAnnounced = index;
-      live.textContent = `Selected pizza: ${PIZZAS[index].name}`;
+      live.textContent = `Pizza seleccionada: ${PIZZAS[index].name}`;
     }
   }
 

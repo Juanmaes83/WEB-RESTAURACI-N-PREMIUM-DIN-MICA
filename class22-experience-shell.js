@@ -59,6 +59,11 @@
       dishes:snap.dishes||[],
       media:snap.media||{},
       productDetail:snap.productDetail||{},
+      /* Circular lee del proyecto sus ocho productos (auditado: los de `pizzaSliceOrbit`,
+         las mismas ocho pizzas) y sus refs de media (`circularDishRotator`). Va explícito
+         y no el snapshot entero: el hijo recibe lo que le corresponde, nada más. */
+      pizzaSliceOrbit:snap.pizzaSliceOrbit||{},
+      circularDishRotator:snap.circularDishRotator||{},
       locale:root.dataset.locale||'es',
       /* la media subida vive como blob en el store del proyecto y el padre ya tiene
          sus URLs resueltas; un blob: del padre es legible desde un iframe del mismo
