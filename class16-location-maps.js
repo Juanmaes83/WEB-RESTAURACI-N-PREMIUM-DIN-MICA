@@ -5,8 +5,8 @@
 
   const DEFAULTS = Object.freeze({
     enabled: false,
-    title: 'Find us',
-    eyebrow: 'Torrevieja · Spain',
+    title: 'Encuéntranos',
+    eyebrow: 'Torrevieja · España',
     address: {
       street: 'Paseo Vistalegre 12',
       postalCode: '03181',
@@ -15,7 +15,7 @@
       country: 'España'
     },
     phone: '+34 965 000 000',
-    hours: 'Tue — Sun · 13:00 — 00:00',
+    hours: 'Mar — Dom · 13:00 — 00:00',
     maps: {
       mode: 'address',
       googleMapsUrl: '',
@@ -202,8 +202,8 @@
     } else {
       const placeholder = el('div', 'lm-map-placeholder');
       placeholder.append(
-        el('span', 'lm-map-city', (config.address.city || 'LOCATION').toUpperCase()),
-        el('strong', '', 'Your table is closer than it feels.'),
+        el('span', 'lm-map-city', (config.address.city || 'UBICACIÓN').toUpperCase()),
+        el('strong', '', 'Tu mesa está más cerca de lo que parece.'),
         el('p', '', config.maps.privacyMode === 'click' ? 'El mapa de Google sólo se carga cuando tú lo decides.' : 'Mapa disponible cuando la ubicación está completa.')
       );
       if (mapUrl) {
@@ -242,7 +242,7 @@
     const copy = el('div', 'lm-copy');
     const eyebrow = el('p', 'lm-eyebrow', config.eyebrow || [config.address.city, config.address.country].filter(Boolean).join(' · '));
     const title = el('h2', 'lm-title', config.title);
-    const statement = el('p', 'lm-statement', config.design.preset === 'minimal' ? 'Come by.' : 'Come for dinner. Stay for the night.');
+    const statement = el('p', 'lm-statement', config.design.preset === 'minimal' ? 'Ven a vernos.' : 'Ven a cenar. Quédate a disfrutar de la noche.');
     const address = el('address', 'lm-address');
     address.textContent = fullAddress(config) || 'Añade una dirección en el configurador';
 
