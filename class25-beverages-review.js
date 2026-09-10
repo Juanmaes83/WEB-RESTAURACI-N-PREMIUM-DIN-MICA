@@ -1,24 +1,39 @@
-/* CLASS 25 — BEVERAGE REVIEW FIXTURE
-   Only ?review=beverages. Uses the repo-local ASIATICO asset first; two source-repo
-   drinks remain temporary comparison fixtures until the newly uploaded asset set is
-   visually classified. No review data is persisted into Restaurant Project State. */
+/* CLASS 25 — BEVERAGE / ICE CREAM REVIEW FIXTURE
+   ?review=beverages only. All visual assets come from this repository.
+   Visual review classified the HELADO files into three camera families. The main
+   selector intentionally uses only the strongest homogeneous family: HELADO 1–4.
+   The full inventory is still exposed for future variants; nothing is discarded. */
 (() => {
   'use strict';
   if(new URLSearchParams(location.search).get('review')!=='beverages')return;
   const B=window.RestaurantBeveragesModel;if(!B)return;
-  const refs={asiatico:'review/beverages/asiatico',matcha:'review/beverages/matcha',berry:'review/beverages/berry'};
-  const map=()=>{
-    window.RestaurantMedia?.map?.(refs.asiatico,'assets/half-orbit/dishes-transparent/ASIATICO 1.png');
-    window.RestaurantMedia?.map?.(refs.matcha,'https://raw.githubusercontent.com/Juanmaes83/starbucks/main/assets/drink-matcha.png');
-    window.RestaurantMedia?.map?.(refs.berry,'https://raw.githubusercontent.com/Juanmaes83/starbucks/main/assets/drink-strawberry.png');
-  };
+  const base='assets/half-orbit/dishes-transparent/';
+  const allAssets=['HELADO 1.jpg','HELADO 2.jpg','HELADO 3.jpg','HELADO 4.jpg','HELADO 8.jpg','HELADO 11.jpg','HELADO 12.jpg','HELADO 13.jpg','HELADO 15.jpg','HELADO 17.jpg','HELADO 18.jpg'];
+  const families=Object.freeze({
+    bowls:['HELADO 1.jpg','HELADO 2.jpg','HELADO 3.jpg','HELADO 4.jpg'],
+    singleCups:['HELADO 11.jpg','HELADO 12.jpg','HELADO 13.jpg','HELADO 17.jpg'],
+    pairedCups:['HELADO 8.jpg','HELADO 15.jpg','HELADO 18.jpg']
+  });
+  const selected=families.bowls;
+  const refs=Object.fromEntries(allAssets.map((name,i)=>[`helado${i+1}`,`review/beverages/helado-${i+1}`]));
+  const refByName=Object.fromEntries(allAssets.map((name,i)=>[name,refs[`helado${i+1}`]]));
+  const map=()=>allAssets.forEach(name=>window.RestaurantMedia?.map?.(refByName[name],base+name));
   map();
-  const mk=(id,type,name,shortName,description,price,pairing,motion,ref,theme)=>B.item({id,type,name,shortName,description,price,pairing,motionPreset:motion,featured:id==='review-asiatico',availability:'Disponible',media:[{id:'hero',kind:'image',ref,alt:name}],theme});
-  const beverages={enabled:true,preset:'dynamic-selector',eyebrow:'Beverage Experience',title:'Una bebida. Un mundo.',intro:'Elige una bebida y cambia la escena completa: producto, color, atmósfera, precio y narrativa. Integrado sobre la línea Half Orbit actual.',ctaLabel:'Explorar bebidas',ctaUrl:'#beverages',showPrice:true,showPairing:true,ambientParticles:true,items:[
-    mk('review-asiatico','coffee','Café Asiático','ASIÁTICO','Café, licor y crema en una composición de sobremesa con identidad mediterránea.','€8','Chocolate · sobremesa','warm',refs.asiatico,{accent:'#d59a53',accentSoft:'#f2d6aa',accentDeep:'#6d3918',button:'#d59a53',price:'#ffe7c1',ambient:'rgba(213,154,83,.23)',backdrop:'radial-gradient(circle at 68% 34%,#d4a363 0%,#7a431e 37%,#30180e 69%,#0c0806 100%)',glow:'0 42px 130px rgba(213,154,83,.38)'}),
-    mk('review-matcha','coffee','Matcha Fusion','MATCHA','Matcha frío y crema sedosa con un final vegetal limpio.','€9','Cítricos · brunch','cool',refs.matcha,{accent:'#47b987',accentSoft:'#9fe1c1',accentDeep:'#075b3e',button:'#47b987',price:'#d8ffea',ambient:'rgba(71,185,135,.22)',backdrop:'radial-gradient(circle at 68% 34%,#61d6a0 0%,#16805b 34%,#063c2b 66%,#06110d 100%)',glow:'0 42px 130px rgba(71,185,135,.42)'}),
-    mk('review-berry','mocktail','Strawberry Cloud','BERRY','Fresa y crema ligera con un acabado brillante y refrescante.','€10','Chocolate · frutos rojos','berry',refs.berry,{accent:'#ef6f91',accentSoft:'#ffb0c2',accentDeep:'#982a4a',button:'#ef6f91',price:'#ffdbe4',ambient:'rgba(239,111,145,.22)',backdrop:'radial-gradient(circle at 68% 34%,#ffafc0 0%,#e6577d 38%,#8a2245 70%,#1b0710 100%)',glow:'0 42px 130px rgba(239,111,145,.40)'})
-  ]};
-  window.RestaurantBeveragesReview=Object.freeze({active:true,beverages,refs,map});
+  const mk=(id,name,shortName,description,price,pairing,motion,file,theme)=>B.item({
+    id,type:'ice-cream',name,shortName,description,price,pairing,motionPreset:motion,
+    featured:id==='review-helado-1',availability:'Disponible',media:[{id:'hero',kind:'image',ref:refByName[file],alt:name}],theme
+  });
+  const beverages={
+    enabled:true,preset:'dynamic-selector',eyebrow:'Ice Cream Experience',title:'Un helado. Un mundo.',
+    intro:'Cuatro productos de la misma familia visual: plano 3/4 frontal, escala homogénea y composición premium. Todos los assets proceden del propio repositorio.',
+    ctaLabel:'Explorar helados',ctaUrl:'#beverages',showPrice:true,showPairing:true,ambientParticles:true,
+    items:[
+      mk('review-helado-1','Red Velvet','RED VELVET','Helado cremoso con perfil de cacao, crema y migas de red velvet.','€8','Chocolate negro · café','berry',selected[0],{accent:'#b42f45',accentSoft:'#f3a8b5',accentDeep:'#52131f',button:'#d84d66',price:'#ffe2e7',ambient:'rgba(180,47,69,.24)',backdrop:'radial-gradient(circle at 68% 34%,#a52a42 0%,#571321 38%,#20090f 70%,#090607 100%)',glow:'0 42px 130px rgba(180,47,69,.42)'}),
+      mk('review-helado-2','Green Apple Caramel','APPLE','Manzana verde, caramelo y vainilla en una copa fresca y cremosa.','€8','Tarta de manzana · brunch','cool',selected[1],{accent:'#9bc04c',accentSoft:'#d9ef9a',accentDeep:'#42621a',button:'#add45b',price:'#efffcf',ambient:'rgba(155,192,76,.23)',backdrop:'radial-gradient(circle at 68% 34%,#9fbd62 0%,#557126 38%,#202c0f 70%,#080b05 100%)',glow:'0 42px 130px rgba(155,192,76,.38)'}),
+      mk('review-helado-3','White Chocolate Crisp','WHITE','Chocolate blanco, textura crujiente y crema helada de acabado sedoso.','€9','Frutos secos · sobremesa','neutral',selected[2],{accent:'#d4b36d',accentSoft:'#fff0c8',accentDeep:'#7a5a24',button:'#e0c17b',price:'#fff4d6',ambient:'rgba(212,179,109,.22)',backdrop:'radial-gradient(circle at 68% 34%,#d6bd87 0%,#806335 38%,#332715 70%,#0b0906 100%)',glow:'0 42px 130px rgba(212,179,109,.34)'}),
+      mk('review-helado-4','Dark Chocolate','DARK','Chocolate intenso y cremoso con un final profundo de cacao.','€9','Espresso · cacao','warm',selected[3],{accent:'#9b673f',accentSoft:'#dfb58e',accentDeep:'#432817',button:'#b47a4f',price:'#f4d8bd',ambient:'rgba(155,103,63,.24)',backdrop:'radial-gradient(circle at 68% 34%,#805234 0%,#432719 39%,#1a100b 70%,#070504 100%)',glow:'0 42px 130px rgba(155,103,63,.38)'})
+    ]
+  };
+  window.RestaurantBeveragesReview=Object.freeze({active:true,beverages,refs,map,allAssets,families,selectedAssets:selected});
   document.documentElement.dataset.beverageReview='on';
 })();
