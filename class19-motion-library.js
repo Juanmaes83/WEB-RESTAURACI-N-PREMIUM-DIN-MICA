@@ -1,6 +1,6 @@
 /* CLASS 19 · MOTION + MODULE STUDIO INTEGRATION
 
-   Twelve motion engines exist in this project: eight selectable product
+   Thirteen motion engines exist in this project: nine selectable product
    choreographies, one transversal page motion and three complete experiences.
 
    This is a LIBRARY, not a new engine. It owns no motion, no geometry and no state:
@@ -29,6 +29,13 @@
   if(!document.querySelector('script[data-half-orbit-runtime]')){
     const s=document.createElement('script');
     s.src='class24-half-orbit-selector.js';s.dataset.halfOrbitRuntime='1';
+    document.body.appendChild(s);
+  }
+  /* Class 25 arrived after Class 24. Same loader contract; the library still owns no
+     Class 25 geometry, interaction or state — that stays in the engine file. */
+  if(!document.querySelector('script[data-chromatic-wipe-runtime]')){
+    const s=document.createElement('script');
+    s.src='class25-chromatic-ingredient-wipe.js';s.dataset.chromaticWipeRuntime='1';
     document.body.appendChild(s);
   }
 
@@ -77,7 +84,10 @@
       note:'Raíl cinematográfico de producto con avance continuo.'},
     {n:'12',id:'half-orbit',kind:'preset',value:'half-orbit',
       name:'Half Orbit Selector',project:'Class 24',
-      note:'Media circunferencia tipográfica: drag y flechas hacen un barrido de 180°, cambian el fondo y elevan el producto activo.'}
+      note:'Media circunferencia tipográfica: drag y flechas hacen un barrido de 180°, cambian el fondo y elevan el producto activo.'},
+    {n:'13',id:'chromatic-ingredient-wipe',kind:'preset',value:'chromatic-ingredient-wipe',
+      name:'Chromatic Ingredient Wipe',project:'Class 25',
+      note:'Transición cinematográfica entre productos: un ingrediente gigante barre la escena y cambia por completo el mundo cromático.'}
   ];
 
   /* Not engines. They are listed so Studio shows everything the product has, and they
