@@ -58,7 +58,8 @@ async function review(source){
   await page.waitForTimeout(120);
   const wheelBox=await page.locator('.hos-stage').boundingBox();
   const y0=await page.evaluate(()=>scrollY);
-  await page.mouse.move(wheelBox.x+wheelBox.width*.5,Math.max(80,Math.min(innerHeight-80,wheelBox.y+wheelBox.height*.3)));
+  const mouseY=Math.max(80,Math.min(920,wheelBox.y+wheelBox.height*.3));
+  await page.mouse.move(wheelBox.x+wheelBox.width*.5,mouseY);
   await page.mouse.wheel(0,420);await page.waitForTimeout(260);
   const y1=await page.evaluate(()=>scrollY);
   check(`${source} · rueda conserva scroll de página`,y1>y0+100,`${Math.round(y0)} → ${Math.round(y1)}`);
