@@ -28,6 +28,13 @@ async function emptyDragPoint(page){
   });
 }
 
+async function waitSettled(page){
+  await page.waitForFunction(()=>{
+    const s=window.RestaurantHalfOrbit?.state?.();
+    return s&&!s.transition&&!s.dragging&&Math.abs(s.progress-Math.round(s.progress))<.001;
+  },null,{timeout:2600}).catch(()=>{});
+}
+
 async function review(source){
   const ctx=await browser.newContext({viewport:{width:1440,height:1000}});
   const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -49,7 +56,7 @@ async function review(source){
   check(`${source} · Motion Library registra 12 motores`,initial.libraryCount===12,String(initial.libraryCount));
 
   const before=initial.state;
-  await page.click('.hos-next');await page.waitForTimeout(850);
+  await page.click('.hos-next');await waitSettled(page);
   const next=await page.evaluate(()=>({state:window.RestaurantHalfOrbit.state(),title:document.querySelector('.hos-title')?.textContent.trim(),turn:getComputedStyle(document.querySelector('.hos-orbit-sweep')).transform}));
   check(`${source} · flecha cambia producto`,next.state.activeIndex!==before.activeIndex&&next.title!==initial.title,`${initial.title} → ${next.title}`);
   check(`${source} · cada paso suma un half-turn de 180°`,Math.abs((next.state.halfTurnDeg-before.halfTurnDeg)-180)<1,`${before.halfTurnDeg}° → ${next.state.halfTurnDeg}°`);
@@ -63,7 +70,8 @@ async function review(source){
   }
   const during=await page.evaluate(()=>({p:window.RestaurantHalfOrbit.state().progress,drag:window.RestaurantHalfOrbit.state().dragging,turn:document.querySelector('.hos-orbit')?.style.getPropertyValue('--hos-turn')}));
   check(`${source} · drag es continuo antes de soltar`,during.drag&&Math.abs(during.p-start)>.2,`progress ${start.toFixed(2)} → ${during.p.toFixed(2)} · ${during.turn}`);
-  if(dragPoint)await page.mouse.up();await page.waitForTimeout(800);
+  if(dragPoint)await page.mouse.up();
+  await waitSettled(page);
   const settled=await page.evaluate(()=>window.RestaurantHalfOrbit.state());
   check(`${source} · drag hace snap`,Math.abs(settled.progress-Math.round(settled.progress))<.001,`progress ${settled.progress}`);
 
