@@ -11,8 +11,8 @@
 */
 (() => {
   'use strict';
-  const $=(s,r=document)=>r.querySelector(s);
-  const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  const $=(s,r=document)=>r?.querySelector?.(s)||null;
+  const $$=(s,r=document)=>r?.querySelectorAll?[...r.querySelectorAll(s)]:[];
   const root=document.documentElement;
   const D=window.RestaurantDefaults;
   if(!D)return;
@@ -40,10 +40,7 @@
     if(panel){
       panel.dataset.capabilityHidden=on?'0':'1';
       if(!on){
-        if(tab?.classList.contains('active')){
-          const brand=$('#studio .studio-nav [data-panel="brand"]');
-          brand?.click?.();
-        }
+        if(tab?.classList.contains('active'))$('#studio .studio-nav [data-panel="brand"]')?.click?.();
         panel.hidden=true;
       }
     }
@@ -59,8 +56,9 @@
 
   function groupLibrary(){
     const lib=$('.ml-library');
+    if(!lib)return false;
     const host=$('[data-ml-grid]',lib);
-    if(!lib||!host||host.dataset.governed==='1')return false;
+    if(!host||host.dataset.governed==='1')return false;
     host.dataset.governed='1';host.classList.add('ml-governed-grid');
     const cards=$$(':scope > [data-ml-card]',host);
     const groups={
@@ -77,6 +75,7 @@
 
   function enhanceTraveler(){
     const lib=$('.ml-library');
+    if(!lib)return false;
     const pageGroup=$('[data-motion-group="page"] .ml-group-grid',lib);
     const card=$('[data-ml-card="scroll-traveler"]',lib);
     const tuner=$('.studio-panel.motion-panel .st-studio');
@@ -97,15 +96,16 @@
       }
     }
     syncTraveler();
+    return !!card&&!!tuner&&!!pageGroup;
   }
 
   function syncTraveler(){
     const on=travellerOn();
     root.dataset.scrollTravelerChoice=on?'on':'off';
     const lib=$('.ml-library');
-    const card=$('[data-ml-card="scroll-traveler"]',lib);
+    const card=lib?$('[data-ml-card="scroll-traveler"]',lib):null;
     const tuner=$('.st-studio-governed');
-    const input=$('.st-check input[type="checkbox"]',tuner||document);
+    const input=tuner?$('.st-check input[type="checkbox"]',tuner):null;
     if(input&&document.activeElement!==input)input.checked=on;
     if(tuner){
       tuner.classList.toggle('is-on',on);tuner.classList.toggle('is-off',!on);
@@ -121,19 +121,34 @@
 
   function improveCopy(){
     const lib=$('.ml-library');if(!lib)return;
-    const eyebrow=$('.ml-head .eyebrow',lib);if(eyebrow)eyebrow.textContent='Motion Studio';
-    const title=$('.ml-head h3',lib);if(title&&title.firstChild)title.firstChild.textContent='Dirección de movimiento ';
-    const lead=$('.ml-head .ml-lead',lib);if(lead)lead.textContent='Elige un motor para el producto. Después decide, por separado, si la página necesita una capa transversal como Scroll Traveler.';
+    const eyebrow=$('.ml-head .eyebrow',lib);
+    if(eyebrow&&eyebrow.textContent!=='Motion Studio')eyebrow.textContent='Motion Studio';
+    const title=$('.ml-head h3',lib);
+    if(title?.firstChild&&title.firstChild.textContent!=='Dirección de movimiento ')
+      title.firstChild.textContent='Dirección de movimiento ';
+    const lead=$('.ml-head .ml-lead',lib);
+    const copy='Elige un motor para el producto. Después decide, por separado, si la página necesita una capa transversal como Scroll Traveler.';
+    if(lead&&lead.textContent!==copy)lead.textContent=copy;
   }
 
   function apply(){
     ensureStyles();applyCapability();
-    if(!capabilityEnabled())return;
-    groupLibrary();enhanceTraveler();improveCopy();
+    if(!capabilityEnabled())return false;
+    groupLibrary();
+    const complete=enhanceTraveler();
+    improveCopy();
+    return complete;
   }
 
-  const observer=new MutationObserver(()=>apply());
-  if(document.documentElement)observer.observe(document.documentElement,{subtree:true,childList:true});
+  let scheduled=false;
+  const observer=new MutationObserver(()=>{
+    if(scheduled)return;scheduled=true;
+    queueMicrotask(()=>{
+      scheduled=false;
+      if(apply())observer.disconnect();
+    });
+  });
+  observer.observe(document.documentElement,{subtree:true,childList:true});
   document.addEventListener('restaurant:config-applied',()=>{applyCapability();syncTraveler();});
   document.addEventListener('click',e=>{if(e.target.closest?.('.studio-open'))setTimeout(apply,180)},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(apply,80));
