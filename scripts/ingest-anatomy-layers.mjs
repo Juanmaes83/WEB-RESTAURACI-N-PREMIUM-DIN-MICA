@@ -80,6 +80,10 @@ function discoverDishes(){
       if(!Array.isArray(spec.layers)||!spec.layers.length)
         throw new Error(`${id}/layers.json no declara capas`);
       return {id,name:spec.name||id,product:spec.product||'',
+        /* Los valores por defecto estan calibrados para comida fotografiada a 45
+           grados. Un reloj son discos finos y un movil laminas planas: el juego
+           puede traer los suyos y viajan CON EL, no como constante global. */
+        layout:spec.layout&&typeof spec.layout==='object'?spec.layout:null,
         order:spec.layers.map(l=>[l.file,l.label||''])};
     })
     .sort((a,b)=>a.id.localeCompare(b.id));
@@ -396,6 +400,7 @@ function resize(img, tw, th) {
 /* ============================================================================== ingesta */
 
 function ingestDish(dishId, spec) {
+  const LAY = {...LAYOUT, ...(spec.layout || {})};
   const layersDir = path.join(SRC, dishId, 'layers');
   const outDir = path.join(RUNTIME, dishId);
   if (!CHECK_ONLY) fs.mkdirSync(outDir, {recursive: true});
@@ -407,11 +412,11 @@ function ingestDish(dishId, spec) {
     if (!fs.existsSync(src)) { missing.push(file); continue; }
     const srcBytes = fs.statSync(src).size;
     const img = decodePNG(src);
-    const box = contentBox(img, LAYOUT.alphaThreshold, LAYOUT.specklePart);
+    const box = contentBox(img, LAY.alphaThreshold, LAY.specklePart);
     if (!box) throw new Error(`${file}: no hay ningún píxel por encima del umbral de alfa`);
 
     const cropped = crop(img, box);
-    const tw = Math.min(LAYOUT.maxRuntimeWidth, cropped.w);
+    const tw = Math.min(LAY.maxRuntimeWidth, cropped.w);
     const runtime = tw === cropped.w ? cropped : resize(cropped, tw, Math.max(1, Math.round(cropped.h * tw / cropped.w)));
     const id = file.replace(/^layer-/, '').replace(/\.png$/, '');
     const outFile = path.join(outDir, `${id}.png`);
@@ -433,7 +438,7 @@ function ingestDish(dishId, spec) {
         cy: +((box.y0 + box.h / 2) / img.h).toFixed(5)
       },
       alpha: {
-        threshold: LAYOUT.alphaThreshold, opaquePx: box.opaquePx,
+        threshold: LAY.alphaThreshold, opaquePx: box.opaquePx,
         components: box.components, componentsKept: box.componentsKept, discardedPx: box.discardedPx
       },
       runtime: {w: runtime.w, h: runtime.h}
@@ -469,9 +474,9 @@ function ingestDish(dishId, spec) {
   const heroSrc=path.join(SRC, dishId, 'hero.png');
   if(fs.existsSync(heroSrc)){
     const img=decodePNG(heroSrc);
-    const box=contentBox(img, LAYOUT.alphaThreshold, LAYOUT.specklePart);
+    const box=contentBox(img, LAY.alphaThreshold, LAY.specklePart);
     const cropped=box?crop(img,box):img;
-    const tw=Math.min(LAYOUT.maxRuntimeWidth, cropped.w);
+    const tw=Math.min(LAY.maxRuntimeWidth, cropped.w);
     const out=tw===cropped.w?cropped:resize(cropped,tw,Math.max(1,Math.round(cropped.h*tw/cropped.w)));
     const outFile=path.join(outDir,'hero.png');
     if(!CHECK_ONLY) fs.writeFileSync(outFile, encodePNG(out));
@@ -487,15 +492,15 @@ function ingestDish(dishId, spec) {
      y no hace falta ningún cx de compensación en el motor: por eso el registro sale más
      simple que el de la referencia. */
   const widest = Math.max(...measured.map(m => m.content.w));
-  const unit = LAYOUT.widestFraction / widest;   /* fracción del escenario por píxel de máster */
+  const unit = LAY.widestFraction / widest;   /* fracción del escenario por píxel de máster */
 
   /* El aplastado vertical se DERIVA del alto que queremos para el apilado. Los huecos se
      descuentan antes porque no se aplastan: un hueco es una decisión de densidad, no una
      propiedad de la imagen. */
   const rawHeights = measured.map(m => m.content.h * unit);
   const rawTotal = rawHeights.reduce((a, b) => a + b, 0);
-  const gapTotal = LAYOUT.gapFraction * (measured.length - 1);
-  const squashY = +((LAYOUT.targetStackHeight - gapTotal) / rawTotal).toFixed(5);
+  const gapTotal = LAY.gapFraction * (measured.length - 1);
+  const squashY = +((LAY.targetStackHeight - gapTotal) / rawTotal).toFixed(5);
 
   let top = 0;
   const layers = measured.map((m, i) => {
@@ -519,10 +524,10 @@ function ingestDish(dishId, spec) {
         depth: i
       }
     };
-    top += h + LAYOUT.gapFraction;
+    top += h + LAY.gapFraction;
     return entry;
   });
-  const stackHeight = +(top - LAYOUT.gapFraction).toFixed(5);
+  const stackHeight = +(top - LAY.gapFraction).toFixed(5);
 
   /* --- veredicto --- */
   const widths = measured.map(m => m.content.w).sort((a, b) => a - b);
@@ -547,7 +552,7 @@ function ingestDish(dishId, spec) {
   };
   verdict.registered = verdict.widthSpreadOk && verdict.stackHeightOk && verdict.contractOk;
 
-  return {id: dishId, name: spec.name, layout: LAYOUT, tolerances: TOLERANCES, verdict, hero, layers};
+  return {id: dishId, name: spec.name, layout: LAY, tolerances: TOLERANCES, verdict, hero, layers};
 }
 
 /* =================================================================================== main */

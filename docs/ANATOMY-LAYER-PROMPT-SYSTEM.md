@@ -132,14 +132,85 @@ Lo útil no es «el juego está mal»: es **«regenera estas dos»**.
 node scripts/anatomy-prompt-kit.mjs
 ```
 
-| Receta | Capas | Producto |
+| Receta | Perfil | Capas | Producto |
+|---|---|---|---|
+| `pizza` | comida | 5 | albahaca · aceite · mozzarella · tomate · masa |
+| `taco` | comida | 5 | cilantro · salsa · aguacate · carnitas · tortilla |
+| `kebab` | comida | 7 | pita · salsa de ajo · cebolla · tomate · ternera · lechuga · pita base |
+| `burger` | comida | 9 | La referencia, reproducida desde el contrato |
+| `poke` | comida | 5 | sésamo · aguacate · atún · edamame · arroz |
+| `tiramisu` | comida | 5 | cacao · mascarpone · bizcocho · mascarpone · base |
+| `reloj` | producto | 6 | cristal · bisel · esfera · movimiento · junta · caja |
+| `zapatilla` | producto | 5 | cordones · upper · plantilla · mediasuela · suela |
+| `movil` | producto | 5 | pantalla · marco · placa · batería · tapa |
+| `gafas` | producto | 4 | lentes · frontal · bisagras · varillas |
+
+## 5b. Más allá de la comida
+
+El despiece **nació en la ilustración técnica** — relojería, planos de patente, manuales
+de montaje. La comida es la aplicación rara, no al revés. Un reloj es el caso *nativo* de
+esta mecánica.
+
+Lo que hay que saber antes de invertir en generar:
+
+### Lo que entra sin tocar una línea
+
+El motor apila en **un solo eje, de arriba abajo**. Todo lo que se despiece así funciona
+igual que la hamburguesa:
+
+reloj · smartphone · portátil · auriculares · zapatilla · cosmética · cámara · teclado
+
+### Lo que no encaja bien
+
+- **Un anillo o unos pendientes**: dos o tres piezas, por debajo del mínimo de 3 capas.
+  Caen al modo héroe anotado — que sigue siendo una ficha correcta, pero no es un
+  despiece.
+- **Cualquier cosa cuya gramática natural sea lateral.** Las **gafas** están al límite:
+  se despiezan en vertical y funcionan, pero es el caso más flojo del juego. Está en las
+  recetas precisamente para que puedas comprobarlo tú antes de decidir.
+
+### Qué cambia en el prompt
+
+Sólo el **estilo fotográfico** y las prohibiciones. La geometría **no se toca**: si se
+tocara, las capas dejarían de apilarse.
+
+| | comida | producto |
 |---|---|---|
-| `pizza` | 5 | Pizza Margarita — albahaca · aceite · mozzarella · tomate · masa |
-| `taco` | 5 | Taco de carnitas — cilantro · salsa · aguacate · carnitas · tortilla |
-| `kebab` | 7 | Kebab de ternera — pita · salsa de ajo · cebolla · tomate · ternera · lechuga · pita base |
-| `burger` | 9 | La referencia, reproducida desde el contrato |
-| `poke` | 5 | Poke de atún — sésamo · aguacate · atún · edamame · arroz |
-| `tiramisu` | 5 | Tiramisú — cacao · mascarpone · bizcocho · mascarpone · base |
+| Estilo | `photorealistic food photography, natural colour` | `photorealistic studio product photography, macro detail, neutral colour, clean and unworn` |
+| Prohibido además | plato, tabla, bandeja, cubertería | embalaje, caja, expositor, etiqueta de precio, alguien llevándolo puesto, polvo, huellas, arañazos |
+
+### Parámetros de apilado por juego
+
+Los valores por defecto están calibrados para comida fotografiada a 45°. Un reloj son
+discos finos y un móvil láminas planas: si un juego los necesita distintos, viajan **con
+él** en su `layers.json`, no como constante global del ingestor.
+
+```json
+{
+  "id": "reloj-automatico",
+  "layout": { "targetStackHeight": 1.0, "gapFraction": 0.004 },
+  "layers": [ ... ]
+}
+```
+
+Comprobado: un juego de reloj con ese override cierra en `1.000` mientras la hamburguesa
+conserva su `1.120`. Los juegos no se pisan.
+
+### Una advertencia de alcance
+
+Todo lo anterior es cierto del **kit de generación y del ingestor**, que son herramientas
+autónomas.
+
+La **sección** Class 26, en cambio, lee `dishes[]` y habla de platos e ingredientes: vive
+dentro de la Restaurant Experience Platform. Meter relojes en `dishes[]` fragmentaría el
+producto, que es justo lo que prohíbe la regla de decisión del README §12.
+
+Llevar la mecánica a otra vertical es una decisión de producto, no un cambio de código:
+supondría un dominio genérico en vez de `dishes[]`. El acoplamiento real es pequeño —dos
+funciones y cuatro campos en el motor, más el vocabulario del Studio— pero es una
+decisión deliberada, no algo que deba colarse en una entrega de restaurantes.
+
+---
 
 ### Un producto que no está en la lista
 
