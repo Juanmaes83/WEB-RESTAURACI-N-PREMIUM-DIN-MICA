@@ -19,22 +19,22 @@ const strip=s=>s.replace(/\/\*[\s\S]*?\*\//g,'').replace(/(^|[^:])\/\/.*$/gm,'$1
 const lib=read('class19-motion-library.js');
 const code=strip(lib);
 
-/* ---- 1. twelve engines, and every one of them real ---- */
+/* ---- 1. thirteen engines, and every one of them real ---- */
 const entries=[...code.matchAll(/\{n:'(\d\d)',id:'([a-z0-9-]+)',kind:'(preset|page|experience)'/g)]
   .map(m=>({n:m[1],id:m[2],kind:m[3]}));
-if(entries.length!==12)fail(`the catalogue lists ${entries.length} engines, not 12`);
+if(entries.length!==13)fail(`the catalogue lists ${entries.length} engines, not 13`);
 const numbers=entries.map(e=>e.n).join(',');
-if(numbers!=='01,02,03,04,05,06,07,08,09,10,11,12')fail(`engines are not numbered 01..12: ${numbers}`);
-if(new Set(entries.map(e=>e.id)).size!==12)fail('two engines share an id');
+if(numbers!=='01,02,03,04,05,06,07,08,09,10,11,12,13')fail(`engines are not numbered 01..13: ${numbers}`);
+if(new Set(entries.map(e=>e.id)).size!==13)fail('two engines share an id');
 
 const kinds=entries.reduce((a,e)=>({...a,[e.kind]:(a[e.kind]||0)+1}),{});
-if(kinds.preset!==8||kinds.page!==1||kinds.experience!==3)
-  fail(`expected 8 presets, 1 page motion and 3 experiences, got ${JSON.stringify(kinds)}`);
+if(kinds.preset!==9||kinds.page!==1||kinds.experience!==3)
+  fail(`expected 9 presets, 1 page motion and 3 experiences, got ${JSON.stringify(kinds)}`);
 
 /* every preset must be a value some runtime really injects into the select */
 const runtimes=['class8-depth-carousel.js','class9-anchor-scenes.js','class10-orbital-food.js',
   'class11-pizza-slice-orbit.js','class5-studio-motion.js','class7-editorial-flow.js',
-  'class24-half-orbit-selector.js'];
+  'class24-half-orbit-selector.js','class25-chromatic-ingredient-wipe.js'];
 const runtimeSource=runtimes.filter(f=>fs.existsSync(path.join(ROOT,f))).map(read).join('\n');
 for(const e of entries.filter(x=>x.kind==='preset')){
   const value=(code.match(new RegExp(`id:'${e.id}',kind:'preset',value:'([a-z-]+)'`))||[])[1];
@@ -56,7 +56,7 @@ if(!/path:'scrollTraveler\.enabled'/.test(code))
 
    The invariant is not a module COUNT. Modules arrive and leave with the business
    roadmap. What must hold is that every module listed is real, that none of them is
-   smuggled into the twelve, and that the engine count above stays at twelve. */
+   smuggled into the thirteen, and that the engine count above stays at thirteen. */
 const moduleBlock=code.slice(code.indexOf('const MODULES=['));
 const modules=[...moduleBlock.matchAll(/\{id:'([a-z0-9-]+)',\s*\n?\s*name:/g)].map(m=>m[1]);
 if(!modules.length)fail('no modules are listed at all');
@@ -115,7 +115,7 @@ for(const f of ['class8-depth-carousel.js','class10-orbital-food.js','class11-pi
     fail(`${f} was edited to know about the library — it must stay an index`);
 }
 
-console.log(`motion library contract: 12 engines numbered 01..12 (8 product presets, 1 page motion, `
+console.log(`motion library contract: 13 engines numbered 01..13 (9 product presets, 1 page motion, `
   +`3 full-screen experiences), every preset registered by a real runtime and every experience a `
   +`page that exists, ${modules.length} configurable modules listed outside the count, `
   +`no second selection, no persistence of its own, index.html untouched and every engine runtime still loaded`);
