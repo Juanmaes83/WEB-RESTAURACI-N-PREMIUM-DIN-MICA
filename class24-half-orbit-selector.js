@@ -6,6 +6,9 @@
    ONE RUNTIME SCALAR:
      progress -> active index -> label geometry -> half-turn -> hero/copy/world
 
+   ONE TRANSITION DIRECTOR:
+     anticipate -> travel -> settle coordinates orbit + hero + chroma + copy + labels.
+
    DATA IS NOT DUPLICATED:
      dishes -> RestaurantOrbit.getDishes() (the live Project State collection)
      pizzas -> RestaurantStudioConfig.get('pizzaSliceOrbit').products + Project 07 manifest
@@ -30,10 +33,10 @@
   const normalize=(v,n)=>n?((v%n)+n)%n:0;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  let section=null,shell=null,stage=null,arc=null,labels=null,hero=null,heroA=null,heroB=null;
-  let worldA=null,worldB=null,copy=null,title=null,meta=null,desc=null,counter=null,detailBtn=null;
-  let prevBtn=null,nextBtn=null,sourceBadge=null,studioCard=null;
-  let items=[],pizzaManifest=null,progress=0,tween=null,ready=false,mounted=false;
+  let section=null,shell=null,stage=null,arc=null,labels=null,hero=null,heroA=null,heroB=null,heroFloor=null;
+  let worldA=null,worldB=null,chroma=null,copy=null,title=null,titleGhost=null,titleFlare=null;
+  let meta=null,desc=null,counter=null,detailBtn=null,prevBtn=null,nextBtn=null,sourceBadge=null,studioCard=null;
+  let items=[],pizzaManifest=null,progress=0,tween=null,goal=null,ready=false,mounted=false;
   let active=-1,frontHero='a',frontWorld='a',lastSource='',lastSignature='';
   let dragging=false,pointerId=null,startX=0,startProgress=0,lastX=0,lastT=0,velocity=0,moved=false;
   let shellTouchAction='';
@@ -51,13 +54,6 @@
     while(d>n/2)d-=n;
     while(d<-n/2)d+=n;
     return d;
-  }
-
-  function hexRgb(hex){
-    const v=String(hex||'').replace('#','');
-    const s=v.length===3?v.split('').map(c=>c+c).join(''):v;
-    const n=parseInt(s,16);
-    return Number.isFinite(n)?[n>>16&255,n>>8&255,n&255]:[216,255,79];
   }
 
   async function loadManifest(){
@@ -120,7 +116,7 @@
     else progress=normalize(Math.round(progress),items.length);
     buildLabels();
     active=-1;
-    paint(true);
+    renderImmediate(activeIndex());
     syncStudio();
     return true;
   }
@@ -148,6 +144,7 @@
     stage.innerHTML=`
       <div class="hos-world hos-world-a" aria-hidden="true"><img alt=""></div>
       <div class="hos-world hos-world-b" aria-hidden="true"><img alt=""></div>
+      <div class="hos-chroma" aria-hidden="true"></div>
       <div class="hos-vignette" aria-hidden="true"></div>
       <div class="hos-orbit" aria-hidden="true"><div class="hos-orbit-sweep"></div><i></i><i></i><i></i></div>
       <div class="hos-labels" aria-label="Productos"></div>
@@ -155,7 +152,11 @@
         <img class="hos-hero-img hos-hero-a" alt=""><img class="hos-hero-img hos-hero-b" alt=""></div>
       <div class="hos-copy">
         <p class="hos-source"></p><p class="hos-meta"></p>
-        <h3 class="hos-title"></h3><p class="hos-desc"></p>
+        <div class="hos-title-wrap">
+          <h3 class="hos-title"></h3><h3 class="hos-title-ghost" aria-hidden="true"></h3>
+          <span class="hos-title-flare" aria-hidden="true"></span>
+        </div>
+        <p class="hos-desc"></p>
         <div class="hos-copy-foot"><span class="hos-counter"></span>
           <button type="button" class="hos-detail">Ver plato +</button></div>
       </div>
@@ -164,9 +165,10 @@
       <p class="hos-hint">ARRASTRA · FLECHAS</p>`;
     shell.appendChild(stage);
     arc=$('.hos-orbit',stage);labels=$('.hos-labels',stage);hero=$('.hos-hero',stage);
-    heroA=$('.hos-hero-a',stage);heroB=$('.hos-hero-b',stage);
-    worldA=$('.hos-world-a',stage);worldB=$('.hos-world-b',stage);
-    copy=$('.hos-copy',stage);title=$('.hos-title',stage);meta=$('.hos-meta',stage);desc=$('.hos-desc',stage);
+    heroA=$('.hos-hero-a',stage);heroB=$('.hos-hero-b',stage);heroFloor=$('.hos-hero-floor',stage);
+    worldA=$('.hos-world-a',stage);worldB=$('.hos-world-b',stage);chroma=$('.hos-chroma',stage);
+    copy=$('.hos-copy',stage);title=$('.hos-title',stage);titleGhost=$('.hos-title-ghost',stage);
+    titleFlare=$('.hos-title-flare',stage);meta=$('.hos-meta',stage);desc=$('.hos-desc',stage);
     counter=$('.hos-counter',stage);detailBtn=$('.hos-detail',stage);sourceBadge=$('.hos-source',stage);
     prevBtn=$('.hos-prev',stage);nextBtn=$('.hos-next',stage);
     return true;
@@ -194,11 +196,13 @@
       const x=Math.sin(theta)*rx;
       const y=-Math.cos(theta)*ry;
       const focus=clamp(1-abs/2.45,0,1);
+      const blur=(1-focus)*1.7;
       el.style.setProperty('--hos-lx',`${x.toFixed(3)}vw`);
       el.style.setProperty('--hos-ly',`${y.toFixed(3)}vh`);
-      el.style.setProperty('--hos-lscale',(0.72+focus*.28).toFixed(3));
-      el.style.setProperty('--hos-lopacity',visible?(0.16+focus*.84).toFixed(3):'0');
-      el.style.setProperty('--hos-lift',`${(-focus*12).toFixed(1)}px`);
+      el.style.setProperty('--hos-lscale',(0.70+focus*.31).toFixed(3));
+      el.style.setProperty('--hos-lopacity',visible?(0.12+focus*.88).toFixed(3):'0');
+      el.style.setProperty('--hos-lift',`${(-focus*14).toFixed(1)}px`);
+      el.style.setProperty('--hos-lblur',`${blur.toFixed(2)}px`);
       el.style.zIndex=String(Math.round(10+focus*30));
       el.dataset.active=abs<.5?'1':'0';
       el.tabIndex=abs<.5?0:-1;
@@ -216,34 +220,12 @@
     el.dataset.item=item.id;
   }
 
-  function swapWorld(item,immediate=false){
-    const incoming=frontWorld==='a'?worldB:worldA,outgoing=frontWorld==='a'?worldA:worldB;
-    setWorld(incoming,item);
-    if(!window.gsap||immediate||reduced.matches){
-      incoming.style.opacity='1';outgoing.style.opacity='0';frontWorld=frontWorld==='a'?'b':'a';return;
-    }
-    gsap.killTweensOf([incoming,outgoing]);
-    gsap.set(incoming,{opacity:0,scale:1.035});
-    gsap.to(outgoing,{opacity:0,duration:.48,ease:'power2.out'});
-    gsap.to(incoming,{opacity:1,scale:1,duration:.72,ease:'power3.out'});
-    frontWorld=frontWorld==='a'?'b':'a';
+  function setHero(el,item){
+    if(!el||!item)return;
+    el.src=item.image||'';el.alt='';el.dataset.item=item.id;
   }
 
-  function swapHero(item,immediate=false){
-    const incoming=frontHero==='a'?heroB:heroA,outgoing=frontHero==='a'?heroA:heroB;
-    incoming.src=item.image||'';incoming.alt='';incoming.dataset.item=item.id;
-    if(!window.gsap||immediate||reduced.matches){
-      incoming.style.opacity='1';incoming.style.transform='translate(-50%,-50%)';
-      outgoing.style.opacity='0';frontHero=frontHero==='a'?'b':'a';return;
-    }
-    gsap.killTweensOf([incoming,outgoing]);
-    gsap.set(incoming,{opacity:0,xPercent:-50,yPercent:-50,y:34,scale:.86,rotation:-4});
-    gsap.to(outgoing,{opacity:0,y:-28,scale:.90,rotation:3,duration:.34,ease:'power2.in'});
-    gsap.to(incoming,{opacity:1,y:0,scale:1,rotation:0,duration:.72,ease:'power4.out',delay:.08});
-    frontHero=frontHero==='a'?'b':'a';
-  }
-
-  function paintCopy(item,i,immediate=false){
+  function setCopyContent(item,i){
     if(!item)return;
     sourceBadge.textContent=item.kind==='pizza'?'SELECCIÓN DE PIZZAS':'PLATOS DE AUTOR';
     meta.textContent=item.meta||'';title.textContent=item.name||'';
@@ -251,57 +233,164 @@
     counter.textContent=`${String(i+1).padStart(2,'0')} / ${String(items.length).padStart(2,'0')}`;
     detailBtn.hidden=item.kind!=='dish';
     root.style.setProperty('--hos-accent',item.accent||'#d8ff4f');
-    if(window.gsap&&!immediate&&!reduced.matches){
-      gsap.killTweensOf([sourceBadge,meta,title,desc,counter]);
-      gsap.fromTo(title,{y:46,opacity:0,scale:.94},{y:0,opacity:1,scale:1,duration:.62,ease:'power4.out'});
-      gsap.fromTo([sourceBadge,meta,desc,counter],{y:16,opacity:0},{y:0,opacity:1,duration:.48,ease:'power3.out',stagger:.045,delay:.08});
-    }
+    stage?.style.setProperty('--hos-accent',item.accent||'#d8ff4f');
+    chroma?.style.setProperty('--hos-chroma',item.accent||'#d8ff4f');
+    titleFlare?.style.setProperty('--hos-chroma',item.accent||'#d8ff4f');
   }
 
-  function commitActive(immediate=false){
-    const i=activeIndex(),item=items[i];if(!item)return;
-    if(i===active&&!immediate)return;
-    active=i;
-    swapWorld(item,immediate);swapHero(item,immediate);paintCopy(item,i,immediate);
-    if(item.kind==='dish')window.RestaurantOrbit?.setProgress?.(i);
+  function markActive(i){
     $$('.hos-label',labels).forEach((el,k)=>el.setAttribute('aria-current',String(k===i)));
+  }
+
+  function notifyActive(i,item){
+    if(item?.kind==='dish')window.RestaurantOrbit?.setProgress?.(i);
+    markActive(i);
     observers.forEach(fn=>{try{fn(state())}catch{}});
   }
 
-  function paint(immediate=false){placeLabels();commitActive(immediate)}
-
-  function animateTo(target,duration=.64){
-    tween?.kill?.();
-    const dur=reduced.matches?Math.min(.16,duration):duration;
-    if(!window.gsap){progress=Math.round(target);paint();return}
-    const s={p:progress};
-    tween=gsap.to(s,{p:target,duration:dur,ease:reduced.matches?'power2.out':'power4.inOut',
-      onUpdate(){progress=s.p;placeLabels()},
-      onComplete(){progress=Math.round(target);paint();tween=null}});
+  function renderImmediate(i=activeIndex()){
+    const item=items[i];if(!item||!stage)return;
+    tween?.kill?.();tween=null;goal=null;
+    const fw=frontWorld==='a'?worldA:worldB,ow=frontWorld==='a'?worldB:worldA;
+    const fh=frontHero==='a'?heroA:heroB,oh=frontHero==='a'?heroB:heroA;
+    setWorld(fw,item);setHero(fh,item);setCopyContent(item,i);
+    if(window.gsap){
+      gsap.killTweensOf([fw,ow,fh,oh,chroma,title,titleGhost,titleFlare,heroFloor,sourceBadge,meta,desc,counter]);
+      gsap.set(fw,{opacity:1,scale:1,filter:'blur(0px)'});gsap.set(ow,{opacity:0,scale:1});
+      gsap.set(fh,{opacity:1,xPercent:-50,yPercent:-50,x:0,y:0,scale:1,rotation:0,filter:'blur(0px)'});
+      gsap.set(oh,{opacity:0,xPercent:-50,yPercent:-50,x:0,y:0,scale:1,rotation:0});
+      gsap.set([title,sourceBadge,meta,desc,counter],{opacity:1,x:0,y:0,scale:1,filter:'blur(0px)',clearProps:'color'});
+      gsap.set(titleGhost,{opacity:0,x:0,y:0,scale:1,filter:'blur(0px)'});
+      gsap.set(titleFlare,{opacity:0,scaleX:0,xPercent:0});gsap.set(chroma,{opacity:0,scale:.35,rotation:0});
+      gsap.set(heroFloor,{opacity:.72,scale:1});
+    }else{
+      fw.style.opacity='1';ow.style.opacity='0';fh.style.opacity='1';oh.style.opacity='0';
+      fh.style.transform='translate(-50%,-50%)';title.style.opacity='1';
+    }
+    titleGhost.textContent='';active=i;placeLabels();markActive(i);
+    delete stage.dataset.transition;delete stage.dataset.direction;delete root.dataset.halfOrbitTransition;
   }
 
-  function step(dir){if(!isHalf()||!items.length)return;animateTo(Math.round(progress)+dir)}
+  function animateProgressOnly(target,duration=.46){
+    tween?.kill?.();goal=target;
+    const dur=reduced.matches?Math.min(.14,duration):duration;
+    if(!window.gsap){progress=Math.round(target);placeLabels();goal=null;return}
+    const s={p:progress};
+    tween=gsap.to(s,{p:target,duration:dur,ease:reduced.matches?'power2.out':'power3.out',
+      onUpdate(){progress=s.p;placeLabels()},
+      onComplete(){progress=Math.round(target);placeLabels();tween=null;goal=null}});
+  }
+
+  function transitionTo(target,duration=.82){
+    if(!items.length)return;
+    const targetRound=Math.round(target),i=normalize(targetRound,items.length),item=items[i];
+    if(!item)return;
+    const delta=targetRound-progress,dir=delta===0?1:Math.sign(delta);
+    if(i===active){animateProgressOnly(targetRound,Math.min(.46,duration));return}
+    tween?.kill?.();goal=targetRound;
+
+    if(!window.gsap||reduced.matches){
+      progress=targetRound;active=i;renderImmediate(i);notifyActive(i,item);return;
+    }
+
+    const incomingWorld=frontWorld==='a'?worldB:worldA;
+    const outgoingWorld=frontWorld==='a'?worldA:worldB;
+    const incomingHero=frontHero==='a'?heroB:heroA;
+    const outgoingHero=frontHero==='a'?heroA:heroB;
+    const previousTitle=title.textContent||items[active]?.name||'';
+    setWorld(incomingWorld,item);setHero(incomingHero,item);
+    titleGhost.textContent=previousTitle;
+    setCopyContent(item,i);
+    active=i;frontWorld=frontWorld==='a'?'b':'a';frontHero=frontHero==='a'?'b':'a';
+    stage.dataset.transition='1';stage.dataset.direction=dir>0?'next':'prev';
+    root.dataset.halfOrbitTransition='travel';
+
+    const dur=Math.max(.58,duration),overshoot=targetRound+dir*.04;
+    const p={v:progress};
+    const tl=gsap.timeline({
+      defaults:{overwrite:'auto'},
+      onComplete(){
+        progress=targetRound;placeLabels();
+        gsap.set(outgoingWorld,{opacity:0});gsap.set(outgoingHero,{opacity:0});
+        gsap.set(incomingWorld,{opacity:1,scale:1,filter:'blur(0px)'});
+        gsap.set(incomingHero,{opacity:1,xPercent:-50,yPercent:-50,x:0,y:0,scale:1,rotation:0,filter:'blur(0px)'});
+        gsap.set(title,{opacity:1,x:0,y:0,scale:1,filter:'blur(0px)',clearProps:'color'});
+        gsap.set(titleGhost,{opacity:0});gsap.set([chroma,titleFlare],{opacity:0});
+        titleGhost.textContent='';delete stage.dataset.transition;delete stage.dataset.direction;
+        delete root.dataset.halfOrbitTransition;goal=null;tween=null;notifyActive(i,item);syncStudio();
+      }
+    });
+    tween=tl;
+
+    /* ANTICIPATE — the current world and dish retreat before the collection travels. */
+    tl.set(incomingWorld,{opacity:0,scale:1.09,filter:'blur(10px)'},0)
+      .set(incomingHero,{opacity:0,xPercent:-50,yPercent:-50,x:dir*92,y:46,scale:.74,rotation:-dir*11,filter:'blur(12px)'},0)
+      .set(chroma,{opacity:0,scale:.28,rotation:-dir*8},0)
+      .set(titleGhost,{opacity:1,x:0,y:0,scale:1,filter:'blur(0px)'},0)
+      .set(title,{opacity:0,x:dir*14,y:58,scale:.91,filter:'blur(10px)',color:item.accent||'#d8ff4f'},0)
+      .set(titleFlare,{opacity:0,scaleX:0,xPercent:0,transformOrigin:dir>0?'0% 50%':'100% 50%'},0)
+      .to(outgoingHero,{opacity:.34,x:-dir*28,y:24,scale:.88,rotation:dir*7,filter:'blur(5px)',duration:dur*.30,ease:'power3.in'},0)
+      .to(outgoingWorld,{opacity:.34,scale:.97,filter:'blur(4px)',duration:dur*.34,ease:'power2.in'},0)
+      .to(titleGhost,{opacity:0,x:-dir*18,y:-34,scale:.96,filter:'blur(5px)',duration:dur*.26,ease:'power2.in'},0)
+      .to([sourceBadge,meta,desc,counter],{opacity:0,y:-12,duration:dur*.20,ease:'power2.in'},0);
+
+    /* TRAVEL — one timeline drives the 180deg arc, chromatic world, hero and copy. */
+    tl.to(p,{v:overshoot,duration:dur*.82,ease:'power4.inOut',onUpdate(){progress=p.v;placeLabels()}},0)
+      .to(chroma,{opacity:.92,scale:1.18,rotation:dir*5,duration:dur*.44,ease:'expo.out'},dur*.10)
+      .to(chroma,{opacity:0,scale:1.62,duration:dur*.42,ease:'power2.out'},dur*.42)
+      .to(incomingWorld,{opacity:1,scale:1,filter:'blur(0px)',duration:dur*.66,ease:'power3.out'},dur*.10)
+      .to(outgoingWorld,{opacity:0,duration:dur*.32,ease:'power2.out'},dur*.28)
+      .to(incomingHero,{opacity:1,x:0,y:-12,scale:1.055,rotation:0,filter:'blur(0px)',duration:dur*.52,ease:'power4.out'},dur*.20)
+      .to(outgoingHero,{opacity:0,x:-dir*62,y:38,scale:.80,rotation:dir*12,filter:'blur(10px)',duration:dur*.28,ease:'power2.in'},dur*.18)
+      .to(heroFloor,{opacity:.36,scale:.78,duration:dur*.22,ease:'power2.in'},0)
+      .to(heroFloor,{opacity:.90,scale:1.10,duration:dur*.40,ease:'power3.out'},dur*.25)
+      .to(title,{opacity:1,x:0,y:-7,scale:1.025,filter:'blur(0px)',duration:dur*.43,ease:'power4.out'},dur*.31)
+      .to(titleFlare,{opacity:.95,scaleX:1,duration:dur*.25,ease:'power4.out'},dur*.34)
+      .to(titleFlare,{opacity:0,xPercent:dir>0?115:-115,duration:dur*.34,ease:'power2.in'},dur*.50)
+      .fromTo([sourceBadge,meta,desc,counter],{opacity:0,y:18},{opacity:1,y:0,duration:dur*.34,ease:'power3.out',stagger:dur*.025},dur*.40);
+
+    /* SETTLE — a small overshoot gives the half-turn weight, then everything lands. */
+    tl.to(p,{v:targetRound,duration:dur*.18,ease:'power2.out',onUpdate(){progress=p.v;placeLabels()}},dur*.82)
+      .to(incomingHero,{y:0,scale:1,duration:dur*.18,ease:'power2.out'},dur*.77)
+      .to(heroFloor,{opacity:.72,scale:1,duration:dur*.18,ease:'power2.out'},dur*.77)
+      .to(title,{y:0,scale:1,color:'#f7f5ef',duration:dur*.22,ease:'power2.out'},dur*.72);
+  }
+
+  function animateTo(target,duration=.82){
+    const targetRound=Math.round(target),i=normalize(targetRound,items.length);
+    if(!items.length)return;
+    if(i===active)animateProgressOnly(targetRound,duration);
+    else transitionTo(targetRound,duration);
+  }
+
+  function step(dir){
+    if(!isHalf()||!items.length)return;
+    const base=goal===null?Math.round(progress):Math.round(goal);
+    animateTo(base+dir,.82);
+  }
 
   function goTo(index){
     if(!isHalf()||!items.length)return;
-    const n=items.length,target=normalize(index,n),now=normalize(Math.round(progress),n);
+    const n=items.length,target=normalize(index,n);
+    const base=goal===null?Math.round(progress):Math.round(goal);
+    const now=normalize(base,n);
     let d=target-now;while(d>n/2)d-=n;while(d<-n/2)d+=n;
-    if(d)animateTo(Math.round(progress)+d,.72);
+    if(d)animateTo(base+d,.84);
   }
 
   function settle(){
     const projected=progress-velocity*(isMobile()?.22:.28);
-    animateTo(Math.round(projected),.56);
+    animateTo(Math.round(projected),.78);
   }
 
   function onDown(e){
     if(!isHalf()||!items.length||e.button>0)return;
-    /* Buttons/labels/CTA are controls, not drag handles. Stop here so neither this
-       stage nor the legacy orbit-shell underneath can capture their pointer. */
     if(e.target.closest?.(INTERACTIVE)){e.stopPropagation();return}
-    e.stopPropagation();dragging=true;moved=false;pointerId=e.pointerId;
+    e.stopPropagation();
+    if(tween){tween.kill();tween=null;goal=null;renderImmediate(activeIndex())}
+    dragging=true;moved=false;pointerId=e.pointerId;
     startX=lastX=e.clientX;startProgress=progress;lastT=e.timeStamp||performance.now();velocity=0;
-    tween?.kill?.();tween=null;root.dataset.halfOrbitDrag='1';
+    root.dataset.halfOrbitDrag='1';
     try{stage.setPointerCapture(e.pointerId)}catch{}
   }
 
@@ -317,9 +406,9 @@
     if(!dragging||(pointerId!==null&&e.pointerId!==pointerId))return;
     e.stopPropagation();dragging=false;pointerId=null;delete root.dataset.halfOrbitDrag;
     try{stage.releasePointerCapture(e.pointerId)}catch{}
-    if(!moved){animateTo(Math.round(startProgress),.24);return}
+    if(!moved){animateProgressOnly(Math.round(startProgress),.24);return}
     const travel=Math.abs(progress-startProgress),fling=Math.abs(velocity)>.45;
-    (travel>.22||fling)?settle():animateTo(Math.round(startProgress),.40);
+    (travel>.22||fling)?settle():animateProgressOnly(Math.round(startProgress),.40);
   }
 
   function onWheel(e){if(isHalf())e.stopPropagation()}
@@ -363,7 +452,7 @@
     studioCard=document.createElement('article');studioCard.className='motion-card hos-studio';
     studioCard.innerHTML=`
       <div class="motion-card-head"><div><span class="motion-number">12</span><strong>Half Orbit Selector</strong></div><span class="motion-badge">NUEVO</span></div>
-      <p>Media circunferencia tipográfica. El producto activo ocupa el centro; cada cambio hace un barrido de 180° y eleva el titular.</p>
+      <p>Media circunferencia tipográfica. El producto activo ocupa el centro; cada cambio hace un barrido cromático de 180° y eleva el titular.</p>
       <label>Productos
         <select class="hos-source-select"><option value="dishes">Platos del proyecto</option><option value="pizzas">Pizzas del proyecto</option></select>
       </label>
@@ -381,7 +470,7 @@
     if(!studioCard)return;
     const sel=$('.hos-source-select',studioCard);if(sel&&document.activeElement!==sel)sel.value=source();
     const st=$('.hos-studio-state',studioCard);if(st)st.textContent=
-      `${source()==='pizzas'?'Pizzas':'Platos'} · ${items.length||'—'} productos · arrastra + flechas · el scroll de página sigue libre`;
+      `${source()==='pizzas'?'Pizzas':'Platos'} · ${items.length||'—'} productos · drag + flechas · transición cromática 180°`;
     const b=$('.hos-studio-activate',studioCard);if(b)b.textContent=isHalf()?'En uso':'Activar';
   }
 
@@ -398,13 +487,13 @@
       if(!mounted)shellTouchAction=shell.style.touchAction;
       shell.style.touchAction='pan-y';stage.hidden=false;bind();
       await loadItems({reset:lastSource!==source()});
-      root.dataset.halfOrbit='ready';root.dataset.orbitalChoreography='half-orbit-v2';
+      root.dataset.halfOrbit='ready';root.dataset.orbitalChoreography='half-orbit-v3';
       syncStudio();
     }else{
-      tween?.kill?.();tween=null;dragging=false;pointerId=null;delete root.dataset.halfOrbitDrag;
+      tween?.kill?.();tween=null;goal=null;dragging=false;pointerId=null;delete root.dataset.halfOrbitDrag;
       unbind();
       if(stage)stage.hidden=true;if(shell)shell.style.touchAction=shellTouchAction;
-      delete root.dataset.halfOrbit;
+      delete root.dataset.halfOrbit;delete root.dataset.halfOrbitTransition;
       if(root.dataset.orbitalChoreography?.startsWith('half-orbit'))delete root.dataset.orbitalChoreography;
       syncStudio();
     }
@@ -430,14 +519,15 @@
   new MutationObserver(()=>activate()).observe(root,{attributes:true,attributeFilter:['data-orbital-motion']});
   document.addEventListener('restaurant:config-applied',async()=>{
     ensureStudio();
-    if(isHalf())await loadItems({reset:lastSource!==source()});
+    if(isHalf()&&!dragging&&!tween)await loadItems({reset:lastSource!==source()});
     else syncStudio();
   });
 
   function state(){return {ready:root.dataset.halfOrbit==='ready',mode:root.dataset.orbitalMotion,
     source:source(),progress,activeIndex:activeIndex(),count:items.length,dragging,mounted,
     activeId:items[activeIndex()]?.id||null,activeName:items[activeIndex()]?.name||null,
-    halfTurnDeg:+(progress*180).toFixed(2),review,reduced:reduced.matches}}
+    halfTurnDeg:+(progress*180).toFixed(2),transition:stage?.dataset.transition==='1',
+    transitionDirection:stage?.dataset.direction||null,review,reduced:reduced.matches}}
 
   function boot(){
     if(ready)return;
@@ -450,7 +540,7 @@
   setTimeout(()=>clearInterval(timer),20000);boot();
 
   window.RestaurantHalfOrbit={MODE,activate,step,goTo,
-    setProgress(v){tween?.kill?.();progress=Number(v)||0;paint()},
+    setProgress(v){tween?.kill?.();tween=null;goal=null;progress=Number(v)||0;renderImmediate(activeIndex())},
     subscribe(fn){if(typeof fn!=='function')return()=>{};observers.add(fn);return()=>observers.delete(fn)},
     state,items:()=>items.map(x=>({...x,raw:undefined}))};
 })();
