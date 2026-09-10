@@ -67,8 +67,9 @@
   }
 
   /* A saved project is allowed to remember Traveler=ON, but that must never leak into
-     a Beverage review. Deactivate it at runtime and watch its ready marker so even an
-     asynchronous re-activation is cancelled before paint. No Class14 config is saved. */
+     a Beverage review. Deactivate it at runtime and keep its Studio control visually
+     OFF. This guardian exists only under ?review=beverages and never writes a false
+     value into durable Project State, so approved Class14/Class24 behaviour is intact. */
   const enforceTravelerOff=()=>{
     window.RestaurantScrollTraveler?.deactivate?.();
     const checkbox=document.querySelector('#studio [data-path="scrollTraveler.enabled"]');
@@ -79,6 +80,7 @@
   travelerObserver.observe(root,{attributes:true,attributeFilter:['data-scroll-traveler']});
   document.addEventListener('restaurant:config-applied',()=>queueMicrotask(enforceTravelerOff));
   [0,120,500].forEach(ms=>setTimeout(enforceTravelerOff,ms));
+  setInterval(enforceTravelerOff,250);
 
   const api={active:true,snapshot,read,write,refs,map,allAssets,families,selectedAssets:selected};
   Object.defineProperty(api,'beverages',{get:snapshot});

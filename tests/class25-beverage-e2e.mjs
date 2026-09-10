@@ -9,7 +9,7 @@ import {startServer} from './static-server.mjs';
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const OUT=path.join(ROOT,'tests','screenshots','class25-beverages');fs.mkdirSync(OUT,{recursive:true});
 const target=process.argv[2],local=target?null:await startServer(0),BASE=(target||local.url).replace(/\/$/,'');
-const browser=await chromium.launch();const checks=[];const check=(n,ok,d='')=>{checks.push(ok);console.log(`${ok?'PASS':'FAIL'} ${n}${d?` — ${d}`:''}`)};
+const browser=await chromium.launch();const checks=[];const check=(n,ok,d='')=>{const row={name:n,ok:!!ok,detail:d||''};checks.push(row);console.log(`${row.ok?'PASS':'FAIL'} ${n}${d?` — ${d}`:''}`)};
 async function boot(page){const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(`${BASE}/?review=beverages`,{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>window.RestaurantBeveragesEngine?.state?.().ready===true,null,{timeout:40000});await page.waitForTimeout(650);return errors}
 {
  const ctx=await browser.newContext({viewport:{width:1440,height:900}}),page=await ctx.newPage(),errors=await boot(page);
@@ -37,13 +37,12 @@ async function boot(page){const errors=[];page.on('pageerror',e=>errors.push(e.m
  check('all four selected helado images paint',allReady);
  check('each helado changes the visual world',worlds.size===4,String(worlds.size));
 
- /* Prove review edits flow through the same StudioConfig surface but stay session-only. */
  await page.click('.bev-option[data-index="0"]');await page.waitForTimeout(1250);
  const overlay=await page.evaluate(async()=>{
    const original=window.RestaurantStudioConfig.__class25ReviewOverlay;
    const before=JSON.stringify(original?.get?.('beverages')??null);
    window.RestaurantStudioConfig.set('beverages.items.0.name','Red Velvet Session');
-   await new Promise(r=>setTimeout(r,120));
+   await new Promise(r=>setTimeout(r,350));
    const effective=window.RestaurantBeveragesStudio.state();
    const painted=document.querySelector('#beverages .bev-name')?.textContent.trim();
    const after=JSON.stringify(original?.get?.('beverages')??null);
@@ -53,8 +52,6 @@ async function boot(page){const errors=[];page.on('pageerror',e=>errors.push(e.m
  check('review edit updates Studio and engine together',overlay.effective==='Red Velvet Session'&&overlay.painted==='Red Velvet Session',JSON.stringify(overlay));
  check('review fixture edits do not persist into durable Project State',overlay.before===overlay.after,`${overlay.before} -> ${overlay.after}`);
 
- /* Simulate a previously saved Traveler=ON. The Class25 review guardian must suppress
-    the visual runtime without changing Class14 code. This browser context is disposable. */
  await page.evaluate(()=>window.RestaurantStudioConfig.set('scrollTraveler.enabled',true));
  await page.waitForTimeout(900);
  const travelerGuard=await page.evaluate(()=>({runtime:document.documentElement.dataset.scrollTraveler||'',active:document.querySelector('#scroll-traveler')?.classList.contains('is-active')||false,guard:document.documentElement.dataset.class25ReviewTraveler||''}));
@@ -63,21 +60,23 @@ async function boot(page){const errors=[];page.on('pageerror',e=>errors.push(e.m
  await page.click('.studio-open');await page.waitForTimeout(300);
  await page.click('#studio .studio-nav [data-panel="motion"]');await page.evaluate(()=>window.RestaurantMotionGovernance?.apply?.());
  await page.waitForFunction(()=>window.RestaurantMotionGovernance?.state?.().grouped===true&&document.querySelectorAll('.st-studio-governed').length===1,null,{timeout:5000});
+ await page.waitForTimeout(350);
  const motion=await page.evaluate(()=>{const box=document.querySelector('#studio [data-path="scrollTraveler.enabled"]');return {groups:window.RestaurantMotionGovernance.state().groups,travelerTuner:document.querySelectorAll('.st-studio-governed').length,motionActive:document.querySelector('#studio .studio-nav button.active')?.dataset.panel,travelerChecked:box?.checked,travelerDisabled:box?.disabled}});
  check('Motion Governance exposes preset/page/experience groups',motion.groups.includes('preset')&&motion.groups.includes('page')&&motion.groups.includes('experience'),motion.groups.join(','));
  check('Scroll Traveler remains a single transversal tuner',motion.travelerTuner===1&&motion.motionActive==='motion',JSON.stringify(motion));
  check('review shows Traveler OFF and locked without mutating Class24',motion.travelerChecked===false&&motion.travelerDisabled===true,JSON.stringify(motion));
+ await page.screenshot({path:path.join(OUT,'02-motion-review.png'),fullPage:false});
  await page.evaluate(()=>window.RestaurantBeveragesStudio.open());await page.waitForTimeout(220);
  const studio=await page.evaluate(()=>({open:document.querySelector('#studio')?.classList.contains('is-open'),active:document.querySelector('#studio .studio-nav button.active')?.dataset.panel,panels:document.querySelectorAll('#studio').length,motionTabs:document.querySelectorAll('#studio .studio-nav [data-panel="motion"]').length,bevTabs:document.querySelectorAll('#studio .studio-nav [data-panel="beverages"]').length,cards:document.querySelectorAll('#studio [data-bev-card]').length,title:window.RestaurantBeveragesStudio.state().title}));
  check('Bebidas opens inside SAME Studio',studio.open&&studio.active==='beverages'&&studio.panels===1,JSON.stringify(studio));
  check('Studio keeps Motion and Bebidas as separate single tabs',studio.motionTabs===1&&studio.bevTabs===1,JSON.stringify(studio));
  check('Bebidas Studio visibly receives the four review products',studio.cards===4&&studio.title==='Un helado. Un mundo.',JSON.stringify(studio));
- await page.screenshot({path:path.join(OUT,'02-helado-studio.png'),fullPage:false});check('desktop · no JS page errors',errors.length===0,errors.join(' | '));await ctx.close();
+ await page.screenshot({path:path.join(OUT,'03-helado-studio.png'),fullPage:false});check('desktop · no JS page errors',errors.length===0,errors.join(' | '));await ctx.close();
 }
 {
- const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),page=await ctx.newPage(),errors=await boot(page);const m=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,width:innerWidth,rect:(()=>{const r=document.querySelector('#beverages')?.getBoundingClientRect();return r&&{left:r.left,right:r.right,width:r.width}})(),img:(()=>{const i=document.querySelector('.bev-media');return !!i&&i.complete&&i.naturalWidth>0})(),count:document.querySelectorAll('.bev-option').length,traveler:document.documentElement.dataset.scrollTraveler||''}));check('mobile 390 · no horizontal overflow',m.scrollWidth<=m.width,`${m.scrollWidth}/${m.width}`);check('mobile · helado asset paints',m.img);check('mobile · four-item selector remains intact',m.count===4,String(m.count));check('mobile review · Traveler remains visually OFF',!m.traveler,m.traveler);await page.locator('#beverages').screenshot({path:path.join(OUT,'03-helado-mobile.png')});check('mobile · no JS page errors',errors.length===0,errors.join(' | '));await ctx.close();
+ const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true}),page=await ctx.newPage(),errors=await boot(page);const m=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,width:innerWidth,rect:(()=>{const r=document.querySelector('#beverages')?.getBoundingClientRect();return r&&{left:r.left,right:r.right,width:r.width}})(),img:(()=>{const i=document.querySelector('.bev-media');return !!i&&i.complete&&i.naturalWidth>0})(),count:document.querySelectorAll('.bev-option').length,traveler:document.documentElement.dataset.scrollTraveler||''}));check('mobile 390 · no horizontal overflow',m.scrollWidth<=m.width,`${m.scrollWidth}/${m.width}`);check('mobile · helado asset paints',m.img);check('mobile · four-item selector remains intact',m.count===4,String(m.count));check('mobile review · Traveler remains visually OFF',!m.traveler,m.traveler);await page.locator('#beverages').screenshot({path:path.join(OUT,'04-helado-mobile.png')});check('mobile · no JS page errors',errors.length===0,errors.join(' | '));await ctx.close();
 }
 {
  const ctx=await browser.newContext({viewport:{width:1440,height:900},reducedMotion:'reduce'}),page=await ctx.newPage();await boot(page);const first=await page.evaluate(()=>document.querySelector('#beverages').dataset.activeItem);await page.click('.bev-option[data-index="1"]');await page.waitForTimeout(100);const second=await page.evaluate(()=>document.querySelector('#beverages').dataset.activeItem);check('reduced motion · selector remains functional',first!==second,`${first} -> ${second}`);await ctx.close();
 }
-await browser.close();if(local)await new Promise(r=>local.server.close(r));const passed=checks.filter(Boolean).length;console.log(`\n${passed}/${checks.length} ${passed===checks.length?'CLASS25_BEVERAGE_PASS':'CLASS25_BEVERAGE_FAIL'}`);if(passed!==checks.length)process.exitCode=1;
+await browser.close();if(local)await new Promise(r=>local.server.close(r));const passed=checks.filter(x=>x.ok).length;fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify({passed,total:checks.length,status:passed===checks.length?'PASS':'FAIL',checks},null,2));console.log(`\n${passed}/${checks.length} ${passed===checks.length?'CLASS25_BEVERAGE_PASS':'CLASS25_BEVERAGE_FAIL'}`);if(passed!==checks.length)process.exitCode=1;
