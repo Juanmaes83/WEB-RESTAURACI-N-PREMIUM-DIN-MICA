@@ -4,7 +4,7 @@ on:
   push:
     branches: [feat/class25-beverage-half-orbit]
   pull_request:
-    branches: [feat/half-orbit-selector]
+    branches: [main]
     paths:
       - 'class25-*'
       - 'styles-v25.css'
