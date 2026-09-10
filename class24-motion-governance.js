@@ -161,3 +161,17 @@
       groups:$$('[data-motion-group]').map(x=>x.dataset.motionGroup)}}
   };
 })();
+
+/* CLASS 25 · BEVERAGE EXPERIENCE — additive capability loader.
+   This does not make Beverages part of Motion Governance; this file is simply the
+   newest guaranteed top-level entrypoint in the Half Orbit product line. The loader
+   itself waits for the shared Media/Studio APIs and owns the deterministic chain. */
+(() => {
+  'use strict';
+  const load=()=>{
+    if(document.querySelector('script[data-class25-beverage-loader]'))return;
+    const s=document.createElement('script');s.src='class25-beverage-loader.js';s.dataset.class25BeverageLoader='1';document.body.appendChild(s);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(load,300));
+  else setTimeout(load,300);
+})();

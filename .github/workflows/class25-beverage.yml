@@ -1,0 +1,67 @@
+name: Class 25 Beverage Experience + Half Orbit Regression
+
+on:
+  push:
+    branches: [feat/class25-beverage-half-orbit]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'class25-*'
+      - 'styles-v25.css'
+      - 'tests/class25-beverage-e2e.mjs'
+      - 'tests/class25-helado-inventory.mjs'
+      - 'tests/capture-scroll-traveler.mjs'
+      - 'class24-motion-governance.js'
+      - '.github/workflows/class25-beverage.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  beverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax + architecture contract
+        run: |
+          node --check class25-beverage-loader.js
+          node --check class25-beverages-model.js
+          node --check class25-beverages-review.js
+          node --check class25-beverages-engine.js
+          node --check class25-beverages-studio.js
+          node --check tests/class25-beverage-e2e.mjs
+          node --check tests/class25-helado-inventory.mjs
+          node --check tests/capture-scroll-traveler.mjs
+          grep -q "class25-beverage-loader.js" class24-motion-governance.js
+          grep -q "RestaurantStudioConfig" class25-beverages-studio.js
+          grep -q "RestaurantMedia" class25-beverage-loader.js
+          ! grep -Eqi "from ['\"](react|next|zustand|lenis)" class25-*.js
+          for f in 1 2 3 4 8 11 12 13 15 17 18; do test -f "assets/half-orbit/dishes-transparent/HELADO $f.jpg"; done
+      - name: Install Playwright Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Capture repo-local helado inventory
+        run: node tests/class25-helado-inventory.mjs
+      - name: Class 25 visual + integration E2E
+        run: node tests/class25-beverage-e2e.mjs
+      - name: Half Orbit current-line regression
+        run: node tests/class24-half-orbit-selector-e2e.mjs
+      - name: Scroll Traveler current-line regression
+        run: node tests/class14-scroll-traveler-e2e.mjs
+      - name: Scroll Traveler evidence capture boot regression
+        run: node tests/capture-scroll-traveler.mjs
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: class25-beverage-visual-evidence
+          path: |
+            tests/screenshots/class25-beverages/
+            tests/screenshots/class25-helado-inventory/
+          if-no-files-found: warn
+          retention-days: 14
