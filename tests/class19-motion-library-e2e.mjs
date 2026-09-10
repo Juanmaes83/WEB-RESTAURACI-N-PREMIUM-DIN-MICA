@@ -75,7 +75,10 @@ async function openLibrary(page){
     modules.count===3&&modules.cards===3,`${modules.cards} module cards`);
   check('the modules are not counted among the engines',!modules.insideGrid&&state.count===12,modules.heading);
 
-  /* Library activation remains the exact same source-of-truth path. */
+  const grouped=await page.evaluate(()=>window.RestaurantMotionGovernance?.state?.());
+  check('Motion Studio separates product / transversal / experiences',
+    grouped?.grouped===true&&grouped.groups.join(',')==='preset,page,experience',grouped?.groups?.join(',')||'not grouped');
+
   const before=await page.evaluate(()=>document.getElementById('motion-orbital-style').value);
   await page.evaluate(()=>window.RestaurantMotionLibrary.activate('half-orbit'));
   await page.waitForFunction(()=>window.RestaurantHalfOrbit?.state?.().ready===true,
@@ -93,7 +96,6 @@ async function openLibrary(page){
     half.libActive==='half-orbit'&&half.cardState==='activo'&&half.half?.ready===true,
     `card ${half.cardState} · runtime ${half.half?.ready}`);
 
-  /* Reverse direction: ordinary selector still updates the library. */
   await page.evaluate(()=>{
     const s=document.getElementById('motion-orbital-style');
     s.value='orbital-food';s.dispatchEvent(new Event('input',{bubbles:true}));
@@ -111,18 +113,18 @@ async function openLibrary(page){
     await page.evaluate(()=>document.querySelectorAll('[data-ml-kind="preset"][data-ml-state="activo"]').length)===1,
     'one card in use');
 
-  /* Transversal engine remains independent. */
-  const t0=await page.evaluate(()=>window.RestaurantScrollTraveler.state().active);
+  /* Page motion is opt-in. It starts OFF, then toggles independently through Project State. */
+  const t0=await page.evaluate(()=>({cfg:window.RestaurantStudioConfig.get('scrollTraveler.enabled'),active:window.RestaurantScrollTraveler.state().active}));
   await page.evaluate(()=>document.querySelector('[data-ml-toggle]').click());await page.waitForTimeout(1000);
   const t1=await page.evaluate(()=>({cfg:window.RestaurantStudioConfig.get('scrollTraveler.enabled'),
     active:window.RestaurantScrollTraveler.state().active,
     pressed:document.querySelector('[data-ml-toggle]').getAttribute('aria-pressed')}));
   await page.evaluate(()=>document.querySelector('[data-ml-toggle]').click());await page.waitForTimeout(1000);
-  const t2=await page.evaluate(()=>window.RestaurantScrollTraveler.state().active);
-  check('the transversal engine toggles through project state',
-    t0===true&&t1.active===false&&t1.cfg===false&&t1.pressed==='false'&&t2===true,
-    `${t0} -> ${t1.active} -> ${t2}`);
-  check('turning page motion off does not disturb product choreography',
+  const t2=await page.evaluate(()=>({cfg:window.RestaurantStudioConfig.get('scrollTraveler.enabled'),active:window.RestaurantScrollTraveler.state().active}));
+  check('the transversal engine is OFF by default and toggles through project state',
+    t0.cfg===false&&t0.active===false&&t1.active===true&&t1.cfg===true&&t1.pressed==='true'&&t2.active===false&&t2.cfg===false,
+    `${t0.active} -> ${t1.active} -> ${t2.active}`);
+  check('turning page motion on/off does not disturb product choreography',
     await page.evaluate(()=>document.getElementById('motion-orbital-style').value)==='orbital-food','orbital-food still selected');
 
   const openers=await page.evaluate(()=>[...document.querySelectorAll('[data-ml-grid] .ml-open')]
@@ -167,7 +169,7 @@ async function openLibrary(page){
   check('the library owns no motion state of its own',!/requestAnimationFrame|gsap|ScrollTrigger/.test(CODE),'no animation loop');
   check('the library holds no second selection',!/(activeEngine|currentEngine|selectedEngine)\s*=/.test(CODE),'active read from selector');
   check('the renderer has no per-engine branch',!/(id===['"]dish-stage|id===['"]elegant|id===['"]half-orbit|name===['"])/.test(CODE),'renderer switches on kind');
-  check('index.html stays untouched and the library runtime loads itself',
+  check('index.html stays free of engine runtimes and the library runtime loads itself',
     /class19-motion-library\.js/.test(fs.readFileSync(path.join(ROOT,'class4-runtime-guard.js'),'utf8'))
     &&!/class19-motion-library/.test(fs.readFileSync(path.join(ROOT,'index.html'),'utf8')),'runtime guard owns Class19 entry');
   check('no page errors while using the library',errors.length===0,errors.slice(0,2).join(' | ')||'clean');
