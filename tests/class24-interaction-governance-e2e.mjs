@@ -24,12 +24,19 @@ const center=box=>({x:box.x+box.width/2,y:box.y+box.height/2});
   check('Scroll Traveler is opt-in by default',defaults.traveler===false&&!defaults.active,JSON.stringify(defaults));
   check('Motion Studio capability is enabled for this restaurant template',defaults.capability!==false,String(defaults.capability));
 
+  /* Physical mouse coordinates only make a truthful hit-test when the product stage is
+     actually inside the viewport. locator.click() scrolls implicitly; page.mouse does not. */
+  await page.locator('.hos-stage').scrollIntoViewIfNeeded();await page.waitForTimeout(240);
+
   /* Physical pointer click, not locator.click(): pointerdown must NOT start drag. */
   const before=await page.evaluate(()=>window.RestaurantHalfOrbit.state());
   const nextBox=await page.locator('.hos-next').boundingBox();const np=center(nextBox);
   await page.mouse.move(np.x,np.y);await page.mouse.down();
   const down=await page.evaluate(()=>window.RestaurantHalfOrbit.state());
-  await page.mouse.up();await page.waitForTimeout(850);
+  await page.mouse.up();
+  await page.waitForFunction(b=>{
+    const s=window.RestaurantHalfOrbit.state();return s.activeIndex===(b+1)%s.count&&!s.transition;
+  },before.activeIndex,{timeout:2500}).catch(()=>{});
   const after=await page.evaluate(()=>window.RestaurantHalfOrbit.state());
   check('arrow pointerdown never enters drag state',down.dragging===false,JSON.stringify(down));
   check('right arrow changes exactly one product',after.activeIndex===(before.activeIndex+1)%before.count,`${before.activeIndex} -> ${after.activeIndex}`);
@@ -43,13 +50,18 @@ const center=box=>({x:box.x+box.width/2,y:box.y+box.height/2});
   if(labelInfo){
     await page.mouse.move(labelInfo.x,labelInfo.y);await page.mouse.down();
     const labelDown=await page.evaluate(()=>window.RestaurantHalfOrbit.state().dragging);
-    await page.mouse.up();await page.waitForTimeout(900);
+    await page.mouse.up();
+    await page.waitForFunction(i=>window.RestaurantHalfOrbit.state().activeIndex===i&&!window.RestaurantHalfOrbit.state().transition,
+      labelInfo.index,{timeout:2500}).catch(()=>{});
     const labelAfter=await page.evaluate(()=>window.RestaurantHalfOrbit.state().activeIndex);
     check('product-name pointerdown never starts drag',labelDown===false,String(labelDown));
     check('clicking a visible product name selects it',labelAfter===labelInfo.index,`${labelAfter} / ${labelInfo.index}`);
   }else check('a secondary product label is reachable',false,'none');
 
-  await page.evaluate(()=>window.RestaurantHalfOrbit.goTo(0));await page.waitForTimeout(900);
+  await page.evaluate(()=>window.RestaurantHalfOrbit.goTo(0));
+  await page.waitForFunction(()=>window.RestaurantHalfOrbit.state().activeIndex===0&&!window.RestaurantHalfOrbit.state().transition,
+    null,{timeout:2500}).catch(()=>{});
+  await page.locator('.hos-detail').scrollIntoViewIfNeeded();await page.waitForTimeout(80);
   const detailBox=await page.locator('.hos-detail').boundingBox();const dp=center(detailBox);
   await page.mouse.move(dp.x,dp.y);await page.mouse.down();
   const detailDown=await page.evaluate(()=>window.RestaurantHalfOrbit.state().dragging);
@@ -59,19 +71,25 @@ const center=box=>({x:box.x+box.width/2,y:box.y+box.height/2});
   check('detail CTA still opens the real product detail',detailOpen,'dish detail open');
   await page.evaluate(()=>document.querySelector('#detail-close')?.click());await page.waitForTimeout(250);
 
-  /* Ordinary empty-stage drag still works. */
+  /* Ordinary empty-stage drag still works. Keep the stage in view before raw mouse coordinates. */
+  await page.locator('.hos-stage').scrollIntoViewIfNeeded();await page.waitForTimeout(100);
   const stageBox=await page.locator('.hos-stage').boundingBox();
   const p0=await page.evaluate(()=>window.RestaurantHalfOrbit.state().progress);
   await page.mouse.move(stageBox.x+stageBox.width*.62,stageBox.y+stageBox.height*.40);await page.mouse.down();
   await page.mouse.move(stageBox.x+stageBox.width*.40,stageBox.y+stageBox.height*.40,{steps:5});
   const held=await page.evaluate(()=>window.RestaurantHalfOrbit.state());
-  await page.mouse.up();await page.waitForTimeout(800);
+  await page.mouse.up();
+  await page.waitForFunction(()=>{
+    const s=window.RestaurantHalfOrbit.state();return !s.transition&&Math.abs(s.progress-Math.round(s.progress))<.001;
+  },null,{timeout:2500}).catch(()=>{});
   check('empty-stage drag remains continuous',held.dragging&&Math.abs(held.progress-p0)>.15,`${p0} -> ${held.progress}`);
 
   /* Live copy must update even when id/name/image/accent stay unchanged. */
-  await page.evaluate(()=>window.RestaurantHalfOrbit.goTo(0));await page.waitForTimeout(850);
+  await page.evaluate(()=>window.RestaurantHalfOrbit.goTo(0));
+  await page.waitForFunction(()=>window.RestaurantHalfOrbit.state().activeIndex===0&&!window.RestaurantHalfOrbit.state().transition,
+    null,{timeout:2500}).catch(()=>{});
   await page.evaluate(()=>window.RestaurantStudioConfig.set('dishes.0.short','COPY LIVE CLASS24'));
-  await page.waitForTimeout(600);
+  await page.waitForFunction(()=>document.querySelector('.hos-desc')?.textContent.trim()==='COPY LIVE CLASS24',null,{timeout:1800}).catch(()=>{});
   const liveCopy=await page.locator('.hos-desc').textContent();
   check('Half Orbit repaints description-only Project State edits',liveCopy.trim()==='COPY LIVE CLASS24',liveCopy.trim());
 
