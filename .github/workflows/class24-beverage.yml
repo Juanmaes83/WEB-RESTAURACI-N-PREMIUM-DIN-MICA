@@ -1,0 +1,40 @@
+name: Class 24 Beverage Experience Gate
+
+on:
+  push:
+    branches: [feat/class24-beverage-experience]
+  pull_request:
+    paths:
+      - 'class24-beverages-*.js'
+      - 'styles-v24.css'
+      - 'beverage-review.html'
+      - 'docs/CLASS-24-BEVERAGE-EXPERIENCE.md'
+      - '.github/workflows/class24-beverage.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check class24-beverages-model.js
+          node --check class24-beverages-review.js
+          node --check class24-beverages-engine.js
+          node --check class24-beverages-studio.js
+      - name: Architecture contract
+        run: |
+          grep -q "RestaurantBeveragesModel" class24-beverages-model.js
+          grep -q "RestaurantMedia" class24-beverages-engine.js
+          grep -q "RestaurantStudioConfig" class24-beverages-studio.js
+          grep -q "destroy" class24-beverages-engine.js
+          grep -q "beverage-review=1" docs/CLASS-24-BEVERAGE-EXPERIENCE.md
+          ! grep -Eqi "from ['\"](react|next|zustand|lenis)" class24-beverages-*.js
+      - name: Review surface contract
+        run: |
+          grep -q "index.html?beverage-review=1" beverage-review.html
+          grep -q "class24-beverages-engine.js" beverage-review.html
+          grep -q "class24-beverages-studio.js" beverage-review.html
