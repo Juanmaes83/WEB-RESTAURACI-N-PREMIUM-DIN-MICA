@@ -1,0 +1,44 @@
+name: Class 25 Chromatic Ingredient Wipe
+
+on:
+  pull_request:
+    paths:
+      - 'class25-chromatic-ingredient-wipe.js'
+      - 'styles-v25.css'
+      - 'class19-motion-library.js'
+      - 'tests/class25-*.mjs'
+      - 'tests/class19-motion-library-e2e.mjs'
+      - 'tests/class24-*.mjs'
+      - 'index.html'
+      - '.github/workflows/class25-chromatic-ingredient-wipe.yml'
+  push:
+    branches:
+      - feat/class25-chromatic-ingredient-wipe
+
+jobs:
+  class25:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check class25-chromatic-ingredient-wipe.js
+          node --check class19-motion-library.js
+          node --check tests/class25-chromatic-ingredient-wipe-e2e.mjs
+      - name: Install Playwright Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Chromatic Ingredient Wipe gate
+        run: node tests/class25-chromatic-ingredient-wipe-e2e.mjs
+      - name: Regression — Motion Library registry
+        run: node tests/class19-motion-library-e2e.mjs
+      - name: Regression — Class 24 Half Orbit gates
+        run: |
+          node tests/class24-half-orbit-selector-e2e.mjs
+          node tests/class24-interaction-governance-e2e.mjs
+          node tests/class24-premium-transition-e2e.mjs

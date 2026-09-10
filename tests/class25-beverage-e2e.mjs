@@ -24,7 +24,7 @@ async function boot(page){const errors=[];page.on('pageerror',e=>errors.push(e.m
  check('Beverage review starts with Traveler visually OFF',initial.reviewTraveler==='off'&&!initial.travelerActive,`${initial.reviewTraveler}/${initial.travelerActive}`);
  check('Half Orbit runtime is still present',initial.halfOrbit);
  check('Motion Governance API remains present',initial.governanceApi);
- check('Motion Library still has 12 existing engines',initial.libraryCount===12,String(initial.libraryCount));
+ check('Motion Library still has 13 existing engines',initial.libraryCount===13,String(initial.libraryCount));
  check('Bebidas and Motion are separate Studio tabs',initial.bevTab&&initial.motionTab);
  await page.locator('#beverages').screenshot({path:path.join(OUT,'01-helado-desktop.png')});
  const expected=['HELADO 1.jpg','HELADO 2.jpg','HELADO 3.jpg','HELADO 4.jpg'];let allLocal=true,allReady=true,worlds=new Set();

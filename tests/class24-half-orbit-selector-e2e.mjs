@@ -58,7 +58,7 @@ async function review(source){
   check(`${source} · review abre el motor productivo`,initial.stage&&initial.state.mode==='half-orbit'&&initial.state.source===source,JSON.stringify(initial.state));
   check(`${source} · arco tipográfico visible`,initial.labels>=3&&initial.active===1,`${initial.labels} nombres visibles`);
   check(`${source} · hero y titular reales`,!!initial.title&&initial.state.count>=5,`${initial.title} · ${initial.state.count} productos`);
-  check(`${source} · Motion Library registra 12 motores`,initial.libraryCount===12,String(initial.libraryCount));
+  check(`${source} · Motion Library registra 13 motores`,initial.libraryCount===13,String(initial.libraryCount));
 
   const before=initial.state;
   await page.click('.hos-next');await waitSettled(page);
