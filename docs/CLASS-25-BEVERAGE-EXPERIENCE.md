@@ -18,13 +18,17 @@ La línea Half Orbit ya usa Class 24 para `Half Orbit Selector` + `Motion Govern
 - `?review=beverages` usa la página real, no un HTML reconstruido;
 - Half Orbit, Motion Library y Scroll Traveler permanecen intactos y separados.
 
-## Asset policy
+## Asset policy — revisión visual real
 
-El review usa primero el asset local:
+El fixture ya no usa `ASIATICO 1.png` ni imágenes externas del repo Starbucks.
 
-`assets/half-orbit/dishes-transparent/ASIATICO 1.png`
+Se inventariaron y renderizaron con Playwright los once archivos `HELADO *.jpg` existentes en `assets/half-orbit/dishes-transparent/`. Todos cargan correctamente y son 360×360. La revisión visual los separa en tres familias de cámara:
 
-Los otros dos productos del fixture son referencias temporales del repo fuente Starbucks únicamente para comparar la transición visual mientras se clasifican visualmente los uploads locales. Cambiar estos fixtures no cambia el motor.
+- **Bowls / producto + envase, 3/4 frontal:** `HELADO 1.jpg`, `HELADO 2.jpg`, `HELADO 3.jpg`, `HELADO 4.jpg`.
+- **Single cups, frontal:** `HELADO 11.jpg`, `HELADO 12.jpg`, `HELADO 13.jpg`, `HELADO 17.jpg`.
+- **Paired cups, sostenidos por manos:** `HELADO 8.jpg`, `HELADO 15.jpg`, `HELADO 18.jpg`.
+
+El selector principal usa sólo **HELADO 1–4** porque forman la familia visual más homogénea. Los once assets permanecen catalogados en `RestaurantBeveragesReview.allAssets` y sus familias en `RestaurantBeveragesReview.families`; no se descarta ningún upload.
 
 ## Fix de Scroll Traveler evidence
 
@@ -39,13 +43,17 @@ El producto moderno deja `scrollTraveler.enabled=false` por defecto. `tests/clas
 - un solo `header.topbar`;
 - un solo `#studio`;
 - `#beverages` visible en `?review=beverages`;
-- asset local ASIATICO pintado;
-- selector y mundo cromático cambian;
-- transición termina;
+- los cuatro assets seleccionados son locales y cargan;
+- los once `HELADO` están inventariados;
+- selector y mundo cromático cambian en cada producto;
+- transición termina correctamente;
 - `Bebidas` y `Motion` son pestañas distintas;
-- Scroll Traveler sigue en su grupo transversal;
+- Motion Governance agrupa `preset`, `page` y `experience`;
+- Scroll Traveler sigue como tuner transversal único;
 - Half Orbit sigue cargado;
 - Motion Library conserva sus 12 motores existentes;
 - no hay overflow móvil ni errores JS.
 
-El workflow guarda screenshots de evidencia como artifact.
+`tests/class25-helado-inventory.mjs` genera además `helados-contact-sheet.png` y `inventory.json` como evidencia de curación visual.
+
+El workflow guarda screenshots de desktop, Studio, móvil y la hoja de inventario como artifact.
