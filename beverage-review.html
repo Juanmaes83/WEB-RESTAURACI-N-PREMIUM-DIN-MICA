@@ -5,31 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Class 24 · Beverage Experience · Visual Review</title>
   <style>
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080807;font-family:Arial,sans-serif}.review-frame{border:0;width:100%;height:100%;display:block}.review-bar{position:fixed;z-index:9999;top:12px;right:12px;display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(8,8,7,.78);border:1px solid rgba(255,255,255,.16);border-radius:999px;backdrop-filter:blur(14px);color:white;box-shadow:0 10px 40px rgba(0,0,0,.22)}.review-bar strong{font-size:11px;letter-spacing:.08em;margin:0 6px}.review-bar button{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:white;border-radius:999px;padding:8px 12px;font-size:11px;cursor:pointer}.review-bar button:hover{background:rgba(255,255,255,.16)}.review-status{font-size:10px;opacity:.68}@media(max-width:650px){.review-bar{left:8px;right:8px;top:8px;justify-content:center;flex-wrap:wrap;border-radius:18px}.review-bar strong{width:100%;text-align:center}.review-status{display:none}}
+    .class24-review-bar{position:fixed;z-index:2147483000;top:12px;right:12px;display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(8,8,7,.80);border:1px solid rgba(255,255,255,.16);border-radius:999px;backdrop-filter:blur(14px);color:white;box-shadow:0 10px 40px rgba(0,0,0,.22);font-family:Arial,sans-serif}.class24-review-bar strong{font-size:11px;letter-spacing:.08em;margin:0 6px}.class24-review-bar button{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:white;border-radius:999px;padding:8px 12px;font-size:11px;cursor:pointer}.class24-review-bar button:hover{background:rgba(255,255,255,.16)}.class24-review-status{font-size:10px;opacity:.68}.class24-loader{min-height:100vh;background:#080807;color:white;display:grid;place-items:center;font-family:Arial,sans-serif;letter-spacing:.05em}@media(max-width:650px){.class24-review-bar{left:8px;right:8px;top:8px;justify-content:center;flex-wrap:wrap;border-radius:18px}.class24-review-bar strong{width:100%;text-align:center}.class24-review-status{display:none}}
   </style>
 </head>
 <body>
-  <div class="review-bar" role="toolbar" aria-label="Controles de revisión Class 24">
-    <strong>CLASS 24 · BEVERAGE</strong><span class="review-status" id="status">Cargando integración…</span>
-    <button id="section" type="button">Ver bebidas</button><button id="studio" type="button">Studio · Bebidas</button><button id="reload" type="button">Recargar</button>
-  </div>
-  <iframe class="review-frame" id="frame" src="index.html?beverage-review=1" title="Restaurant Premium con Beverage Experience"></iframe>
+  <div class="class24-loader" id="loader">CARGANDO RESTAURANT PREMIUM · CLASS 24…</div>
   <script>
-    const frame=document.getElementById('frame'),status=document.getElementById('status');
-    const loadScript=(doc,src)=>new Promise((resolve,reject)=>{const s=doc.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;doc.body.appendChild(s)});
-    const loadCss=(doc,href)=>{const l=doc.createElement('link');l.rel='stylesheet';l.href=href;doc.head.appendChild(l)};
-    async function inject(){
-      const w=frame.contentWindow,d=frame.contentDocument;status.textContent='Integrando…';
-      loadCss(d,'styles-v24.css');
-      const scripts=['restaurant-media.js','restaurant-media-picker.js','class24-beverages-model.js','class24-beverages-review.js','class24-beverages-engine.js','class24-beverages-studio.js'];
-      for(const src of scripts) await loadScript(d,src);
-      w.RestaurantBeveragesModel?.seed?.();await w.RestaurantBeveragesEngine?.refresh?.();
-      status.textContent='READY · Project State + Studio + Media + Engine';
+    const loadScript=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('No se pudo cargar '+src));document.body.appendChild(s)});
+    const addCss=href=>{if(document.querySelector(`link[href="${href}"]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l)};
+    const makeBar=()=>{const bar=document.createElement('div');bar.className='class24-review-bar';bar.innerHTML='<strong>CLASS 24 · BEVERAGE</strong><span class="class24-review-status" id="review-status">Integrando…</span><button id="review-section" type="button">Ver bebidas</button><button id="review-studio" type="button">Studio · Bebidas</button><button id="review-reload" type="button">Recargar</button>';return bar};
+    async function bootReview(){
+      const response=await fetch('index.html',{cache:'no-store'});if(!response.ok)throw new Error('index.html '+response.status);
+      const html=await response.text(),parsed=new DOMParser().parseFromString(html,'text/html');
+      parsed.querySelectorAll('script').forEach(s=>s.remove());
+      parsed.querySelectorAll('link[rel="stylesheet"]').forEach(link=>addCss(link.getAttribute('href')));
+      document.body.className=parsed.body.className;[...parsed.body.attributes].forEach(a=>{if(a.name!=='class')document.body.setAttribute(a.name,a.value)});
+      document.body.innerHTML=parsed.body.innerHTML;
+      const bar=makeBar();document.body.prepend(bar);addCss('styles-v24.css');
+      const scripts=[
+        'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js',
+        'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js',
+        'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Observer.min.js',
+        'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Flip.min.js',
+        'class4-store.js','class4-config.js','class16-location-maps.js','class17-social-reputation.js','class18-whatsapp-contact.js','class20-modules-studio.js','class5-studio-motion.js',
+        'restaurant-media.js','restaurant-media-picker.js','class24-beverages-model.js','class24-beverages-review.js',
+        'app-v4.js','class4-runtime-guard.js','class5-motion-director.js','class5-elegant-orbit.js','class5-urban-harmony.js',
+        'class24-beverages-engine.js','class24-beverages-studio.js'
+      ];
+      for(const src of scripts)await loadScript(src);
+      await window.RestaurantBeveragesEngine?.refresh?.();
+      document.getElementById('review-status').textContent='READY · STATE + STUDIO + MEDIA + ENGINE';
+      document.getElementById('review-section').onclick=()=>document.querySelector('#beverages')?.scrollIntoView({behavior:'smooth'});
+      document.getElementById('review-studio').onclick=()=>{window.RestaurantStudioShell?.open?.();setTimeout(()=>window.RestaurantBeveragesStudio?.open?.(),90)};
+      document.getElementById('review-reload').onclick=()=>location.reload();
+      setTimeout(()=>document.querySelector('#beverages')?.scrollIntoView({behavior:'smooth',block:'start'}),450);
     }
-    frame.addEventListener('load',()=>inject().catch(err=>{console.error(err);status.textContent='ERROR · revisar consola'}));
-    document.getElementById('section').onclick=()=>frame.contentDocument?.querySelector('#beverages')?.scrollIntoView({behavior:'smooth'});
-    document.getElementById('studio').onclick=()=>{const w=frame.contentWindow;w.RestaurantStudioShell?.open?.();setTimeout(()=>w.RestaurantBeveragesStudio?.open?.(),100)};
-    document.getElementById('reload').onclick=()=>frame.contentWindow.location.reload();
+    bootReview().catch(err=>{console.error(err);const l=document.getElementById('loader');if(l)l.textContent='CLASS 24 · ERROR DE CARGA · '+err.message});
   </script>
 </body>
 </html>
