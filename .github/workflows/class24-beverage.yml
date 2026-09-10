@@ -35,6 +35,7 @@ jobs:
           ! grep -Eqi "from ['\"](react|next|zustand|lenis)" class24-beverages-*.js
       - name: Review surface contract
         run: |
-          grep -q "index.html?beverage-review=1" beverage-review.html
+          grep -q "fetch('index.html'" beverage-review.html
           grep -q "class24-beverages-engine.js" beverage-review.html
           grep -q "class24-beverages-studio.js" beverage-review.html
+          ! grep -q '<iframe' beverage-review.html
