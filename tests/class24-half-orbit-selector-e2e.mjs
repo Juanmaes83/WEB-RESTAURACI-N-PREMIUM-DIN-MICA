@@ -12,6 +12,22 @@ const browser=await chromium.launch();
 const out=[];
 const check=(name,ok,detail='')=>{out.push({name,ok});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
 
+async function emptyDragPoint(page){
+  return page.evaluate(()=>{
+    const stage=document.querySelector('.hos-stage');
+    if(!stage)return null;
+    const r=stage.getBoundingClientRect();
+    const interactive='button,a,input,select,textarea,label,[role="button"]';
+    for(const yr of [.28,.34,.40,.48,.56])for(const xr of [.62,.52,.72,.38,.28]){
+      const x=r.left+r.width*xr,y=r.top+r.height*yr;
+      if(x<20||x>innerWidth-20||y<20||y>innerHeight-20)continue;
+      const el=document.elementFromPoint(x,y);
+      if(el&&stage.contains(el)&&!el.closest(interactive))return {x,y};
+    }
+    return null;
+  });
+}
+
 async function review(source){
   const ctx=await browser.newContext({viewport:{width:1440,height:1000}});
   const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -38,18 +54,19 @@ async function review(source){
   check(`${source} · flecha cambia producto`,next.state.activeIndex!==before.activeIndex&&next.title!==initial.title,`${initial.title} → ${next.title}`);
   check(`${source} · cada paso suma un half-turn de 180°`,Math.abs((next.state.halfTurnDeg-before.halfTurnDeg)-180)<1,`${before.halfTurnDeg}° → ${next.state.halfTurnDeg}°`);
 
-  const box=await page.locator('.hos-stage').boundingBox();
+  const dragPoint=await emptyDragPoint(page);
+  check(`${source} · existe superficie de drag libre de controles`,!!dragPoint,dragPoint?`${Math.round(dragPoint.x)},${Math.round(dragPoint.y)}`:'none');
   const start=await page.evaluate(()=>window.RestaurantHalfOrbit.state().progress);
-  await page.mouse.move(box.x+box.width*.62,box.y+box.height*.46);await page.mouse.down();
-  await page.mouse.move(box.x+box.width*.38,box.y+box.height*.46,{steps:6});
+  if(dragPoint){
+    await page.mouse.move(dragPoint.x,dragPoint.y);await page.mouse.down();
+    await page.mouse.move(dragPoint.x-300,dragPoint.y,{steps:6});
+  }
   const during=await page.evaluate(()=>({p:window.RestaurantHalfOrbit.state().progress,drag:window.RestaurantHalfOrbit.state().dragging,turn:document.querySelector('.hos-orbit')?.style.getPropertyValue('--hos-turn')}));
   check(`${source} · drag es continuo antes de soltar`,during.drag&&Math.abs(during.p-start)>.2,`progress ${start.toFixed(2)} → ${during.p.toFixed(2)} · ${during.turn}`);
-  await page.mouse.up();await page.waitForTimeout(800);
+  if(dragPoint)await page.mouse.up();await page.waitForTimeout(800);
   const settled=await page.evaluate(()=>window.RestaurantHalfOrbit.state());
   check(`${source} · drag hace snap`,Math.abs(settled.progress-Math.round(settled.progress))<.001,`progress ${settled.progress}`);
 
-  /* Half Orbit must not hijack wheel scrolling. Disable CSS smooth scrolling only for
-     this measurement so an old smooth-scroll animation cannot race the wheel sample. */
   await page.evaluate(()=>{
     document.documentElement.style.scrollBehavior='auto';
     const top=document.querySelector('#signature').offsetTop+100;
