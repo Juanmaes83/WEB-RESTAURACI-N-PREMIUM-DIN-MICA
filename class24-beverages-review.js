@@ -1,11 +1,15 @@
 /* CLASS 24 — VISUAL REVIEW FIXTURE
-   Activated ONLY with ?beverage-review=1. It maps source-repo images through the shared
-   RestaurantMedia resolver and never writes demo content into the Restaurant Project State. */
+   Activated by ?beverage-review=1 OR by the dedicated beverage-review.html surface.
+   It maps source-repo images through the shared RestaurantMedia resolver and never
+   writes demo content into the Restaurant Project State. */
 (() => {
   'use strict';
   const params=new URLSearchParams(location.search);
-  if(params.get('beverage-review')!=='1') return;
-  const base='https://raw.githubusercontent.com/Juanmaes83/starbucks/main/public/assets/';
+  const dedicatedReview=window.__CLASS24_REVIEW__===true || /\/beverage-review\.html$/i.test(location.pathname);
+  if(params.get('beverage-review')!=='1' && !dedicatedReview) return;
+
+  /* The source repo stores these assets at /assets (not /public/assets). */
+  const base='https://raw.githubusercontent.com/Juanmaes83/starbucks/main/assets/';
   const refs={matcha:'review/beverages/matcha',vanilla:'review/beverages/vanilla',berry:'review/beverages/berry'};
   const map=()=>{
     window.RestaurantMedia?.map?.(refs.matcha,base+'drink-matcha.png');
