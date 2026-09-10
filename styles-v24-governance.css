@@ -1,0 +1,52 @@
+/* CLASS 24 · MOTION GOVERNANCE — Studio information architecture */
+
+html[data-motion-studio-capability="off"] #studio .studio-nav [data-panel="motion"],
+html[data-motion-studio-capability="off"] #studio .studio-panel.motion-panel{display:none!important}
+
+.ml-governed-grid{display:block!important}
+.ml-governance-group{margin:14px 0 20px;padding:15px;border:1px solid rgba(0,0,0,.10);border-radius:16px;background:rgba(255,255,255,.46)}
+.ml-group-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 12px}
+.ml-group-head span{display:block;font:700 11px/1.2 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#171714}
+.ml-group-head p{margin:5px 0 0;max-width:58ch;font-size:12px;line-height:1.5;color:#6a675f}
+.ml-group-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ml-group-page{border-color:rgba(0,0,0,.2);background:linear-gradient(145deg,rgba(17,17,15,.04),rgba(216,255,79,.08))}
+.ml-group-page .ml-group-grid{grid-template-columns:minmax(0,1fr)}
+.ml-group-experience{background:rgba(0,0,0,.018)}
+
+.ml-traveler-card{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:16px;border-color:rgba(0,0,0,.22)!important}
+.ml-traveler-card .ml-card-top,.ml-traveler-card .ml-note{grid-column:1}
+.ml-traveler-card .ml-card-foot{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border:0;padding:0;margin:0}
+#studio .ml-traveler-card .ml-toggle{min-width:126px;padding:10px 15px}
+.ml-traveler-card[data-ml-state="apagado"]{background:#fffdf9;border-style:dashed!important;box-shadow:none!important}
+.ml-traveler-card[data-ml-state="activo"]{background:#111;color:#fff;border-color:#111!important}
+.ml-traveler-card[data-ml-state="activo"] .ml-note,
+.ml-traveler-card[data-ml-state="activo"] .ml-project,
+.ml-traveler-card[data-ml-state="activo"] .ml-state{color:rgba(255,255,255,.7)}
+.ml-traveler-card[data-ml-state="activo"] .ml-n{background:#fff;color:#111}
+.ml-traveler-card[data-ml-state="activo"] .ml-toggle{background:var(--accent,#d8ff4f)!important;color:#111!important;border-color:var(--accent,#d8ff4f)!important}
+
+.st-studio-governed{margin:0!important;border-radius:14px!important;border:1px solid rgba(0,0,0,.12)!important;background:#fffdf9!important;overflow:hidden}
+.st-studio-governed .motion-card-head{display:none}
+.st-studio-governed>p:first-of-type{display:none}
+.st-studio-governed .st-check{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin:0!important;padding:14px 15px;border:0!important;cursor:pointer}
+.st-studio-governed .st-check strong{font-size:13px;letter-spacing:0;text-transform:none;color:#171714}
+.st-studio-governed .st-check input{order:-1;width:18px;height:18px;accent-color:#111}
+.st-studio-governed .st-switch-state{font:700 10px/1 system-ui,sans-serif;letter-spacing:.15em;color:#777}
+.st-studio-governed.is-on .st-switch-state{color:#111}
+.st-studio-governed.is-off>label:not(.st-check),
+.st-studio-governed.is-off>.st-status,
+.st-studio-governed.is-off>.st-route-hint{display:none!important}
+.st-studio-governed.is-on{box-shadow:0 0 0 1px #111 inset}
+.st-studio-governed.is-on>label:not(.st-check){display:flex;margin:0 15px 12px!important}
+.st-studio-governed.is-on>.st-status,.st-studio-governed.is-on>.st-route-hint{display:block;margin:0 15px 12px!important}
+
+@media(max-width:760px){
+  .ml-group-grid{grid-template-columns:1fr}
+  .ml-traveler-card{grid-template-columns:1fr}
+  .ml-traveler-card .ml-card-foot{grid-column:1;grid-row:auto;align-items:stretch;border-top:1px solid rgba(0,0,0,.08);padding-top:10px}
+  #studio .ml-traveler-card .ml-toggle{width:100%}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .ml-governance-group,.ml-traveler-card,.st-studio-governed{transition:none!important}
+}
