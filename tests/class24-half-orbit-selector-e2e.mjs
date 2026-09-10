@@ -25,8 +25,7 @@ async function review(source){
     active:[...document.querySelectorAll('.hos-label')].filter(x=>x.dataset.active==='1').length,
     title:document.querySelector('.hos-title')?.textContent.trim(),
     hero:document.querySelector('.hos-hero-img[style*="opacity: 1"]')?.dataset.item||null,
-    libraryCount:window.RestaurantMotionLibrary?.count?.()||0,
-    errors:[]
+    libraryCount:window.RestaurantMotionLibrary?.count?.()||0
   }));
   check(`${source} · review abre el motor productivo`,initial.stage&&initial.state.mode==='half-orbit'&&initial.state.source===source,JSON.stringify(initial.state));
   check(`${source} · arco tipográfico visible`,initial.labels>=3&&initial.active===1,`${initial.labels} nombres visibles`);
@@ -49,11 +48,20 @@ async function review(source){
   const settled=await page.evaluate(()=>window.RestaurantHalfOrbit.state());
   check(`${source} · drag hace snap`,Math.abs(settled.progress-Math.round(settled.progress))<.001,`progress ${settled.progress}`);
 
-  /* Half Orbit must not hijack wheel scrolling. */
-  await page.evaluate(()=>window.scrollTo(0,document.querySelector('#signature').offsetTop+100));
-  const y0=await page.evaluate(()=>scrollY);await page.mouse.move(box.x+box.width*.5,Math.max(80,box.y+box.height*.3));await page.mouse.wheel(0,420);await page.waitForTimeout(300);
+  /* Half Orbit must not hijack wheel scrolling. Disable CSS smooth scrolling only for
+     this measurement so an old smooth-scroll animation cannot race the wheel sample. */
+  await page.evaluate(()=>{
+    document.documentElement.style.scrollBehavior='auto';
+    const top=document.querySelector('#signature').offsetTop+100;
+    window.scrollTo({top,behavior:'instant'});
+  });
+  await page.waitForTimeout(120);
+  const wheelBox=await page.locator('.hos-stage').boundingBox();
+  const y0=await page.evaluate(()=>scrollY);
+  await page.mouse.move(wheelBox.x+wheelBox.width*.5,Math.max(80,Math.min(innerHeight-80,wheelBox.y+wheelBox.height*.3)));
+  await page.mouse.wheel(0,420);await page.waitForTimeout(260);
   const y1=await page.evaluate(()=>scrollY);
-  check(`${source} · rueda conserva scroll de página`,y1>y0+40,`${Math.round(y0)} → ${Math.round(y1)}`);
+  check(`${source} · rueda conserva scroll de página`,y1>y0+100,`${Math.round(y0)} → ${Math.round(y1)}`);
   check(`${source} · sin errores JS`,errors.length===0,errors.join(' | '));
   await ctx.close();
 }
@@ -75,7 +83,7 @@ await review('pizzas');
   await ctx.close();
 }
 
-await browser.close();if(local)await local.close();
+await browser.close();if(local)await new Promise(resolve=>local.server.close(resolve));
 const passed=out.filter(x=>x.ok).length;
 console.log(`\n${passed}/${out.length} ${passed===out.length?'CLASS24_HALF_ORBIT_PASS':'CLASS24_HALF_ORBIT_FAIL'}`);
 if(passed!==out.length)process.exitCode=1;
