@@ -13,6 +13,9 @@
      · reduced motion keeps the page usable;
      · resize re-measures instead of drifting.
 
+   Scroll Traveler is opt-in in the product. This dedicated engine suite explicitly
+   enables it in boot(); tests must not force the public default back to ON.
+
    Usage: node tests/class14-scroll-traveler-e2e.mjs
 */
 import {chromium} from 'playwright';
@@ -26,8 +29,6 @@ const SHOTS=path.join(ROOT,'tests','screenshots');
 fs.mkdirSync(SHOTS,{recursive:true});
 const ENGINE=fs.readFileSync(path.join(ROOT,'class14-scroll-traveler.js'),'utf8');
 const STYLES=fs.readFileSync(path.join(ROOT,'styles-v14.css'),'utf8');
-/* The engine's own comments name the anti-patterns it promises to avoid, so a scan
-   for those names has to read the code and not the prose. */
 const CODE=ENGINE.replace(/\/\*[\s\S]*?\*\//g,'').replace(/^[ \t]*\/\/.*$/gm,'');
 
 const {server,url:BASE}=await startServer(0);
@@ -41,6 +42,10 @@ const state=page=>page.evaluate(()=>window.RestaurantScrollTraveler.state());
 
 async function boot(page,{timeout=30000}={}){
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.RestaurantStudioConfig&&window.RestaurantScrollTraveler,
+    null,{timeout});
+  /* Public default is OFF. This suite is the explicit opt-in proof. */
+  await page.evaluate(()=>window.RestaurantStudioConfig.set('scrollTraveler.enabled',true));
   await page.waitForFunction(()=>document.documentElement.dataset.scrollTraveler==='ready',
     null,{timeout});
   await page.waitForFunction(()=>{
@@ -51,8 +56,6 @@ async function boot(page,{timeout=30000}={}){
   return state(page);
 }
 
-/* `travelerSettled` can still read true from the position we just left, so the last
-   word is the object itself: wait until two consecutive reads agree. */
 async function restPosition(page){
   let prev=null;
   for(let i=0;i<40;i++){
@@ -65,9 +68,6 @@ async function restPosition(page){
   return prev;
 }
 
-/* Aim at a route position, let the object settle, re-measure, aim again: the site
-   reveals sections as you travel, so a target computed at the top of the page has
-   moved by the time the browser gets there. */
 async function land(page,anchor,fraction){
   let s=null;
   for(let pass=0;pass<6;pass++){
@@ -89,9 +89,6 @@ async function land(page,anchor,fraction){
   return s;
 }
 
-/* ============================================================
-   1. DESKTOP — the canonical value, one object, continuity, layers
-   ============================================================ */
 {
   const context=await browser.newContext({viewport:{width:1440,height:900}});
   const page=await context.newPage();
@@ -109,7 +106,6 @@ async function land(page,anchor,fraction){
   check('boot · the object is the cleaned runtime asset, not the stage cut',
     /scroll-traveler\/runtime\/dish-01-prawn\.webp$/.test(s0.asset),s0.asset);
 
-  /* ---- one canonical progress ---- */
   const agree=[];
   for(const f of [0,.5,1,1.5,2,2.6,3,3.5,4]){
     const at=await land(page,Math.floor(f),f-Math.floor(f));
@@ -121,7 +117,6 @@ async function land(page,anchor,fraction){
   check('canonical progress · <html data-traveler-progress> never disagrees with the engine',
     agree.every(Boolean),`${agree.filter(Boolean).length}/${agree.length} route positions`);
 
-  /* a second authoritative state is the failure this project exists to avoid */
   const forbidden=['currentSection','currentTravelerPosition','activeJourneyStep',
     'selectedJourneyIndex'];
   check('canonical progress · no second authoritative state in the engine',
@@ -132,7 +127,6 @@ async function land(page,anchor,fraction){
     &&/progress=progressAt\(scrollY\)/.test(CODE),
     'progress = progressAt(scrollY)');
 
-  /* ---- one persistent object ---- */
   await page.evaluate(()=>{
     const el=document.querySelector('.st-traveler');
     el.dataset.identityStamp=String(Date.now());
@@ -160,7 +154,6 @@ async function land(page,anchor,fraction){
   check('one object · the image source is never swapped mid-journey',
     new Set(seen.map(s=>s.src)).size===1,seen[0].src);
 
-  /* a clone per frame is the classic way this effect gets built badly */
   const beforeCount=await page.evaluate(()=>document.querySelectorAll('*').length);
   await page.evaluate(async()=>{
     for(let y=0;y<40;y++){scrollBy(0,120);await new Promise(r=>requestAnimationFrame(r))}
@@ -179,7 +172,6 @@ async function land(page,anchor,fraction){
     &&!/function frame\(\)[\s\S]{0,600}getBoundingClientRect/.test(CODE),
     'measure() caches; frame() does not touch layout');
 
-  /* ---- continuity, no teleport ---- */
   const samples=await page.evaluate(()=>{
     const t=window.RestaurantScrollTraveler;t.measure();
     const out=[];
@@ -206,7 +198,6 @@ async function land(page,anchor,fraction){
     samples[0].opacity<=.02&&samples.find(s=>s.p>=.06).opacity>.2,
     `p0 ${samples[0].opacity} -> p0.06 ${samples.find(s=>s.p>=.06).opacity}`);
 
-  /* ---- the six progress values the mission names explicitly ---- */
   const named=[0,.2,.4,.6,.8,1];
   const table=await page.evaluate(list=>{
     const t=window.RestaurantScrollTraveler;t.measure();
@@ -227,9 +218,6 @@ async function land(page,anchor,fraction){
     table.map(r=>r.chapter).join('>')==='signature>signature>origin>atmosphere>chef>visit',
     table.map(r=>r.chapter).join(' > '));
 
-  /* ---- the same thing again, driven by real scrolling ---- */
-  /* the honest version of the proof: scroll the whole page in small steps, the way a
-     visitor does, and watch the one value climb. No seams, no posing. */
   const walk=await page.evaluate(async()=>{
     const t=window.RestaurantScrollTraveler;
     scrollTo({top:0,behavior:'instant'});
@@ -249,8 +237,6 @@ async function land(page,anchor,fraction){
     }
     return out;
   });
-  /* the document grows as sections reveal, so one step can re-map slightly; what must
-     never happen is the value going backwards while the page goes forwards */
   const regressions=walk.slice(1).filter((s,i)=>s.p<walk[i].p-.02);
   check('scroll-driven · progress rises with the scroll position, never backwards',
     regressions.length===0,
@@ -265,7 +251,6 @@ async function land(page,anchor,fraction){
     new Set(walk.map(s=>s.chapter)).size>=4,
     [...new Set(walk.map(s=>s.chapter))].join(' -> '));
 
-  /* ---- premium motion: weight, a response to speed, and a real stop ---- */
   const physical=await page.evaluate(async()=>{
     const t=window.RestaurantScrollTraveler;t.measure();
     t.scrollToProgress(.3);
@@ -282,7 +267,6 @@ async function land(page,anchor,fraction){
       maxLag=Math.max(maxLag,Math.abs(st.current.x-want.x));
       maxSpin=Math.max(maxSpin,Math.abs(st.current.spin));
     }
-    /* now stop, and time how long it takes to come to rest */
     let settleMs=0;
     const t0=performance.now();
     while(performance.now()-t0<5000){
@@ -310,7 +294,6 @@ async function land(page,anchor,fraction){
     &&physical.offComposition<.05,
     `drift ${physical.drift.toFixed(3)} over 1.6s, resting spin ${physical.restSpin.toFixed(3)}`);
 
-  /* ---- the designed compositions ---- */
   const route=await page.evaluate(()=>window.RestaurantStudioConfig.get('scrollTraveler').route);
   const reached=[];
   for(let i=0;i<route.length;i++){
@@ -327,7 +310,6 @@ async function land(page,anchor,fraction){
   check('desktop route · the final composition is reachable by scrolling',
     reached[4].got.progress>=.99,`p=${reached[4].got.progress.toFixed(3)} at the last anchor`);
 
-  /* ---- cross-layer choreography ---- */
   const layers=[...new Set(reached.map(r=>r.got.layer))];
   check('layers · the route really uses more than one depth',
     layers.length>=3,layers.join(' / '));
@@ -361,7 +343,6 @@ async function land(page,anchor,fraction){
     behind.current.opacity>.9&&between.current.opacity>.9&&front.current.opacity>.9,
     `${behind.current.opacity} / ${between.current.opacity} / ${front.current.opacity}`);
 
-  /* ---- scroll is not hijacked ---- */
   check('no hijack · the engine never calls preventDefault and never captures the wheel',
     !/preventDefault/.test(CODE)&&!/['"]wheel['"]/.test(CODE),
     'no preventDefault, no wheel listener');
@@ -369,11 +350,7 @@ async function land(page,anchor,fraction){
     (CODE.match(/addEventListener\('(?:scroll|resize)'/g)||[]).length
       ===(CODE.match(/\{passive:true\}/g)||[]).length,
     `${(CODE.match(/\{passive:true\}/g)||[]).length} passive listeners`);
-  /* the site may set scroll-behavior:smooth, so a scroll has to be waited out rather
-     than sampled after a fixed delay */
   const scrollProof=await page.evaluate(async()=>{
-    /* two consecutive equal samples, and never before the browser has had a chance to
-       start a smooth scroll — otherwise "it has not moved yet" reads as "it stopped" */
     const rest=async()=>{
       let last=-1,stable=0;
       for(let i=0;i<50;i++){
@@ -408,7 +385,6 @@ async function land(page,anchor,fraction){
     /none/.test(scrollProof.snap)&&!/hidden/.test(scrollProof.overflow),
     `snap ${scrollProof.snap}, overflow ${scrollProof.overflow}`);
 
-  /* ---- the object blocks nothing ---- */
   const blockProof=await page.evaluate(async()=>{
     const t=window.RestaurantScrollTraveler;t.measure();
     t.scrollToProgress(1);
@@ -432,7 +408,6 @@ async function land(page,anchor,fraction){
   check('no blocking · the reservation CTA under the finale is still the click target',
     blockProof.ctaReachable,'elementFromPoint returns the button');
 
-  /* ---- resize re-measures ---- */
   const beforeAnchors=(await state(page)).anchors.map(a=>a.scroll);
   await page.setViewportSize({width:1180,height:820});
   await page.waitForTimeout(800);
@@ -449,9 +424,6 @@ async function land(page,anchor,fraction){
   await context.close();
 }
 
-/* ============================================================
-   2. MOBILE — its own route, and nothing pushed sideways
-   ============================================================ */
 {
   const context=await browser.newContext({viewport:{width:390,height:844},
     isMobile:true,hasTouch:true});
@@ -490,7 +462,6 @@ async function land(page,anchor,fraction){
     reached.every(r=>r.box.left>=-8&&r.box.right<=r.box.win+8),
     reached.map(r=>`[${r.box.left},${r.box.right}]`).join(' '));
 
-  /* crossing the breakpoint swaps routes without a second engine */
   await page.setViewportSize({width:1100,height:844});
   await page.waitForTimeout(800);
   const wide=await state(page);
@@ -500,9 +471,6 @@ async function land(page,anchor,fraction){
   await context.close();
 }
 
-/* ============================================================
-   3. STUDIO — page motion, OFF/ON, and the existing project state
-   ============================================================ */
 {
   const context=await browser.newContext({viewport:{width:1440,height:900}});
   const page=await context.newPage();
@@ -533,13 +501,10 @@ async function land(page,anchor,fraction){
     &&placement.upload,placement.paths.join(' '));
   check('studio · no bezier control points are exposed',
     !/bezier|controlPoint|cp1|cp2/i.test(CODE),'intensity / scale / rotation only');
-  await page.evaluate(()=>{
-    document.querySelector('.st-studio')?.scrollIntoView({block:'center'});
-  });
+  await page.evaluate(()=>document.querySelector('.st-studio')?.scrollIntoView({block:'center'}));
   await page.waitForTimeout(700);
   await page.screenshot({path:path.join(SHOTS,'scroll-traveler-studio-panel.png')});
 
-  /* OFF means gone */
   await page.evaluate(()=>{
     const c=document.querySelector('.st-studio [data-path$="enabled"]');
     c.checked=false;c.dispatchEvent(new Event('change',{bubbles:true}));
@@ -555,8 +520,6 @@ async function land(page,anchor,fraction){
   check('studio · OFF means no traveler at all',
     !off.active&&!off.visible&&off.flag==='',
     `active ${off.active}, visible ${off.visible}, flag "${off.flag}"`);
-  /* close the drawer first: the site locks page scrolling while Studio is open, which
-     is its behaviour and not the traveler's */
   await page.evaluate(()=>document.querySelector('#studio-close')?.click());
   await page.waitForTimeout(600);
   const offScroll=await page.evaluate(async()=>{
@@ -577,7 +540,6 @@ async function land(page,anchor,fraction){
   check('studio · with the traveler OFF the page still scrolls normally',
     near(offScroll,700,12),`moved ${Math.round(offScroll)}px`);
 
-  /* ON again, plus an edit, then a reload through the existing project state */
   await page.evaluate(()=>{
     document.querySelector('.studio-open')?.click();
     setTimeout(()=>document.querySelector('#studio [data-panel="motion"]')?.click(),300);
@@ -624,7 +586,6 @@ async function land(page,anchor,fraction){
     &&!/localStorage|sessionStorage|new Store|indexedDB\.open/.test(CODE),
     'RestaurantStudioConfig + RestaurantStore only');
 
-  /* a generic object: swap the asset and the same engine carries it */
   await page.evaluate(()=>window.RestaurantStudioConfig.set('scrollTraveler.source',
     {type:'dish',dishId:'dish-02',asset:'assets/depth-carousel/dish-02.webp'}));
   await page.waitForTimeout(1100);
@@ -635,9 +596,6 @@ async function land(page,anchor,fraction){
   check('generic · a different object rides the same route and the same single layer',
     /dish-02/.test(swapped.src||'')&&swapped.layers===1&&swapped.active,
     swapped.src);
-  /* The requirement is that the renderer takes no DECISION from a product or a
-     section: `if dish === gamba`, `if section === chef`. A name inside a Studio label
-     is content, so what is scanned for is a comparison against an identity. */
   const conditionals=[
     /===\s*['"`](?:gamba|red-prawn|dish-\d+|chef|signature|origin|atmosphere|visit)['"`]/i,
     /(?:dishId|chapter|anchor)\s*[!=]==/,
@@ -655,7 +613,6 @@ async function land(page,anchor,fraction){
     drivenByData.chapters.every(c=>drivenByData.hint.toLowerCase().includes(c)),
     drivenByData.hint);
 
-  /* a broken object must not empty the composition */
   await page.evaluate(()=>window.RestaurantStudioConfig.set('scrollTraveler.source',
     {type:'dish',dishId:'dish-01',asset:'assets/scroll-traveler/runtime/does-not-exist.webp'}));
   await page.waitForTimeout(1200);
@@ -677,9 +634,6 @@ async function land(page,anchor,fraction){
   await context.close();
 }
 
-/* ============================================================
-   4. COEXISTENCE — additive, transversal, breaks no motor
-   ============================================================ */
 {
   const context=await browser.newContext({viewport:{width:1440,height:900}});
   const page=await context.newPage();
@@ -726,9 +680,6 @@ async function land(page,anchor,fraction){
   await context.close();
 }
 
-/* ============================================================
-   5. REDUCED MOTION — the story without the flight
-   ============================================================ */
 {
   const context=await browser.newContext({viewport:{width:1440,height:900},
     reducedMotion:'reduce'});
@@ -761,7 +712,6 @@ async function land(page,anchor,fraction){
     near(usable.moved,800,12)&&usable.copyVisible&&usable.overflow,
     `scrolled ${Math.round(usable.moved)}px, copy visible ${usable.copyVisible}`);
 
-  /* ON/OFF still has to work under the preference */
   await page.evaluate(()=>window.RestaurantStudioConfig.set('scrollTraveler.enabled',false));
   await page.waitForTimeout(800);
   const rmOff=await state(page);
