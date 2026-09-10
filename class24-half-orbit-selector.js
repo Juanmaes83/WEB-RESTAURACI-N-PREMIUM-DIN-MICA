@@ -39,7 +39,7 @@
   let items=[],pizzaManifest=null,progress=0,tween=null,goal=null,ready=false,mounted=false;
   let active=-1,frontHero='a',frontWorld='a',lastSource='',lastSignature='';
   let dragging=false,pointerId=null,startX=0,startProgress=0,lastX=0,lastT=0,velocity=0,moved=false;
-  let shellTouchAction='';
+  let shellTouchAction='',suppressArrowClickUntil=0,refreshQueued=false;
   const observers=new Set();
 
   const isHalf=()=>root.dataset.orbitalMotion===MODE;
@@ -278,7 +278,7 @@
     const s={p:progress};
     tween=gsap.to(s,{p:target,duration:dur,ease:reduced.matches?'power2.out':'power3.out',
       onUpdate(){progress=s.p;placeLabels()},
-      onComplete(){progress=Math.round(target);placeLabels();tween=null;goal=null}});
+      onComplete(){progress=Math.round(target);placeLabels();tween=null;goal=null;if(refreshQueued){refreshQueued=false;loadItems({reset:lastSource!==source()})}}});
   }
 
   function transitionTo(target,duration=.82){
@@ -318,6 +318,7 @@
         gsap.set(titleGhost,{opacity:0});gsap.set([chroma,titleFlare],{opacity:0});
         titleGhost.textContent='';delete stage.dataset.transition;delete stage.dataset.direction;
         delete root.dataset.halfOrbitTransition;goal=null;tween=null;notifyActive(i,item);syncStudio();
+        if(refreshQueued){refreshQueued=false;loadItems({reset:lastSource!==source()})}
       }
     });
     tween=tl;
@@ -419,8 +420,11 @@
     else if(e.key==='ArrowLeft'){e.preventDefault();e.stopPropagation();step(-1)}
   }
 
-  const onPrevClick=e=>{e.stopPropagation();step(-1)};
-  const onNextClick=e=>{e.stopPropagation();step(1)};
+  const arrowPointer=(e,dir)=>{e.preventDefault();e.stopPropagation();suppressArrowClickUntil=performance.now()+250;step(dir)};
+  const onPrevPointer=e=>arrowPointer(e,-1);
+  const onNextPointer=e=>arrowPointer(e,1);
+  const onPrevClick=e=>{e.stopPropagation();if(performance.now()<suppressArrowClickUntil)return;step(-1)};
+  const onNextClick=e=>{e.stopPropagation();if(performance.now()<suppressArrowClickUntil)return;step(1)};
   const onDetailClick=e=>{e.stopPropagation();window.RestaurantOrbit?.openDetail?.()};
 
   function bind(){
@@ -431,8 +435,8 @@
     stage.addEventListener('pointercancel',onUp);
     stage.addEventListener('wheel',onWheel,{passive:true});
     stage.addEventListener('keydown',onKey);
-    prevBtn.addEventListener('click',onPrevClick);
-    nextBtn.addEventListener('click',onNextClick);
+    prevBtn.addEventListener('pointerup',onPrevPointer);nextBtn.addEventListener('pointerup',onNextPointer);
+    prevBtn.addEventListener('click',onPrevClick);nextBtn.addEventListener('click',onNextClick);
     detailBtn.addEventListener('click',onDetailClick);
     addEventListener('resize',placeLabels);
   }
@@ -442,6 +446,7 @@
     stage?.removeEventListener('pointerdown',onDown);stage?.removeEventListener('pointermove',onMove);
     stage?.removeEventListener('pointerup',onUp);stage?.removeEventListener('pointercancel',onUp);
     stage?.removeEventListener('wheel',onWheel);stage?.removeEventListener('keydown',onKey);
+    prevBtn?.removeEventListener('pointerup',onPrevPointer);nextBtn?.removeEventListener('pointerup',onNextPointer);
     prevBtn?.removeEventListener('click',onPrevClick);nextBtn?.removeEventListener('click',onNextClick);
     detailBtn?.removeEventListener('click',onDetailClick);
     removeEventListener('resize',placeLabels);
@@ -519,8 +524,10 @@
   new MutationObserver(()=>activate()).observe(root,{attributes:true,attributeFilter:['data-orbital-motion']});
   document.addEventListener('restaurant:config-applied',async()=>{
     ensureStudio();
-    if(isHalf()&&!dragging&&!tween)await loadItems({reset:lastSource!==source()});
-    else syncStudio();
+    if(isHalf()){
+      if(dragging||tween){refreshQueued=true;return}
+      await loadItems({reset:lastSource!==source()});
+    }else syncStudio();
   });
 
   function state(){return {ready:root.dataset.halfOrbit==='ready',mode:root.dataset.orbitalMotion,
