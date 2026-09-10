@@ -32,6 +32,12 @@
   const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
   const normalize=(v,n)=>n?((v%n)+n)%n:0;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  /* Chromatic interpolation shared by the drag preview: a real colour blend, never a swap. */
+  const hex3=h=>{const m=/^#?([\da-f]{3}|[\da-f]{6})$/i.exec(String(h||'').trim());if(!m)return null;
+    let s=m[1];if(s.length===3)s=s.replace(/./g,c=>c+c);return [parseInt(s.slice(0,2),16),parseInt(s.slice(2,4),16),parseInt(s.slice(4,6),16)]};
+  const toHex=n=>clamp(Math.round(n),0,255).toString(16).padStart(2,'0');
+  const mixColor=(a,b,t)=>{const pa=hex3(a),pb=hex3(b);if(!pa||!pb)return t<.5?a:b;
+    return `#${toHex(pa[0]+(pb[0]-pa[0])*t)}${toHex(pa[1]+(pb[1]-pa[1])*t)}${toHex(pa[2]+(pb[2]-pa[2])*t)}`};
 
   let section=null,shell=null,stage=null,arc=null,labels=null,hero=null,heroA=null,heroB=null,heroFloor=null;
   let worldA=null,worldB=null,chroma=null,copy=null,title=null,titleGhost=null,titleFlare=null;
@@ -39,7 +45,7 @@
   let items=[],pizzaManifest=null,progress=0,tween=null,goal=null,ready=false,mounted=false;
   let active=-1,frontHero='a',frontWorld='a',lastSource='',lastSignature='';
   let dragging=false,pointerId=null,startX=0,startProgress=0,lastX=0,lastT=0,velocity=0,moved=false;
-  let shellTouchAction='',suppressArrowClickUntil=0,refreshQueued=false;
+  let shellTouchAction='',suppressArrowClickUntil=0,refreshQueued=false,transitionDir=0,dragPreviewActive=false;
   const observers=new Set();
 
   const isHalf=()=>root.dataset.orbitalMotion===MODE;
@@ -250,7 +256,7 @@
 
   function renderImmediate(i=activeIndex()){
     const item=items[i];if(!item||!stage)return;
-    tween?.kill?.();tween=null;goal=null;
+    tween?.kill?.();tween=null;goal=null;dragPreviewActive=false;transitionDir=0;
     const fw=frontWorld==='a'?worldA:worldB,ow=frontWorld==='a'?worldB:worldA;
     const fh=frontHero==='a'?heroA:heroB,oh=frontHero==='a'?heroB:heroA;
     setWorld(fw,item);setHero(fh,item);setCopyContent(item,i);
@@ -272,7 +278,7 @@
   }
 
   function animateProgressOnly(target,duration=.46){
-    tween?.kill?.();goal=target;
+    tween?.kill?.();goal=target;clearDragPreview();
     const dur=reduced.matches?Math.min(.14,duration):duration;
     if(!window.gsap){progress=Math.round(target);placeLabels();goal=null;return}
     const s={p:progress};
@@ -287,7 +293,7 @@
     if(!item)return;
     const delta=targetRound-progress,dir=delta===0?1:Math.sign(delta);
     if(i===active){animateProgressOnly(targetRound,Math.min(.46,duration));return}
-    tween?.kill?.();goal=targetRound;
+    tween?.kill?.();goal=targetRound;transitionDir=dir;dragPreviewActive=false;
 
     if(!window.gsap||reduced.matches){
       progress=targetRound;active=i;renderImmediate(i);notifyActive(i,item);return;
@@ -317,7 +323,7 @@
         gsap.set(title,{opacity:1,x:0,y:0,scale:1,filter:'blur(0px)',clearProps:'color'});
         gsap.set(titleGhost,{opacity:0});gsap.set([chroma,titleFlare],{opacity:0});
         titleGhost.textContent='';delete stage.dataset.transition;delete stage.dataset.direction;
-        delete root.dataset.halfOrbitTransition;goal=null;tween=null;notifyActive(i,item);syncStudio();
+        delete root.dataset.halfOrbitTransition;goal=null;tween=null;transitionDir=0;notifyActive(i,item);syncStudio();
         if(refreshQueued){refreshQueued=false;loadItems({reset:lastSource!==source()})}
       }
     });
@@ -384,6 +390,41 @@
     animateTo(Math.round(projected),.78);
   }
 
+  /* DRAG CHROMATIC PREVIEW — while the pointer is held the world, accent and hero already
+     travel toward the neighbour, so the chromatic change begins during the gesture (§13/§14).
+     It only mutates the FRONT layer + accent vars; the committed transitionTo still owns the
+     two-layer crossover, so the release handoff stays seamless. */
+  function dragPreview(){
+    if(!items.length||!stage)return;
+    const a=activeIndex(),cur=items[a];if(!cur)return;
+    const d=progress-Math.round(progress),dir=d>=0?1:-1;
+    const neighbor=items[normalize(a+dir,items.length)]||cur;
+    const t=clamp(Math.abs(d)/.5,0,1),tt=reduced.matches?t*.5:t*.85;
+    const accent=mixColor(cur.accent||'#d8ff4f',neighbor.accent||cur.accent||'#d8ff4f',tt);
+    const bgA=mixColor(cur.bgA||'#11110e',neighbor.bgA||cur.bgA||'#11110e',tt);
+    const bgB=mixColor(cur.bgB||'#050504',neighbor.bgB||cur.bgB||'#050504',tt);
+    const fw=frontWorld==='a'?worldA:worldB,fh=frontHero==='a'?heroA:heroB;
+    fw?.style.setProperty('--hos-bg-a',bgA);fw?.style.setProperty('--hos-bg-b',bgB);fw?.style.setProperty('--hos-accent',accent);
+    root.style.setProperty('--hos-accent',accent);stage.style.setProperty('--hos-accent',accent);
+    chroma?.style.setProperty('--hos-chroma',accent);titleFlare?.style.setProperty('--hos-chroma',accent);
+    dragPreviewActive=true;
+    if(reduced.matches||!window.gsap)return;
+    gsap.set(fh,{scale:1-.06*t,y:8*t,rotation:-dir*3*t,filter:`blur(${(2.1*t).toFixed(2)}px)`});
+    gsap.set(chroma,{opacity:.30*t,scale:.40+.5*t,rotation:dir*4*t});
+    gsap.set(heroFloor,{scale:1-.12*t,opacity:.72-.22*t});
+  }
+
+  function clearDragPreview(){
+    if(!dragPreviewActive)return;dragPreviewActive=false;
+    const i=activeIndex(),cur=items[i];if(!cur)return;
+    setWorld(frontWorld==='a'?worldA:worldB,cur);setCopyContent(cur,i);
+    const fh=frontHero==='a'?heroA:heroB;
+    if(!window.gsap)return;const dur=reduced.matches?0:.3;
+    gsap.to(fh,{scale:1,y:0,rotation:0,filter:'blur(0px)',duration:dur,ease:'power2.out'});
+    gsap.to(chroma,{opacity:0,scale:.35,rotation:0,duration:dur});
+    gsap.to(heroFloor,{scale:1,opacity:.72,duration:dur});
+  }
+
   function onDown(e){
     if(!isHalf()||!items.length||e.button>0)return;
     if(e.target.closest?.(INTERACTIVE)){e.stopPropagation();return}
@@ -400,7 +441,7 @@
     e.stopPropagation();const now=e.timeStamp||performance.now(),dt=Math.max(1,now-lastT);
     velocity=velocity*.62+((e.clientX-lastX)/dt)*.38;lastX=e.clientX;lastT=now;
     const dx=e.clientX-startX;if(Math.abs(dx)>4)moved=true;
-    progress=startProgress-dx/(isMobile()?155:230);placeLabels();
+    progress=startProgress-dx/(isMobile()?155:230);placeLabels();dragPreview();
   }
 
   function onUp(e){
@@ -409,6 +450,7 @@
     try{stage.releasePointerCapture(e.pointerId)}catch{}
     if(!moved){animateProgressOnly(Math.round(startProgress),.24);return}
     const travel=Math.abs(progress-startProgress),fling=Math.abs(velocity)>.45;
+    /* Continue the choreography from the current visual progress — never restart from zero. */
     (travel>.22||fling)?settle():animateProgressOnly(Math.round(startProgress),.40);
   }
 
@@ -534,7 +576,9 @@
     source:source(),progress,activeIndex:activeIndex(),count:items.length,dragging,mounted,
     activeId:items[activeIndex()]?.id||null,activeName:items[activeIndex()]?.name||null,
     halfTurnDeg:+(progress*180).toFixed(2),transition:stage?.dataset.transition==='1',
-    transitionDirection:stage?.dataset.direction||null,review,reduced:reduced.matches}}
+    transitionDirection:stage?.dataset.direction||null,direction:stage?.dataset.transition==='1'?transitionDir:0,
+    dragPreview:dragPreviewActive,accent:items[activeIndex()]?.accent||null,
+    review,reduced:reduced.matches}}
 
   function boot(){
     if(ready)return;

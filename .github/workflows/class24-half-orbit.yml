@@ -34,6 +34,7 @@ jobs:
           node --check class24-motion-governance.js
           node --check tests/class24-half-orbit-selector-e2e.mjs
           node --check tests/class24-interaction-governance-e2e.mjs
+          node --check tests/class24-premium-transition-e2e.mjs
           node --check scripts/check-pizza-premium.mjs
           node --check scripts/class4-static-check.mjs
       - name: Install Playwright Chromium
@@ -45,6 +46,8 @@ jobs:
         run: node tests/class24-half-orbit-selector-e2e.mjs
       - name: Real pointer + governance gate
         run: node tests/class24-interaction-governance-e2e.mjs
+      - name: Premium transition gate
+        run: node tests/class24-premium-transition-e2e.mjs
       - name: Static platform contracts
         run: |
           node scripts/class4-static-check.mjs
