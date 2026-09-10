@@ -1,0 +1,51 @@
+name: Class 24 Half Orbit + Motion Governance
+
+on:
+  pull_request:
+    paths:
+      - 'class24-half-orbit-selector.js'
+      - 'class24-motion-governance.js'
+      - 'styles-v24.css'
+      - 'styles-v24-governance.css'
+      - 'tests/class24-*.mjs'
+      - 'class19-motion-library.js'
+      - 'tests/class19-motion-library-e2e.mjs'
+      - 'class14-scroll-traveler.js'
+      - 'tests/class14-scroll-traveler-e2e.mjs'
+      - 'scripts/check-pizza-premium.mjs'
+      - 'scripts/class4-static-check.mjs'
+      - 'index.html'
+      - '.github/workflows/class24-half-orbit.yml'
+  push:
+    branches:
+      - feat/half-orbit-selector
+
+jobs:
+  class24:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check class24-half-orbit-selector.js
+          node --check class24-motion-governance.js
+          node --check tests/class24-half-orbit-selector-e2e.mjs
+          node --check tests/class24-interaction-governance-e2e.mjs
+          node --check scripts/check-pizza-premium.mjs
+          node --check scripts/class4-static-check.mjs
+      - name: Install Playwright Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Half Orbit product gate
+        run: node tests/class24-half-orbit-selector-e2e.mjs
+      - name: Real pointer + governance gate
+        run: node tests/class24-interaction-governance-e2e.mjs
+      - name: Static platform contracts
+        run: |
+          node scripts/class4-static-check.mjs
+          node scripts/check-pizza-premium.mjs
