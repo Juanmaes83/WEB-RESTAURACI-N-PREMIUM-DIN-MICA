@@ -13,12 +13,17 @@ const out=[];
 const check=(name,ok,detail='')=>{out.push({name,ok});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
 
 async function emptyDragPoint(page){
+  /* The arc rides labels across the upper band and the count varies per catalog (6 dishes vs
+     8 pizzas), so a sparse fixed grid is flaky. Scan a dense grid — including the lower band
+     that sits below the labels — and take the first control-free hit on the stage itself. */
   return page.evaluate(()=>{
     const stage=document.querySelector('.hos-stage');
     if(!stage)return null;
     const r=stage.getBoundingClientRect();
     const interactive='button,a,input,select,textarea,label,[role="button"]';
-    for(const yr of [.28,.34,.40,.48,.56])for(const xr of [.62,.52,.72,.38,.28]){
+    const ys=[.66,.60,.72,.54,.48,.40,.34,.28,.78];
+    const xs=[.50,.60,.40,.66,.34,.72,.28,.55,.45];
+    for(const yr of ys)for(const xr of xs){
       const x=r.left+r.width*xr,y=r.top+r.height*yr;
       if(x<20||x>innerWidth-20||y<20||y>innerHeight-20)continue;
       const el=document.elementFromPoint(x,y);
