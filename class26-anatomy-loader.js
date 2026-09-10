@@ -16,7 +16,22 @@
 */
 (() => {
   'use strict';
-  if(window.parent!==window)return;   /* dentro de la shell de experiencias no se monta */
+  /* NO MONTAR DENTRO DE LA SHELL DE EXPERIENCIAS — y sólo ahí.
+
+     La primera versión guardaba con `window.parent!==window`, que es la forma corta y
+     resulta demasiado amplia: bloquea CUALQUIER framing. Medido: el enlace de revisión
+     por raw.githack.com abre la página dentro de un iframe, y con esa guarda la sección
+     no se montaba y el enlace no servía para revisar nada.
+
+     La shell de Class 22 marca su iframe con `class="xs-frame"` y siempre carga páginas
+     del MISMO origen, así que se puede reconocer con exactitud. Si el padre es de otro
+     origen, `frameElement` lanza o devuelve null: no es nuestra shell, y se monta. */
+  const insideExperienceShell=()=>{
+    if(window.parent===window)return false;
+    try{return !!window.frameElement?.classList?.contains('xs-frame')}
+    catch{return false}
+  };
+  if(insideExperienceShell())return;
   const root=document.documentElement;
   const CHAIN=['class26-anatomy-model.js','class26-anatomy-review.js',
                'class26-anatomy-engine.js','class26-anatomy-studio.js'];
