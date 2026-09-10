@@ -1,0 +1,304 @@
+{
+  "generatedAt": "2026-09-10",
+  "dishes": [
+    {
+      "id": "burger-clasica",
+      "verdict": {
+        "layers": 9,
+        "squashY": 0.47647,
+        "widthSpread": 0.1818,
+        "widthSpreadOk": true,
+        "minCoverage": 0.19974,
+        "coverageAdvisory": "ok",
+        "stackHeight": 1.12001,
+        "stackHeightOk": true,
+        "sourceBytes": 15560137,
+        "runtimeBytes": 6338991,
+        "savedBytes": 9221146,
+        "savedPct": 59.3,
+        "registered": true
+      },
+      "layers": [
+        {
+          "id": "top-bun",
+          "content": {
+            "x0": 99,
+            "y0": 89,
+            "w": 1339,
+            "h": 869,
+            "aspect": 1.54085,
+            "coverage": 0.58663,
+            "cx": 0.50033,
+            "cy": 0.51123
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 922685,
+            "components": 18,
+            "componentsKept": 1,
+            "discardedPx": 31
+          },
+          "layout": {
+            "order": 0,
+            "width": 0.49138,
+            "height": 0.15195,
+            "top": 0,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 0
+          },
+          "sourceBytes": 2634748,
+          "runtimeBytes": 899337
+        },
+        {
+          "id": "bacon",
+          "content": {
+            "x0": 159,
+            "y0": 160,
+            "w": 1194,
+            "h": 724,
+            "aspect": 1.64917,
+            "coverage": 0.3364,
+            "cx": 0.49219,
+            "cy": 0.50977
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 529108,
+            "components": 22,
+            "componentsKept": 1,
+            "discardedPx": 29
+          },
+          "layout": {
+            "order": 1,
+            "width": 0.43817,
+            "height": 0.12659,
+            "top": 0.14595,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 1
+          },
+          "sourceBytes": 1804799,
+          "runtimeBytes": 774666
+        },
+        {
+          "id": "tomato",
+          "content": {
+            "x0": 216,
+            "y0": 140,
+            "w": 1054,
+            "h": 802,
+            "aspect": 1.31421,
+            "coverage": 0.38805,
+            "cx": 0.48372,
+            "cy": 0.52832
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 610348,
+            "components": 21,
+            "componentsKept": 1,
+            "discardedPx": 21
+          },
+          "layout": {
+            "order": 2,
+            "width": 0.38679,
+            "height": 0.14023,
+            "top": 0.26654,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 2
+          },
+          "sourceBytes": 1660197,
+          "runtimeBytes": 841935
+        },
+        {
+          "id": "cheese",
+          "content": {
+            "x0": 216,
+            "y0": 107,
+            "w": 1039,
+            "h": 798,
+            "aspect": 1.30201,
+            "coverage": 0.26537,
+            "cx": 0.47884,
+            "cy": 0.49414
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 417388,
+            "components": 1,
+            "componentsKept": 1,
+            "discardedPx": 0
+          },
+          "layout": {
+            "order": 3,
+            "width": 0.38128,
+            "height": 0.13953,
+            "top": 0.40077,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 3
+          },
+          "sourceBytes": 909064,
+          "runtimeBytes": 486331
+        },
+        {
+          "id": "patty",
+          "content": {
+            "x0": 175,
+            "y0": 138,
+            "w": 1155,
+            "h": 794,
+            "aspect": 1.45466,
+            "coverage": 0.45978,
+            "cx": 0.48991,
+            "cy": 0.52246
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 723170,
+            "components": 14,
+            "componentsKept": 1,
+            "discardedPx": 18
+          },
+          "layout": {
+            "order": 4,
+            "width": 0.42385,
+            "height": 0.13883,
+            "top": 0.5343,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 4
+          },
+          "sourceBytes": 2374387,
+          "runtimeBytes": 1062234
+        },
+        {
+          "id": "sauce",
+          "content": {
+            "x0": 37,
+            "y0": 274,
+            "w": 1417,
+            "h": 506,
+            "aspect": 2.8004,
+            "coverage": 0.19974,
+            "cx": 0.48535,
+            "cy": 0.51465
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 314159,
+            "components": 6,
+            "componentsKept": 1,
+            "discardedPx": 7
+          },
+          "layout": {
+            "order": 5,
+            "width": 0.52,
+            "height": 0.08847,
+            "top": 0.66713,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 5
+          },
+          "sourceBytes": 759287,
+          "runtimeBytes": 236486
+        },
+        {
+          "id": "onion-tomato",
+          "content": {
+            "x0": 131,
+            "y0": 148,
+            "w": 1243,
+            "h": 760,
+            "aspect": 1.63553,
+            "coverage": 0.40594,
+            "cx": 0.48991,
+            "cy": 0.51563
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 638494,
+            "components": 9,
+            "componentsKept": 1,
+            "discardedPx": 15
+          },
+          "layout": {
+            "order": 6,
+            "width": 0.45615,
+            "height": 0.13289,
+            "top": 0.7496,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 6
+          },
+          "sourceBytes": 1674451,
+          "runtimeBytes": 640711
+        },
+        {
+          "id": "lettuce",
+          "content": {
+            "x0": 103,
+            "y0": 116,
+            "w": 1325,
+            "h": 799,
+            "aspect": 1.65832,
+            "coverage": 0.48211,
+            "cx": 0.49837,
+            "cy": 0.50342
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 758287,
+            "components": 11,
+            "componentsKept": 1,
+            "discardedPx": 12
+          },
+          "layout": {
+            "order": 7,
+            "width": 0.48624,
+            "height": 0.13971,
+            "top": 0.87649,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 7
+          },
+          "sourceBytes": 2069983,
+          "runtimeBytes": 720173
+        },
+        {
+          "id": "bottom-bun-board",
+          "content": {
+            "x0": 172,
+            "y0": 279,
+            "w": 1199,
+            "h": 628,
+            "aspect": 1.90924,
+            "coverage": 0.38102,
+            "cx": 0.50228,
+            "cy": 0.5791
+          },
+          "alpha": {
+            "threshold": 60,
+            "opaquePx": 599299,
+            "components": 4,
+            "componentsKept": 1,
+            "discardedPx": 3
+          },
+          "layout": {
+            "order": 8,
+            "width": 0.44,
+            "height": 0.10981,
+            "top": 1.0102,
+            "squashY": 0.47647,
+            "offsetX": 0,
+            "depth": 8
+          },
+          "sourceBytes": 1673221,
+          "runtimeBytes": 677118
+        }
+      ]
+    }
+  ]
+}

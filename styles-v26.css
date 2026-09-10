@@ -1,0 +1,279 @@
+/* CLASS 26 — ANATOMY THEATER. Separada de styles-v25.css (Beverages + Chromatic Wipe).
+
+   POR QUÉ cqw Y NO %
+     Todo el registro que genera scripts/ingest-anatomy-layers.mjs está en fracciones del
+     ANCHO del escenario: ancho de capa, top, alto y hueco. En CSS, un `top` en % se
+     resuelve contra el ALTO del bloque contenedor, así que mezclar % de ancho con % de
+     alto descuadra el apilado en cuanto cambia la proporción del escenario.
+     `container-type: inline-size` sobre el escenario hace que 1cqw sea exactamente el 1%
+     de su ancho, y entonces top, width y height comparten referencia. Es lo que permite
+     que la composición sobreviva a cualquier ancho sin recomponer nada.
+
+   POR QUÉ @property
+     --ana-collapse, --ana-px, --ana-py y --ana-drift se animan. Registradas como
+     <number> con valor inicial, el navegador las interpola de verdad y GSAP puede
+     tuenearlas sin trucos de string. */
+
+@property --ana-collapse { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --ana-px       { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --ana-py       { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --ana-drift    { syntax: '<number>'; inherits: false; initial-value: 0; }
+
+.ana-section{
+  --ana-ink:#f6f2e9;
+  --ana-accent:var(--accent,#d8ff4f);
+  --ana-paper:#0a0a08;
+  position:relative;
+  background:var(--ana-paper);
+  color:var(--ana-ink);
+  border-top:1px solid rgba(255,255,255,.08);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  overflow:clip;
+}
+
+.ana-shell{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
+  gap:clamp(28px,4vw,72px);
+  align-items:center;
+  padding:clamp(72px,9vw,140px) clamp(22px,5vw,92px);
+  isolation:isolate;
+}
+
+/* ------------------------------------------------------------------- columna de texto */
+
+.ana-copy{position:relative;z-index:4;max-width:640px}
+.ana-eyebrow{
+  margin:0 0 18px;text-transform:uppercase;letter-spacing:.18em;
+  font-size:12px;color:var(--ana-accent);
+}
+.ana-title{
+  font-family:Italiana,serif;font-weight:400;
+  font-size:clamp(46px,6.2vw,104px);line-height:.88;letter-spacing:-.03em;
+  margin:0 0 22px;
+}
+.ana-intro{
+  margin:0 0 clamp(28px,3.4vw,48px);max-width:52ch;
+  font-size:clamp(15px,1.15vw,19px);line-height:1.62;
+  color:rgba(246,242,233,.66);
+}
+
+/* La ficha del ingrediente. `min-height` reservado a propósito: sin él, seleccionar una
+   capa con nota larga empuja los controles y el ratón se queda apuntando a otra cosa. */
+.ana-sheet{
+  position:relative;min-height:9.5em;
+  padding:22px 24px;border-radius:14px;
+  background:rgba(255,255,255,.035);
+  border:1px solid rgba(255,255,255,.09);
+  border-left:2px solid var(--ana-accent);
+}
+.ana-sheet-index{
+  display:block;font-size:11px;letter-spacing:.18em;
+  color:var(--ana-accent);margin-bottom:10px;min-height:1em;
+}
+.ana-sheet-label{
+  font-family:Italiana,serif;font-weight:400;
+  font-size:clamp(26px,2.6vw,40px);line-height:1;margin:0 0 12px;
+}
+.ana-sheet-note{
+  margin:0;font-size:15px;line-height:1.6;color:rgba(246,242,233,.74);max-width:44ch;
+}
+.ana-sheet-meta{
+  display:grid;grid-template-columns:auto 1fr;gap:6px 16px;
+  margin:18px 0 0;font-size:13px;
+}
+.ana-sheet-meta dt{color:rgba(246,242,233,.42);letter-spacing:.04em}
+.ana-sheet-meta dd{margin:0;color:rgba(246,242,233,.8)}
+
+.ana-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:26px}
+.ana-assemble,.ana-detail{
+  min-height:46px;padding:0 22px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.05);color:var(--ana-ink);
+  font:inherit;font-size:14px;cursor:pointer;
+  transition:border-color .25s ease,background .25s ease;
+}
+.ana-assemble[aria-pressed="true"]{background:var(--ana-accent);color:#0a0a08;border-color:transparent}
+.ana-assemble:hover,.ana-detail:hover{border-color:var(--ana-accent)}
+.ana-nav{display:inline-flex;align-items:center;gap:6px}
+.ana-prev,.ana-next{
+  width:44px;height:44px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.04);
+  color:var(--ana-ink);font-size:15px;cursor:pointer;
+}
+.ana-prev:hover,.ana-next:hover{border-color:var(--ana-accent)}
+.ana-counter{
+  min-width:3.4em;text-align:center;font-size:12px;letter-spacing:.1em;
+  color:rgba(246,242,233,.5);
+}
+
+/* ------------------------------------------------------------------------ escenario */
+
+/* EL ALTO MANDA, NO EL ANCHO.
+
+   Primera versión: `aspect-ratio` con el ancho de la columna como lado definido. Dos
+   fallos reales, los dos medidos en navegador:
+     · en un portátil de 1440x900 el escenario salía 722x924 — la composición no cabía
+       en la ventana;
+     · a 800px, en una sola columna, el ancho no quedaba definido y el escenario
+       colapsaba a 224px.
+
+   Un apilado vertical se limita por el ALTO disponible. Así que el alto se declara con
+   `min()` de dos unidades de viewport —definido siempre, en cualquier layout— y el ancho
+   lo deriva `aspect-ratio`. El guardia `88vw` es para pantallas muy altas y estrechas,
+   donde 78svh daría un escenario más ancho que la pantalla. */
+.ana-stage{
+  /* la línea que hace que todo el registro cuadre: 1cqw == 1% del ancho del escenario */
+  container-type:inline-size;
+  position:relative;
+  height:min(78svh,88vw);
+  /* ancho/alto = 100 / (alto del apilado + margen), en las mismas fracciones del ancho */
+  aspect-ratio:calc(100 / (var(--ana-stack-h,112) + 16));
+  width:auto;max-width:100%;
+  justify-self:center;
+  z-index:2;
+}
+.ana-halo{
+  position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);
+  width:76cqw;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--ana-accent) 18%,transparent) 0%,transparent 66%);
+  filter:blur(10px);pointer-events:none;z-index:0;
+}
+.ana-stack{position:absolute;inset:0;z-index:3}
+
+/* Una capa. Position + width en cqw; el movimiento va todo en transform para no
+   provocar layout en cada frame. */
+/* El alto de la caja es DATO (`--ana-h`), no el alto natural de la imagen.
+
+   Con el alto implícito, una capa con `loading="lazy"` sin cargar colapsaba y el layout
+   se calculaba sobre imágenes que no estaban. Y como `scaleY()` no afecta al layout, la
+   caja tampoco coincidía con lo que se ve.
+
+   Declarándolo: el apilado es estable desde el primer frame, y el área de pulsación del
+   botón es exactamente la capa visible —que es lo que hace que se pueda acertar con un
+   dedo. La imagen sobresale de la caja y se pinta igual: `overflow` es visible. */
+.ana-layer{
+  position:absolute;left:50%;
+  width:calc(var(--ana-box) * 1cqw);
+  height:calc(var(--ana-h) * 1cqw);
+  top:calc((var(--ana-top) + var(--ana-drift)) * 1cqw);
+  margin-left:calc(var(--ana-lead) * 1cqw);
+  padding:0;border:0;background:none;
+  display:block;overflow:visible;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transform:
+    translate3d(calc(var(--ana-px) * 1px),
+               calc(var(--ana-py) * 1px + var(--ana-collapse) * var(--ana-cy) * 1cqw),
+               0);
+  /* Montar/desmontar lo interpola el navegador: --ana-collapse está registrada con
+     @property como <number>, así que es transicionable de forma nativa. El motor sólo
+     escribe 0 o 1 y el ORDEN del escalonado en --ana-delay. */
+  transition:
+    filter .32s ease,
+    opacity .32s ease,
+    --ana-collapse .62s cubic-bezier(.33,.02,.28,1) var(--ana-delay,0ms);
+}
+.ana-layer:focus-visible{outline:none}
+.ana-layer:focus-visible .ana-layer-float{
+  filter:drop-shadow(0 0 0 2px var(--ana-accent)) drop-shadow(0 18px 26px rgba(10,10,8,.5));
+}
+/* Absoluta y anclada arriba a propósito: un <button> centra su contenido en vertical, y
+   con la caja más baja que la imagen eso desplazaría el recorte y rompería el registro
+   —`transform-origin` cuenta con que el borde superior de la imagen está en el de la
+   caja. Así el área de pulsación puede crecer para el dedo sin mover un píxel de lo que
+   se ve. */
+.ana-layer-float{
+  position:absolute;left:0;top:0;width:100%;
+  display:block;will-change:transform;
+}
+.ana-layer img{
+  display:block;width:100%;height:auto;
+  /* el aplastado que hace que nueve capas lean como una pila y no como una columna */
+  transform:scaleY(var(--ana-sq,1));
+  transform-origin:50% 0;
+  filter:drop-shadow(0 16px 22px rgba(10,10,8,.42));
+  pointer-events:none;user-select:none;
+}
+
+/* La etiqueta sólo aparece cuando hace falta: al enfocar, al seleccionar, o siempre en
+   el preset atlas. Un despiece con nueve etiquetas permanentes deja de ser comida. */
+.ana-layer-tag{
+  position:absolute;left:100%;top:50%;transform:translateY(-50%);
+  margin-left:14px;white-space:nowrap;
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(246,242,233,.62);
+  opacity:0;transition:opacity .28s ease;pointer-events:none;
+}
+.ana-layer[data-hover="1"] .ana-layer-tag,
+.ana-layer[data-selected="1"] .ana-layer-tag,
+.ana-layer:focus-visible .ana-layer-tag{opacity:1}
+.ana-section[data-ana-preset="ingredient-atlas"] .ana-layer-tag{opacity:.8}
+.ana-layer[data-selected="1"] .ana-layer-tag{color:var(--ana-accent)}
+
+/* Selección: la capa elegida se separa y el resto cede foco. Nada de esconder: bajar
+   opacidad y desaturar mantiene la composición legible. */
+.ana-layer[data-selected="1"] img{
+  filter:drop-shadow(0 22px 34px rgba(10,10,8,.6))
+         drop-shadow(0 0 26px color-mix(in srgb,var(--ana-accent) 30%,transparent));
+}
+.ana-stack[data-has-selection] .ana-layer:not([data-selected="1"]){opacity:.52;filter:saturate(.72)}
+.ana-layer[data-hover="1"]:not([data-selected="1"]){opacity:.86}
+
+/* -------------------------------------------------------------------- héroe anotado */
+
+.ana-fallback{
+  position:absolute;inset:0;display:grid;
+  grid-template-columns:1fr auto;align-items:center;gap:clamp(16px,3vw,44px);
+}
+.ana-fallback-hero{
+  max-width:100%;max-height:100%;object-fit:contain;
+  filter:drop-shadow(0 30px 50px rgba(10,10,8,.55));
+}
+.ana-fallback-list{
+  list-style:none;margin:0;padding:0;display:grid;gap:10px;
+  font-size:13px;letter-spacing:.06em;text-transform:uppercase;
+}
+.ana-fallback-list li{
+  padding-left:16px;position:relative;color:rgba(246,242,233,.72);
+}
+.ana-fallback-list li:before{
+  content:"";position:absolute;left:0;top:.52em;
+  width:6px;height:6px;border-radius:50%;background:var(--ana-accent);
+}
+
+/* --------------------------------------------------------------------------- móvil
+
+   No es la composición de escritorio reducida —esa es la lección de routeMobile en
+   Project 09. En vertical el texto va arriba y el escenario ocupa el ancho completo,
+   porque el eje vertical es justo el que escasea en un teléfono y el apilado lo
+   necesita entero. */
+
+@media (max-width:900px){
+  .ana-shell{grid-template-columns:1fr;gap:clamp(24px,5vw,40px);padding:clamp(56px,11vw,84px) clamp(18px,6vw,32px)}
+  .ana-copy{max-width:none;order:1}
+  .ana-stage{order:2}
+  .ana-sheet{min-height:8em}
+  /* área táctil real: la capa es un botón y en un dedo tiene que poder acertarse */
+  .ana-layer{min-height:34px}
+  .ana-layer-tag{
+    left:auto;right:100%;margin:0 12px 0 0;
+    font-size:11px;
+  }
+  .ana-fallback{grid-template-columns:1fr;justify-items:center}
+}
+
+/* ------------------------------------------------------------------ reduced motion
+
+   Aquí no hay versión degradada, y es el argumento fuerte de esta clase: el estado
+   explotado ES el reposo, así que apagar el movimiento deja exactamente la misma
+   composición, quieta. */
+
+@media (prefers-reduced-motion: reduce){
+  .ana-layer,.ana-layer-tag,.ana-assemble,.ana-detail{transition:none}
+  .ana-layer-float{will-change:auto}
+}
+
+/* Cuando la sección no está a la vista, nada tiene por qué reservar composición de GPU.
+   El motor ya mata las tweens; esto suelta también el will-change. */
+.ana-section:not([data-ana-visible="1"]) .ana-layer-float{will-change:auto}

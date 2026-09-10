@@ -1,0 +1,127 @@
+{
+  "passed": 24,
+  "total": 24,
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "el manifiesto existe",
+      "ok": true,
+      "detail": "assets\\anatomy\\layers-manifest.json"
+    },
+    {
+      "name": "lo genera el ingestor, no una mano",
+      "ok": true,
+      "detail": "scripts/ingest-anatomy-layers.mjs"
+    },
+    {
+      "name": "hay al menos un plato con anatomia",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "[burger-clasica] tres capas o mas — con menos el motor cae a heroe anotado",
+      "ok": true,
+      "detail": "9"
+    },
+    {
+      "name": "[burger-clasica] el veredicto del registro es favorable",
+      "ok": true,
+      "detail": "{\"widthSpreadOk\":true,\"stackHeightOk\":true}"
+    },
+    {
+      "name": "[burger-clasica] todos los assets de runtime existen",
+      "ok": true,
+      "detail": "ok"
+    },
+    {
+      "name": "[burger-clasica] todos llevan canal alfa real",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] las dimensiones declaradas coinciden con el fichero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] ninguna capa pasa de 1.5MB",
+      "ok": true,
+      "detail": "1037KB la mayor"
+    },
+    {
+      "name": "[burger-clasica] el runtime esta recortado a la caja de contenido",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] los tops del manifiesto son el acumulado real",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] el alto del apilado coincide con el declarado",
+      "ok": true,
+      "detail": "1.12001 vs 1.12001"
+    },
+    {
+      "name": "[burger-clasica] el apilado respeta el objetivo de alto",
+      "ok": true,
+      "detail": "1.12001 vs 1.12"
+    },
+    {
+      "name": "[burger-clasica] el apilado es DENSO (huecos <= 0 o minimos)",
+      "ok": true,
+      "detail": "-0.006"
+    },
+    {
+      "name": "[burger-clasica] el aplastado es un valor derivado y unico",
+      "ok": true,
+      "detail": "0.47647"
+    },
+    {
+      "name": "[burger-clasica] el orden es 0..n sin huecos ni repetidos",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] los ids no se repiten",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] cada capa tiene etiqueta",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] los masters de origen siguen ahi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] el juego de runtime baja de 8MB",
+      "ok": true,
+      "detail": "6.0MB"
+    },
+    {
+      "name": "[burger-clasica] el ingestor ahorra al menos un 40%",
+      "ok": true,
+      "detail": "-59.3%"
+    },
+    {
+      "name": "[burger-clasica] el heroe de runtime existe",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "[burger-clasica] el heroe pesa menos que su master",
+      "ok": true,
+      "detail": "1631KB -> 1020KB"
+    },
+    {
+      "name": "el fixture de revision cubre todas las capas del manifiesto",
+      "ok": true,
+      "detail": "todas cubiertas"
+    }
+  ]
+}

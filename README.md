@@ -181,7 +181,12 @@ Cada proyecto conserva su propia marca, contenido, carta, media, motion, módulo
 
 ## Motion / Experiences
 
-**11/11 capacidades Motion están construidas y catalogadas en Studio.**
+**Todas las capacidades Motion están construidas y catalogadas en Studio.**
+
+> La cuenta viva es la de `class19-motion-library.js` (`ENGINES[]`), que es el catálogo
+> canónico. Este README se ha quedado por detrás del código más de una vez: ante la duda,
+> manda el código. Class 24 (Half Orbit Selector) y Class 25 (Chromatic Ingredient Wipe)
+> entraron después de la lista de abajo.
 
 Class 19 — Motion + Module Studio Integration: ✅ aprobada y mergeada.
 
@@ -237,6 +242,32 @@ propio) y `RestaurantMediaPicker` (el selector de Media Library que el producto 
 tenía). Beverages los reutilizará sin tocarlos.
 
 `enabled:false` por defecto: cero sección, cero espacio, cero vídeo, cero observers.
+
+---
+
+### Anatomy
+
+Class 26 — Anatomy Theater: **READY FOR HUMAN VISUAL REVIEW.**
+
+El plato abierto en sus capas. No es un motor de producto —los nueve presets ya resuelven
+la navegación de la colección— sino una **Section Experience** que responde a otra
+pregunta: qué hay dentro de este plato. Las capas pertenecen al plato
+(`dish.anatomy.layers[]`) y la procedencia, técnica y maridaje se leen de `dishes[]`, donde
+ya estaban desde Class 04.
+
+El estado explotado es el **reposo**, no el clímax: con `prefers-reduced-motion` la
+composición se queda quieta y sigue siendo la composición. Cada capa es un botón real, con
+teclado y área táctil. Con menos de dos recortes resolubles cae a **héroe anotado** en vez
+de a un hueco: funciona con los assets que haya y mejora cuando el restaurante sube mejores
+medios.
+
+El registro **se mide, no se cablea**: `scripts/ingest-anatomy-layers.mjs` mide la caja de
+contenido alfa de cada recorte, recorta, redimensiona y deriva el aplastado, con tolerancias
+y veredicto — igual que el ingestor de porciones de Project 07. Lo que sube un restaurante
+se mide en el navegador, así que no necesita ejecutar ningún script.
+
+Apagado por defecto. Detalle en `docs/CLASS-26-ANATOMY-THEATER.md`; el análisis que llevó
+a construir esto, en `docs/BURGER-SOURCE-ADAPTATION-AUDIT.md`.
 
 ---
 
