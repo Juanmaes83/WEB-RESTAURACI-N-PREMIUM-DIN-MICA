@@ -49,7 +49,7 @@ Reglas:
 - `class24-beverages-studio.js` — panel «Bebidas» dentro del Studio existente.
 - `class24-beverages-review.js` — fixture visual sólo con `?beverage-review=1`.
 - `styles-v24.css` — producto público + Studio.
-- `beverage-review.html` — superficie de revisión sobre el `index.html` canónico mediante iframe same-origin; inyecta Class 24 sin modificar todavía el entrypoint productivo.
+- `beverage-review.html` — superficie de revisión frame-free: hidrata directamente el markup del `index.html` canónico y carga su runtime más Class 24, sin modificar todavía el entrypoint productivo. Se evitó iframe porque el preview protegido de Vercel envía `X-Frame-Options: DENY`.
 
 ## Review fixture
 
@@ -74,4 +74,4 @@ Se registran como referencias lógicas a través de `RestaurantMedia.map()`. El 
 
 ## Paso tras aprobación humana
 
-Sólo tras aprobación se añadirá el wiring productivo de Class 24 al `index.html` (carga de model/media/engine/studio) y se mergeará la rama a `main`. El wrapper de review puede conservarse como evidencia o moverse a `labs/review` sin convertirse en flujo operativo.
+Sólo tras aprobación se añadirá el wiring productivo de Class 24 al `index.html` (carga de model/media/engine/studio) y se mergeará la rama a `main`. La superficie de review puede conservarse como evidencia o moverse a `labs/review` sin convertirse en flujo operativo.
