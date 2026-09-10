@@ -18,6 +18,7 @@
   'use strict';
   const MODE='half-orbit';
   const MANIFEST_URL='assets/pizza-motion/slices-manifest.json';
+  const INTERACTIVE='button,a,input,select,textarea,label,[role="button"]';
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
   const root=document.documentElement;
@@ -43,6 +44,7 @@
   const source=()=>review?reviewSource:
     (window.RestaurantStudioConfig?.get?.('motion.halfOrbitSource')==='pizzas'?'pizzas':'dishes');
   const activeIndex=()=>normalize(Math.round(progress),items.length);
+
   function continuousDistance(i){
     const n=items.length;if(!n)return 0;
     let d=i-progress;
@@ -57,7 +59,6 @@
     const n=parseInt(s,16);
     return Number.isFinite(n)?[n>>16&255,n>>8&255,n&255]:[216,255,79];
   }
-  const rgba=(hex,a)=>`rgba(${hexRgb(hex).join(',')},${a})`;
 
   async function loadManifest(){
     if(pizzaManifest)return pizzaManifest;
@@ -76,6 +77,7 @@
     const el=$(`#orbit-stage .orbit-dish[data-id="${CSS.escape(String(d.id||''))}"] img`);
     return el?.currentSrc||el?.src||d?.depthCarousel?.asset||d?.image||'';
   }
+
   function dishItems(){
     const list=window.RestaurantOrbit?.getDishes?.()||window.RestaurantStudioConfig?.snapshot?.().dishes||[];
     return list.filter(d=>d&&d.enabled!==false).map((d,i)=>({
@@ -86,6 +88,7 @@
       bgA:d.depthCarousel?.backgroundColor||'#11110e',bgB:'#050504',kind:'dish',raw:d
     }));
   }
+
   function pizzaItems(){
     const cfg=window.RestaurantStudioConfig?.get?.('pizzaSliceOrbit')||window.RestaurantDefaults?.pizzaSliceOrbit||{};
     const slices=pizzaManifest?.slices||[];
@@ -99,7 +102,12 @@
         bgA:bg.a||'#17110a',bgB:bg.b||'#050505',kind:'pizza',raw:p};
     });
   }
-  function signature(list,src){return `${src}|${list.map(x=>`${x.id}:${x.name}:${x.image}:${x.accent}`).join('|')}`}
+
+  function signature(list,src){
+    return `${src}|${list.map(x=>[
+      x.id,x.name,x.meta,x.description,x.ingredients,x.price,x.image,x.accent,x.bgA,x.bgB,x.kind
+    ].map(v=>String(v??'')).join('~')).join('|')}`;
+  }
 
   async function loadItems({reset=false}={}){
     const src=source();
@@ -122,6 +130,7 @@
     const l=document.createElement('link');l.rel='stylesheet';l.href='styles-v24.css';
     l.dataset.halfOrbitStyles='1';document.head.appendChild(l);
   }
+
   function injectOption(){
     const s=$('#motion-orbital-style');if(!s)return false;
     if(!s.querySelector(`option[value="${MODE}"]`)){
@@ -135,7 +144,7 @@
     if(!section||!shell)return false;
     if(stage?.isConnected)return true;
     stage=document.createElement('div');stage.className='hos-stage';stage.tabIndex=0;
-    stage.setAttribute('aria-label','Half Orbit Selector. Arrastra horizontalmente o usa las flechas.');
+    stage.setAttribute('aria-label','Selector semicircular. Arrastra horizontalmente o usa las flechas.');
     stage.innerHTML=`
       <div class="hos-world hos-world-a" aria-hidden="true"><img alt=""></div>
       <div class="hos-world hos-world-b" aria-hidden="true"><img alt=""></div>
@@ -195,8 +204,6 @@
       el.tabIndex=abs<.5?0:-1;
       el.disabled=!visible;
     });
-    /* The product labels glide by item distance; the graphic underneath performs the
-       explicit half-turn: exactly 180 degrees for one unit of progress. */
     arc?.style.setProperty('--hos-turn',`${(progress*180).toFixed(2)}deg`);
   }
 
@@ -208,6 +215,7 @@
     const img=$('img',el);if(img){img.src=item.image||'';img.style.display=item.image?'block':'none'}
     el.dataset.item=item.id;
   }
+
   function swapWorld(item,immediate=false){
     const incoming=frontWorld==='a'?worldB:worldA,outgoing=frontWorld==='a'?worldA:worldB;
     setWorld(incoming,item);
@@ -220,6 +228,7 @@
     gsap.to(incoming,{opacity:1,scale:1,duration:.72,ease:'power3.out'});
     frontWorld=frontWorld==='a'?'b':'a';
   }
+
   function swapHero(item,immediate=false){
     const incoming=frontHero==='a'?heroB:heroA,outgoing=frontHero==='a'?heroA:heroB;
     incoming.src=item.image||'';incoming.alt='';incoming.dataset.item=item.id;
@@ -233,9 +242,10 @@
     gsap.to(incoming,{opacity:1,y:0,scale:1,rotation:0,duration:.72,ease:'power4.out',delay:.08});
     frontHero=frontHero==='a'?'b':'a';
   }
+
   function paintCopy(item,i,immediate=false){
     if(!item)return;
-    sourceBadge.textContent=item.kind==='pizza'?'PIZZA COLLECTION':'SIGNATURE DISHES';
+    sourceBadge.textContent=item.kind==='pizza'?'SELECCIÓN DE PIZZAS':'PLATOS DE AUTOR';
     meta.textContent=item.meta||'';title.textContent=item.name||'';
     desc.textContent=item.description||item.ingredients||'';
     counter.textContent=`${String(i+1).padStart(2,'0')} / ${String(items.length).padStart(2,'0')}`;
@@ -247,6 +257,7 @@
       gsap.fromTo([sourceBadge,meta,desc,counter],{y:16,opacity:0},{y:0,opacity:1,duration:.48,ease:'power3.out',stagger:.045,delay:.08});
     }
   }
+
   function commitActive(immediate=false){
     const i=activeIndex(),item=items[i];if(!item)return;
     if(i===active&&!immediate)return;
@@ -256,6 +267,7 @@
     $$('.hos-label',labels).forEach((el,k)=>el.setAttribute('aria-current',String(k===i)));
     observers.forEach(fn=>{try{fn(state())}catch{}});
   }
+
   function paint(immediate=false){placeLabels();commitActive(immediate)}
 
   function animateTo(target,duration=.64){
@@ -267,13 +279,16 @@
       onUpdate(){progress=s.p;placeLabels()},
       onComplete(){progress=Math.round(target);paint();tween=null}});
   }
+
   function step(dir){if(!isHalf()||!items.length)return;animateTo(Math.round(progress)+dir)}
+
   function goTo(index){
     if(!isHalf()||!items.length)return;
     const n=items.length,target=normalize(index,n),now=normalize(Math.round(progress),n);
     let d=target-now;while(d>n/2)d-=n;while(d<-n/2)d+=n;
     if(d)animateTo(Math.round(progress)+d,.72);
   }
+
   function settle(){
     const projected=progress-velocity*(isMobile()?.22:.28);
     animateTo(Math.round(projected),.56);
@@ -281,11 +296,15 @@
 
   function onDown(e){
     if(!isHalf()||!items.length||e.button>0)return;
+    /* Buttons/labels/CTA are controls, not drag handles. Stop here so neither this
+       stage nor the legacy orbit-shell underneath can capture their pointer. */
+    if(e.target.closest?.(INTERACTIVE)){e.stopPropagation();return}
     e.stopPropagation();dragging=true;moved=false;pointerId=e.pointerId;
     startX=lastX=e.clientX;startProgress=progress;lastT=e.timeStamp||performance.now();velocity=0;
     tween?.kill?.();tween=null;root.dataset.halfOrbitDrag='1';
     try{stage.setPointerCapture(e.pointerId)}catch{}
   }
+
   function onMove(e){
     if(!dragging||e.pointerId!==pointerId)return;
     e.stopPropagation();const now=e.timeStamp||performance.now(),dt=Math.max(1,now-lastT);
@@ -293,6 +312,7 @@
     const dx=e.clientX-startX;if(Math.abs(dx)>4)moved=true;
     progress=startProgress-dx/(isMobile()?155:230);placeLabels();
   }
+
   function onUp(e){
     if(!dragging||(pointerId!==null&&e.pointerId!==pointerId))return;
     e.stopPropagation();dragging=false;pointerId=null;delete root.dataset.halfOrbitDrag;
@@ -301,12 +321,18 @@
     const travel=Math.abs(progress-startProgress),fling=Math.abs(velocity)>.45;
     (travel>.22||fling)?settle():animateTo(Math.round(startProgress),.40);
   }
+
   function onWheel(e){if(isHalf())e.stopPropagation()}
+
   function onKey(e){
     if(!isHalf())return;
     if(e.key==='ArrowRight'){e.preventDefault();e.stopPropagation();step(1)}
     else if(e.key==='ArrowLeft'){e.preventDefault();e.stopPropagation();step(-1)}
   }
+
+  const onPrevClick=e=>{e.stopPropagation();step(-1)};
+  const onNextClick=e=>{e.stopPropagation();step(1)};
+  const onDetailClick=e=>{e.stopPropagation();window.RestaurantOrbit?.openDetail?.()};
 
   function bind(){
     if(mounted||!stage)return;mounted=true;
@@ -316,16 +342,19 @@
     stage.addEventListener('pointercancel',onUp);
     stage.addEventListener('wheel',onWheel,{passive:true});
     stage.addEventListener('keydown',onKey);
-    prevBtn.addEventListener('click',e=>{e.stopPropagation();step(-1)});
-    nextBtn.addEventListener('click',e=>{e.stopPropagation();step(1)});
-    detailBtn.addEventListener('click',e=>{e.stopPropagation();window.RestaurantOrbit?.openDetail?.()});
+    prevBtn.addEventListener('click',onPrevClick);
+    nextBtn.addEventListener('click',onNextClick);
+    detailBtn.addEventListener('click',onDetailClick);
     addEventListener('resize',placeLabels);
   }
+
   function unbind(){
     if(!mounted)return;mounted=false;
     stage?.removeEventListener('pointerdown',onDown);stage?.removeEventListener('pointermove',onMove);
     stage?.removeEventListener('pointerup',onUp);stage?.removeEventListener('pointercancel',onUp);
     stage?.removeEventListener('wheel',onWheel);stage?.removeEventListener('keydown',onKey);
+    prevBtn?.removeEventListener('click',onPrevClick);nextBtn?.removeEventListener('click',onNextClick);
+    detailBtn?.removeEventListener('click',onDetailClick);
     removeEventListener('resize',placeLabels);
   }
 
@@ -333,7 +362,7 @@
     const panel=$('.studio-panel.motion-panel');if(!panel||$('.hos-studio',panel))return;
     studioCard=document.createElement('article');studioCard.className='motion-card hos-studio';
     studioCard.innerHTML=`
-      <div class="motion-card-head"><div><span class="motion-number">12</span><strong>Half Orbit Selector</strong></div><span class="motion-badge">NEW</span></div>
+      <div class="motion-card-head"><div><span class="motion-number">12</span><strong>Half Orbit Selector</strong></div><span class="motion-badge">NUEVO</span></div>
       <p>Media circunferencia tipográfica. El producto activo ocupa el centro; cada cambio hace un barrido de 180° y eleva el titular.</p>
       <label>Productos
         <select class="hos-source-select"><option value="dishes">Platos del proyecto</option><option value="pizzas">Pizzas del proyecto</option></select>
@@ -347,13 +376,15 @@
     $('.hos-studio-preview',studioCard).addEventListener('click',()=>activateFromStudio(true));
     syncStudio();
   }
+
   function syncStudio(){
     if(!studioCard)return;
     const sel=$('.hos-source-select',studioCard);if(sel&&document.activeElement!==sel)sel.value=source();
     const st=$('.hos-studio-state',studioCard);if(st)st.textContent=
-      `${source()==='pizzas'?'Pizzas':'Platos'} · ${items.length||'—'} productos · drag + flechas · sin secuestrar el scroll`;
+      `${source()==='pizzas'?'Pizzas':'Platos'} · ${items.length||'—'} productos · arrastra + flechas · el scroll de página sigue libre`;
     const b=$('.hos-studio-activate',studioCard);if(b)b.textContent=isHalf()?'En uso':'Activar';
   }
+
   function activateFromStudio(preview){
     const sel=$('#motion-orbital-style');if(!sel)return;
     sel.value=MODE;sel.dispatchEvent(new Event('input',{bubbles:true}));sel.dispatchEvent(new Event('change',{bubbles:true}));
@@ -364,14 +395,18 @@
   async function activate(){
     injectOption();ensureStyles();ensureStage();ensureStudio();
     if(isHalf()){
-      shellTouchAction=shell.style.touchAction;shell.style.touchAction='pan-y';stage.hidden=false;bind();
+      if(!mounted)shellTouchAction=shell.style.touchAction;
+      shell.style.touchAction='pan-y';stage.hidden=false;bind();
       await loadItems({reset:lastSource!==source()});
-      root.dataset.halfOrbit='ready';root.dataset.orbitalChoreography='half-orbit-v1';
+      root.dataset.halfOrbit='ready';root.dataset.orbitalChoreography='half-orbit-v2';
       syncStudio();
     }else{
       tween?.kill?.();tween=null;dragging=false;pointerId=null;delete root.dataset.halfOrbitDrag;
+      unbind();
       if(stage)stage.hidden=true;if(shell)shell.style.touchAction=shellTouchAction;
-      delete root.dataset.halfOrbit;syncStudio();
+      delete root.dataset.halfOrbit;
+      if(root.dataset.orbitalChoreography?.startsWith('half-orbit'))delete root.dataset.orbitalChoreography;
+      syncStudio();
     }
   }
 
@@ -392,7 +427,6 @@
     }catch{}
   }
 
-  root.addEventListener?.('half-orbit-noop',()=>{});
   new MutationObserver(()=>activate()).observe(root,{attributes:true,attributeFilter:['data-orbital-motion']});
   document.addEventListener('restaurant:config-applied',async()=>{
     ensureStudio();
@@ -401,7 +435,7 @@
   });
 
   function state(){return {ready:root.dataset.halfOrbit==='ready',mode:root.dataset.orbitalMotion,
-    source:source(),progress,activeIndex:activeIndex(),count:items.length,dragging,
+    source:source(),progress,activeIndex:activeIndex(),count:items.length,dragging,mounted,
     activeId:items[activeIndex()]?.id||null,activeName:items[activeIndex()]?.name||null,
     halfTurnDeg:+(progress*180).toFixed(2),review,reduced:reduced.matches}}
 
@@ -411,6 +445,7 @@
     if(!injectOption())return;
     ready=true;ensureStyles();ensureStage();ensureStudio();activate();restoreSavedChoice();
   }
+
   const timer=setInterval(()=>{boot();if(ready)clearInterval(timer)},120);
   setTimeout(()=>clearInterval(timer),20000);boot();
 
