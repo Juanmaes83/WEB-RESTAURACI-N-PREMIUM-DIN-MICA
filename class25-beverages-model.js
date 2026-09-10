@@ -5,7 +5,7 @@
   'use strict';
   const clone=v=>JSON.parse(JSON.stringify(v));
   const PRESETS=Object.freeze(['dynamic-selector','beverage-cellar','bottle-rail','cocktail-stage','minimal-wine-list']);
-  const TYPES=Object.freeze(['coffee','cocktail','wine','beer','spirit','soft-drink','mocktail','other']);
+  const TYPES=Object.freeze(['coffee','cocktail','wine','beer','spirit','soft-drink','mocktail','ice-cream','milkshake','dessert-drink','other']);
   const MOTION=Object.freeze(['cool','warm','berry','neutral']);
   const DEFAULT_THEME=Object.freeze({accent:'#d8ff4f',accentSoft:'#efffb3',accentDeep:'#7f9727',button:'#d8ff4f',price:'#f5f0e7',ambient:'rgba(216,255,79,.16)',backdrop:'radial-gradient(circle at 66% 38%,#55641d 0%,#1b210c 38%,#080807 74%)',glow:'0 42px 120px rgba(216,255,79,.24)'});
   const DEFAULTS=Object.freeze({enabled:false,preset:'dynamic-selector',eyebrow:'Bebidas',title:'La carta también se bebe.',intro:'',ctaLabel:'Ver carta',ctaUrl:'',showPrice:true,showPairing:true,ambientParticles:true,items:[]});
