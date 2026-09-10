@@ -30,6 +30,9 @@
    Sin dependencias: PNG se decodifica y recodifica con el zlib de Node. No hay build
    step en este repositorio y no se introduce uno.
 
+   Los platos se DESCUBREN: cada assets/anatomy/source/<id>/layers.json es uno.
+   Anadir un producto nuevo no toca este fichero.
+
    Uso:  node scripts/ingest-anatomy-layers.mjs
    Salida: assets/anatomy/runtime/<dish>/<layer>.png
            assets/anatomy/layers-manifest.json
@@ -46,27 +49,41 @@ const RUNTIME = path.join(ROOT, 'assets', 'anatomy', 'runtime');
 const AUDIT = path.join(ROOT, 'assets', 'anatomy', 'audit');
 const MANIFEST = path.join(ROOT, 'assets', 'anatomy', 'layers-manifest.json');
 
-/* El orden y la etiqueta son AUTORÍA, no medida: salen del nombre del fichero y de esta
-   tabla, que es lo único que este script declara sobre el producto. Todo lo demás se
-   mide. Nada de precios, nada de copy inventado: la nota editorial la escribe el
-   restaurante en el Studio. */
-const DISHES = {
-  'burger-clasica': {
-    name: 'Hamburguesa clásica con queso',
-    /* top -> bottom. El orden ES el dato. */
-    order: [
-      ['layer-top-bun.png', 'Pan brioche con sésamo'],
-      ['layer-bacon.png', 'Bacon crujiente'],
-      ['layer-tomato.png', 'Tomate en rodaja'],
-      ['layer-cheese.png', 'Cheddar fundido'],
-      ['layer-patty.png', 'Carne a la brasa'],
-      ['layer-sauce.png', 'Salsa de la casa'],
-      ['layer-onion-tomato.png', 'Cebolla roja'],
-      ['layer-lettuce.png', 'Lechuga fresca'],
-      ['layer-bottom-bun-board.png', 'Pan base sobre tabla']
-    ]
-  }
-};
+/* --check mide y valida pero NO escribe: es el modo para iterar sobre un juego recien
+   generado sin ensuciar el arbol con runtimes de capas que todavia van a cambiar. */
+const CHECK_ONLY = process.argv.includes('--check');
+
+/* LOS PLATOS SON DATOS, NO CÓDIGO.
+
+   La primera versión traía la hamburguesa cableada aquí dentro. Eso convertía "añadir
+   pizza" en "editar el ingestor", que es justo el patrón que este repositorio evita en
+   todas partes: el catálogo es dato y el renderizador conmuta.
+
+   Ahora se descubren solos. Cada carpeta de `assets/anatomy/source/<id>/` con un
+   `layers.json` es un plato:
+
+       { "id", "name", "product", "layers": [ {"file", "label"}, ... ] }
+
+   El ORDEN del array es el orden de arriba abajo, y es autoría: nadie puede MEDIR que
+   el pan va encima de la carne. La etiqueta también. Todo lo demás se mide.
+
+   Para generar un juego nuevo: `node scripts/anatomy-prompt-kit.mjs <producto>`. */
+function discoverDishes(){
+  if(!fs.existsSync(SRC))return [];
+  return fs.readdirSync(SRC,{withFileTypes:true})
+    .filter(d=>d.isDirectory())
+    .map(d=>path.join(SRC,d.name,'layers.json'))
+    .filter(f=>fs.existsSync(f))
+    .map(f=>{
+      const spec=JSON.parse(fs.readFileSync(f,'utf8'));
+      const id=spec.id||path.basename(path.dirname(f));
+      if(!Array.isArray(spec.layers)||!spec.layers.length)
+        throw new Error(`${id}/layers.json no declara capas`);
+      return {id,name:spec.name||id,product:spec.product||'',
+        order:spec.layers.map(l=>[l.file,l.label||''])};
+    })
+    .sort((a,b)=>a.id.localeCompare(b.id));
+}
 
 /* ---------------------------------------------------------------- parámetros de apilado
 
@@ -110,6 +127,22 @@ const LAYOUT = {
      820 cubre 1440 con holgura y deja el juego completo por debajo de 5MB, que es lo
      que hace viable una revisión visual desde una rama. */
   maxRuntimeWidth: 820
+};
+
+/* CONTRATO DE ASSETS — lo que un juego generado tiene que cumplir para que el apilado
+   funcione. Los umbrales salen de medir el juego de referencia, no de opinar:
+
+     lienzo identico en las 9 ... 1536x1024, sin excepcion  -> se exige igualdad
+     objeto centrado ............ cx 0.479..0.502           -> se admite 3%
+     ancho del contenido ........ 68%..92% del lienzo       -> se admite 55%..95%
+
+   El fallo mas comun y el mas caro es el primero: un modelo devuelve una capa a otra
+   resolucion y el juego entero deja de registrar. Por eso se comprueba antes que nada. */
+const CONTRACT = {
+  centreTolerance: 0.03,
+  minContentWidth: 0.55,
+  maxContentWidth: 0.95,
+  minLayers: 3
 };
 
 const TOLERANCES = {
@@ -365,12 +398,13 @@ function resize(img, tw, th) {
 function ingestDish(dishId, spec) {
   const layersDir = path.join(SRC, dishId, 'layers');
   const outDir = path.join(RUNTIME, dishId);
-  fs.mkdirSync(outDir, {recursive: true});
+  if (!CHECK_ONLY) fs.mkdirSync(outDir, {recursive: true});
 
   const measured = [];
+  const missing = [];
   for (const [file, label] of spec.order) {
     const src = path.join(layersDir, file);
-    if (!fs.existsSync(src)) throw new Error(`falta el máster ${dishId}/${file}`);
+    if (!fs.existsSync(src)) { missing.push(file); continue; }
     const srcBytes = fs.statSync(src).size;
     const img = decodePNG(src);
     const box = contentBox(img, LAYOUT.alphaThreshold, LAYOUT.specklePart);
@@ -381,8 +415,8 @@ function ingestDish(dishId, spec) {
     const runtime = tw === cropped.w ? cropped : resize(cropped, tw, Math.max(1, Math.round(cropped.h * tw / cropped.w)));
     const id = file.replace(/^layer-/, '').replace(/\.png$/, '');
     const outFile = path.join(outDir, `${id}.png`);
-    fs.writeFileSync(outFile, encodePNG(runtime));
-    const outBytes = fs.statSync(outFile).size;
+    if (!CHECK_ONLY) fs.writeFileSync(outFile, encodePNG(runtime));
+    const outBytes = fs.existsSync(outFile) ? fs.statSync(outFile).size : 0;
 
     measured.push({
       id, label, source: `assets/anatomy/source/${dishId}/layers/${file}`,
@@ -406,6 +440,28 @@ function ingestDish(dishId, spec) {
     });
   }
 
+  if (missing.length) return {id: dishId, name: spec.name, pending: missing};
+
+  /* --- contrato de assets ---
+     Se evalua sobre lo YA medido, asi que no cuesta nada, y se reporta por capa: lo
+     util no es "el juego esta mal", es "regenera estas dos". */
+  const canvases = new Set(measured.map(m => `${m.canvas.w}x${m.canvas.h}`));
+  const issues = [];
+  if (canvases.size > 1)
+    issues.push({layer: '*', problem: `lienzos distintos en el juego: ${[...canvases].join(', ')}`});
+  if (measured.length < CONTRACT.minLayers)
+    issues.push({layer: '*', problem: `solo ${measured.length} capas; con menos de ${CONTRACT.minLayers} el motor cae a heroe anotado`});
+  for (const m of measured) {
+    const off = Math.abs(m.content.cx - 0.5);
+    if (off > CONTRACT.centreTolerance)
+      issues.push({layer: m.id, problem: `descentrado ${(off * 100).toFixed(1)}% (maximo ${(CONTRACT.centreTolerance * 100).toFixed(0)}%)`});
+    const rel = m.content.w / m.canvas.w;
+    if (rel < CONTRACT.minContentWidth)
+      issues.push({layer: m.id, problem: `objeto pequeno: ocupa el ${(rel * 100).toFixed(0)}% del ancho (minimo ${(CONTRACT.minContentWidth * 100).toFixed(0)}%)`});
+    if (rel > CONTRACT.maxContentWidth)
+      issues.push({layer: m.id, problem: `objeto al borde: ocupa el ${(rel * 100).toFixed(0)}% del ancho (maximo ${(CONTRACT.maxContentWidth * 100).toFixed(0)}%)`});
+  }
+
   /* El héroe del plato, si existe, pasa por el mismo tratamiento. Lo usa el modo de
      héroe anotado —el fallback cuando no hay capas suficientes— y la ficha de producto.
      Servir el máster de 1.6MB para eso sería absurdo. */
@@ -418,10 +474,11 @@ function ingestDish(dishId, spec) {
     const tw=Math.min(LAYOUT.maxRuntimeWidth, cropped.w);
     const out=tw===cropped.w?cropped:resize(cropped,tw,Math.max(1,Math.round(cropped.h*tw/cropped.w)));
     const outFile=path.join(outDir,'hero.png');
-    fs.writeFileSync(outFile, encodePNG(out));
+    if(!CHECK_ONLY) fs.writeFileSync(outFile, encodePNG(out));
     hero={source:`assets/anatomy/source/${dishId}/hero.png`,
       runtimeAsset:`assets/anatomy/runtime/${dishId}/hero.png`,
-      sourceBytes:fs.statSync(heroSrc).size, runtimeBytes:fs.statSync(outFile).size,
+      sourceBytes:fs.statSync(heroSrc).size,
+      runtimeBytes:fs.existsSync(outFile)?fs.statSync(outFile).size:0,
       runtime:{w:out.w,h:out.h}};
   }
 
@@ -484,20 +541,34 @@ function ingestDish(dishId, spec) {
     runtimeBytes: measured.reduce((a, m) => a + m.runtimeBytes, 0),
     savedBytes,
     savedPct: +(100 * savedBytes / measured.reduce((a, m) => a + m.sourceBytes, 0)).toFixed(1),
+    contractIssues: issues,
+    contractOk: issues.length === 0,
     registered: true
   };
-  verdict.registered = verdict.widthSpreadOk && verdict.stackHeightOk;
+  verdict.registered = verdict.widthSpreadOk && verdict.stackHeightOk && verdict.contractOk;
 
   return {id: dishId, name: spec.name, layout: LAYOUT, tolerances: TOLERANCES, verdict, hero, layers};
 }
 
 /* =================================================================================== main */
 
-fs.mkdirSync(AUDIT, {recursive: true});
+if (!CHECK_ONLY) fs.mkdirSync(AUDIT, {recursive: true});
 const dishes = [];
-for (const [dishId, spec] of Object.entries(DISHES)) {
+const found = discoverDishes();
+if (!found.length) {
+  console.error(`no hay ningun plato con layers.json en ${SRC.replace(ROOT + path.sep, '')}`);
+  process.exit(1);
+}
+for (const spec of found) {
+  const dishId = spec.id;
   process.stdout.write(`\n[${dishId}] ${spec.order.length} capas\n`);
   const result = ingestDish(dishId, spec);
+  if (result.pending) {
+    console.log(`  PENDIENTE - faltan ${result.pending.length} master(es):`);
+    for (const f of result.pending) console.log(`    ${f}`);
+    console.log('  genera las imagenes con: node scripts/anatomy-prompt-kit.mjs <receta>');
+    continue;
+  }
   dishes.push(result);
   for (const l of result.layers) {
     process.stdout.write(
@@ -508,6 +579,10 @@ for (const [dishId, spec] of Object.entries(DISHES)) {
     );
   }
   const v = result.verdict;
+  if (!v.contractOk) {
+    console.log('  CONTRATO DE ASSETS - regenera estas capas:');
+    for (const i of v.contractIssues) console.log(`    ${i.layer.padEnd(18)} ${i.problem}`);
+  }
   process.stdout.write(
     `  --> dispersión de ancho ${(v.widthSpread * 100).toFixed(1)}% ${v.widthSpreadOk ? 'ok' : 'FUERA DE TOLERANCIA'}` +
     ` · alto del apilado ${v.stackHeight.toFixed(3)} del ancho ${v.stackHeightOk ? 'ok' : 'FUERA DE TOLERANCIA'}` +
@@ -523,8 +598,8 @@ const manifest = {
   note: 'El registro se mide; no se cablea. Reejecutar tras cambiar cualquier máster.',
   dishes
 };
-fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
-fs.writeFileSync(path.join(AUDIT, 'layer-registration.json'), JSON.stringify({
+if (!CHECK_ONLY) fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2));
+if (!CHECK_ONLY) fs.writeFileSync(path.join(AUDIT, 'layer-registration.json'), JSON.stringify({
   generatedAt: manifest.generatedAt,
   dishes: dishes.map(d => ({
     id: d.id, verdict: d.verdict,
@@ -534,6 +609,8 @@ fs.writeFileSync(path.join(AUDIT, 'layer-registration.json'), JSON.stringify({
 }, null, 2));
 
 const allOk = dishes.every(d => d.verdict.registered);
-process.stdout.write(`\n${MANIFEST.replace(ROOT + path.sep, '')} escrito\n`);
+console.log(CHECK_ONLY
+  ? '\nmodo --check: nada escrito'
+  : '\n' + MANIFEST.replace(ROOT + path.sep, '') + ' escrito');
 process.stdout.write(`${allOk ? 'REGISTRO OK' : 'REGISTRO CON AVISOS'}\n`);
 process.exit(allOk ? 0 : 1);

@@ -1,0 +1,17 @@
+{
+  "id": "burger-clasica",
+  "name": "Hamburguesa clásica con queso",
+  "product": "burger",
+  "note": "Juego de referencia. De aquí salió el contrato de assets que documenta docs/ANATOMY-LAYER-PROMPT-SYSTEM.md.",
+  "layers": [
+    { "file": "layer-top-bun.png",          "label": "Pan brioche con sésamo" },
+    { "file": "layer-bacon.png",            "label": "Bacon crujiente" },
+    { "file": "layer-tomato.png",           "label": "Tomate en rodaja" },
+    { "file": "layer-cheese.png",           "label": "Cheddar fundido" },
+    { "file": "layer-patty.png",            "label": "Carne a la brasa" },
+    { "file": "layer-sauce.png",            "label": "Salsa de la casa" },
+    { "file": "layer-onion-tomato.png",     "label": "Cebolla roja" },
+    { "file": "layer-lettuce.png",          "label": "Lechuga fresca" },
+    { "file": "layer-bottom-bun-board.png", "label": "Pan base sobre tabla" }
+  ]
+}

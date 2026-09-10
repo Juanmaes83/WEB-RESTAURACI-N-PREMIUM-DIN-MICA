@@ -16,6 +16,8 @@
         "runtimeBytes": 6338991,
         "savedBytes": 9221146,
         "savedPct": 59.3,
+        "contractIssues": [],
+        "contractOk": true,
         "registered": true
       },
       "layers": [
