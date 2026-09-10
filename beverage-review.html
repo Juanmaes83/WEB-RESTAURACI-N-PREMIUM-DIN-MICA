@@ -5,15 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Class 24 · Beverage Experience · Visual Review</title>
   <style>
-    .class24-review-bar{position:fixed;z-index:2147483000;top:12px;right:12px;display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(8,8,7,.80);border:1px solid rgba(255,255,255,.16);border-radius:999px;backdrop-filter:blur(14px);color:white;box-shadow:0 10px 40px rgba(0,0,0,.22);font-family:Arial,sans-serif}.class24-review-bar strong{font-size:11px;letter-spacing:.08em;margin:0 6px}.class24-review-bar button{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:white;border-radius:999px;padding:8px 12px;font-size:11px;cursor:pointer}.class24-review-bar button:hover{background:rgba(255,255,255,.16)}.class24-review-status{font-size:10px;opacity:.68}.class24-loader{min-height:100vh;background:#080807;color:white;display:grid;place-items:center;font-family:Arial,sans-serif;letter-spacing:.05em}@media(max-width:650px){.class24-review-bar{left:8px;right:8px;top:8px;justify-content:center;flex-wrap:wrap;border-radius:18px}.class24-review-bar strong{width:100%;text-align:center}.class24-review-status{display:none}}
+    .class24-review-dock{position:fixed;z-index:2147483000;right:18px;bottom:18px;display:flex;gap:8px;align-items:center;padding:8px;background:rgba(8,8,7,.86);border:1px solid rgba(255,255,255,.16);border-radius:18px;backdrop-filter:blur(14px);color:white;box-shadow:0 14px 44px rgba(0,0,0,.32);font-family:Arial,sans-serif}.class24-review-dock strong{font-size:10px;letter-spacing:.09em;margin:0 5px 0 3px;opacity:.72}.class24-review-dock button{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:white;border-radius:12px;padding:9px 12px;font-size:10px;font-weight:700;letter-spacing:.04em;cursor:pointer}.class24-review-dock button:hover{background:rgba(255,255,255,.15)}.class24-review-status{display:none}.class24-loader{min-height:100vh;background:#080807;color:white;display:grid;place-items:center;font-family:Arial,sans-serif;letter-spacing:.05em}@media(max-width:650px){.class24-review-dock{left:10px;right:10px;bottom:10px;justify-content:center}.class24-review-dock strong{display:none}.class24-review-dock button{flex:1}}
   </style>
 </head>
 <body>
   <div class="class24-loader" id="loader">CARGANDO RESTAURANT PREMIUM · CLASS 24…</div>
   <script>
+    window.__CLASS24_REVIEW__=true;
     const loadScript=src=>new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=()=>reject(new Error('No se pudo cargar '+src));document.body.appendChild(s)});
     const addCss=href=>{if(document.querySelector(`link[href="${href}"]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l)};
-    const makeBar=()=>{const bar=document.createElement('div');bar.className='class24-review-bar';bar.innerHTML='<strong>CLASS 24 · BEVERAGE</strong><span class="class24-review-status" id="review-status">Integrando…</span><button id="review-section" type="button">Ver bebidas</button><button id="review-studio" type="button">Studio · Bebidas</button><button id="review-reload" type="button">Recargar</button>';return bar};
+    const makeDock=()=>{const dock=document.createElement('div');dock.className='class24-review-dock';dock.innerHTML='<strong>CLASS 24</strong><span class="class24-review-status" id="review-status">Integrando…</span><button id="review-section" type="button">VER BEBIDAS</button><button id="review-studio" type="button">STUDIO · BEBIDAS</button>';return dock};
+    const focusBeverages=behavior=>{const target=document.querySelector('#beverages');if(target){target.scrollIntoView({behavior:behavior||'auto',block:'start'});return true}return false};
     async function bootReview(){
       const response=await fetch('index.html',{cache:'no-store'});if(!response.ok)throw new Error('index.html '+response.status);
       const html=await response.text(),parsed=new DOMParser().parseFromString(html,'text/html');
@@ -21,7 +23,7 @@
       parsed.querySelectorAll('link[rel="stylesheet"]').forEach(link=>addCss(link.getAttribute('href')));
       document.body.className=parsed.body.className;[...parsed.body.attributes].forEach(a=>{if(a.name!=='class')document.body.setAttribute(a.name,a.value)});
       document.body.innerHTML=parsed.body.innerHTML;
-      const bar=makeBar();document.body.prepend(bar);addCss('styles-v24.css');
+      document.body.append(makeDock());addCss('styles-v24.css');
       const scripts=[
         'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js',
         'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js',
@@ -34,11 +36,12 @@
       ];
       for(const src of scripts)await loadScript(src);
       await window.RestaurantBeveragesEngine?.refresh?.();
-      document.getElementById('review-status').textContent='READY · STATE + STUDIO + MEDIA + ENGINE';
-      document.getElementById('review-section').onclick=()=>document.querySelector('#beverages')?.scrollIntoView({behavior:'smooth'});
+      const status=document.getElementById('review-status');if(status)status.textContent='READY';
+      document.getElementById('review-section').onclick=()=>focusBeverages('smooth');
       document.getElementById('review-studio').onclick=()=>{window.RestaurantStudioShell?.open?.();setTimeout(()=>window.RestaurantBeveragesStudio?.open?.(),90)};
-      document.getElementById('review-reload').onclick=()=>location.reload();
-      setTimeout(()=>document.querySelector('#beverages')?.scrollIntoView({behavior:'smooth',block:'start'}),450);
+      if(!focusBeverages('auto')){
+        let tries=0;const timer=setInterval(()=>{tries++;if(focusBeverages('auto')||tries>12)clearInterval(timer)},120);
+      }
     }
     bootReview().catch(err=>{console.error(err);const l=document.getElementById('loader');if(l)l.textContent='CLASS 24 · ERROR DE CARGA · '+err.message});
   </script>
