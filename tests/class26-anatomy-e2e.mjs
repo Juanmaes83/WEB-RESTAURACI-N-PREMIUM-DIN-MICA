@@ -53,6 +53,31 @@ async function settleLayers(page, ms = 20000){
   }, ms);
 }
 
+/* PULSAR UNA CAPA SIN PELEARSE CON LA CABECERA.
+
+   `page.click` hacia el scroll MINIMO necesario, y eso dejaba la capa justo debajo de
+   la barra superior fija del sitio: Playwright abortaba con
+   `<header class="topbar"> intercepts pointer events`.
+
+   No es un defecto del producto -un visitante sigue haciendo scroll y ya esta- pero si
+   un test fragil. Centrar el objetivo antes de pulsarlo es ademas lo que hace una
+   persona de verdad, asi que el gate se vuelve determinista sin dejar de probar el
+   clic real. Nada de `force`: eso esconderia justo los problemas que esto busca. */
+async function clickLayer(page, id, {tap = false} = {}){
+  const sel = `.ana-layer[data-ana-layer="${id}"]`;
+  await page.evaluate(s => document.querySelector(s)?.scrollIntoView({block: 'center'}), sel);
+  await page.waitForTimeout(250);
+  const el = page.locator(sel);
+  if (tap) await el.tap({timeout: 15000});
+  else await el.click({timeout: 15000});
+}
+
+async function press(page, sel){
+  await page.evaluate(s => document.querySelector(s)?.scrollIntoView({block: 'center'}), sel);
+  await page.waitForTimeout(250);
+  await page.locator(sel).click({timeout: 15000});
+}
+
 async function boot(page){
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
@@ -144,7 +169,7 @@ async function boot(page){
  await page.locator('#anatomy').screenshot({path:path.join(OUT,'01-exploded-desktop.png')});
 
  /* --- seleccion --- */
- await page.click('.ana-layer[data-ana-layer="cheese"]');
+ await clickLayer(page, 'cheese');
  await page.waitForTimeout(420);
  const sel=await page.evaluate(()=>({
    index:document.querySelector('.ana-sheet-index').textContent.trim(),
@@ -177,12 +202,12 @@ async function boot(page){
    return Math.round(Math.max(...rs.map(r=>r.bottom))-Math.min(...rs.map(r=>r.top)));
  });
  const exploded=await span();
- await page.click('[data-ana-assemble]');
+ await press(page, '[data-ana-assemble]');
  await page.waitForTimeout(1500);
  const assembled=await span();
  const pressed=await page.evaluate(()=>document.querySelector('[data-ana-assemble]').getAttribute('aria-pressed'));
  await page.locator('#anatomy').screenshot({path:path.join(OUT,'03-assembled.png')});
- await page.click('[data-ana-assemble]');
+ await press(page, '[data-ana-assemble]');
  await page.waitForTimeout(1500);
  const back=await span();
  check('montar el plato junta de verdad las capas',assembled<exploded*0.6,`${exploded} -> ${assembled}`);
@@ -282,7 +307,7 @@ async function boot(page){
  check('movil · las capas pintan',m.imgs);
  await page.locator('#anatomy').screenshot({path:path.join(OUT,'06-exploded-mobile.png')});
  /* toque real, no click sintetico */
- await page.tap('.ana-layer[data-ana-layer="patty"]');
+ await clickLayer(page, 'patty', {tap: true});
  await page.waitForTimeout(420);
  const tapped=await page.evaluate(()=>document.querySelector('.ana-sheet-label').textContent.trim());
  check('movil · el toque selecciona la capa',tapped==='Carne a la brasa',tapped);
@@ -305,7 +330,7 @@ async function boot(page){
    r.layers===9&&r.mode==='layers',`${r.layers}/${r.mode}`);
  check('reduced motion · el motor lo detecta',r.reduced===true);
  check('reduced motion · sin transiciones en las capas',/none/.test(r.transition),r.transition);
- await page.click('.ana-layer[data-ana-layer="bacon"]');
+ await clickLayer(page, 'bacon');
  await page.waitForTimeout(200);
  const label=await page.evaluate(()=>document.querySelector('.ana-sheet-label').textContent.trim());
  check('reduced motion · seleccionar sigue funcionando',label==='Bacon crujiente',label);
