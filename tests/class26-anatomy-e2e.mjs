@@ -83,7 +83,14 @@ async function boot(page){
      loader:document.documentElement.dataset.class26Anatomy||'',
      imgsReady:[...document.querySelectorAll('.ana-layer img')].every(i=>i.complete&&i.naturalWidth>0),
      refsLogical:[...document.querySelectorAll('.ana-layer img')].every(i=>!i.getAttribute('src').startsWith('blob:')),
+     /* El invariante NO es un numero de motores: es que Anatomy no sea uno de ellos.
+        La primera version exigia libraryCount===13 y fallaba con 12, porque esta rama
+        sale de main y el motor 13 -Chromatic Ingredient Wipe- entra por el PR #38. Es
+        decir, la asercion dependia del ORDEN DE MERGE y no de lo que dice comprobar.
+        Ahora se mira el catalogo de verdad. */
      libraryCount:window.RestaurantMotionLibrary?.count?.()||0,
+     anatomyInCatalogue:(window.RestaurantMotionLibrary?.engines?.()||[])
+       .some(e=>/anatom/i.test(`${e.id} ${e.name} ${e.value||''}`)),
      anatomyTab:!!document.querySelector('#studio .studio-nav [data-panel="anatomy"]'),
      motionTab:!!document.querySelector('#studio .studio-nav [data-panel="motion"]'),
      halfOrbit:!!window.RestaurantHalfOrbit,
@@ -99,7 +106,11 @@ async function boot(page){
  check('las nueve capas del manifiesto se montan',initial.layers===9&&initial.reviewLayers===9,`${initial.layers}/${initial.reviewLayers}`);
  check('las nueve capas pintan de verdad',initial.imgsReady);
  check('las capas resuelven por ref logica, no por blob:',initial.refsLogical);
- check('Anatomy NO entra en el catalogo de Motion Engines',initial.libraryCount===13,String(initial.libraryCount));
+ check('Anatomy NO entra en el catalogo de Motion Engines',
+   initial.anatomyInCatalogue===false,
+   `${initial.libraryCount} motores, ninguno de anatomia`);
+ check('el catalogo de Motion sigue en pie y con motores reales',
+   initial.libraryCount>=12,String(initial.libraryCount));
  check('Anatomia y Motion son pestanas separadas del MISMO Studio',initial.anatomyTab&&initial.motionTab);
  check('Half Orbit sigue en pie',initial.halfOrbit);
  check('una sola Media Library compartida',initial.media&&initial.picker&&initial.mediaLibraries===1);
