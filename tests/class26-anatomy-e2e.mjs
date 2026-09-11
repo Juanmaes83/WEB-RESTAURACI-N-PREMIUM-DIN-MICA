@@ -263,9 +263,15 @@ async function boot(page){
    storm.sections===1&&storm.layers===9,JSON.stringify(storm));
  check('el ultimo estado es el que se ve',storm.title==='Por dentro.',storm.title);
 
- /* --- Studio --- */
+ /* --- Studio ---
+    Como lo hace una persona: primero se abre el cajon del Studio y despues se va a la
+    pestana. `RestaurantAnatomyStudio.open()` cambia de panel pero no abre el cajon
+    -misma convencion que RestaurantBeveragesStudio-, asi que pedirle eso era un error
+    del test, no del producto: daba open:false con el panel correctamente activo. */
+ await page.evaluate(()=>window.RestaurantStudioShell?.open?.());
+ await page.waitForTimeout(320);
  await page.evaluate(()=>window.RestaurantAnatomyStudio.open());
- await page.waitForTimeout(420);
+ await page.waitForTimeout(520);
  const studio=await page.evaluate(()=>({
    open:document.querySelector('#studio')?.classList.contains('is-open'),
    active:document.querySelector('#studio .studio-nav button.active')?.dataset.panel,

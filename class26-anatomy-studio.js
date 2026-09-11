@@ -35,8 +35,24 @@
     const withLayers=list.findIndex(d=>d.anatomy?.layers?.length);
     return withLayers>=0?withLayers:0;
   }
-  const targetDish=()=>dishes()[targetIndex()]||null;
-  const layerPath=()=>`dishes.${targetIndex()}.anatomy.layers`;
+
+  /* EL PANEL MIRA EL MISMO PLATO QUE EL MOTOR.
+
+     El motor resuelve `state().dish` primero -es el plato que entrega la ruta de
+     revision, en memoria-. El panel no lo hacia y se quedaba mirando `dishes[]`, donde
+     no hay capas: el motor pintaba nueve y el Studio ensenaba cero. Lo caz0 el gate.
+
+     Rompia ademas la regla de la casa para las rutas de revision: el Studio y el motor
+     tienen que ver los MISMOS valores.
+
+     Las escrituras siguen respetando de donde viene el plato. Si es el de revision van a
+     `anatomy.dish...`, que la propia ruta intercepta y guarda solo en memoria; el
+     Project State durable no se toca ni aqui ni alli. */
+  const reviewDish=()=>state().dish||null;
+  const targetDish=()=>reviewDish()||dishes()[targetIndex()]||null;
+  const layerPath=()=>reviewDish()
+    ? `${PATH}.dish.anatomy.layers`
+    : `dishes.${targetIndex()}.anatomy.layers`;
   const layers=()=>A().normalizeLayers(targetDish()?.anatomy?.layers);
 
   function status(text){const n=panel?.querySelector('[data-ana-status]');if(n)n.textContent=text||''}
@@ -169,8 +185,18 @@
     const sel=panel.querySelector('[data-ana-dish]');
     if(sel&&document.activeElement!==sel){
       sel.innerHTML='';
-      dishes().forEach(d=>{const o=el('option','',`${d.name||d.id}${d.anatomy?.layers?.length?` · ${d.anatomy.layers.length} capas`:''}`);o.value=d.id;sel.append(o)});
+      /* En revision el plato no esta en la carta a proposito -no se inventa contenido del
+         restaurante-, asi que se ofrece aparte y marcado como lo que es. */
+      const rv=reviewDish();
+      const list=rv?[rv,...dishes().filter(d=>d.id!==rv.id)]:dishes();
+      list.forEach(d=>{
+        const n=d.anatomy?.layers?.length;
+        const tag=rv&&d.id===rv.id?' · revisión':'';
+        const o=el('option','',`${d.name||d.id}${n?` · ${n} capas`:''}${tag}`);
+        o.value=d.id;sel.append(o);
+      });
       sel.value=dish?.id||'';
+      sel.disabled=!!rv;
     }
 
     const list_el=panel.querySelector('[data-ana-list]');
