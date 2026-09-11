@@ -39,16 +39,24 @@ const check=(n,ok,d='')=>{const row={name:n,ok:!!ok,detail:d||''};checks.push(ro
    Arreglo: primero se lleva la seccion al viewport —que es lo que hace arrancar el lazy,
    y ademas es el estado en el que un visitante la ve— y despues la espera va acotada. Si
    una imagen no carga, el gate lo dice y falla; colgarse ya no es posible. */
-async function settleLayers(page, ms = 20000){
+async function settleLayers(page, ms = 25000){
   await page.evaluate(() => {
     document.querySelector('#anatomy')?.scrollIntoView({block: 'center'});
   });
   await page.evaluate(async (limit) => {
     const imgs = [...document.querySelectorAll('.ana-layer img')];
-    const done = Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => {
-      i.addEventListener('load', r, {once: true});
-      i.addEventListener('error', r, {once: true});
-    })));
+    /* No basta con hacer scroll y escuchar `load`.
+       `loading="lazy"` solo arranca cuando el navegador decide que la imagen se acerca
+       al viewport, y con nueve capas apiladas las de abajo pueden quedarse fuera segun
+       donde caiga el scroll. Eso hacia el gate INTERMITENTE: una pasada medía las nueve
+       y la siguiente encontraba seis con altura cero y el apilado con huecos de +73px.
+
+       `decode()` es la primitiva determinista: fuerza la descarga y resuelve cuando la
+       imagen esta lista para pintarse. Con `loading='eager'` delante, ninguna depende ya
+       de la posicion del scroll. Sigue acotado: si una no carga, el gate lo dice. */
+    imgs.forEach(i => { i.loading = 'eager'; });
+    const done = Promise.all(imgs.map(i =>
+      (i.complete && i.naturalWidth > 0) ? 0 : i.decode().catch(() => {})));
     await Promise.race([done, new Promise(r => setTimeout(r, limit))]);
   }, ms);
 }
