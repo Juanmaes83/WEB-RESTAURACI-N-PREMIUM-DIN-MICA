@@ -81,8 +81,19 @@ jobs:
             console.log('ingest reproducible');
           "
           rm -f ./manifest-before.json
-          git diff --quiet -- assets/anatomy/layers-manifest.json assets/anatomy/audit || {
-            echo 'el ingestor produce un manifiesto distinto sobre los mismos masters'; exit 1; }
+          # Los PNG de runtime SI tienen que salir byte a byte identicos: el codificador
+          # es determinista y eso es lo que hace del registro un dato derivado y no una
+          # casualidad.
+          #
+          # Los dos JSON quedan FUERA de esta comprobacion a proposito: llevan un
+          # `generatedAt` con la fecha, asi que cambian solos de un dia para otro. La
+          # primera version los incluia y el gate fallaba con "manifiesto distinto"
+          # cuando lo unico distinto era el 10 de septiembre contra el 11. Su contenido
+          # derivado ya lo compara el paso de arriba, que ignora ese campo.
+          git diff --quiet -- assets/anatomy/runtime || {
+            echo 'el ingestor produce assets de runtime distintos sobre los mismos masters'
+            git diff --stat -- assets/anatomy/runtime
+            exit 1; }
 
       - name: Install Playwright Chromium
         run: |
