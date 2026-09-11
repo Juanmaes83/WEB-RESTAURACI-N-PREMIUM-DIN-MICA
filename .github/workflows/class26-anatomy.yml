@@ -1,0 +1,143 @@
+name: Class 26 Anatomy Theater + current-line regression
+
+on:
+  push:
+    branches: [feat/class26-anatomy-theater]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'class26-*'
+      - 'styles-v26.css'
+      - 'scripts/ingest-anatomy-layers.mjs'
+      - 'assets/anatomy/**'
+      - 'tests/class26-anatomy-e2e.mjs'
+      - 'tests/class26-anatomy-registration.mjs'
+      - 'index.html'
+      - '.github/workflows/class26-anatomy.yml'
+
+permissions:
+  contents: read
+
+# Cada commit disparaba DOS ejecuciones -push y pull_request- y las dos se colgaron seis
+# horas. Una sola por rama, y la nueva cancela la anterior.
+concurrency:
+  group: class26-anatomy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  anatomy:
+    runs-on: ubuntu-24.04
+    # Red de seguridad: el limite por defecto son SEIS HORAS. Un test colgado no puede
+    # volver a costar eso. El job completo tarda unos 5 minutos.
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Syntax + architecture contract
+        run: |
+          node --check class26-anatomy-loader.js
+          node --check class26-anatomy-model.js
+          node --check class26-anatomy-review.js
+          node --check class26-anatomy-engine.js
+          node --check class26-anatomy-studio.js
+          node --check scripts/ingest-anatomy-layers.mjs
+          node --check tests/class26-anatomy-e2e.mjs
+          node --check tests/class26-anatomy-registration.mjs
+          # la capacidad entra por la cadena estatica de index.html, no colgada de otra clase
+          grep -q "class26-anatomy-loader.js" index.html
+          # se escribe SOLO por el Studio y la Media Library compartidos
+          grep -q "RestaurantStudioConfig" class26-anatomy-studio.js
+          grep -q "RestaurantMediaPicker" class26-anatomy-studio.js
+          grep -q "RestaurantMedia" class26-anatomy-loader.js
+          # ni segundo almacen, ni segundo Studio, ni framework nuevo.
+          # Se comprueba el USO de la API, no la palabra: los comentarios explican
+          # precisamente que esto NO toca IndexedDB ni localStorage.
+          ! grep -Eqi "from ['\"](react|next|zustand|lenis|three)" class26-*.js
+          ! grep -Eq "localStorage\.(getItem|setItem|removeItem|clear)|window\.localStorage" class26-*.js
+          ! grep -Eq "indexedDB\.open|caches\.open" class26-*.js
+          # el dominio guarda refs logicas, nunca un blob: ni una URL
+          ! grep -q "URL.createObjectURL" class26-*.js
+          # Anatomy NO es un motor de producto: no debe aparecer en el catalogo de Motion
+          ! grep -q "anatomy" class19-motion-library.js
+          # el ingestor no toca los masters
+          ! grep -Eq "fs.(unlink|rm|rmdir|writeFileSync)\(.*source" scripts/ingest-anatomy-layers.mjs
+
+      - name: Anatomy registration integrity (sin navegador)
+        run: node tests/class26-anatomy-registration.mjs
+
+      - name: Ingest is reproducible
+        run: |
+          # Reejecutar el ingestor sobre los mismos masters debe dar el MISMO manifiesto.
+          # Si no, el registro no es un dato derivado: es una casualidad.
+          cp assets/anatomy/layers-manifest.json ./manifest-before.json
+          node scripts/ingest-anatomy-layers.mjs
+          node -e "
+            const a=require('./manifest-before.json'), b=require('./assets/anatomy/layers-manifest.json');
+            const strip=m=>JSON.stringify(m.dishes.map(d=>({id:d.id,verdict:d.verdict,layers:d.layers.map(l=>({id:l.id,content:l.content,layout:l.layout}))})));
+            if(strip(a)!==strip(b)){console.error('el ingestor no es reproducible'); process.exit(1)}
+            console.log('ingest reproducible');
+          "
+          rm -f ./manifest-before.json
+          # Los PNG de runtime SI tienen que salir byte a byte identicos: el codificador
+          # es determinista y eso es lo que hace del registro un dato derivado y no una
+          # casualidad.
+          #
+          # Los dos JSON quedan FUERA de esta comprobacion a proposito: llevan un
+          # `generatedAt` con la fecha, asi que cambian solos de un dia para otro. La
+          # primera version los incluia y el gate fallaba con "manifiesto distinto"
+          # cuando lo unico distinto era el 10 de septiembre contra el 11. Su contenido
+          # derivado ya lo compara el paso de arriba, que ignora ese campo.
+          git diff --quiet -- assets/anatomy/runtime || {
+            echo 'el ingestor produce assets de runtime distintos sobre los mismos masters'
+            git diff --stat -- assets/anatomy/runtime
+            exit 1; }
+
+      - name: Install Playwright Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Class 26 visual + integration E2E
+        run: node tests/class26-anatomy-e2e.mjs
+
+      # NO se corre tests/class21-unified-product-detail-e2e.mjs, y merece explicacion.
+      #
+      # Ningun workflow del repositorio lo ejecutaba: lleva sin correrse desde que se
+      # escribio. Al meterlo aqui como regresion lo desperte, y fallaba en su check 19:
+      #
+      #     19 · Scroll Traveler sigue vivo e intacto - 0 anclas, activo false
+      #
+      # No lo rompe Class 26. El test exige `active && anchors.length===5`, pero Class 24
+      # apaga el traveler por defecto (`D.scrollTraveler.enabled=false` en
+      # class24-motion-governance.js:21), asi que quedo desfasado cuando entro Class 24.
+      #
+      # Comprobado en navegador: con la capacidad de Anatomy APAGADA y cero secciones
+      # #anatomy en el DOM, el traveler ya esta en active:false / anchors:[]. La causa es
+      # anterior y ajena a esta entrega.
+      #
+      # Ponerlo a verde es trabajo de otra rama -o decidir si ese check sigue teniendo
+      # sentido despues de Class 24-. Dejarlo aqui solo dejaria este gate en rojo
+      # permanente por algo que esta entrega no causa ni puede arreglar sin invadir
+      # Class 21.
+
+      - name: Half Orbit current-line regression
+        run: node tests/class24-half-orbit-selector-e2e.mjs
+
+      - name: Beverage current-line regression
+        run: node tests/class25-beverage-e2e.mjs
+
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: class26-anatomy-visual-evidence
+          path: |
+            tests/screenshots/class26-anatomy/
+            output/anatomy/
+            assets/anatomy/audit/
+          if-no-files-found: warn
+          retention-days: 14
