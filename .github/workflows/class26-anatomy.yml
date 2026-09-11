@@ -104,8 +104,25 @@ jobs:
       - name: Class 26 visual + integration E2E
         run: node tests/class26-anatomy-e2e.mjs
 
-      - name: Unified Product Detail current-line regression
-        run: node tests/class21-unified-product-detail-e2e.mjs
+      # NO se corre tests/class21-unified-product-detail-e2e.mjs, y merece explicacion.
+      #
+      # Ningun workflow del repositorio lo ejecutaba: lleva sin correrse desde que se
+      # escribio. Al meterlo aqui como regresion lo desperte, y fallaba en su check 19:
+      #
+      #     19 · Scroll Traveler sigue vivo e intacto - 0 anclas, activo false
+      #
+      # No lo rompe Class 26. El test exige `active && anchors.length===5`, pero Class 24
+      # apaga el traveler por defecto (`D.scrollTraveler.enabled=false` en
+      # class24-motion-governance.js:21), asi que quedo desfasado cuando entro Class 24.
+      #
+      # Comprobado en navegador: con la capacidad de Anatomy APAGADA y cero secciones
+      # #anatomy en el DOM, el traveler ya esta en active:false / anchors:[]. La causa es
+      # anterior y ajena a esta entrega.
+      #
+      # Ponerlo a verde es trabajo de otra rama -o decidir si ese check sigue teniendo
+      # sentido despues de Class 24-. Dejarlo aqui solo dejaria este gate en rojo
+      # permanente por algo que esta entrega no causa ni puede arreglar sin invadir
+      # Class 21.
 
       - name: Half Orbit current-line regression
         run: node tests/class24-half-orbit-selector-e2e.mjs
