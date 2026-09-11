@@ -186,6 +186,16 @@
 .ana-layer-float{
   position:absolute;left:0;top:0;width:100%;
   display:block;will-change:transform;
+  /* EL AREA SENSIBLE ES EL BOTON, NO LA IMAGEN.
+
+     `scaleY()` no afecta al layout, asi que la caja de este envoltorio mide el alto de
+     la imagen SIN aplastar: casi el doble de lo que se ve. Con pointer-events activos
+     invadia a la capa de abajo y le robaba el clic. El gate lo cazo pidiendo `cheese`
+     y encontrando el `ana-layer-float` de `tomato` -la capa de encima- interponiendose.
+
+     Apagandolo aqui, el unico objetivo es el <button>, cuya caja mide `--ana-h`: es
+     decir, exactamente la capa visible. Lo que se ve es lo que se pulsa. */
+  pointer-events:none;
 }
 .ana-layer img{
   display:block;width:100%;height:auto;
