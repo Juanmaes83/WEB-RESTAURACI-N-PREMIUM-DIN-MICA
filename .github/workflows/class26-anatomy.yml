@@ -18,9 +18,18 @@ on:
 permissions:
   contents: read
 
+# Cada commit disparaba DOS ejecuciones -push y pull_request- y las dos se colgaron seis
+# horas. Una sola por rama, y la nueva cancela la anterior.
+concurrency:
+  group: class26-anatomy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   anatomy:
     runs-on: ubuntu-24.04
+    # Red de seguridad: el limite por defecto son SEIS HORAS. Un test colgado no puede
+    # volver a costar eso. El job completo tarda unos 5 minutos.
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

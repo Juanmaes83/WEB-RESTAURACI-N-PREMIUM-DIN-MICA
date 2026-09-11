@@ -25,17 +25,40 @@ const browser=await chromium.launch();
 const checks=[];
 const check=(n,ok,d='')=>{const row={name:n,ok:!!ok,detail:d||''};checks.push(row);console.log(`${row.ok?'PASS':'FAIL'} ${n}${d?` — ${d}`:''}`)};
 
+/* ESPERAR LAS IMAGENES DIFERIDAS SIN COLGARSE.
+
+   La primera version hacia un `page.evaluate` con `Promise.all` de listeners load/error.
+   Colgo el job SEIS HORAS, hasta el limite duro de GitHub Actions, sin imprimir una sola
+   linea. Dos causas, y las dos habia que arreglarlas:
+
+     · las capas a partir de la tercera son `loading="lazy"` y la seccion esta muy por
+       debajo del pliegue, asi que el navegador nunca empieza a cargarlas y esos
+       listeners no se disparan JAMAS;
+     · `page.evaluate` no tiene timeout por defecto, asi que nada cortaba la espera.
+
+   Arreglo: primero se lleva la seccion al viewport —que es lo que hace arrancar el lazy,
+   y ademas es el estado en el que un visitante la ve— y despues la espera va acotada. Si
+   una imagen no carga, el gate lo dice y falla; colgarse ya no es posible. */
+async function settleLayers(page, ms = 20000){
+  await page.evaluate(() => {
+    document.querySelector('#anatomy')?.scrollIntoView({block: 'center'});
+  });
+  await page.evaluate(async (limit) => {
+    const imgs = [...document.querySelectorAll('.ana-layer img')];
+    const done = Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => {
+      i.addEventListener('load', r, {once: true});
+      i.addEventListener('error', r, {once: true});
+    })));
+    await Promise.race([done, new Promise(r => setTimeout(r, limit))]);
+  }, ms);
+}
+
 async function boot(page){
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(`${BASE}/?review=anatomy`,{waitUntil:'domcontentloaded',timeout:45000});
   await page.waitForFunction(()=>window.RestaurantAnatomyEngine?.state?.().mounted===true,null,{timeout:40000});
-  await page.evaluate(async()=>{
-    const imgs=[...document.querySelectorAll('.ana-layer img')];
-    await Promise.all(imgs.map(i=>i.complete?0:new Promise(r=>{
-      i.addEventListener('load',r,{once:true});i.addEventListener('error',r,{once:true});
-    })));
-  });
+  await settleLayers(page);
   await page.waitForTimeout(700);
   return errors;
 }
@@ -281,7 +304,13 @@ async function boot(page){
 }
 
 await browser.close();
-if(local)await new Promise(r=>local.server.close(r));
+/* `server.close()` solo llama al callback cuando cierran TODAS las conexiones. Si
+   quedara un socket vivo, el proceso no terminaria nunca y el job volveria a comerse
+   el limite de seis horas. Se acota. */
+if(local)await Promise.race([
+  new Promise(r=>local.server.close(r)),
+  new Promise(r=>setTimeout(r,5000))
+]);
 const passed=checks.filter(x=>x.ok).length;
 fs.writeFileSync(path.join(OUT,'report.json'),
   JSON.stringify({passed,total:checks.length,status:passed===checks.length?'PASS':'FAIL',checks},null,2));
