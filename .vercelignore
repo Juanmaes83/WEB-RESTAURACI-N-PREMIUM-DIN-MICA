@@ -12,3 +12,8 @@ VIDEOS REFERENCIAS
 Grabación*.mp4
 assets/**/source/**
 assets/**/sources/**
+
+# C1-HR-01 — Circular Dish Rotator still uses the canonical baked full-wheel demo asset.
+# Keep the rest of source/ excluded, but package only this tiny runtime dependency.
+!assets/pizza-motion/source/full-pizza/
+!assets/pizza-motion/source/full-pizza/**
