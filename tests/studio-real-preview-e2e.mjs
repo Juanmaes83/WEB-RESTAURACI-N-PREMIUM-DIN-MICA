@@ -46,7 +46,7 @@ try{
   await frame.waitForFunction(name=>window.RestaurantStudioConfig?.get('brand.name')===name,testName);
   await frame.waitForFunction(name=>document.title.startsWith(name),testName);
 
-  await page.selectOption('#preview-mode','desktop');
+  await page.evaluate(()=>window.RestaurantStudioPreview.setPreset('desktop'));
   await frame.waitForFunction(()=>innerWidth===1440&&innerHeight===900,{timeout:10000});
   const desktop=await frame.evaluate(()=>({
     width:innerWidth,height:innerHeight,
@@ -60,12 +60,12 @@ try{
   assert(desktop.desktopNav!=='none','Desktop navigation is hidden in desktop preview');
   assert(desktop.name===testName,'Project State was lost when switching viewport');
 
-  await page.selectOption('#preview-mode','landscape');
+  await page.evaluate(()=>window.RestaurantStudioPreview.setPreset('landscape'));
   await frame.waitForFunction(()=>innerWidth===844&&innerHeight===390);
   const landscapeName=await frame.evaluate(()=>window.RestaurantStudioConfig?.get('brand.name'));
   assert(landscapeName===testName,'Project State was lost in landscape preview');
 
-  await page.selectOption('#preview-mode','mobile-m');
+  await page.evaluate(()=>window.RestaurantStudioPreview.setPreset('mobile-m'));
   await frame.waitForFunction(()=>innerWidth===390&&innerHeight===844);
   await frame.locator('#explore-dish').click();
   await frame.waitForFunction(()=>document.querySelector('#dish-detail')?.classList.contains('is-open'));
