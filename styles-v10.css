@@ -31,7 +31,7 @@ html[data-orbital-motion="orbital-food"] .orbital-section{
    above it, or the composition clips instead of reading as depth. */
 html[data-orbital-motion="orbital-food"] .orbit-shell{
   position:relative;z-index:4;height:min(74vh,760px);min-height:540px;margin:0;
-  cursor:grab;touch-action:none}
+  cursor:grab;touch-action:pan-y pinch-zoom}
 html[data-orbital-motion="orbital-food"] .orbit-shell:active{cursor:grabbing}
 html[data-orbital-motion="orbital-food"] #orbit-stage{
   position:absolute;inset:0;perspective:none;visibility:visible;pointer-events:auto}

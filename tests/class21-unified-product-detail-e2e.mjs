@@ -39,6 +39,9 @@ async function boot(page,{reduced=false}={}){
     null,{timeout:30000});
   await page.waitForFunction(()=>document.documentElement.dataset.productDetailReady==='ready',
     null,{timeout:25000});
+  // Exercise coexistence with the opt-in Traveler, without changing public defaults.
+  await page.evaluate(()=>RestaurantStudioConfig.set('scrollTraveler.enabled',true));
+  await page.waitForFunction(()=>window.RestaurantScrollTraveler?.state?.().active);
   await page.waitForTimeout(900);
 }
 const state=page=>page.evaluate(()=>window.RestaurantProductDetail.state());

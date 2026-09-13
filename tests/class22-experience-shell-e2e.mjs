@@ -8,7 +8,7 @@
      · cerrar, Escape y el botón Atrás devuelven al Studio;
      · consumen el MISMO proyecto — marca, carta y media — sin crear un segundo store;
      · abrir/cerrar/abrir deja una instancia limpia, sin iframes ni timers acumulados;
-     · y nada de lo aprobado antes se movió: Class 19 sigue contando once, Class 20 y
+     · y nada de lo aprobado antes se movió: Class 19 cuenta doce con Half Orbit, Class 20 y
        Class 21 siguen funcionando, Scroll Traveler sigue intacto y los labs siguen
        accesibles directamente para regresión.
 
@@ -43,6 +43,9 @@ async function boot(page){
     null,{timeout:30000});
   await page.waitForFunction(()=>document.documentElement.dataset.experienceShellReady==='ready',
     null,{timeout:25000});
+  // Coexistence fixture: Traveler is deliberately OFF in a clean public project.
+  await page.evaluate(()=>RestaurantStudioConfig.set('scrollTraveler.enabled',true));
+  await page.waitForFunction(()=>window.RestaurantScrollTraveler?.state?.().active);
   await page.waitForTimeout(800);
 }
 async function openLibrary(page){
@@ -271,8 +274,8 @@ const childOf=page=>page.frames().find(f=>/\/experiences\//.test(f.url()))||null
     traveler:window.RestaurantScrollTraveler?.state?.(),
     modules:['location','social','whatsapp'].map(m=>
       window.RestaurantStudioConfig?.get(`modules.${m}.enabled`))}));
-  check('22 · Class 19 sigue contando once motores',
-    intact.library?.count===11&&intact.library?.available===11,
+  check('22 · Class 19 cuenta doce motores con Half Orbit',
+    intact.library?.count===12&&intact.library?.available===12,
     `${intact.library?.count} motores, ${intact.library?.available} disponibles`);
   check('20 · Class 21 sigue en pie con su adaptador',
     !!intact.detail&&intact.detail.enabled!==undefined&&!!intact.detail.adapter,

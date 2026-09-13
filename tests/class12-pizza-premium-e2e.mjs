@@ -201,16 +201,20 @@ async function run(label,viewport,isMobile){
   const beforeSpin=await storyOf(page);
   await page.evaluate(()=>window.RestaurantPizzaSliceOrbit.spin({target:6,turns:3}));
   const phases=new Set();
-  let fastSample=null;
+  let fastSample=null,fastSince=null;
   for(let k=0;k<40;k++){
     const s=await page.evaluate(()=>{
       const st=window.RestaurantPizzaSliceOrbit.state();
       const pm=window.RestaurantPizzaPremium.state();
       const ing=getComputedStyle(document.querySelector('.pp-ingredients'));
-      return {spinning:st.spinning,phase:pm.phase,speed:pm.speed,ingOpacity:+ing.opacity};
+      return {spinning:st.spinning,phase:pm.phase,speed:pm.speed,ingOpacity:+ing.opacity,now:performance.now()};
     });
     phases.add(s.phase);
-    if(s.phase==='fast'&&!fastSample)fastSample=s;
+    // The phase starts a 450 ms CSS fade; sample its result, not its first frame.
+    if(s.phase==='fast'){
+      fastSince??=s.now;
+      if(s.now-fastSince>=500&&!fastSample)fastSample=s;
+    }else fastSince=null;
     if(!s.spinning)break;
     await page.waitForTimeout(110);
     if(k===6)await page.screenshot({path:path.join(SHOTS,`premium-${isMobile?'mobile-03-spin':'05-spin-fast'}.png`)});

@@ -13,7 +13,7 @@
   const slug=s=>String(s||'restaurant').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 
   let config=clone(window.RestaurantDefaults), objectUrls={}, history=[], future=[], editIndex=0;
-  let active=0,orbitProgress=0,orbitTween=null,dragging=false,dragStartX=0,lastPointerX=0,dragStartProgress=0,velocity=0,detailSource=null,tapDish=null,tapMoved=false;
+  let active=0,orbitProgress=0,orbitTween=null,dragging=false,dragStartX=0,lastPointerX=0,dragStartProgress=0,velocity=0,detailSource=null;
   let saveTimer=null, savingPromise=Promise.resolve();
   const enabledDishes=()=>config.dishes.filter(d=>d.enabled!==false);
 
@@ -90,17 +90,61 @@
   function animateProgress(target,duration=.7){orbitTween?.kill?.();if(window.gsap){const s={v:orbitProgress};orbitTween=gsap.to(s,{v:target,duration,ease:'power3.inOut',onUpdate(){orbitProgress=s.v;renderOrbit();syncActive()},onComplete(){orbitProgress=Math.round(target);renderOrbit();syncActive()}})}else{orbitProgress=Math.round(target);renderOrbit();syncActive()}}
   const next=()=>animateProgress(Math.round(orbitProgress)+1),prev=()=>animateProgress(Math.round(orbitProgress)-1);
   function updateCopy(){const d=enabledDishes()[active];if(!d)return;$('#dish-meta').textContent=d.meta||'';$('#dish-title').textContent=d.name||'';$('#dish-short').textContent=d.short||'';$('#dish-counter').textContent=`${String(active+1).padStart(2,'0')} / ${String(enabledDishes().length).padStart(2,'0')}`}
-  function setupOrbitInteraction(){const shell=$('.orbit-shell');if(!shell)return;$('#next-dish').onclick=next;$('#prev-dish').onclick=prev;$('#explore-dish').onclick=openDetail;shell.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();if(e.key==='Enter')openDetail()});if(window.Observer)Observer.create({target:shell,type:'wheel',preventDefault:true,tolerance:12,onDown:next,onUp:prev});else shell.addEventListener('wheel',e=>{e.preventDefault();e.deltaY>0?next():prev()},{passive:false});shell.addEventListener('pointerdown',e=>{dragging=true;dragStartX=e.clientX;lastPointerX=e.clientX;dragStartProgress=orbitProgress;velocity=0;tapDish=e.target?.closest?.('.orbit-dish')||null;tapMoved=false;shell.setPointerCapture?.(e.pointerId);orbitTween?.kill?.()});shell.addEventListener('pointermove',e=>{if(!dragging)return;velocity=e.clientX-lastPointerX;lastPointerX=e.clientX;if(Math.abs(e.clientX-dragStartX)>6)tapMoved=true;orbitProgress=dragStartProgress-(e.clientX-dragStartX)/(innerWidth<620?170:240);renderOrbit();syncActive()});
-    /* A tap has to be resolved here. setPointerCapture on the shell retargets
-       pointerup to the shell, so the browser fires `click` on the shell — a plate's
-       own onclick from buildOrbit is never reached, and tapping a product has
-       therefore always done nothing. Same contract as that handler: the active dish
-       opens its detail, any other one is navigated to. */
-    const end=()=>{if(!dragging)return;dragging=false;
-      const dish=tapDish,moved=tapMoved;tapDish=null;tapMoved=false;
-      if(dish&&!moved){const i=$$('.orbit-dish').indexOf(dish);
-        if(i>=0){orbitProgress=dragStartProgress;renderOrbit();syncActive();i===active?openDetail():goToIndex(i);return}}
-      animateProgress(Math.round(orbitProgress-velocity*.018),.55)};shell.addEventListener('pointerup',end);shell.addEventListener('pointercancel',end);addEventListener('resize',renderOrbit)}
+  function setupOrbitInteraction(){
+    const shell=$('.orbit-shell');if(!shell)return;
+    let pointer=null,startY=0,intent='idle',suppressClickUntil=0;
+    const setIntent=value=>{intent=value;shell.dataset.gesture=value};
+    $('#next-dish').onclick=next;$('#prev-dish').onclick=prev;$('#explore-dish').onclick=openDetail;
+    shell.addEventListener('keydown',e=>{
+      if(e.target.closest('button,a,input,select,textarea')&&!e.target.closest('.orbit-dish'))return;
+      if(e.key==='ArrowRight'){e.preventDefault();next()}
+      if(e.key==='ArrowLeft'){e.preventDefault();prev()}
+      if(e.key==='Enter')openDetail();
+    });
+    // Vertical wheel/trackpad movement is page navigation, just like touch.
+    shell.addEventListener('wheel',e=>{
+      if(Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;
+      e.preventDefault();e.deltaX>0?next():prev();
+    },{passive:false});
+    // Runs before Class6's hero-click bridge: a drag must never become a tap.
+    shell.addEventListener('click',e=>{
+      if(performance.now()<suppressClickUntil){e.preventDefault();e.stopImmediatePropagation()}
+    },true);
+    shell.addEventListener('pointerdown',e=>{
+      if(e.button>0||e.isPrimary===false||pointer!==null)return;
+      pointer=e.pointerId;dragStartX=lastPointerX=e.clientX;startY=e.clientY;
+      velocity=0;setIntent('undecided');
+    });
+    shell.addEventListener('pointermove',e=>{
+      if(e.pointerId!==pointer||intent==='vertical')return;
+      const dx=e.clientX-dragStartX,dy=e.clientY-startY;
+      if(intent==='undecided'){
+        if(Math.hypot(dx,dy)<10)return;
+        if(Math.abs(dy)>Math.abs(dx)){setIntent('vertical');return}
+        if(Math.abs(dx)<Math.abs(dy)*1.25)return;
+        setIntent('horizontal');dragging=true;dragStartProgress=orbitProgress;
+        orbitTween?.kill?.();shell.setPointerCapture?.(e.pointerId);
+        shell.dispatchEvent(new CustomEvent('restaurant:orbit-drag-start',{detail:{startX:dragStartX}}));
+      }
+      if(!dragging)return;
+      velocity=e.clientX-lastPointerX;lastPointerX=e.clientX;
+      orbitProgress=dragStartProgress-dx/(innerWidth<620?170:240);renderOrbit();syncActive();
+    });
+    const end=e=>{
+      if(e.type==='lostpointercapture'&&e.target!==shell)return;
+      if(e.pointerId!==pointer)return;
+      const wasDrag=dragging;pointer=null;dragging=false;
+      if(wasDrag){
+        suppressClickUntil=performance.now()+400;
+        const target=e.type==='pointerup'?Math.round(orbitProgress-velocity*.018):Math.round(dragStartProgress);
+        animateProgress(target,.55);
+      }
+      try{shell.releasePointerCapture(e.pointerId)}catch{}
+      setIntent('idle');
+    };
+    shell.addEventListener('pointerup',end);shell.addEventListener('pointercancel',end);
+    shell.addEventListener('lostpointercapture',end);addEventListener('resize',renderOrbit);
+  }
 
   function fillDetail(d){[['detail-meta','meta'],['detail-title','name'],['detail-price','price'],['detail-description','short'],['detail-ingredients','ingredients'],['detail-origin','origin'],['detail-technique','technique'],['detail-pairing','pairing']].forEach(([id,k])=>{$('#'+id).textContent=d[k]||''});$('#detail-note').textContent=`“${d.note||''}”`;$('#detail-allergens').textContent=`Alérgenos · ${d.allergens||''}`}
   function openDetail(){const d=enabledDishes()[active],detail=$('#dish-detail'),source=$(`.orbit-dish[data-id="${d?.id}"]`);if(!d||!detail||!source)return;fillDetail(d);detailSource={node:source,parent:source.parentNode,next:source.nextSibling};const state=window.Flip?Flip.getState(source):null;$('#detail-visual').appendChild(source);detail.classList.add('is-open');detail.setAttribute('aria-hidden','false');document.body.classList.add('detail-open');if(state)Flip.from(state,{duration:.8,ease:'power4.inOut',absolute:true,scale:true});$('#detail-close').focus()}

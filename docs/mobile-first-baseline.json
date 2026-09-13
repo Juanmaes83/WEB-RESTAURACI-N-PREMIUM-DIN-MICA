@@ -1,0 +1,6982 @@
+{
+  "url": "http://127.0.0.1:59490",
+  "phase": "before",
+  "date": "2026-09-12T20:20:57.962Z",
+  "limitations": [
+    "Emulation is not a physical phone. WebKit has touch emulation but no native multi-point swipe API; native scroll/drag proof uses Chromium CDP.",
+    "Local unthrottled cold contexts; transfer sizes exclude cross-origin resources without Timing-Allow-Origin. LCP/CLS are lab observations, not field percentiles."
+  ],
+  "runs": [
+    {
+      "engine": "chromium",
+      "width": 360,
+      "height": 800,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": true
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 22.984375,
+              "height": 21.9375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 23.78125,
+              "height": 21.9375
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 34
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "elegant vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1724,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1724,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1724,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1724,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1724,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "false"
+            },
+            "point": {
+              "x": 253.92,
+              "y": 287.65625
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1724,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1724,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1724,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 253.92,
+              "y": 287.65625
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 253.92,
+              "y": 287.65625
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit vertical",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1582,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1582,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1582,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.01935483870967742,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1807,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1807,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 259.2,
+              "y": 371.921875
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1582,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1582,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1582,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1582,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.01935483870967742,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1582,
+              "index": 1,
+              "dragging": true,
+              "progress": 1.1290323565083165,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1582,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 259.2,
+              "y": 371.921875
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1582,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit diagonal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1582,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1582,
+              "index": 1,
+              "dragging": true,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1582,
+              "index": 1,
+              "dragging": true,
+              "progress": 0.9806451612903225,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1787,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1787,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 259.2,
+              "y": 371.921875
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1582,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9806451612903225,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "false"
+            },
+            "point": {
+              "x": 253.92,
+              "y": 287.65625
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1724,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1724,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1724,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 253.92,
+              "y": 287.65625
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1724,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1724,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1724,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1724,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1724,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 253.92,
+              "y": 287.65625
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1724,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 86,
+        "js": 43,
+        "css": 17,
+        "images": 24,
+        "video": 0,
+        "measuredTransferBytes": 2084942,
+        "unmeasuredResources": 9,
+        "DOMContentLoaded": 150.79999995231628,
+        "load": 2337.2999999523163,
+        "cls": 0,
+        "lcp": 204,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 22.984375,
+          "height": 21.9375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 23.78125,
+          "height": 21.9375
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 34
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ],
+      "gestures": [
+        {
+          "mode": "elegant",
+          "name": "vertical",
+          "before": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "false"
+          },
+          "point": {
+            "x": 253.92,
+            "y": 287.65625
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1724,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 253.92,
+            "y": 287.65625
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 253.92,
+            "y": 287.65625
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "vertical",
+          "before": {
+            "scroll": 1582,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1582,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1582,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1807,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1807,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 259.2,
+            "y": 371.921875
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1582,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1582,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1582,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1582,
+            "index": 1,
+            "dragging": true,
+            "progress": 1.1290323565083165,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1582,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 259.2,
+            "y": 371.921875
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1582,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1582,
+            "index": 1,
+            "dragging": true,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1582,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9806451612903225,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1787,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1787,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 259.2,
+            "y": 371.921875
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "vertical",
+          "before": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "false"
+          },
+          "point": {
+            "x": 253.92,
+            "y": 287.65625
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1724,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1724,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1724,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 253.92,
+            "y": 287.65625
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1724,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1724,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1724,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1724,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1724,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 253.92,
+            "y": 287.65625
+          }
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "height": 844,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": true
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 22.984375,
+              "height": 21.9375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 23.78125,
+              "height": 21.9375
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 34
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "elegant vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1811,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1811,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1811,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1811,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1811,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "false"
+            },
+            "point": {
+              "x": 275.52,
+              "y": 295.603125
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1811,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1811,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1811,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 275.52,
+              "y": 295.603125
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 275.52,
+              "y": 295.603125
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit vertical",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1662,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1662,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1662,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.01935483870967742,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1887,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1887,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 280.8,
+              "y": 371.578125
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1662,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1662,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1662,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1662,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.01935483870967742,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1662,
+              "index": 1,
+              "dragging": true,
+              "progress": 1.1290321596207158,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1662,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 280.8,
+              "y": 371.578125
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1662,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit diagonal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1662,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1662,
+              "index": 1,
+              "dragging": true,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1662,
+              "index": 1,
+              "dragging": true,
+              "progress": 0.9806451612903225,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1867,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1867,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 280.8,
+              "y": 371.578125
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1662,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9806451612903225,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "false"
+            },
+            "point": {
+              "x": 275.52,
+              "y": 295.603125
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1811,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1811,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1811,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 275.52,
+              "y": 295.603125
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1811,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1811,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1811,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1811,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1811,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 275.52,
+              "y": 295.603125
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1811,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 86,
+        "js": 43,
+        "css": 17,
+        "images": 24,
+        "video": 0,
+        "measuredTransferBytes": 2084942,
+        "unmeasuredResources": 9,
+        "DOMContentLoaded": 155.40000009536743,
+        "load": 1881.0999999046326,
+        "cls": 0,
+        "lcp": 184,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 22.984375,
+          "height": 21.9375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 23.78125,
+          "height": 21.9375
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 34
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ],
+      "gestures": [
+        {
+          "mode": "elegant",
+          "name": "vertical",
+          "before": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "false"
+          },
+          "point": {
+            "x": 275.52,
+            "y": 295.603125
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1811,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 275.52,
+            "y": 295.603125
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 275.52,
+            "y": 295.603125
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "vertical",
+          "before": {
+            "scroll": 1662,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1662,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1662,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1887,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1887,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 280.8,
+            "y": 371.578125
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1662,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1662,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1662,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1662,
+            "index": 1,
+            "dragging": true,
+            "progress": 1.1290321596207158,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1662,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 280.8,
+            "y": 371.578125
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1662,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1662,
+            "index": 1,
+            "dragging": true,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1662,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9806451612903225,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1867,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1867,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 280.8,
+            "y": 371.578125
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "vertical",
+          "before": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "false"
+          },
+          "point": {
+            "x": 275.52,
+            "y": 295.603125
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1811,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1811,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1811,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 275.52,
+            "y": 295.603125
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1811,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1811,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1811,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1811,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1811,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 275.52,
+            "y": 295.603125
+          }
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "width": 430,
+      "height": 932,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": true
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 22.984375,
+              "height": 21.9375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 23.78125,
+              "height": 21.9375
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 34
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "elegant vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1965,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1965,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1965,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1965,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1965,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "false"
+            },
+            "point": {
+              "x": 304.32,
+              "y": 316.59375
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1965,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1965,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1965,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 304.32,
+              "y": 316.59375
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 304.32,
+              "y": 316.59375
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit vertical",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1808,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1808,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1808,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.01935483870967742,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 2033,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 2033,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 309.59999999999997,
+              "y": 371.71875
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1808,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1808,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1808,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1808,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.01935483870967742,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1808,
+              "index": 1,
+              "dragging": true,
+              "progress": 1.1290322580645162,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1808,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 309.59999999999997,
+              "y": 371.71875
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1808,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit diagonal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1808,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1808,
+              "index": 1,
+              "dragging": true,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1808,
+              "index": 1,
+              "dragging": true,
+              "progress": 0.9806451612903225,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 2013,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 2013,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 309.59999999999997,
+              "y": 371.71875
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1808,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9806451612903225,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "false"
+            },
+            "point": {
+              "x": 304.32,
+              "y": 316.59375
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1965,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1965,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1965,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 304.32,
+              "y": 316.59375
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1965,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1965,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1965,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1965,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1965,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 304.32,
+              "y": 316.59375
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1965,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 86,
+        "js": 43,
+        "css": 17,
+        "images": 24,
+        "video": 0,
+        "measuredTransferBytes": 2084942,
+        "unmeasuredResources": 9,
+        "DOMContentLoaded": 133.79999995231628,
+        "load": 1724.0999999046326,
+        "cls": 0,
+        "lcp": 156,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 22.984375,
+          "height": 21.9375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 23.78125,
+          "height": 21.9375
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 34
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ],
+      "gestures": [
+        {
+          "mode": "elegant",
+          "name": "vertical",
+          "before": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "false"
+          },
+          "point": {
+            "x": 304.32,
+            "y": 316.59375
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1965,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 304.32,
+            "y": 316.59375
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 304.32,
+            "y": 316.59375
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "vertical",
+          "before": {
+            "scroll": 1808,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1808,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1808,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 2033,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 2033,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 309.59999999999997,
+            "y": 371.71875
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1808,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1808,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1808,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.01935483870967742,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1808,
+            "index": 1,
+            "dragging": true,
+            "progress": 1.1290322580645162,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1808,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 309.59999999999997,
+            "y": 371.71875
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1808,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1808,
+            "index": 1,
+            "dragging": true,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1808,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9806451612903225,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 2013,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 2013,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 309.59999999999997,
+            "y": 371.71875
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "vertical",
+          "before": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "false"
+          },
+          "point": {
+            "x": 304.32,
+            "y": 316.59375
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1965,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1965,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1965,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 304.32,
+            "y": 316.59375
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1965,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1965,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1965,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1965,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1965,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 304.32,
+            "y": 316.59375
+          }
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "width": 844,
+      "height": 390,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": true
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 21.78125,
+              "height": 20.375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 22.65625,
+              "height": 20.375
+            },
+            {
+              "selector": "ghost studio-open",
+              "text": "Studio",
+              "width": 67.0625,
+              "height": 36
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 36
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "elegant vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1223,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1223,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1223,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1223,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1223,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "false"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 307.703125
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1223,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1223,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1223,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 307.703125
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 307.703125
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit vertical",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1083,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1083,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1083,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.013043478260869565,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1308,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1308,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 325
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1083,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.013043478260869565,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1083,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1083,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1083,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.013043478260869565,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1083,
+              "index": 1,
+              "dragging": true,
+              "progress": 0.7608696979025136,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1083,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 325
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1083,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.013043478260869565,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit diagonal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1083,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1083,
+              "index": 1,
+              "dragging": true,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1083,
+              "index": 1,
+              "dragging": true,
+              "progress": 0.9869565217391304,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1288,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1288,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 325
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1083,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9869565217391304,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "false"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 307.703125
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1223,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1223,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1223,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 307.703125
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1223,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1223,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1223,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1223,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1223,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 592.8299999999999,
+              "y": 307.703125
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1223,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 86,
+        "js": 43,
+        "css": 17,
+        "images": 24,
+        "video": 0,
+        "measuredTransferBytes": 2084942,
+        "unmeasuredResources": 9,
+        "DOMContentLoaded": 160.5,
+        "load": 1837.5,
+        "cls": 0,
+        "lcp": 188,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 21.78125,
+          "height": 20.375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 22.65625,
+          "height": 20.375
+        },
+        {
+          "selector": "ghost studio-open",
+          "text": "Studio",
+          "width": 67.0625,
+          "height": 36
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 36
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ],
+      "gestures": [
+        {
+          "mode": "elegant",
+          "name": "vertical",
+          "before": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "false"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 307.703125
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1223,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 307.703125
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 307.703125
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "vertical",
+          "before": {
+            "scroll": 1083,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1083,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1083,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.013043478260869565,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1308,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1308,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 325
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1083,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1083,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1083,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.013043478260869565,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1083,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.7608696979025136,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1083,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 325
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1083,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1083,
+            "index": 1,
+            "dragging": true,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1083,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9869565217391304,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1288,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1288,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 325
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "vertical",
+          "before": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "false"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 307.703125
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1223,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1223,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1223,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 307.703125
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1223,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1223,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1223,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1223,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1223,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 592.8299999999999,
+            "y": 307.703125
+          }
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "width": 768,
+      "height": 1024,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": true
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 21.78125,
+              "height": 20.375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 22.65625,
+              "height": 20.375
+            },
+            {
+              "selector": "ghost studio-open",
+              "text": "Studio",
+              "width": 67.0625,
+              "height": 36
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 36
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "elegant vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1994,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1994,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1994,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1994,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1994,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "false"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 378.85312500000003
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1994,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1994,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1994,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 378.85312500000003
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "elegant diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 378.85312500000003
+            }
+          }
+        },
+        {
+          "name": "elegant undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit vertical",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1895,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1895,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1895,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.013043478260869565,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 2120,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 2120,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 403.734375
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1895,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.013043478260869565,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1895,
+              "index": 0,
+              "dragging": false,
+              "progress": 0,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1895,
+              "index": 0,
+              "dragging": true,
+              "progress": 0,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1895,
+              "index": 0,
+              "dragging": true,
+              "progress": -0.013043478260869565,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1895,
+              "index": 1,
+              "dragging": true,
+              "progress": 0.760869432532269,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1895,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 403.734375
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1895,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.013043478260869565,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "half-orbit diagonal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1895,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1895,
+              "index": 1,
+              "dragging": true,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1895,
+              "index": 1,
+              "dragging": true,
+              "progress": 0.9869565217391304,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 2100,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 2100,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 403.734375
+            }
+          }
+        },
+        {
+          "name": "half-orbit undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1895,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9869565217391304,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban vertical",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "false"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 378.85312500000003
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban horizontal",
+          "pass": true,
+          "evidence": {
+            "before": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1994,
+              "index": 1,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1994,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1994,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 378.85312500000003
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "urban diagonal",
+          "pass": false,
+          "evidence": {
+            "before": {
+              "scroll": 1994,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "down": {
+              "scroll": 1994,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "undecided": {
+              "scroll": 1994,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "held": {
+              "scroll": 1994,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "after": {
+              "scroll": 1994,
+              "index": 2,
+              "dragging": false,
+              "progress": 1,
+              "detail": "true"
+            },
+            "point": {
+              "x": 539.4437499999999,
+              "y": 378.85312500000003
+            }
+          }
+        },
+        {
+          "name": "urban undecided threshold",
+          "pass": false,
+          "evidence": {
+            "scroll": 1994,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          }
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 86,
+        "js": 43,
+        "css": 17,
+        "images": 24,
+        "video": 0,
+        "measuredTransferBytes": 2084942,
+        "unmeasuredResources": 9,
+        "DOMContentLoaded": 177.29999995231628,
+        "load": 1821.2999999523163,
+        "cls": 0,
+        "lcp": 204,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 21.78125,
+          "height": 20.375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 22.65625,
+          "height": 20.375
+        },
+        {
+          "selector": "ghost studio-open",
+          "text": "Studio",
+          "width": 67.0625,
+          "height": 36
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 36
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ],
+      "gestures": [
+        {
+          "mode": "elegant",
+          "name": "vertical",
+          "before": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "false"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 378.85312500000003
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1994,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 378.85312500000003
+          }
+        },
+        {
+          "mode": "elegant",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 378.85312500000003
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "vertical",
+          "before": {
+            "scroll": 1895,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1895,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1895,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.013043478260869565,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 2120,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 2120,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 403.734375
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1895,
+            "index": 0,
+            "dragging": false,
+            "progress": 0,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1895,
+            "index": 0,
+            "dragging": true,
+            "progress": 0,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1895,
+            "index": 0,
+            "dragging": true,
+            "progress": -0.013043478260869565,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1895,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.760869432532269,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1895,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 403.734375
+          }
+        },
+        {
+          "mode": "half-orbit",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1895,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1895,
+            "index": 1,
+            "dragging": true,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1895,
+            "index": 1,
+            "dragging": true,
+            "progress": 0.9869565217391304,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 2100,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 2100,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 403.734375
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "vertical",
+          "before": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "false"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 378.85312500000003
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "horizontal",
+          "before": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1994,
+            "index": 1,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1994,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1994,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 378.85312500000003
+          }
+        },
+        {
+          "mode": "urban",
+          "name": "diagonal",
+          "before": {
+            "scroll": 1994,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "down": {
+            "scroll": 1994,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "undecided": {
+            "scroll": 1994,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "held": {
+            "scroll": 1994,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "after": {
+            "scroll": 1994,
+            "index": 2,
+            "dragging": false,
+            "progress": 1,
+            "detail": "true"
+          },
+          "point": {
+            "x": 539.4437499999999,
+            "y": 378.85312500000003
+          }
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "height": 900,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": true
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": true,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "",
+              "text": "Carta",
+              "width": 28.25,
+              "height": 14
+            },
+            {
+              "selector": "",
+              "text": "Historia",
+              "width": 38.796875,
+              "height": 14
+            },
+            {
+              "selector": "",
+              "text": "Experiencia",
+              "width": 59,
+              "height": 14
+            },
+            {
+              "selector": "",
+              "text": "Visita",
+              "width": 28.46875,
+              "height": 14
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 21.78125,
+              "height": 20.375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 22.65625,
+              "height": 20.375
+            },
+            {
+              "selector": "ghost studio-open",
+              "text": "Studio",
+              "width": 67.0625,
+              "height": 36
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 36
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": true
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": true
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": true,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 86,
+        "js": 43,
+        "css": 17,
+        "images": 24,
+        "video": 0,
+        "measuredTransferBytes": 2084934,
+        "unmeasuredResources": 9,
+        "DOMContentLoaded": 142.39999985694885,
+        "load": 1749.1999998092651,
+        "cls": 0.031171456268687305,
+        "lcp": 176,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "",
+          "text": "Carta",
+          "width": 28.25,
+          "height": 14
+        },
+        {
+          "selector": "",
+          "text": "Historia",
+          "width": 38.796875,
+          "height": 14
+        },
+        {
+          "selector": "",
+          "text": "Experiencia",
+          "width": 59,
+          "height": 14
+        },
+        {
+          "selector": "",
+          "text": "Visita",
+          "width": 28.46875,
+          "height": 14
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 21.78125,
+          "height": 20.375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 22.65625,
+          "height": 20.375
+        },
+        {
+          "selector": "ghost studio-open",
+          "text": "Studio",
+          "width": 67.0625,
+          "height": 36
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 36
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 360,
+      "height": 800,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": false
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 22.984375,
+              "height": 21.9375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 23.78125,
+              "height": 21.9375
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 34
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.359375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 66,
+        "js": 44,
+        "css": 17,
+        "images": 3,
+        "video": 0,
+        "measuredTransferBytes": 823333,
+        "unmeasuredResources": 8,
+        "DOMContentLoaded": 227,
+        "load": 253,
+        "cls": 0,
+        "lcp": null,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 22.984375,
+          "height": 21.9375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 23.78125,
+          "height": 21.9375
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 34
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.359375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "height": 844,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": false
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 22.984375,
+              "height": 21.9375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 23.78125,
+              "height": 21.9375
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 34
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.359375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 63,
+        "js": 44,
+        "css": 17,
+        "images": 0,
+        "video": 0,
+        "measuredTransferBytes": 823333,
+        "unmeasuredResources": 5,
+        "DOMContentLoaded": 168,
+        "load": 220,
+        "cls": 0,
+        "lcp": null,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 22.984375,
+          "height": 21.9375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 23.78125,
+          "height": 21.9375
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 34
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.359375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 430,
+      "height": 932,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": false
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 22.984375,
+              "height": 21.9375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 23.78125,
+              "height": 21.9375
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 34
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.359375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 66,
+        "js": 44,
+        "css": 17,
+        "images": 3,
+        "video": 0,
+        "measuredTransferBytes": 823333,
+        "unmeasuredResources": 8,
+        "DOMContentLoaded": 166,
+        "load": 288.00000000000006,
+        "cls": 0,
+        "lcp": null,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 22.984375,
+          "height": 21.9375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 23.78125,
+          "height": 21.9375
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 34
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.359375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 844,
+      "height": 390,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": false
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 21.78125,
+              "height": 20.375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 22.65625,
+              "height": 20.375
+            },
+            {
+              "selector": "ghost studio-open",
+              "text": "Studio",
+              "width": 67.0625,
+              "height": 36
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 36
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.359375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 68,
+        "js": 43,
+        "css": 17,
+        "images": 6,
+        "video": 0,
+        "measuredTransferBytes": 805981,
+        "unmeasuredResources": 11,
+        "DOMContentLoaded": 172,
+        "load": 338,
+        "cls": 0,
+        "lcp": null,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 21.78125,
+          "height": 20.375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 22.65625,
+          "height": 20.375
+        },
+        {
+          "selector": "ghost studio-open",
+          "text": "Studio",
+          "width": 67.0625,
+          "height": 36
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 36
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.359375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "width": 768,
+      "height": 1024,
+      "checks": [
+        {
+          "name": "mobile device context",
+          "pass": false
+        },
+        {
+          "name": "module defaults OFF",
+          "pass": true
+        },
+        {
+          "name": "critical targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "selector": "brand brand-visual",
+              "text": "LÚMINA",
+              "width": 100,
+              "height": 16
+            },
+            {
+              "selector": "active",
+              "text": "ES",
+              "width": 21.78125,
+              "height": 20.375
+            },
+            {
+              "selector": "",
+              "text": "EN",
+              "width": 22.65625,
+              "height": 20.375
+            },
+            {
+              "selector": "ghost studio-open",
+              "text": "Studio",
+              "width": 67.0625,
+              "height": 36
+            },
+            {
+              "selector": "reserve-open pill",
+              "text": "Reservar",
+              "width": 78.109375,
+              "height": 36
+            },
+            {
+              "selector": "text-link",
+              "text": "Descubrir el menú ↘",
+              "width": 114.890625,
+              "height": 23
+            },
+            {
+              "selector": "explore-dish",
+              "text": "Descubrir plato +",
+              "width": 107.359375,
+              "height": 29
+            },
+            {
+              "selector": "prev-dish",
+              "text": "←",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "next-dish",
+              "text": "→",
+              "width": 50,
+              "height": 50
+            },
+            {
+              "selector": "visit-cta",
+              "text": "Reservar mesa",
+              "width": 158.15625,
+              "height": 53
+            }
+          ]
+        },
+        {
+          "name": "functional copy >=16",
+          "pass": false
+        },
+        {
+          "name": "task navigation first viewport",
+          "pass": false
+        },
+        {
+          "name": "product detail opens",
+          "pass": true
+        },
+        {
+          "name": "detail targets >=44",
+          "pass": false,
+          "evidence": [
+            {
+              "width": 50,
+              "height": 50
+            },
+            {
+              "width": 88.546875,
+              "height": 37
+            }
+          ]
+        },
+        {
+          "name": "reservation from detail",
+          "pass": true
+        },
+        {
+          "name": "reservation demo feedback",
+          "pass": true
+        },
+        {
+          "name": "Maps privacy before tap",
+          "pass": true
+        },
+        {
+          "name": "Maps destination",
+          "pass": true
+        },
+        {
+          "name": "WhatsApp destination",
+          "pass": true
+        },
+        {
+          "name": "reservation covers floating UI",
+          "pass": true
+        },
+        {
+          "name": "OFF removes modules",
+          "pass": true
+        },
+        {
+          "name": "horizontal overflow 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "JS errors 0",
+          "pass": true,
+          "evidence": []
+        },
+        {
+          "name": "same-origin 4xx 0",
+          "pass": true,
+          "evidence": []
+        }
+      ],
+      "errors": [],
+      "failedResources": [],
+      "sameOrigin4xx": [],
+      "metrics": {
+        "requests": 68,
+        "js": 43,
+        "css": 17,
+        "images": 6,
+        "video": 0,
+        "measuredTransferBytes": 805981,
+        "unmeasuredResources": 11,
+        "DOMContentLoaded": 192,
+        "load": 361,
+        "cls": 0,
+        "lcp": null,
+        "longTasks": [],
+        "resourceSizes": []
+      },
+      "targets": [
+        {
+          "selector": "brand brand-visual",
+          "text": "LÚMINA",
+          "width": 100,
+          "height": 16
+        },
+        {
+          "selector": "active",
+          "text": "ES",
+          "width": 21.78125,
+          "height": 20.375
+        },
+        {
+          "selector": "",
+          "text": "EN",
+          "width": 22.65625,
+          "height": 20.375
+        },
+        {
+          "selector": "ghost studio-open",
+          "text": "Studio",
+          "width": 67.0625,
+          "height": 36
+        },
+        {
+          "selector": "reserve-open pill",
+          "text": "Reservar",
+          "width": 78.109375,
+          "height": 36
+        },
+        {
+          "selector": "text-link",
+          "text": "Descubrir el menú ↘",
+          "width": 114.890625,
+          "height": 23
+        },
+        {
+          "selector": "explore-dish",
+          "text": "Descubrir plato +",
+          "width": 107.359375,
+          "height": 29
+        },
+        {
+          "selector": "prev-dish",
+          "text": "←",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "next-dish",
+          "text": "→",
+          "width": 50,
+          "height": 50
+        },
+        {
+          "selector": "visit-cta",
+          "text": "Reservar mesa",
+          "width": 158.15625,
+          "height": 53
+        }
+      ]
+    }
+  ]
+}

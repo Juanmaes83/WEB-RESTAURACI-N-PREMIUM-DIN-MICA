@@ -1,4 +1,6 @@
 import { chromium } from 'playwright';
+import {startServer} from './static-server.mjs';
+const {server,url:BASE}=await startServer(0);
 
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:1440,height:1000}});
@@ -39,7 +41,7 @@ async function closeHeroAndAssertReturn(id){
 }
 
 try{
-  await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded',timeout:30000});
+  await page.goto(BASE+'/index.html',{waitUntil:'domcontentloaded',timeout:30000});
   await ready();
 
   /* Class 06 UI + Spanish default. */
@@ -120,4 +122,7 @@ try{
   assert(errors.length===0,`Browser errors: ${errors.join(' | ')}`);
   console.log('CLASS6_PRODUCT_E2E_PASS');
   console.log(JSON.stringify({languages:'ES/EN',directHeroClick:'Elegant + Urban',visibleDetail:'opacity + viewport + story',storyLength:enStory.length,urbanPullBack:min,urbanZoomIn:max,secondRestaurant:'MAREA',reducedMotion:`${before} -> ${after}`,schema:schema['@type']},null,2));
-}finally{await browser.close()}
+}finally{
+  try { await browser.close(); }
+  finally { server.close(); }
+}

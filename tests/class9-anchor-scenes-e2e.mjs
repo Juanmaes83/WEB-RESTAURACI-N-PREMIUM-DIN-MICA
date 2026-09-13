@@ -253,9 +253,19 @@ async function session(label,viewport,isMobile){
   const restBefore=(await stateOf(page)).restIndex;
   if(isMobile){
     const cdp=await context.newCDPSession(page);
+    const scrollBefore=await page.evaluate(()=>scrollY);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:gx,y:gy}]});
+    for(let i=1;i<=12;i++){await page.waitForTimeout(16);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:gx,y:gy-i*16}]})}
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await page.waitForTimeout(700);
+    check(`${label} · vertical touch scrolls without swapping`,
+      await page.evaluate(y=>scrollY>y+60,scrollBefore)&&(await stateOf(page)).restIndex===restBefore);
+    await page.evaluate(y=>scrollTo({top:y,behavior:'instant'}),scrollBefore);
+    await page.waitForTimeout(350);
     await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:gx,y:gy}]});
     for(let i=1;i<=14;i++){await page.waitForTimeout(16);
-      await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:gx,y:gy+i*16}]})}
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:gx-i*12,y:gy}]})}
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   }else{
     await page.mouse.move(gx,gy);await page.mouse.down();

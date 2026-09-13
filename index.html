@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#080807" />
   <meta name="description" content="Restaurant Studio Class 05 — plantilla premium personalizable con Motion Direction." />
   <title>LÚMINA — Orbital Dining</title>
@@ -13,10 +13,16 @@
   <link rel="stylesheet" href="styles-v4.css" />
   <link rel="stylesheet" href="styles-v5.css" />
   <link rel="stylesheet" href="styles-v20.css" />
+  <link rel="stylesheet" href="styles-mobile-first.css" />
 </head>
 <body data-preview="desktop">
   <div class="page-progress" aria-hidden="true"></div><div class="cursor" aria-hidden="true"><span>VIEW</span></div>
   <header class="topbar"><a class="brand brand-visual" href="#top" aria-label="Inicio"></a><nav class="desktop-nav" aria-label="Navegación principal"><a href="#signature">Signature</a><a href="#story">Story</a><a href="#experience">Experience</a><a href="#visit">Visit</a></nav><div class="nav-actions"><button class="ghost studio-open" type="button">Studio</button><button class="reserve-open pill" type="button">Reservar</button></div></header>
+  <nav class="mobile-actions" aria-label="Accesos del restaurante">
+    <a href="#signature" data-mobile-menu>Carta</a>
+    <button class="reserve-open" type="button">Reservar</button>
+    <a href="#visit" data-mobile-visit>Visita</a>
+  </nav>
   <main id="top">
     <section class="hero" aria-label="Presentación"><div class="hero-media parallax" data-media-host="hero"></div><div class="hero-vignette"></div><div class="hero-grid"><div class="hero-copy" data-reveal><p id="hero-kicker" class="kicker"></p><h1 class="display split-reveal"><span id="hero-line1"></span><em id="hero-line2"></em></h1></div><div class="hero-side" data-reveal><p id="hero-body"></p><a href="#signature" class="text-link"><span id="hero-cta"></span> <span>↘</span></a></div></div><div class="hero-stamp" aria-hidden="true"><span id="hero-stamp"></span></div><div id="scroll-hint" class="scroll-hint"></div></section>
     <section class="intro" id="story"><p id="philosophy-index" class="section-no"></p><div><h2 id="philosophy-title" class="display reveal-lines"></h2><div class="intro-grid"><p id="philosophy-body1"></p><p id="philosophy-body2"></p></div></div></section>
@@ -39,5 +45,6 @@
     </div></aside><div id="studio-backdrop" class="studio-backdrop"></div>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Observer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Flip.min.js"></script>
   <script src="class4-store.js"></script><script src="class4-config.js"></script><script src="class24-motion-governance.js"></script><script src="class16-location-maps.js"></script><script src="class17-social-reputation.js"></script><script src="class18-whatsapp-contact.js"></script><script src="class20-modules-studio.js"></script><script src="class5-studio-motion.js"></script><script src="app-v4.js"></script><script src="class4-runtime-guard.js"></script><script src="class5-motion-director.js"></script><script src="class5-elegant-orbit.js"></script><script src="class5-urban-harmony.js"></script>
+  <script src="restaurant-mobile-navigation.js"></script>
 </body>
 </html>
