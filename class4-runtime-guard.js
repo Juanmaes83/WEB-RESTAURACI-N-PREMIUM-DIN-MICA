@@ -138,8 +138,39 @@
   else setTimeout(load,160);
 })();
 
+/* MOTION 15 — lazy-load the three native Product Engines additively.
+   The selector values exist from Class 05 so Project State can hydrate them normally;
+   this guard only downloads the shared runtime when one of those values is active. */
+(() => {
+  'use strict';
+  const MODES=new Set(['circular-product','dish-stage-product','cinematic-rail-product']);
+  let requested=false;
+  const load=()=>{
+    if(requested||window.RestaurantNativeProductEngines)return;
+    requested=true;
+    if(!document.querySelector('link[data-native-product-engines-styles]')){
+      const l=document.createElement('link');l.rel='stylesheet';
+      l.href='styles-native-product-engines.css';l.dataset.nativeProductEnginesStyles='1';
+      document.head.appendChild(l);
+    }
+    if(!document.querySelector('script[data-native-product-engines-runtime]')){
+      const s=document.createElement('script');s.src='native-product-engines.js';
+      s.dataset.nativeProductEnginesRuntime='1';document.body.appendChild(s);
+    }
+  };
+  const maybe=e=>{
+    const value=e?.detail?.orbital||document.documentElement.dataset.orbitalMotion
+      ||document.getElementById('motion-orbital-style')?.value||'';
+    if(MODES.has(value))load();
+  };
+  window.addEventListener('restaurant:motion-change',maybe);
+  document.addEventListener('restaurant:config-applied',maybe);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(maybe,190));
+  else setTimeout(maybe,190);
+})();
+
 /* CLASS 19 — load the Motion Library additively.
-   Studio chrome, not an engine: it indexes the eleven motion engines and the modules
+   Studio chrome, not an engine: it indexes the fifteen Motion elements and the modules
    so they can be seen and chosen in one place. It loads last, because it reads what
    every other runtime has registered. index.html stays untouched. */
 (() => {

@@ -1,6 +1,6 @@
 /* CLASS 19 · MOTION + MODULE STUDIO INTEGRATION
 
-   Twelve motion engines exist in this project: eight selectable product
+   Fifteen Motion elements exist in this project: eleven selectable product
    choreographies, one transversal page motion and three complete experiences.
 
    This is a LIBRARY, not a new engine. It owns no motion, no geometry and no state:
@@ -77,7 +77,16 @@
       note:'Raíl cinematográfico de producto con avance continuo.'},
     {n:'12',id:'half-orbit',kind:'preset',value:'half-orbit',
       name:'Half Orbit Selector',project:'Class 24',
-      note:'Media circunferencia tipográfica: drag y flechas hacen un barrido de 180°, cambian el fondo y elevan el producto activo.'}
+      note:'Media circunferencia tipográfica: drag y flechas hacen un barrido de 180°, cambian el fondo y elevan el producto activo.'},
+    {n:'13',id:'circular-product',kind:'preset',value:'circular-product',
+      name:'Circular Dish Rotator · Engine',project:'Class 27',
+      note:'Versión nativa para la web completa: selector radial de producto inspirado en Circular Dish Rotator.'},
+    {n:'14',id:'dish-stage-product',kind:'preset',value:'dish-stage-product',
+      name:'Dish Stage · Engine',project:'Class 28',
+      note:'Versión nativa para Signature: escenario cinematográfico de producto dentro de la web completa.'},
+    {n:'15',id:'cinematic-rail-product',kind:'preset',value:'cinematic-rail-product',
+      name:'Cinematic Product Rail · Engine',project:'Class 29',
+      note:'Versión nativa para Signature: raíl editorial de producto integrado en la web completa.'}
   ];
 
   /* Not engines. They are listed so Studio shows everything the product has, and they

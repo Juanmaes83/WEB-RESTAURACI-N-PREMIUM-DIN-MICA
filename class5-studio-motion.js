@@ -18,7 +18,7 @@
     <article class="motion-card motion-card-featured">
       <div class="motion-card-head"><div><span class="motion-number">01</span><strong>Orbital Menu</strong></div><span class="motion-badge">CORE</span></div>
       <p>Una coreografía por proyecto para toda la colección de platos.</p>
-      <label>Coreografía de platos<select data-path="motion.orbitalStyle" id="motion-orbital-style"><option value="elegant">Elegant Orbit</option><option value="urban">Urban Acrobatics</option></select></label>
+      <label>Coreografía de platos<select data-path="motion.orbitalStyle" id="motion-orbital-style"><option value="elegant">Elegant Orbit</option><option value="urban">Urban Acrobatics</option><option value="circular-product">Circular Dish Rotator · Engine</option><option value="dish-stage-product">Dish Stage · Engine</option><option value="cinematic-rail-product">Cinematic Product Rail · Engine</option></select></label>
       <button type="button" class="motion-preview" data-motion-preview="#signature">▶ Probar coreografía</button>
     </article>
     <div class="motion-grid">

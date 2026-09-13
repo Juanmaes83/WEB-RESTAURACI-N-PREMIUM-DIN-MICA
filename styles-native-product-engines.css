@@ -35,10 +35,10 @@
 .npe-circular{position:absolute;left:clamp(30px,7vw,112px);top:50%;width:min(58vw,690px);aspect-ratio:1;transform:translateY(-50%);touch-action:pan-y;outline:none}
 .npe-circular:focus-visible{filter:drop-shadow(0 0 18px color-mix(in srgb,var(--npe-accent) 40%,transparent))}
 .npe-circular-halo{position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--npe-accent) 14%,transparent),transparent 62%);filter:blur(18px)}
-.npe-circular-ring{position:absolute;inset:8%;border-radius:50%;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px rgba(255,255,255,.025),0 0 90px rgba(0,0,0,.35);transform:rotate(var(--npe-ring-turn,0deg));transition:transform .06s linear}
+.npe-circular-ring{position:absolute;inset:8%;border-radius:50%;border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 0 0 1px rgba(255,255,255,.025),0 0 90px rgba(0,0,0,.35);transform:none}
 .npe-circular-ring:before,.npe-circular-ring:after{content:"";position:absolute;border-radius:50%;inset:9%;border:1px dashed rgba(255,255,255,.08)}
 .npe-circular-ring:after{inset:22%;border-style:solid;border-color:color-mix(in srgb,var(--npe-accent) 26%,transparent)}
-.npe-circular-label{--npe-x:0%;--npe-y:0%;--npe-scale:1;--npe-opacity:1;position:absolute;left:50%;top:50%;width:112px;min-height:58px;padding:7px 8px;border:0;background:transparent;text-align:center;cursor:pointer;transform:translate(-50%,-50%) translate(var(--npe-x),var(--npe-y)) scale(var(--npe-scale));opacity:var(--npe-opacity);transition:opacity .18s ease,color .18s ease;transform-origin:center}
+.npe-circular-label{--npe-x:0%;--npe-y:0%;--npe-scale:1;--npe-opacity:1;position:absolute;left:calc(50% + var(--npe-x));top:calc(50% + var(--npe-y));width:112px;min-height:58px;padding:7px 8px;border:0;background:transparent;text-align:center;cursor:pointer;transform:translate(-50%,-50%) scale(var(--npe-scale));opacity:var(--npe-opacity);transition:opacity .18s ease,color .18s ease;transform-origin:center}
 .npe-circular-label span{display:block;margin-bottom:4px;font-size:9px;letter-spacing:.18em;color:rgba(255,255,255,.45)}
 .npe-circular-label strong{display:block;font-size:11px;font-weight:500;line-height:1.12;letter-spacing:.04em}
 .npe-circular-label[data-active="1"]{color:var(--npe-accent)}
