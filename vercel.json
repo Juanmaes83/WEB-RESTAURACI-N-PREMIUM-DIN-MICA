@@ -2,5 +2,18 @@
   "framework": null,
   "buildCommand": null,
   "outputDirectory": ".",
-  "headers": [{"source": "/(.*)", "headers": [{"key": "X-Content-Type-Options", "value": "nosniff"}]}]
+  "rewrites": [
+    {
+      "source": "/assets/pizza-motion/source/full-pizza/:path*",
+      "destination": "/assets/pizza-motion/runtime/full-pizza/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {"key": "X-Content-Type-Options", "value": "nosniff"}
+      ]
+    }
+  ]
 }

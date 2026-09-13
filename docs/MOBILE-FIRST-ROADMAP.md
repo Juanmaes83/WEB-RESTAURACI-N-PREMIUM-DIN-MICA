@@ -35,63 +35,112 @@ Checkpoint A is now the protected baseline for the next phases.
 
 ## PHASE C1 — REAL STUDIO MOBILE PREVIEW
 
-**Priority: NEXT**
+**Status: IMPLEMENTED IN PR #42 · HUMAN REVIEW NEAR-PASS · ONE OPEN DEFECT**
+
+Branch: `feat/studio-real-mobile-preview`
+
+Current human-review deployment alias:
+
+`https://restaurant-class20-review-git-446049-juanma-espinosas-projects.vercel.app`
 
 ### Goal
 
 Make Restaurant Studio preview the same public application at a **real browser viewport**, not a desktop document constrained with `max-width`.
 
-### Problem to eliminate
-
-The current preview selector changes presentation state but does not change `window.innerWidth`, media-query evaluation, viewport units or JS breakpoint logic. A max-width wrapper can therefore report a false mobile success.
-
-### Required architecture
+### Architecture implemented
 
 - Studio remains the single editor/state owner.
-- The preview renderer must not create a second durable store, second Studio or second Media Library.
-- Render the public site in an iframe/frame surface using the same current Project State.
-- Synchronize state into the frame through a deliberate snapshot/message bridge or equivalent single-source contract.
-- Frame must execute its own true width/height so CSS media queries, JS viewport checks, `svh/dvh`, touch-oriented layout and responsive media behave as they do on a real device.
+- Preview renderer is a same-origin iframe and does not create a second durable project owner.
+- Project State is synchronized parent → preview through a snapshot/message bridge.
+- Preview presets execute at real browser widths/heights, so CSS media queries, viewport units and JS breakpoints evaluate inside the frame.
+- Preview persistence is explicitly read-only.
+- The same public runtimes remain authoritative; C1 does not introduce a second Motion engine system.
 
-### Preview presets
-
-Minimum:
+### Preview presets implemented
 
 - Mobile S — 360×800
 - Mobile M — 390×844
 - Mobile L — 430×932
 - Landscape — 844×390
 - Tablet — 768×1024
-- Desktop — 1440×900 or fluid desktop
+- Desktop — 1440×900
 
-Studio may expose a custom width later; it is not required for C1 acceptance.
+### Motion regression found and fixed during human review
 
-### C1 acceptance contract
+The first C1 implementation synchronized `motion.orbitalStyle` into Project State but did not replay the canonical Motion side effects inside the iframe. This left `data-orbital-motion` and the mounted runtime stale even though the selector/config value had changed.
 
-C1 passes only if:
+The bridge now waits for asynchronously injected engine options, moves the real `#motion-orbital-style` selector, emits the canonical `input/change` path and calls the existing `RestaurantMotionStudio.publish()` contract. No Motion engine code was rewritten for this fix.
 
-- frame `innerWidth` equals the selected preset width;
-- media queries evaluate against the frame width, not the host Studio width;
-- Project State edits propagate to preview without manual reload;
-- Media Library references resolve identically in editor and preview;
-- changing preset does not create duplicated persistence/state owners;
-- public modules preserve ON/OFF state;
-- mobile navigation appears in mobile presets and desktop navigation in desktop preset;
-- no new same-origin 404 or fatal JS errors;
-- no horizontal overflow at standard presets;
-- Product Detail/reservation can be opened and closed inside the preview;
-- Checkpoint A public-mobile gates remain green outside Studio;
-- desktop Studio behavior does not regress.
+The dedicated C1 gate now proves end-to-end switching:
 
-### C1 human checkpoint
+- Elegant Orbit → `elegant-orbit-v1`
+- Depth Carousel → `depth-carousel-v3`
+- Half Orbit → `half-orbit-v3`
+- Orbital Food → `orbital-food-v1`
+- return to Elegant Orbit
+- Text Motion `mask`
+- Media Motion `slowZoom`
 
-Before merge, provide a real Vercel branch URL. Human review must verify:
+`STUDIO_REAL_PREVIEW_PASS` is green on the current C1 implementation.
 
-1. Edit restaurant name/text/color in Studio and see it immediately in preview.
-2. Switch 390 → 1440 and visibly observe the correct mobile/desktop navigation difference.
-3. Open mobile Product Detail inside preview.
-4. Switch portrait/landscape without losing current Project State.
-5. Confirm media and dish content are the same data as the editor.
+### Human review result — 2026-09-13
+
+**Overall result: almost everything is working correctly. C1 is not yet approved for merge because one visible asset defect remains.**
+
+Confirmed by human review:
+
+- Studio opens correctly on desktop.
+- Real Mobile/Tablet/Desktop preview is visible and usable.
+- Viewport changes work.
+- Project State changes propagate.
+- Motion engines now change visually inside the preview.
+- Text Motion and Media Motion propagate.
+- Product/detail and core preview interaction are working.
+
+### OPEN DEFECT C1-HR-01 — Circular Dish Rotator images do not render
+
+Observed in the full experience:
+
+`/#experience/circular-dish-rotator`
+
+The **Circular Dish Rotator UI, typography, controls, geometry and scene render**, but the expected pizza/product imagery is missing. The browser shows a broken-image indicator and the image alternative text `Pizza completa formada por ocho variedades` instead of the visual asset.
+
+This is currently the only human-review defect recorded for C1.
+
+Important:
+
+- Do not classify this as a Motion-switching regression; Motion switching has already been fixed and proven.
+- Do not claim C1 media parity is fully approved while this defect exists.
+- Root cause is **not yet documented as confirmed**. It must be reproduced and traced before changing asset paths or runtime code.
+- C1 must remain unmerged until this image-loading defect is corrected and the same experience is reviewed again.
+- Do not start C2 while C1-HR-01 remains open.
+
+### C1 acceptance contract — current state
+
+- ✅ frame `innerWidth` equals selected preset width;
+- ✅ media queries evaluate against the frame width;
+- ✅ Project State edits propagate without manual reload;
+- ⚠️ Media/experience assets: **open defect C1-HR-01 in Circular Dish Rotator**;
+- ✅ changing preset does not create duplicated durable persistence/state owners;
+- ✅ public modules preserve ON/OFF state in tested C1 flows;
+- ✅ mobile navigation appears in mobile presets and desktop navigation in desktop preset;
+- ✅ no horizontal overflow at the standard tested preview size;
+- ✅ Product Detail/reservation open and close inside preview;
+- ✅ Motion engines switch through their real runtime contract;
+- ✅ Text Motion and Media Motion derived state updates;
+- ⏳ full existing regression suites must remain green on final C1 HEAD before merge;
+- ⏳ final human re-check of Circular Dish Rotator imagery required.
+
+### C1 human checkpoint before merge
+
+The final re-check must confirm:
+
+1. Restaurant name/text/color still update immediately in preview.
+2. 390 → 1440 still produces the correct mobile/desktop navigation difference.
+3. Product Detail still opens in the mobile preview.
+4. Portrait/landscape switching preserves Project State.
+5. Motion engines still change visually and do not remain on the previous runtime.
+6. **Circular Dish Rotator loads its expected pizza/product images with no broken-image placeholder/alt-text substitution.**
 
 ### C1 non-goals
 
@@ -101,13 +150,11 @@ Before merge, provide a real Vercel branch URL. Human review must verify:
 - Do not introduce React/Next/Zustand/another SPA/store.
 - Do not merge #38/#39 as part of C1.
 
-Suggested branch: `feat/studio-real-mobile-preview`
-
 ---
 
 ## PHASE C2 — PERFORMANCE / PROGRESSIVE LOADING
 
-**Priority: AFTER C1 APPROVAL**
+**Priority: AFTER C1 APPROVAL AND C1-HR-01 CLOSURE**
 
 ### Goal
 

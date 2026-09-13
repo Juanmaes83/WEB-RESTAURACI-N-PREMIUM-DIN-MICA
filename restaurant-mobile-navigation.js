@@ -19,3 +19,14 @@
   window.addEventListener('restaurant:locale-change',sync);
   sync();
 })();
+
+/* Phase C1 stays additive: the public mobile navigation remains independent while
+   Studio gains a true iframe viewport preview. */
+(() => {
+  'use strict';
+  if(document.querySelector('script[data-studio-real-preview]'))return;
+  const script=document.createElement('script');
+  script.src='studio-real-preview.js';
+  script.dataset.studioRealPreview='1';
+  document.body.appendChild(script);
+})();
