@@ -60,6 +60,21 @@
     document.documentElement.dataset.studioPreview='child';
     document.documentElement.dataset.previewState='waiting';
 
+    /* The frame may read the same IndexedDB/Media Library, but it must never become
+       a second durable owner. Snapshot mutations therefore remain memory-only. */
+    const store=window.RestaurantStore;
+    if(store&&!store.__studioPreviewReadonly){
+      store.__studioPreviewReadonly=true;
+      store.saveProject=async project=>({...project,persistenceMode:'preview-readonly'});
+      store.clearProject=async()=>{};
+      store.saveMedia=async(slot,file,meta={})=>({slot,file,name:file?.name||meta.name||slot,type:file?.type||meta.type||'',kind:(file?.type||'').startsWith('video/')?'video':'image'});
+      store.deleteMedia=async()=>{};
+      store.clearMedia=async()=>{};
+      store.verifyPersistence=async()=>({ok:true,mode:'preview-readonly'});
+      store.getMode=()=> 'preview-readonly';
+      document.documentElement.dataset.previewPersistence='readonly';
+    }
+
     /* The normal top-level runtime deliberately suppresses framed experiences.
        A Studio preview is not an Experience Shell frame, so restore the same public
        capabilities that production would load. */
