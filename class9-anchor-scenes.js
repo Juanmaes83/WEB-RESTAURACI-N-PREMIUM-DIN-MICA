@@ -444,24 +444,39 @@ const SEAM_MIN=.8, SEAM_MAX=4;   /* % guard rails, whatever the viewport */
     refreshPair();complete();
   }
 
-  /* ---------- gesture: vertical, continuous, reversible ---------- */
+  /* Desktop keeps its vertical wipe; touch uses horizontal intent so native
+     vertical page scrolling remains available. Both drive the same progress. */
   const dragUnit=()=>shell.clientHeight*(isMobile()?.40:.44);
   function onDown(e){
     if(!isScenes()||detailOpen()||!count())return;
     if(e.target.closest('.sc-dot,#next-dish,#prev-dish,#explore-dish'))return;
+    if(!e.isPrimary)return;
     dragging=true;moved=false;pointerId=e.pointerId;
     startX=e.clientX;startY=lastY=e.clientY;
     lastT=e.timeStamp||performance.now();velocity=0;
-    tween?.kill?.();
-    root.dataset.sceneDrag='1';
-    try{shell.setPointerCapture?.(e.pointerId)}catch{}
+    if(e.pointerType!=='touch'){
+      tween?.kill?.();
+      root.dataset.sceneDrag='1';
+      try{shell.setPointerCapture?.(e.pointerId)}catch{}
+    }
   }
   function onMove(e){
     if(!dragging||e.pointerId!==pointerId)return;
+    const touch=e.pointerType==='touch';
+    const dx=e.clientX-startX,dyIntent=e.clientY-startY;
+    if(touch&&!moved){
+      if(Math.hypot(dx,dyIntent)<10)return;
+      if(Math.abs(dyIntent)>Math.abs(dx)){dragging=false;pointerId=null;return}
+      if(Math.abs(dx)<Math.abs(dyIntent)*1.25)return;
+      moved=true;tween?.kill?.();root.dataset.sceneDrag='1';
+      lastY=startY;
+      try{shell.setPointerCapture?.(e.pointerId)}catch{}
+    }
+    const axis=touch?startY-dx:e.clientY;
     const now=e.timeStamp||performance.now(),dt=Math.max(1,now-lastT);
-    velocity=velocity*.6+((e.clientY-lastY)/dt)*.4;
-    lastY=e.clientY;lastT=now;
-    const dy=e.clientY-startY;
+    velocity=velocity*.6+((axis-lastY)/dt)*.4;
+    lastY=axis;lastT=now;
+    const dy=axis-startY;
     if(Math.hypot(e.clientX-startX,dy)>7)moved=true;
     const raw=dy/dragUnit(), dir=raw>=0?1:-1;
     if(dir!==direction&&progress<.02){direction=dir;refreshPair()}
