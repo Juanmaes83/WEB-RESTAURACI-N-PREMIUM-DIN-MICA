@@ -30,6 +30,10 @@ const browser=await chromium.launch();
 
 async function enter(page,expectMobile){
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
+  // Traveler is opt-in; match the existing E2E and screenshot fixture.
+  await page.waitForFunction(()=>window.RestaurantStudioConfig&&window.RestaurantScrollTraveler,
+    null,{timeout:30000});
+  await page.evaluate(()=>window.RestaurantStudioConfig.set('scrollTraveler.enabled',true));
   await page.waitForFunction(()=>document.documentElement.dataset.scrollTraveler==='ready',
     null,{timeout:30000});
   await page.waitForFunction(()=>{
