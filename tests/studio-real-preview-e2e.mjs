@@ -89,7 +89,7 @@ try{
   const testName=`C1 PREVIEW ${Date.now()}`;
   await page.evaluate(name=>window.RestaurantStudioConfig.set('brand.name',name),testName);
   await frame.waitForFunction(name=>window.RestaurantStudioConfig?.get('brand.name')===name,testName);
-  await frame.waitForFunction(name=>document.title.startsWith(name),testName);
+  await frame.waitForFunction(name=>[...document.querySelectorAll('[data-brand]')].some(el=>el.textContent===name),testName);
 
   await page.evaluate(()=>window.RestaurantStudioPreview.setPreset('desktop'));
   await frame.waitForFunction(()=>innerWidth===1440&&innerHeight===900,{timeout:10000});
