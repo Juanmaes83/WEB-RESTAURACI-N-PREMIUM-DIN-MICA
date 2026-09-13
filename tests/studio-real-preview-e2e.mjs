@@ -41,6 +41,12 @@ try{
   assert(mobile.child==='child','Preview renderer is not marked as child');
   assert(mobile.persistence==='readonly','Preview renderer is not read-only');
 
+  /* Preserve the original C1 proof that parent Project State re-renders the child. */
+  const testName=`C1 PREVIEW ${Date.now()}`;
+  await page.evaluate(name=>window.RestaurantStudioConfig.set('brand.name',name),testName);
+  await frame.waitForFunction(name=>window.RestaurantStudioConfig?.get('brand.name')===name,testName);
+  await frame.waitForFunction(name=>document.title.startsWith(name),testName);
+
   /* C1 must replay the canonical Motion side effects, not only hydrate Project State.
      The original regression left motion.orbitalStyle updated while data-orbital-motion
      and the mounted engine stayed on the previous choreography. */
@@ -86,10 +92,8 @@ try{
   assert(motionDerived.text==='mask'&&motionDerived.media==='slowZoom'&&motionDerived.orbital==='orbital-food',
     `Derived Motion datasets are stale: ${JSON.stringify(motionDerived)}`);
 
-  const testName=`C1 PREVIEW ${Date.now()}`;
-  await page.evaluate(name=>window.RestaurantStudioConfig.set('brand.name',name),testName);
-  await frame.waitForFunction(name=>window.RestaurantStudioConfig?.get('brand.name')===name,testName);
-  await frame.waitForFunction(name=>[...document.querySelectorAll('[data-brand]')].some(el=>el.textContent===name),testName);
+  const backToElegant=await setMotion('elegant');
+  assert(backToElegant.runtime==='elegant','Preview did not return to the baseline engine after Motion switching');
 
   await page.evaluate(()=>window.RestaurantStudioPreview.setPreset('desktop'));
   await frame.waitForFunction(()=>innerWidth===1440&&innerHeight===900,{timeout:10000});
@@ -133,7 +137,7 @@ try{
   assert(badResources.length===0,`Same-origin failed resources: ${badResources.join(' | ')}`);
 
   console.log('STUDIO_REAL_PREVIEW_PASS');
-  console.log(JSON.stringify({mobile,motion:{elegant,depth,half,orbital,derived:motionDerived},desktop,landscape:{width:844,height:390},overflow},null,2));
+  console.log(JSON.stringify({mobile,motion:{elegant,depth,half,orbital,derived:motionDerived,backToElegant},desktop,landscape:{width:844,height:390},overflow},null,2));
 } finally {
   if(browser)await browser.close();
   server.close();
