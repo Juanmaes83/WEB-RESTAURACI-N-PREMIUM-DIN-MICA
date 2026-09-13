@@ -41,6 +41,51 @@ try{
   assert(mobile.child==='child','Preview renderer is not marked as child');
   assert(mobile.persistence==='readonly','Preview renderer is not read-only');
 
+  /* C1 must replay the canonical Motion side effects, not only hydrate Project State.
+     The original regression left motion.orbitalStyle updated while data-orbital-motion
+     and the mounted engine stayed on the previous choreography. */
+  const setMotion=async mode=>{
+    await page.evaluate(value=>window.RestaurantStudioConfig.set('motion.orbitalStyle',value),mode);
+    await frame.waitForFunction(value=>window.RestaurantStudioConfig?.get('motion.orbitalStyle')===value,mode,{timeout:30000});
+    await frame.waitForFunction(value=>document.documentElement.dataset.orbitalMotion===value,mode,{timeout:30000});
+    return frame.evaluate(()=>({
+      config:window.RestaurantStudioConfig?.get('motion.orbitalStyle'),
+      select:document.getElementById('motion-orbital-style')?.value,
+      runtime:document.documentElement.dataset.orbitalMotion,
+      choreography:document.documentElement.dataset.orbitalChoreography||''
+    }));
+  };
+
+  const elegant=await setMotion('elegant');
+  assert(elegant.config==='elegant'&&elegant.select==='elegant'&&elegant.runtime==='elegant',
+    `Elegant did not reach runtime: ${JSON.stringify(elegant)}`);
+
+  const depth=await setMotion('depth-carousel');
+  await frame.waitForFunction(()=>document.documentElement.dataset.depthCarousel==='ready'&&document.querySelector('.dc-scene')?.hidden===false,{timeout:30000});
+  assert(depth.config==='depth-carousel'&&depth.select==='depth-carousel'&&depth.runtime==='depth-carousel',
+    `Depth Carousel did not reach runtime: ${JSON.stringify(depth)}`);
+
+  const half=await setMotion('half-orbit');
+  await frame.waitForFunction(()=>window.RestaurantHalfOrbit?.state?.().ready===true&&document.querySelector('.hos-stage')?.hidden===false,{timeout:30000});
+  assert(half.config==='half-orbit'&&half.select==='half-orbit'&&half.runtime==='half-orbit',
+    `Half Orbit did not reach runtime: ${JSON.stringify(half)}`);
+
+  const orbital=await setMotion('orbital-food');
+  assert(orbital.config==='orbital-food'&&orbital.select==='orbital-food'&&orbital.runtime==='orbital-food',
+    `Orbital Food did not reach runtime: ${JSON.stringify(orbital)}`);
+
+  await page.evaluate(()=>window.RestaurantStudioConfig.set('motion.text.hero','mask'));
+  await frame.waitForFunction(()=>document.documentElement.dataset.textHero==='mask',{timeout:10000});
+  await page.evaluate(()=>window.RestaurantStudioConfig.set('motion.media.hero','slowZoom'));
+  await frame.waitForFunction(()=>document.documentElement.dataset.mediaHero==='slowZoom',{timeout:10000});
+  const motionDerived=await frame.evaluate(()=>({
+    text:document.documentElement.dataset.textHero,
+    media:document.documentElement.dataset.mediaHero,
+    orbital:document.documentElement.dataset.orbitalMotion
+  }));
+  assert(motionDerived.text==='mask'&&motionDerived.media==='slowZoom'&&motionDerived.orbital==='orbital-food',
+    `Derived Motion datasets are stale: ${JSON.stringify(motionDerived)}`);
+
   const testName=`C1 PREVIEW ${Date.now()}`;
   await page.evaluate(name=>window.RestaurantStudioConfig.set('brand.name',name),testName);
   await frame.waitForFunction(name=>window.RestaurantStudioConfig?.get('brand.name')===name,testName);
@@ -88,7 +133,7 @@ try{
   assert(badResources.length===0,`Same-origin failed resources: ${badResources.join(' | ')}`);
 
   console.log('STUDIO_REAL_PREVIEW_PASS');
-  console.log(JSON.stringify({mobile,desktop,landscape:{width:844,height:390},overflow},null,2));
+  console.log(JSON.stringify({mobile,motion:{elegant,depth,half,orbital,derived:motionDerived},desktop,landscape:{width:844,height:390},overflow},null,2));
 } finally {
   if(browser)await browser.close();
   server.close();
