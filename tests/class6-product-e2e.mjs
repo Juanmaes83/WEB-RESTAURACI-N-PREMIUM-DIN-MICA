@@ -122,4 +122,7 @@ try{
   assert(errors.length===0,`Browser errors: ${errors.join(' | ')}`);
   console.log('CLASS6_PRODUCT_E2E_PASS');
   console.log(JSON.stringify({languages:'ES/EN',directHeroClick:'Elegant + Urban',visibleDetail:'opacity + viewport + story',storyLength:enStory.length,urbanPullBack:min,urbanZoomIn:max,secondRestaurant:'MAREA',reducedMotion:`${before} -> ${after}`,schema:schema['@type']},null,2));
-}finally{await browser.close()}
+}finally{
+  try { await browser.close(); }
+  finally { server.close(); }
+}
