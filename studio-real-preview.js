@@ -98,6 +98,40 @@
       }
     };
 
+    /* Project State alone is not the whole Motion contract. The canonical Motion
+       Studio publishes derived data-* state and restaurant:motion-change after a
+       selector change. Snapshot hydration must replay that same side effect inside
+       the read-only renderer, otherwise the config changes while the old engine
+       remains mounted. Engine options are injected asynchronously, so retry until
+       the requested preset and Motion Studio publisher are both available. */
+    let motionSyncToken=0,motionSyncTimer=null;
+    const syncMotionRuntime=()=>{
+      const token=++motionSyncToken;
+      clearTimeout(motionSyncTimer);
+      const desired=window.RestaurantStudioConfig?.get?.('motion.orbitalStyle');
+      const attempt=(tries=0)=>{
+        if(token!==motionSyncToken)return;
+        const select=document.getElementById('motion-orbital-style');
+        const publisher=window.RestaurantMotionStudio?.publish;
+        const hasOption=!desired||!!select&&[...select.options].some(option=>option.value===desired);
+        if(!select||typeof publisher!=='function'||!hasOption){
+          if(tries<75)motionSyncTimer=setTimeout(()=>attempt(tries+1),80);
+          return;
+        }
+        const changed=!!desired&&select.value!==desired;
+        if(desired)select.value=desired;
+        if(changed){
+          select.dispatchEvent(new Event('input',{bubbles:true}));
+          select.dispatchEvent(new Event('change',{bubbles:true}));
+        }
+        publisher();
+        if(desired&&document.documentElement.dataset.orbitalMotion!==desired&&tries<75){
+          motionSyncTimer=setTimeout(()=>attempt(tries+1),80);
+        }
+      };
+      attempt();
+    };
+
     let queued=null;
     const applySnapshot=snapshot=>{
       const api=window.RestaurantStudioConfig;
@@ -106,6 +140,7 @@
       Object.entries(snapshot||{}).forEach(([key,value])=>{
         if(!same(current?.[key],value))api.set(key,value);
       });
+      syncMotionRuntime();
       document.documentElement.dataset.previewState='parent';
       requestAnimationFrame(()=>{
         window.dispatchEvent(new Event('resize'));
