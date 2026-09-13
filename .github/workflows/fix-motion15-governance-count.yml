@@ -1,0 +1,39 @@
+name: Fix Motion 15 Governance Count
+
+on:
+  push:
+    branches:
+      - feat/three-native-product-engines
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/three-native-product-engines
+          fetch-depth: 0
+      - name: Update stale Class 24 governance count
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('tests/class24-interaction-governance-e2e.mjs')
+          text=p.read_text()
+          old="check('the three concepts contain 8 / 1 / 3 engines',groups.product===8&&groups.page===1&&groups.experiences===3,`${groups.product}/${groups.page}/${groups.experiences}`);"
+          new="check('the three concepts contain 11 / 1 / 3 engines',groups.product===11&&groups.page===1&&groups.experiences===3,`${groups.product}/${groups.page}/${groups.experiences}`);"
+          if old not in text:
+              raise SystemExit('stale Class24 governance count not found')
+          p.write_text(text.replace(old,new,1))
+          Path('.github/workflows/fix-motion15-governance-count.yml').unlink()
+          PY
+          node --check tests/class24-interaction-governance-e2e.mjs
+      - name: Commit correction
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "test(motion): update governance count for Motion 15"
+          git push origin HEAD:feat/three-native-product-engines
