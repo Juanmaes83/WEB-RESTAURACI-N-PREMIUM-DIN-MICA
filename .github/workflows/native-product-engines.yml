@@ -1,0 +1,44 @@
+name: Motion 15 Native Product Engines
+
+on:
+  pull_request:
+    paths:
+      - 'native-product-engines.js'
+      - 'styles-native-product-engines.css'
+      - 'class5-studio-motion.js'
+      - 'class19-motion-library.js'
+      - 'class4-runtime-guard.js'
+      - 'tests/native-product-engines-e2e.mjs'
+      - 'tests/class19-motion-library-e2e.mjs'
+      - 'tests/class24-half-orbit-selector-e2e.mjs'
+      - '.github/workflows/native-product-engines.yml'
+  push:
+    branches:
+      - feat/three-native-product-engines
+
+jobs:
+  native-product-engines:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check native-product-engines.js
+          node --check tests/native-product-engines-e2e.mjs
+          node --check class19-motion-library.js
+          node --check class5-studio-motion.js
+          node --check class4-runtime-guard.js
+      - name: Install Playwright Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Motion 15 native Product Engine gate
+        run: node tests/native-product-engines-e2e.mjs
+      - name: Motion Library regression
+        run: node tests/class19-motion-library-e2e.mjs
+      - name: Half Orbit regression
+        run: node tests/class24-half-orbit-selector-e2e.mjs
