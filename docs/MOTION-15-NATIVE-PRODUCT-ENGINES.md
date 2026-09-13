@@ -81,6 +81,8 @@ Before merge, automated review must prove:
 - desktop 1440×960, mobile 390×844 and landscape 844×390 have no horizontal page overflow;
 - no page errors or failed same-origin resources.
 
+The legacy Motion governance regression has also been updated from the old `8 / 1 / 3` grouping to the additive `11 / 1 / 3` contract. This is an expected contract change, not a relaxation of the gate.
+
 ## Human visual review
 
 Do **not merge** until a human has reviewed the branch deployment and explicitly approved:
