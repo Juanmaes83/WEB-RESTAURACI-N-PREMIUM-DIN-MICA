@@ -62,7 +62,6 @@ try{
 
   await page.selectOption('#preview-mode','landscape');
   await frame.waitForFunction(()=>innerWidth===844&&innerHeight===390);
-  assert(await frame.evaluate(()=>window.RestaurantStudioConfig?.get('brand.name')===globalThis.__never), 'unreachable').catch(()=>true);
   const landscapeName=await frame.evaluate(()=>window.RestaurantStudioConfig?.get('brand.name'));
   assert(landscapeName===testName,'Project State was lost in landscape preview');
 
