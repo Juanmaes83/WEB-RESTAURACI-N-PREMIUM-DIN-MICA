@@ -374,7 +374,8 @@ async function run(label,viewport,isMobile){
     const wheel=await (async()=>{
       const before=await page.evaluate(()=>window.RestaurantOrbit.getActiveIndex());
       await page.mouse.move(box.x+box.width*.62,gy);
-      await page.mouse.wheel(0,240);await page.waitForTimeout(1300);
+      // Horizontal wheel navigates; vertical wheel belongs to page scrolling.
+      await page.mouse.wheel(240,0);await page.waitForTimeout(1300);
       return {before,after:await page.evaluate(()=>window.RestaurantOrbit.getActiveIndex())};
     })();
     check(`${label} · the wheel reaches the same engine`,wheel.after!==wheel.before,`${wheel.before} → ${wheel.after}`);
