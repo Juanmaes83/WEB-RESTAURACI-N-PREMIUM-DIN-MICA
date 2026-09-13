@@ -1,6 +1,6 @@
 /* CLASS 24 · HALF ORBIT SELECTOR */
 :root{--hos-accent:var(--accent,#d8ff4f)}
-.hos-stage{position:absolute;inset:0;display:block;overflow:hidden;isolation:isolate;touch-action:pan-y;cursor:grab;outline:none;border-radius:2px;--hos-chroma:var(--hos-accent)}
+.hos-stage{position:absolute;inset:0;display:block;overflow:hidden;isolation:isolate;touch-action:pan-y pinch-zoom;cursor:grab;outline:none;border-radius:2px;--hos-chroma:var(--hos-accent)}
 .hos-stage:active{cursor:grabbing}.hos-stage[hidden]{display:none!important}
 .hos-world{position:absolute;inset:-8%;z-index:0;opacity:0;background:radial-gradient(circle at 50% 58%,color-mix(in srgb,var(--hos-accent) 24%,transparent),transparent 33%),linear-gradient(145deg,var(--hos-bg-a,#11110e),var(--hos-bg-b,#050504) 72%);overflow:hidden;will-change:opacity,transform,filter}
 .hos-world img{position:absolute;inset:-12%;width:124%;height:124%;object-fit:cover;filter:blur(55px) saturate(.78) brightness(.29);opacity:.19;transform:scale(1.08)}
@@ -58,7 +58,7 @@ html[data-orbital-motion="half-orbit"] .orbital-section>.pp-bgtype,
 html[data-orbital-motion="half-orbit"] .orbital-section>.pp-editorial,
 html[data-orbital-motion="half-orbit"] .orbital-section>.pp-bridge,
 html[data-orbital-motion="half-orbit"] .orbital-section>.pp-cta{display:none!important}
-html[data-orbital-motion="half-orbit"] .orbit-shell{margin-top:0;height:min(72vw,760px);min-height:620px;touch-action:pan-y}
+html[data-orbital-motion="half-orbit"] .orbit-shell{margin-top:0;height:min(72vw,760px);min-height:620px;touch-action:pan-y pinch-zoom}
 
 /* Studio */
 .hos-studio{border-color:rgba(0,0,0,.16)!important}.hos-studio label{display:flex;flex-direction:column;gap:7px;margin-top:16px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#777}

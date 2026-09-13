@@ -44,6 +44,7 @@
   let meta=null,desc=null,counter=null,detailBtn=null,prevBtn=null,nextBtn=null,sourceBadge=null,studioCard=null;
   let items=[],pizzaManifest=null,progress=0,tween=null,goal=null,ready=false,mounted=false;
   let active=-1,frontHero='a',frontWorld='a',lastSource='',lastSignature='';
+  let intent='idle',startY=0;
   let dragging=false,pointerId=null,startX=0,startProgress=0,lastX=0,lastT=0,velocity=0,moved=false;
   let shellTouchAction='',suppressArrowClickUntil=0,refreshQueued=false,transitionDir=0,dragPreviewActive=false;
   const observers=new Set();
@@ -425,32 +426,47 @@
     gsap.to(heroFloor,{scale:1,opacity:.72,duration:dur});
   }
 
+  function gesture(value){intent=value;if(stage)stage.dataset.gesture=value}
   function onDown(e){
-    if(!isHalf()||!items.length||e.button>0)return;
+    if(!isHalf()||!items.length||e.button>0||e.isPrimary===false||pointerId!==null)return;
     if(e.target.closest?.(INTERACTIVE)){e.stopPropagation();return}
     e.stopPropagation();
-    if(tween){tween.kill();tween=null;goal=null;renderImmediate(activeIndex())}
-    dragging=true;moved=false;pointerId=e.pointerId;
-    startX=lastX=e.clientX;startProgress=progress;lastT=e.timeStamp||performance.now();velocity=0;
-    root.dataset.halfOrbitDrag='1';
-    try{stage.setPointerCapture(e.pointerId)}catch{}
+    // Do not interrupt the director until the visitor actually chooses horizontal drag.
+    pointerId=e.pointerId;startX=lastX=e.clientX;startY=e.clientY;
+    lastT=e.timeStamp||performance.now();velocity=0;moved=false;gesture('undecided');
   }
 
   function onMove(e){
-    if(!dragging||e.pointerId!==pointerId)return;
-    e.stopPropagation();const now=e.timeStamp||performance.now(),dt=Math.max(1,now-lastT);
+    if(e.pointerId!==pointerId)return;
+    e.stopPropagation();
+    if(intent==='vertical')return;
+    const dx=e.clientX-startX,dy=e.clientY-startY;
+    if(intent==='undecided'){
+      if(Math.hypot(dx,dy)<10)return;
+      if(Math.abs(dy)>Math.abs(dx)){gesture('vertical');return}
+      if(Math.abs(dx)<Math.abs(dy)*1.25)return;
+      if(tween){tween.kill();tween=null;goal=null}
+      startProgress=progress;dragging=true;gesture('horizontal');
+      root.dataset.halfOrbitDrag='1';
+      try{stage.setPointerCapture(e.pointerId)}catch{}
+    }
+    if(!dragging)return;
+    const now=e.timeStamp||performance.now(),dt=Math.max(1,now-lastT);
     velocity=velocity*.62+((e.clientX-lastX)/dt)*.38;lastX=e.clientX;lastT=now;
-    const dx=e.clientX-startX;if(Math.abs(dx)>4)moved=true;
-    progress=startProgress-dx/(isMobile()?155:230);placeLabels();dragPreview();
+    moved=true;progress=startProgress-dx/(isMobile()?155:230);placeLabels();dragPreview();
   }
 
   function onUp(e){
-    if(!dragging||(pointerId!==null&&e.pointerId!==pointerId))return;
-    e.stopPropagation();dragging=false;pointerId=null;delete root.dataset.halfOrbitDrag;
+    if(e.type==='lostpointercapture'&&e.target!==stage)return;
+    if(e.pointerId!==pointerId)return;
+    e.stopPropagation();const wasDrag=dragging;
+    dragging=false;pointerId=null;gesture('idle');delete root.dataset.halfOrbitDrag;
     try{stage.releasePointerCapture(e.pointerId)}catch{}
-    if(!moved){animateProgressOnly(Math.round(startProgress),.24);return}
+    if(!wasDrag)return;
+    if(e.type==='pointercancel'||e.type==='lostpointercapture'){
+      velocity=0;animateProgressOnly(Math.round(startProgress),.24);return;
+    }
     const travel=Math.abs(progress-startProgress),fling=Math.abs(velocity)>.45;
-    /* Continue the choreography from the current visual progress — never restart from zero. */
     (travel>.22||fling)?settle():animateProgressOnly(Math.round(startProgress),.40);
   }
 
@@ -475,6 +491,7 @@
     stage.addEventListener('pointermove',onMove);
     stage.addEventListener('pointerup',onUp);
     stage.addEventListener('pointercancel',onUp);
+    stage.addEventListener('lostpointercapture',onUp);
     stage.addEventListener('wheel',onWheel,{passive:true});
     stage.addEventListener('keydown',onKey);
     prevBtn.addEventListener('pointerup',onPrevPointer);nextBtn.addEventListener('pointerup',onNextPointer);
@@ -486,7 +503,7 @@
   function unbind(){
     if(!mounted)return;mounted=false;
     stage?.removeEventListener('pointerdown',onDown);stage?.removeEventListener('pointermove',onMove);
-    stage?.removeEventListener('pointerup',onUp);stage?.removeEventListener('pointercancel',onUp);
+    stage?.removeEventListener('pointerup',onUp);stage?.removeEventListener('pointercancel',onUp);stage?.removeEventListener('lostpointercapture',onUp);
     stage?.removeEventListener('wheel',onWheel);stage?.removeEventListener('keydown',onKey);
     prevBtn?.removeEventListener('pointerup',onPrevPointer);nextBtn?.removeEventListener('pointerup',onNextPointer);
     prevBtn?.removeEventListener('click',onPrevClick);nextBtn?.removeEventListener('click',onNextClick);
@@ -532,12 +549,12 @@
     injectOption();ensureStyles();ensureStage();ensureStudio();
     if(isHalf()){
       if(!mounted)shellTouchAction=shell.style.touchAction;
-      shell.style.touchAction='pan-y';stage.hidden=false;bind();
+      shell.style.touchAction='pan-y pinch-zoom';stage.hidden=false;bind();
       await loadItems({reset:lastSource!==source()});
       root.dataset.halfOrbit='ready';root.dataset.orbitalChoreography='half-orbit-v3';
       syncStudio();
     }else{
-      tween?.kill?.();tween=null;goal=null;dragging=false;pointerId=null;delete root.dataset.halfOrbitDrag;
+      tween?.kill?.();tween=null;goal=null;dragging=false;pointerId=null;gesture('idle');delete root.dataset.halfOrbitDrag;
       unbind();
       if(stage)stage.hidden=true;if(shell)shell.style.touchAction=shellTouchAction;
       delete root.dataset.halfOrbit;delete root.dataset.halfOrbitTransition;

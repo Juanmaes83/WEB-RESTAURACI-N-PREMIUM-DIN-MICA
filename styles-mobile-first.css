@@ -1,0 +1,110 @@
+/* Public task chrome. Layer contract: content < floating contact (110)
+   < navigation (120) < Product Detail (180) < Studio (220) < native dialog.
+   The existing desktop composition expands the same public product. */
+.mobile-actions {
+  position:fixed;
+  inset:auto max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  z-index:120;
+  display:flex;
+  gap:8px;
+  padding:6px;
+  margin-inline:auto;
+  max-width:480px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:32px;
+  background:rgba(8,8,7,.94);
+  backdrop-filter:blur(14px);
+  box-shadow:0 6px 24px #0003;
+}
+.mobile-actions a,.mobile-actions button {
+  display:flex;align-items:center;justify-content:center;
+  flex:1;min-width:0;min-height:48px;padding:8px;
+  border:0;border-radius:24px;
+  font-size:16px;line-height:1.2;
+  color:var(--paper);background:transparent;
+  text-align:center;cursor:pointer;touch-action:manipulation;
+}
+.mobile-actions .reserve-open {background:var(--accent);color:var(--ink)}
+.mobile-actions :is(a,button):active {background:var(--paper);color:var(--ink)}
+:is(a,button,input,select,textarea):focus-visible {outline:2px solid var(--accent);outline-offset:4px}
+body.detail-open .mobile-actions,body.studio-open .mobile-actions,
+body:has(dialog[open],.xs-shell[aria-hidden="false"],.upd-dialog.is-open) .mobile-actions {
+  visibility:hidden;pointer-events:none;
+}
+@media (min-width:981px) {.mobile-actions {display:none}}
+
+/* Scoped migration layer while the approved engine sheets remain in place. */
+@media (max-width:980px) {
+  html {scroll-padding-top:100px;scroll-padding-bottom:100px}
+  body .topbar {
+    top:max(10px,env(safe-area-inset-top));
+    left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));
+    min-height:64px;height:auto;gap:8px;padding:6px 10px;
+  }
+  body .topbar .brand {min-width:44px;min-height:48px;max-width:40%;letter-spacing:.10em;overflow-wrap:anywhere}
+  body .topbar .brand img {max-width:100%;object-fit:contain}
+  body .topbar .nav-actions {gap:4px;flex-shrink:0}
+  body .topbar .pill {min-height:48px;min-width:44px;padding:10px 12px;font-size:16px}
+  body .topbar .class6-language {padding:0;margin:0;border:0;gap:0}
+  body .class6-language button {min-width:44px;min-height:48px;padding:8px;font-size:14px}
+  body .class6-language span {display:none}
+  body .topbar .studio-open {display:none}
+  body .desktop-nav {display:none}
+  body .hero .text-link,body #explore-dish,body .text-button {display:inline-flex;align-items:center;min-height:48px;min-width:44px;font-size:16px}
+  body #hero-body,body #dish-short,body .intro-grid p,body #origin-body,
+  body #atmosphere-body,body .visit-grid p,body .detail-columns p,
+  body .class6-elaboration p,body #detail-allergens {font-size:16px;line-height:1.6}
+  body .visit-grid>div {min-width:0;overflow-wrap:anywhere}
+  body #visit-title {font-size:clamp(60px,14vw,140px);overflow-wrap:anywhere}
+  body .reserve-dark,body .detail-reserve {min-height:48px;min-width:48px;font-size:16px}
+  body>footer {padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+  html body [data-public-module="whatsapp"][data-mode="floating-launcher"] {
+    bottom:calc(86px + env(safe-area-inset-bottom));
+    right:max(16px,env(safe-area-inset-right));
+    max-width:calc(100% - 32px - env(safe-area-inset-left) - env(safe-area-inset-right));
+  }
+  html body [data-public-module="whatsapp"][data-position="left"] {left:max(16px,env(safe-area-inset-left));right:auto}
+  html body [data-public-module] :is(.wa-launcher,.wa-prompt-close,.wa-inline-cta,.wa-direct-cta,.lm-load-map,.lm-directions,.lm-phone,.sr-platform,.sr-review-cta) {min-width:48px;min-height:48px}
+  html body [data-public-module] :is(.lm-address,.lm-hours,.lm-statement,.wa-launcher-label,.wa-prompt p,.wa-concierge p,.sr-body) {font-size:16px;line-height:1.6}
+  html body [data-public-module] .wa-prompt {padding-top:48px}
+  html body [data-public-module] .wa-prompt-close {top:0;right:0}
+
+  /* One scroll surface per mobile sheet; close remains reachable all the way down. */
+  body #dish-detail {height:100dvh;overflow-y:auto;overscroll-behavior-y:contain;padding-inline:env(safe-area-inset-left) env(safe-area-inset-right)}
+  body #dish-detail .detail-grid {height:auto;min-height:100%;grid-template-columns:minmax(0,1fr)}
+  body #dish-detail .detail-copy {overflow:visible;min-width:0;padding:24px 22px calc(32px + env(safe-area-inset-bottom));overflow-wrap:anywhere}
+  body #dish-detail .detail-close {
+    position:sticky;display:block;top:max(12px,env(safe-area-inset-top));right:auto;
+    margin:12px 12px -60px auto;min-width:48px;min-height:48px;
+    background:var(--ink);z-index:6;
+  }
+  body #dish-detail .detail-visual {padding-top:64px;min-height:38svh}
+  body #dish-detail .detail-bottom {flex-wrap:wrap;align-items:center;gap:16px}
+  body .reserve-dialog {
+    width:calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));
+    max-width:720px;max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding:24px;overflow-y:auto;overscroll-behavior-y:contain;
+  }
+  body .reserve-dialog .modal-close {position:sticky;display:block;top:0;right:auto;margin:0 0 -48px auto;min-width:48px;min-height:48px;background:#0c0c0a;z-index:2}
+  body .reserve-dialog form {grid-template-columns:minmax(0,1fr)}
+  body .reserve-dialog label {font-size:16px;letter-spacing:.04em;color:#bbb}
+  body .reserve-dialog :is(input,select,textarea) {min-width:0;width:100%;min-height:48px;font-size:16px}
+  body .reserve-dialog small {font-size:16px;line-height:1.5;color:#aaa}
+  body .reserve-dialog form>button {min-height:48px;font-size:16px}
+  body .reserve-dialog .full,body .reserve-dialog form>button,body .reserve-dialog small {grid-column:1}
+
+  /* Same Half Orbit choreography; space for readable copy and finger-sized controls. */
+  html[data-orbital-motion="half-orbit"] body .orbit-shell {height:780px;min-height:780px}
+  body .hos-hero {top:37%;width:min(62vw,300px);height:min(62vw,300px)}
+  body .hos-orbit,body .hos-label {top:38%}
+  body .hos-arrow {top:37%;width:48px;height:48px}
+  body .hos-label {min-width:64px;min-height:64px;font-size:11px;padding:12px 6px}
+  body .hos-copy {left:7%;right:7%;bottom:32px;width:auto}
+  body .hos-desc {display:block;font-size:16px;line-height:1.5;max-width:100%;overflow:visible;-webkit-line-clamp:unset}
+  body .hos-detail {min-width:48px;min-height:48px;font-size:16px;padding:10px 0}
+  body .hos-copy-foot {gap:16px;flex-wrap:wrap}
+}
+@media (max-width:380px) {
+  body .topbar .brand {font-size:11px;gap:6px;letter-spacing:.04em}
+  body .topbar .pill {padding-inline:9px}
+}

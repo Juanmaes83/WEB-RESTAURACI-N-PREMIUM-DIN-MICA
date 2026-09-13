@@ -1,0 +1,26 @@
+name: Mobile First Public Product
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  public-product:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned browser tooling
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium webkit
+      - name: Mobile / WebKit / desktop product gate
+        run: node tests/mobile-first-product-gate.mjs
+      - name: Preserve public product evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-first-public-product
+          path: output/playwright/mobile-first/
+          retention-days: 14

@@ -5,6 +5,7 @@ tests
 scripts
 docs
 output
+dbg-*.mjs
 MANOS
 MANO+OBJETO
 VIDEOS REFERENCIAS

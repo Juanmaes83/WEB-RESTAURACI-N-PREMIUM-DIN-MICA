@@ -1,4 +1,6 @@
 import { chromium } from 'playwright';
+import {startServer} from './static-server.mjs';
+const {server,url:BASE}=await startServer(0);
 import fs from 'node:fs';
 
 const source=fs.readFileSync('class5-urban-harmony.js','utf8');
@@ -25,7 +27,10 @@ page.on('console',m=>{if(m.type()==='error')errors.push(`console: ${m.text()}`)}
 function assert(condition,message){if(!condition)throw new Error(message)}
 
 try{
-  await page.goto('http://127.0.0.1:4173/index.html',{waitUntil:'domcontentloaded',timeout:30000});
+  await page.goto(BASE+'/index.html',{waitUntil:'domcontentloaded',timeout:30000});
+  // The public default is Elegant; this suite explicitly exercises Urban.
+  await page.waitForFunction(()=>window.RestaurantStudioConfig&&window.RestaurantMotionStudio);
+  await page.evaluate(()=>{RestaurantStudioConfig.set('motion.orbitalStyle','urban');RestaurantMotionStudio.publish()});
   await page.waitForFunction(()=>document.documentElement.dataset.orbitalChoreography==='urban-acrobatics-v5-final',{timeout:15000});
   await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,{timeout:15000});
   await page.locator('#signature').scrollIntoViewIfNeeded();
@@ -135,5 +140,5 @@ try{
     final:{soloScale:final.solo.scale,others:final.others.map(x=>x.scale)}
   },null,2));
 }finally{
-  await browser.close();
+  await browser.close();server.close();
 }
