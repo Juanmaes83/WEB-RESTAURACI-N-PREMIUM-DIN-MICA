@@ -21,7 +21,7 @@
   function labeledInput(label,value,onChange,{textarea=false,type='text',readonly=false}={}){const wrap=el('label','seo-field',label),input=el(textarea?'textarea':'input');if(!textarea)input.type=type;if(textarea)input.rows=3;input.value=value??'';input.readOnly=readonly;input.addEventListener('change',()=>onChange(input.value,input));wrap.append(input);return {wrap,input};}
   function button(label,fn,cls='studio-primary'){const x=el('button',cls,label);x.type='button';x.onclick=fn;return x;}
   function stateCopy(){return api().snapshot();}
-  function ensureIntelligenceState(){const i=intel();if(!i||!api())return;const c=stateCopy(),d=i.defaults();if(!c.seo?.integrations)api().set('seo.integrations',d.integrations);if(!c.seo?.intelligence)api().set('seo.intelligence',d.intelligence);if(!c.seo?.geo)api().set('seo.geo',d.geo);}
+  function ensureIntelligenceState(){return;}
 
   function build(){
     if(panel){render();return;}
