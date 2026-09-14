@@ -1,7 +1,7 @@
 /* CLASS 19 — MOTION + MODULE STUDIO INTEGRATION contract.
 
-   Class 24 evolves the truthful catalogue from eleven to TWELVE engines:
-   eight selectable product choreographies, one transversal page motion and three
+   Motion 16 evolves the truthful catalogue to SIXTEEN elements:
+   twelve selectable product choreographies, one transversal page motion and three
    complete experiences. This suite proves the library remains only an index — no
    second selection, no persistence and no motion of its own.
 
@@ -34,7 +34,7 @@ async function openLibrary(page){
   await page.evaluate(()=>document.querySelector('#studio [data-panel="motion"]')?.click());
   await page.waitForFunction(()=>document.documentElement.dataset.motionLibrary==='ready',
     null,{timeout:25000});
-  await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().available===12,
+  await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().available===16,
     null,{timeout:25000}).catch(()=>{});
   await page.waitForTimeout(600);
 }
@@ -47,23 +47,34 @@ async function openLibrary(page){
 
   const state=await page.evaluate(()=>window.RestaurantMotionLibrary.state());
   const engines=await page.evaluate(()=>window.RestaurantMotionLibrary.engines());
-  check('the library declares twelve engines',state.count===12,`${state.count} engines`);
-  check('all twelve are really reachable, not just listed',state.available===12,`${state.available}/12 available`);
+  check('the library declares sixteen Motion elements',state.count===16,`${state.count} elements`);
+  check('all sixteen are really reachable, not just listed',state.available===16,`${state.available}/16 available`);
   check('the count on screen is the count in the catalogue',
-    await page.evaluate(()=>+document.querySelector('.ml-count').textContent.trim())===12
-    &&await page.evaluate(()=>document.querySelectorAll('.ml-grid [data-ml-kind]').length)===12,
+    await page.evaluate(()=>+document.querySelector('.ml-count').textContent.trim())===16
+    &&await page.evaluate(()=>document.querySelectorAll('.ml-grid [data-ml-kind]').length)===16,
     'header badge and rendered cards agree');
   check('every engine carries a number, a name and its provenance',
     engines.every(e=>/^\d\d$/.test(e.n)&&e.name.length>3&&/(Class|Project)\s\d/.test(e.project)),
     engines.map(e=>e.n).join(' '));
-  check('the catalogue is 8 product presets + 1 page motion + 3 experiences',
-    engines.filter(e=>e.kind==='preset').length===8
+  check('the catalogue is 12 product presets + 1 page motion + 3 experiences',
+    engines.filter(e=>e.kind==='preset').length===12
     &&engines.filter(e=>e.kind==='page').length===1
     &&engines.filter(e=>e.kind==='experience').length===3,
-    '8 presets · 1 page motion · 3 full-screen experiences');
+    '12 presets · 1 page motion · 3 full-screen experiences');
   check('Half Orbit is engine 12 and resolves to a real preset',
     engines.some(e=>e.n==='12'&&e.id==='half-orbit'&&e.kind==='preset'&&e.status.available),
     'half-orbit available');
+  check('Full Pizza and restored Radial are separate engines',
+    engines.some(e=>e.id==='circular-product'&&e.value==='circular-product'&&/Full Pizza/.test(e.name))
+    &&engines.some(e=>e.id==='circular-radial-product'&&e.value==='circular-radial-product'&&/Radial/.test(e.name)),
+    engines.filter(e=>/circular-product|circular-radial-product/.test(e.id)).map(e=>e.name).join(' | '));
+  const circularOptions=await page.evaluate(()=>[...document.querySelectorAll('#motion-orbital-style option')]
+    .filter(o=>['circular-product','circular-radial-product'].includes(o.value))
+    .map(o=>({value:o.value,label:o.textContent.trim()})));
+  check('the real Studio selector exposes both circular engines',
+    circularOptions.length===2&&circularOptions.some(o=>o.value==='circular-product'&&o.label==='Full Pizza Rotator · Engine')
+    &&circularOptions.some(o=>o.value==='circular-radial-product'&&o.label==='Circular Dish Rotator · Radial'),
+    circularOptions.map(o=>`${o.value}:${o.label}`).join(' | '));
 
   const modules=await page.evaluate(()=>({
     count:window.RestaurantMotionLibrary.moduleCount(),
@@ -73,7 +84,7 @@ async function openLibrary(page){
     heading:document.querySelector('.ml-modules h4')?.textContent.trim()||''}));
   check('the three optional modules are listed in their own section',
     modules.count===3&&modules.cards===3,`${modules.cards} module cards`);
-  check('the modules are not counted among the engines',!modules.insideGrid&&state.count===12,modules.heading);
+  check('the modules are not counted among the engines',!modules.insideGrid&&state.count===16,modules.heading);
 
   const grouped=await page.evaluate(()=>window.RestaurantMotionGovernance?.state?.());
   check('Motion Studio separates product / transversal / experiences',
@@ -95,6 +106,18 @@ async function openLibrary(page){
   check('the library reflects Half Orbit instead of remembering it',
     half.libActive==='half-orbit'&&half.cardState==='activo'&&half.half?.ready===true,
     `card ${half.cardState} · runtime ${half.half?.ready}`);
+
+  await page.evaluate(()=>window.RestaurantMotionLibrary.activate('circular-radial-product'));
+  await page.waitForFunction(()=>window.RestaurantNativeProductEngines?.state?.().mode==='circular-radial-product',null,{timeout:25000});
+  const restored=await page.evaluate(()=>({
+    select:document.getElementById('motion-orbital-style').value,
+    active:document.documentElement.dataset.motionLibraryActive,
+    card:document.querySelector('[data-ml-card="circular-radial-product"]')?.dataset.mlState,
+    radial:!!document.querySelector('.npe-circular'),
+    labels:document.querySelectorAll('.npe-circular-label').length}));
+  check('restored radial activates from the library as its own engine',
+    restored.select==='circular-radial-product'&&restored.active==='circular-radial-product'&&restored.card==='activo'&&restored.radial&&restored.labels>=3,
+    `${restored.select} · ${restored.labels} labels`);
 
   await page.evaluate(()=>{
     const s=document.getElementById('motion-orbital-style');
@@ -146,13 +169,13 @@ async function openLibrary(page){
       .some(v=>['dish-stage','circular-dish-rotator','cinematic-product-rail'].includes(v)),
     'selector contains only product choreographies');
 
-  for(const [f,expect] of [['preset',8],['page',1],['experience',3],['all',12]]){
+  for(const [f,expect] of [['preset',12],['page',1],['experience',3],['all',16]]){
     await page.evaluate(id=>window.RestaurantMotionLibrary.setFilter(id),f);await page.waitForTimeout(180);
     const visible=await page.evaluate(()=>[...document.querySelectorAll('.ml-grid [data-ml-kind]')].filter(c=>!c.hidden).length);
     check(`filter "${f}" shows ${expect}`,visible===expect,`${visible} visible`);
   }
   check('filtering never removes a card from the DOM',
-    await page.evaluate(()=>document.querySelectorAll('.ml-grid [data-ml-kind]').length)===12,'all twelve still present');
+    await page.evaluate(()=>document.querySelectorAll('.ml-grid [data-ml-kind]').length)===16,'all sixteen still present');
 
   const scrollable=await page.evaluate(()=>{
     const panel=document.querySelector('.studio-panel.motion-panel');
@@ -168,7 +191,7 @@ async function openLibrary(page){
 
   check('the library owns no motion state of its own',!/requestAnimationFrame|gsap|ScrollTrigger/.test(CODE),'no animation loop');
   check('the library holds no second selection',!/(activeEngine|currentEngine|selectedEngine)\s*=/.test(CODE),'active read from selector');
-  check('the renderer has no per-engine branch',!/(id===['"]dish-stage|id===['"]elegant|id===['"]half-orbit|name===['"])/.test(CODE),'renderer switches on kind');
+  check('the renderer has no per-engine geometry branch',!/(id===['"]dish-stage|id===['"]elegant|id===['"]half-orbit|name===['"])/.test(CODE),'renderer switches on kind');
   check('index.html stays free of engine runtimes and the library runtime loads itself',
     /class19-motion-library\.js/.test(fs.readFileSync(path.join(ROOT,'class4-runtime-guard.js'),'utf8'))
     &&!/class19-motion-library/.test(fs.readFileSync(path.join(ROOT,'index.html'),'utf8')),'runtime guard owns Class19 entry');
@@ -177,8 +200,8 @@ async function openLibrary(page){
   await page.evaluate(()=>window.RestaurantMotionLibrary.setFilter('all'));
   await page.evaluate(()=>document.querySelector('.ml-library')?.scrollIntoView({block:'start'}));
   await page.waitForTimeout(500);await page.screenshot({path:path.join(SHOTS,'01-library-top.png')});
-  await page.evaluate(()=>document.querySelector('[data-ml-card="half-orbit"]')?.scrollIntoView({block:'center'}));
-  await page.waitForTimeout(400);await page.screenshot({path:path.join(SHOTS,'02-half-orbit.png')});
+  await page.evaluate(()=>document.querySelector('[data-ml-card="circular-radial-product"]')?.scrollIntoView({block:'center'}));
+  await page.waitForTimeout(400);await page.screenshot({path:path.join(SHOTS,'02-circular-radial-restored.png')});
   await page.evaluate(()=>document.querySelector('.ml-modules')?.scrollIntoView({block:'center'}));
   await page.waitForTimeout(400);await page.screenshot({path:path.join(SHOTS,'03-modules.png')});
   await context.close();
@@ -191,18 +214,18 @@ async function openLibrary(page){
     cards:document.querySelectorAll('.ml-grid [data-ml-kind]').length,
     overflow:document.documentElement.scrollWidth<=innerWidth,
     columns:getComputedStyle(document.querySelector('.ml-grid')).gridTemplateColumns.split(' ').length}));
-  check('mobile · all twelve engines are listed',mob.count===12&&mob.cards===12,`${mob.cards} cards`);
+  check('mobile · all sixteen Motion elements are listed',mob.count===16&&mob.cards===16,`${mob.cards} cards`);
   check('mobile · one column and no horizontal overflow',mob.columns===1&&mob.overflow,`${mob.columns} column(s)`);
   const tap=await page.evaluate(async()=>{
     const btn=[...document.querySelectorAll('.ml-activate')].find(b=>!b.disabled
-      &&b.closest('[data-ml-card]').dataset.mlCard==='half-orbit');
+      &&b.closest('[data-ml-card]').dataset.mlCard==='circular-radial-product');
     btn.click();await new Promise(r=>setTimeout(r,1800));
     return {select:document.getElementById('motion-orbital-style').value,
-      state:document.querySelector('[data-ml-card="half-orbit"]').dataset.mlState,
-      runtime:window.RestaurantHalfOrbit?.state?.().ready};
+      state:document.querySelector('[data-ml-card="circular-radial-product"]').dataset.mlState,
+      runtime:window.RestaurantNativeProductEngines?.state?.().mode};
   });
-  check('mobile · choosing Half Orbit works with a tap',
-    tap.select==='half-orbit'&&tap.state==='activo'&&tap.runtime===true,`${tap.select}`);
+  check('mobile · choosing restored Radial works with a tap',
+    tap.select==='circular-radial-product'&&tap.state==='activo'&&tap.runtime==='circular-radial-product',`${tap.select}`);
   await page.evaluate(()=>document.querySelector('.ml-library')?.scrollIntoView({block:'start'}));
   await page.waitForTimeout(400);await page.screenshot({path:path.join(SHOTS,'mobile-01-library.png')});
   await context.close();
