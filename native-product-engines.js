@@ -115,7 +115,7 @@
       </div>`;
     bindCommon();
     bindCircular();
-    renderCircular(true);
+    renderCircular();
   }
 
   function bindCircular(){
@@ -130,7 +130,7 @@
     });
     surface.addEventListener('pointermove',e=>{
       if(!drag||drag.id!==e.pointerId)return;
-      const next=angle(e),d=delta(next,drag.angle);drag.angle=next;progress-=d/45;drag.progress=progress;renderCircular(false);
+      const next=angle(e),d=delta(next,drag.angle);drag.angle=next;progress-=d/45;drag.progress=progress;renderCircular();
     });
     const end=e=>{
       if(!drag||drag.id!==e.pointerId)return;
@@ -232,7 +232,12 @@
 
   function openDetail(){
     const d=item();if(!d)return false;
-    if(mode!=='circular-product')return window.RestaurantProductDetail?.open?.(d.id,{via:'button'})!==false;
+    if(mode!=='circular-product'){
+      try{window.RestaurantOrbit?.setProgress?.(index)}catch{}
+      if(window.RestaurantProductDetail?.open)return window.RestaurantProductDetail.open(d.id,{via:'button'})!==false;
+      window.dispatchEvent(new CustomEvent('restaurant:class6-open-dish',{detail:{id:d.id}}));
+      return true;
+    }
     detail=$('[data-npe-pizza-dialog]',host);if(!detail)return false;
     $('[data-npe-dialog-meta]',detail).textContent=d.meta||'';$('[data-npe-dialog-title]',detail).textContent=d.name||'';$('[data-npe-dialog-ingredients]',detail).textContent=d.ingredients||d.short||'';detail.classList.add('is-open');detail.setAttribute('aria-hidden','false');$('[data-npe-dialog-close]',detail)?.focus();return true;
   }
