@@ -1,0 +1,2 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');
+test('SEO/GEO operational files are valid UTF-8 without mojibake',()=>{for(const file of ['rubik-seo-geo-core.js','rubik-seo-geo-publisher.js','rubik-seo-geo-studio.js','styles-seo-geo.css','index.html']){const bytes=fs.readFileSync(file);const text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);assert.doesNotMatch(text,/[\u00c2\u00c3\u00e2\ufffd]|â€/u,`${file} contiene indicadores de encoding corrupto`);}});

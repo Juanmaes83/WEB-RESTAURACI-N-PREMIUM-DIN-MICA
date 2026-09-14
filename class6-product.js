@@ -45,7 +45,7 @@
     try{const saved=await window.RestaurantStore?.loadProject?.();if(saved?.config)config=merge(clone(defaults),saved.config)}catch(err){console.warn('Class 06 config fallback',err)}
     const q=new URLSearchParams(location.search).get('lang');
     const stored=localStorage.getItem('restaurant-locale');
-    locale=(q==='es'||q==='en')?q:((stored==='es'||stored==='en')?stored:(config.locale||'es'));
+    locale='es';
   }
 
   function ensureLanguageSwitch(){
@@ -102,6 +102,7 @@
   }
 
   function updateSEO(){
+    if(window.RubikSEOGeoCore){const seo=window.RubikSEOGeoCore.reconcile(config);const title=seo.pages.home.seo.title.value;if(title){document.title=title;const meta=$('meta[name="description"]');if(meta)meta.content=seo.pages.home.seo.description.value;}const base=location.origin+location.pathname;let canonical=$('link[rel="canonical"]');if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.appendChild(canonical);}canonical.href=base;for(const lang of ['es','en']){let alt=$(`link[rel="alternate"][hreflang="${lang}"]`);if(!alt){alt=document.createElement('link');alt.rel='alternate';alt.hreflang=lang;document.head.appendChild(alt);}alt.href=base+`?lang=${lang}`;}let schema=$('#class6-schema');if(!schema){schema=document.createElement('script');schema.id='class6-schema';schema.type='application/ld+json';document.head.appendChild(schema);}const graph=window.RubikSEOGeoCore.schemaGraph(config);schema.textContent=JSON.stringify(graph['@graph'].find(x=>x['@type']==='Restaurant')||{});return;}
     const d=langData(),brand=config.brand?.name||'LÚMINA';document.title=locale==='es'?`${brand} — Restaurante mediterráneo en Alicante`:`${brand} — Mediterranean dining in Alicante`;
     let meta=$('meta[name="description"]');if(meta)meta.content=locale==='es'?'LÚMINA: experiencia gastronómica mediterránea en Alicante con carta orbital, producto local y cocina de fuego.':'LÚMINA: a Mediterranean dining experience in Alicante with an orbital menu, local produce and fire-led cooking.';
     const ensure=(selector,create)=>{let el=$(selector);if(!el){el=document.createElement(create.tag);Object.entries(create.attrs||{}).forEach(([k,v])=>el.setAttribute(k,v));document.head.appendChild(el)}return el};

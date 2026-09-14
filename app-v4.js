@@ -67,12 +67,13 @@
   }
 
   function applyAll(){
+    if(window.RubikSEOGeoCore)config.seo=RubikSEOGeoCore.reconcile(config);
     document.documentElement.style.setProperty('--accent',config.brand.accent);document.documentElement.style.setProperty('--ink',config.brand.ink);document.documentElement.style.setProperty('--paper',config.brand.paper);
     $$('[data-brand]').forEach(el=>el.textContent=config.brand.name);
     const map={'hero-kicker':'hero.kicker','hero-line1':'hero.line1','hero-line2':'hero.line2','hero-body':'hero.body','hero-cta':'hero.cta','hero-stamp':'hero.stamp','scroll-hint':'hero.scroll','philosophy-index':'philosophy.index','philosophy-title':'philosophy.title','philosophy-body1':'philosophy.body1','philosophy-body2':'philosophy.body2','orbital-index':'orbital.index','orbital-kicker':'orbital.kicker','orbital-title':'orbital.title','explore-label':'orbital.explore','origin-index':'origin.index','origin-title':'origin.title','origin-body':'origin.body','origin-caption':'origin.caption','atmosphere-index':'atmosphere.index','atmosphere-title':'atmosphere.title','atmosphere-caption':'atmosphere.caption','atmosphere-body':'atmosphere.body','atmosphere-cta':'atmosphere.cta','chef-index':'chef.index','chef-title':'chef.title','chef-quote':'chef.quote','visit-kicker':'visit.kicker','visit-title':'visit.title','visit-cta':'visit.cta','address-label':'visit.addressLabel','address-text':'visit.address','service-label':'visit.serviceLabel','service-text':'visit.service','contact-label':'visit.contactLabel','contact-text':'visit.contact','footer-left':'footer.left','footer-center':'footer.center','footer-right':'footer.right'};
     Object.entries(map).forEach(([id,path])=>{const el=$('#'+id);if(el)el.textContent=pathGet(config,path)??''});
     const badges=$('#chef-badges');if(badges)badges.innerHTML=(config.chef.badges||[]).map(x=>`<span>${escapeHtml(x)}</span>`).join('');
-    renderBrand();['hero','origin','atmosphere','chef'].forEach(slot=>renderMedia(slot,$(`[data-media-host="${slot}"]`)));buildOrbit();syncStudioInputs();renderDishList();renderMediaCards();document.title=`${config.brand.name} — Orbital Dining`;
+    renderBrand();['hero','origin','atmosphere','chef'].forEach(slot=>renderMedia(slot,$(`[data-media-host="${slot}"]`)));buildOrbit();syncStudioInputs();renderDishList();renderMediaCards();if(config.seo?.pages?.home?.seo?.title?.value)document.title=config.seo.pages.home.seo.title.value;
     /* One signal that the project config has been applied, whatever changed it: a
        Studio input, a programmatic set, an import or an undo. Runtime presets can
        then refresh from config without each inventing its own listener — and without
