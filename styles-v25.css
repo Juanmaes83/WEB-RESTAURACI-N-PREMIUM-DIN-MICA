@@ -6,3 +6,116 @@
 .bev-selector{position:absolute;right:clamp(22px,3vw,56px);bottom:clamp(30px,5vw,72px);display:flex;gap:12px;z-index:8}.bev-option{width:96px;min-height:116px;padding:10px 8px 9px;border:1px solid rgba(255,255,255,.14);background:rgba(12,12,11,.42);backdrop-filter:blur(16px);border-radius:22px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;cursor:pointer;transition:transform .3s ease,border-color .3s ease,background .3s ease}.bev-option img{width:72px;height:72px;object-fit:contain;transition:transform .3s ease}.bev-option span{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;white-space:nowrap}.bev-option:hover{transform:translateY(-4px)}.bev-option.is-active{border-color:var(--bev-accent);background:color-mix(in srgb,var(--bev-accent) 14%,rgba(8,8,7,.58));transform:translateY(-8px)}.bev-option.is-active img{transform:scale(1.08)}.bev-ambient{position:absolute;inset:0;z-index:1;pointer-events:none}.bev-ambient i{position:absolute;width:13px;height:22px;border-radius:70% 35% 70% 35%;background:linear-gradient(145deg,var(--bev-accent-soft),var(--bev-accent-deep));opacity:.72;box-shadow:0 0 34px var(--bev-ambient)}.bev-ambient i:nth-child(1){left:55%;top:14%;transform:rotate(18deg) scale(.8)}.bev-ambient i:nth-child(2){left:88%;top:30%;transform:rotate(62deg) scale(1.2)}.bev-ambient i:nth-child(3){left:60%;top:76%;transform:rotate(-22deg) scale(.65)}.bev-ambient i:nth-child(4){left:94%;top:70%;transform:rotate(110deg) scale(.95)}.bev-ambient i:nth-child(5){left:75%;top:9%;transform:rotate(-46deg) scale(.55)}.bev-section.no-particles .bev-ambient{display:none}
 .beverages-panel{padding-bottom:50px}.bev-studio-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.bev-studio-grid.bev-global{padding:18px;border:1px solid rgba(0,0,0,.1);border-radius:16px;background:rgba(255,255,255,.34)}.bev-studio-field{display:flex;flex-direction:column;gap:7px;font-size:12px}.bev-studio-field span{font-weight:600}.bev-studio-field input,.bev-studio-field textarea,.bev-studio-field select{width:100%;box-sizing:border-box}.bev-studio-check{flex-direction:row;align-items:center;gap:9px}.bev-studio-check input{width:auto}.bev-studio-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}.bev-edit-list{display:grid;gap:12px}.bev-edit-card{border:1px solid rgba(0,0,0,.12);border-radius:16px;padding:0 15px;background:rgba(255,255,255,.45)}.bev-edit-card summary{cursor:pointer;min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:10px}.bev-edit-badge{font-size:9px;letter-spacing:.1em;opacity:.55}.bev-edit-ops,.bev-media-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}.bev-edit-ops button,.bev-media-tools button{min-height:36px}.bev-delete{color:#9a2525}
 @media(max-width:900px){.bev-shell{grid-template-columns:1fr;padding-top:90px}.bev-copy{max-width:none}.bev-stage{min-height:58svh;order:-1}.bev-media-wrap{width:min(70vw,480px);height:55svh}.bev-shell:after{background:linear-gradient(180deg,rgba(8,8,7,.18),rgba(8,8,7,.92) 46%,#080807 100%)}.bev-selector{position:relative;right:auto;bottom:auto;grid-column:1;justify-content:flex-start;overflow-x:auto;margin-top:32px}.bev-word{right:-8vw}.bev-studio-grid{grid-template-columns:1fr}}@media(max-width:620px){.bev-title{font-size:52px}.bev-shell{padding-left:20px;padding-right:20px}.bev-option{width:82px;min-height:100px;border-radius:18px}.bev-option img{width:60px;height:60px}.bev-actions{flex-wrap:wrap}.bev-cta{margin-left:0}.bev-stage{min-height:48svh}.bev-media-wrap{height:46svh}.bev-word{display:none}}@media(prefers-reduced-motion:reduce){.bev-option,.bev-option img{transition:none!important}.bev-media,.bev-product-copy,.bev-ambient i{animation:none!important;transition:none!important}}
+/* ------------------------------------------------------------------------
+   CLASS 25 · CHROMATIC INGREDIENT WIPE
+   Las dos entregas de Class 25 comparten hoja porque comparten numero de clase.
+   Los espacios de nombres son disjuntos (.bev-* / .cw-*) y cada loader inyecta
+   este mismo fichero de forma idempotente, asi que no hay segunda hoja.
+   ------------------------------------------------------------------------ */
+/* CLASS 25 · CHROMATIC INGREDIENT WIPE */
+:root{--cw-accent:var(--accent,#ff6a3c);--cw-bg:#0b0b09}
+.cw-stage{position:absolute;inset:0;display:block;overflow:hidden;isolation:isolate;touch-action:pan-y;cursor:grab;outline:none;background:var(--cw-bg);--cw-ink:#f7f4ec}
+.cw-stage:active{cursor:grabbing}.cw-stage[hidden]{display:none!important}
+
+/* LAYER 0 — chromatic worlds */
+.cw-world{position:absolute;inset:-6%;z-index:0;opacity:0;will-change:opacity,transform;
+  background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--cw-accent) 42%,transparent),transparent 46%),
+    radial-gradient(circle at 50% 118%,color-mix(in srgb,var(--cw-accent) 30%,transparent),transparent 52%),
+    linear-gradient(160deg,color-mix(in srgb,var(--cw-accent) 12%,var(--cw-bg)),var(--cw-bg) 74%)}
+.cw-world::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,transparent 0 30%,color-mix(in srgb,var(--cw-bg) 82%,#000) 96%)}
+.cw-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.16),transparent 24%,transparent 60%,rgba(0,0,0,.5));box-shadow:inset 0 0 160px rgba(0,0,0,.4)}
+
+/* LAYER 1 — giant typographic product name */
+.cw-giant{position:absolute;z-index:2;left:50%;top:41%;transform:translate(-50%,-50%);margin:0;pointer-events:none;
+  font-family:var(--serif,'Times New Roman',serif);font-weight:400;letter-spacing:-.03em;line-height:.8;white-space:nowrap;
+  font-size:clamp(64px,13vw,220px);opacity:0;will-change:opacity,transform,filter;
+  color:color-mix(in srgb,var(--cw-accent) 30%,var(--cw-ink));
+  text-shadow:0 0 90px color-mix(in srgb,var(--cw-accent) 30%,transparent)}
+
+/* LAYER 2 — supporting media */
+.cw-decor{position:absolute;inset:0;z-index:3;pointer-events:none;will-change:opacity,transform}
+.cw-decor-el{position:absolute;width:min(15vw,190px);object-fit:contain;filter:drop-shadow(0 20px 24px rgba(0,0,0,.4));opacity:.9}
+.cw-decor-el:nth-child(1){left:11%;top:30%;--s:.9;transform:scale(.9) rotate(-6deg)}
+.cw-decor-el:nth-child(2){right:12%;top:24%;transform:scale(1.05) rotate(8deg)}
+.cw-decor-el:nth-child(3){right:20%;bottom:20%;transform:scale(.7) rotate(-4deg)}
+
+/* LAYER 3 — hero product */
+.cw-hero{position:absolute;z-index:6;left:50%;top:52%;width:min(42vw,560px);height:min(46vw,600px);transform:translate(-50%,-50%);pointer-events:none;perspective:1200px}
+.cw-hero-img{position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:contain;transform:translate(-50%,-50%);opacity:0;filter:drop-shadow(0 40px 44px rgba(0,0,0,.5));will-change:transform,opacity,filter}
+.cw-hero-floor{position:absolute;left:50%;top:82%;width:74%;height:16%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--cw-accent) 26%,rgba(0,0,0,.4)),transparent 70%);filter:blur(20px);opacity:.7;will-change:transform,opacity}
+
+/* LAYER 4 — copy */
+.cw-copy{position:absolute;z-index:10;left:5%;bottom:7%;width:min(40vw,540px);pointer-events:none}
+.cw-source{margin:0 0 8px;color:var(--cw-accent);font-size:8px;letter-spacing:.26em;text-transform:uppercase}
+.cw-meta{margin:0;color:#b9b4a8;font-size:9px;letter-spacing:.2em;text-transform:uppercase;min-height:13px}
+.cw-name{font-family:var(--serif,serif);font-weight:400;font-size:clamp(26px,3vw,44px);letter-spacing:-.02em;line-height:.95;margin:8px 0 10px;color:var(--cw-ink)}
+.cw-desc{max-width:420px;color:#c8c4ba;font-size:12px;line-height:1.6;margin:0;min-height:2.6em}
+.cw-copy-foot{display:flex;align-items:center;gap:22px;margin-top:18px;pointer-events:auto}
+.cw-counter{font-size:9px;color:#8d8a82;letter-spacing:.18em}
+.cw-detail{border:0;border-bottom:1px solid rgba(255,255,255,.34);background:transparent;padding:6px 0;color:var(--cw-ink);font-size:9px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.cw-detail:hover{border-color:var(--cw-accent)}
+
+/* LAYER 5 — giant transition ingredient (top while running) */
+.cw-ingredient{position:absolute;z-index:40;left:50%;top:50%;width:min(64vw,860px);height:min(64vw,860px);object-fit:contain;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;filter:drop-shadow(0 50px 60px rgba(0,0,0,.55));will-change:transform,opacity}
+
+.cw-arrow{position:absolute;z-index:44;top:50%;transform:translateY(-50%);width:54px;height:54px;border-radius:50%;border:1px solid rgba(255,255,255,.26);background:rgba(0,0,0,.28);backdrop-filter:blur(12px);color:var(--cw-ink);font-size:18px;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s}
+.cw-arrow:hover{background:#fff;color:#111;border-color:#fff}.cw-arrow:active{transform:translateY(-50%) scale(.95)}
+.cw-prev{left:4%}.cw-next{right:4%}
+.cw-hint{position:absolute;right:5%;bottom:8%;z-index:10;color:#8d8a82;font-size:8px;letter-spacing:.22em;margin:0;writing-mode:vertical-rl}
+
+/* Chromatic Ingredient Wipe owns the signature composition only while selected. */
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section{background:#050504}
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.orbital-top,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbit-shell>.orbit-glow,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbit-shell>.orbit-ring,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbit-shell>#orbit-stage,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbit-shell>.orbit-center-mark,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.dish-copy,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.orbit-controls,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.of-stage,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.of-eyebrow,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.ps-head,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.ps-controls,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbit-shell>.ps-stage,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.pp-world,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.pp-bgtype,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.pp-editorial,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.pp-bridge,
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section>.pp-cta{display:none!important}
+html[data-orbital-motion="chromatic-ingredient-wipe"] .orbit-shell{margin-top:0;height:min(74vw,780px);min-height:640px;touch-action:pan-y}
+
+/* Studio card */
+.cw-studio{border-color:rgba(0,0,0,.16)!important}
+.cw-studio label{display:flex;flex-direction:column;gap:7px;margin-top:14px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#777}
+.cw-studio select,.cw-studio input[type=range]{border:1px solid #cbc5b8;background:#f8f4eb;color:#151512;padding:10px 12px;outline:none}
+.cw-studio input[type=range]{padding:6px 0}
+.cw-studio select:focus{border-color:#111}
+.cw-studio-actions{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+.cw-studio-actions button{flex:1;min-width:96px;border:1px solid #bcb5a8;background:transparent;color:#111;padding:10px 12px;cursor:pointer}
+.cw-studio-actions .cw-studio-activate{background:#111;color:#fff;border-color:#111}
+.cw-studio-state{margin-top:12px!important}
+
+@media(max-width:900px){
+  html[data-orbital-motion="chromatic-ingredient-wipe"] .orbit-shell{height:720px;min-height:680px}
+  .cw-giant{font-size:clamp(56px,15vw,150px);top:38%}
+  .cw-hero{top:48%;width:min(58vw,460px);height:min(62vw,500px)}
+  .cw-copy{left:6%;bottom:6%;width:74vw}.cw-ingredient{width:min(84vw,640px);height:min(84vw,640px)}
+  .cw-arrow{top:47%}
+}
+@media(max-width:620px){
+  html[data-orbital-motion="chromatic-ingredient-wipe"] .orbital-section{padding-left:0;padding-right:0;min-height:auto}
+  html[data-orbital-motion="chromatic-ingredient-wipe"] .orbit-shell{height:640px;min-height:640px;margin:0}
+  .cw-stage{border-radius:0}
+  .cw-giant{font-size:clamp(48px,17vw,110px);top:34%}
+  .cw-hero{top:45%;width:min(74vw,360px);height:min(80vw,400px)}
+  .cw-decor-el{width:24vw}
+  .cw-copy{left:7%;right:7%;bottom:6%;width:auto}
+  .cw-name{font-size:clamp(24px,7vw,34px)}
+  .cw-desc{font-size:11px;max-width:82vw;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cw-ingredient{width:112vw;height:112vw}
+  .cw-arrow{top:44%;width:46px;height:46px}.cw-hint{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .cw-world,.cw-hero-img,.cw-giant,.cw-ingredient,.cw-decor{transition:none!important}
+  .cw-ingredient{display:none}
+}

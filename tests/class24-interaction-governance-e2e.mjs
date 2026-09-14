@@ -107,7 +107,7 @@ const center=box=>({x:box.x+box.width/2,y:box.y+box.height/2});
     off:document.querySelector('.st-studio-governed')?.classList.contains('is-off')
   }));
   check('Motion panel reads as Product / Transversal / Experiences',groups.groups.join(',')==='preset,page,experience',groups.groups.join(','));
-  check('the three concepts contain 8 / 1 / 3 engines',groups.product===8&&groups.page===1&&groups.experiences===3,`${groups.product}/${groups.page}/${groups.experiences}`);
+  check('the three concepts contain 9 / 1 / 3 engines',groups.product===9&&groups.page===1&&groups.experiences===3,`${groups.product}/${groups.page}/${groups.experiences}`);
   check('Scroll Traveler tuning lives inside the transversal block',groups.tunerInside&&groups.off,'off and grouped');
 
   const hiddenControls=await page.evaluate(()=>{
