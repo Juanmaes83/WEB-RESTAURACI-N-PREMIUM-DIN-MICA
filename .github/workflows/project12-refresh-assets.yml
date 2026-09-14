@@ -1,0 +1,53 @@
+name: Project 12 Refresh Assets
+
+on:
+  push:
+    branches:
+      - feat/kinetic-product-selector-integration-v2
+    paths:
+      - scripts/project12-refresh-assets.py
+      - .github/workflows/project12-refresh-assets.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image dependency
+        run: python -m pip install --disable-pip-version-check pillow==11.3.0
+      - name: Build larger review assets from current approved crops
+        run: python scripts/project12-refresh-assets.py
+      - name: Verify dimensions
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          root=Path('assets/kinetic-product-selector')
+          files=sorted(root.glob('0[1-6]-*.webp'))
+          assert len(files)==6, len(files)
+          for p in files:
+              with Image.open(p) as im:
+                  w,h=im.size
+                  print(p.name,w,h)
+                  assert max(w,h)>=640, (p,w,h)
+          PY
+      - name: Commit generated assets only
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- assets/kinetic-product-selector; then
+            echo 'Assets already meet the review-size contract.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/kinetic-product-selector/*.webp
+          git commit -m 'assets(project12): enlarge approved burger crops for review [skip ci]'
+          git push origin HEAD:feat/kinetic-product-selector-integration-v2
