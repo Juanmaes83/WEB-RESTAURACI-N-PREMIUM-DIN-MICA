@@ -1,6 +1,6 @@
 /* CLASS 19 · MOTION + MODULE STUDIO INTEGRATION
 
-   Fifteen Motion elements exist in this project: eleven selectable product
+   Sixteen Motion elements exist in this project: twelve selectable product
    choreographies, one transversal page motion and three complete experiences.
 
    This is a LIBRARY, not a new engine. It owns no motion, no geometry and no state:
@@ -15,9 +15,8 @@
        into orbit presets would be a rewrite of approved work, so the library opens
        them instead of pretending they are presets.
 
-   Nothing here is per-engine code. The catalogue is data and the renderer switches on
-   `kind`; Class 24 is one additional row. Its runtime is loaded additively below and
-   remains fully owned by `class24-half-orbit-selector.js`.
+   Nothing here is per-engine geometry. The catalogue is data and the renderer switches
+   on `kind`; native runtimes remain owned by their own files.
 */
 (() => {
   'use strict';
@@ -79,23 +78,21 @@
       name:'Half Orbit Selector',project:'Class 24',
       note:'Media circunferencia tipográfica: drag y flechas hacen un barrido de 180°, cambian el fondo y elevan el producto activo.'},
     {n:'13',id:'circular-product',kind:'preset',value:'circular-product',
-      name:'Circular Dish Rotator · Engine',project:'Class 27',
-      note:'Versión nativa para la web completa: selector radial de producto inspirado en Circular Dish Rotator.'},
+      name:'Full Pizza Rotator · Engine',project:'Class 27',
+      note:'Pizza completa horneada de ocho sectores: selector fijo, porción activa elevada y giro de descubrimiento.'},
     {n:'14',id:'dish-stage-product',kind:'preset',value:'dish-stage-product',
       name:'Dish Stage · Engine',project:'Class 28',
       note:'Versión nativa para Signature: escenario cinematográfico de producto dentro de la web completa.'},
     {n:'15',id:'cinematic-rail-product',kind:'preset',value:'cinematic-rail-product',
       name:'Cinematic Product Rail · Engine',project:'Class 29',
-      note:'Versión nativa para Signature: raíl editorial de producto integrado en la web completa.'}
+      note:'Versión nativa para Signature: raíl editorial de producto integrado en la web completa.'},
+    {n:'16',id:'circular-radial-product',kind:'preset',value:'circular-radial-product',
+      name:'Circular Dish Rotator · Radial',project:'Class 30',
+      note:'Motor radial original recuperado: nombres orbitando alrededor del plato activo, drag horizontal y navegación por producto.'}
   ];
 
   /* Not engines. They are listed so Studio shows everything the product has, and they
-     are deliberately outside the count of twelve.
-
-     Sin `href`: un módulo se configura en el Studio y se ve en la propia web pública
-     sobre el proyecto real, así que no hay ninguna página a la que enlazar desde el
-     producto. Sus labs siguen existiendo para tests y evidencia — dejaron de ser una
-     acción del recorrido. */
+     are deliberately outside the Motion count. */
   const MODULES=[
     {id:'location',
       name:'Location / Google Maps',project:'Class 16 · Class 20',
@@ -122,9 +119,32 @@
 
   let root=document.documentElement;
   let library=null,filter='all',ready=false;
+  const RADIAL_VALUE='circular-radial-product';
+  const FULL_PIZZA_VALUE='circular-product';
 
   const select=()=>$('#motion-orbital-style');
   const optionFor=value=>select()?.querySelector(`option[value="${value}"]`);
+
+  /* Keep the original native radial selector AND the new full-pizza engine. Class 05
+     predates this split, so Class 19 upgrades the real selector additively instead of
+     creating a second control or a second Project State. */
+  function ensureSelectorOptions(){
+    const s=select();if(!s)return false;
+    const full=optionFor(FULL_PIZZA_VALUE);if(full)full.textContent='Full Pizza Rotator · Engine';
+    if(!optionFor(RADIAL_VALUE)){
+      const o=document.createElement('option');o.value=RADIAL_VALUE;o.textContent='Circular Dish Rotator · Radial';
+      if(full?.nextSibling)s.insertBefore(o,full.nextSibling);else s.appendChild(o);
+    }
+    const desired=window.RestaurantStudioConfig?.get?.('motion.orbitalStyle');
+    if(desired===RADIAL_VALUE&&s.value!==RADIAL_VALUE)s.value=RADIAL_VALUE;
+    return true;
+  }
+
+  function ensureRadialRuntime(){
+    if(window.RestaurantNativeProductEngines||document.querySelector('script[data-native-product-engines-runtime]'))return;
+    const s=document.createElement('script');s.src='native-product-engines.js';s.dataset.nativeProductEnginesRuntime='1';document.body.appendChild(s);
+  }
+  function maybeLoadRadial(value=select()?.value){if(value===RADIAL_VALUE)ensureRadialRuntime()}
 
   function statusOf(engine){
     if(engine.kind==='preset'){
@@ -196,6 +216,7 @@
   function build(){
     const panel=$('.studio-panel.motion-panel');
     if(!panel||$('.ml-library',panel))return false;
+    ensureSelectorOptions();
     ensureStyles();
     library=document.createElement('section');
     library.className='ml-library';
@@ -255,16 +276,19 @@
         window.RestaurantStudioConfig?.set?.(engine.path,!now);
       }
     });
-    select()?.addEventListener('change',sync);
-    select()?.addEventListener('input',sync);
-    new MutationObserver(sync).observe(select()||document.body,{childList:true,attributes:true,attributeFilter:['value']});
-    document.addEventListener('restaurant:config-applied',sync);
+    select()?.addEventListener('change',()=>{maybeLoadRadial();sync()});
+    select()?.addEventListener('input',()=>{maybeLoadRadial();sync()});
+    new MutationObserver(()=>{ensureSelectorOptions();maybeLoadRadial();sync()}).observe(select()||document.body,{childList:true,attributes:true,attributeFilter:['value']});
+    document.addEventListener('restaurant:config-applied',()=>{ensureSelectorOptions();maybeLoadRadial();sync()});
+    window.addEventListener('restaurant:motion-change',e=>{maybeLoadRadial(e?.detail?.orbital);sync()});
     root.dataset.motionLibraryCount=String(ENGINES.length);
   }
 
   function activate(engine){
+    ensureSelectorOptions();
     const s=select();
     if(!s||!optionFor(engine.value))return false;
+    if(engine.value===RADIAL_VALUE)ensureRadialRuntime();
     s.value=engine.value;
     s.dispatchEvent(new Event('input',{bubbles:true}));
     s.dispatchEvent(new Event('change',{bubbles:true}));
@@ -281,6 +305,7 @@
   }
 
   function sync(){
+    ensureSelectorOptions();
     if(!library)return;
     MODULES.forEach(mod=>{const key=({'social-reputation':'social','whatsapp-contact':'whatsapp'})[mod.id]||mod.id;const badge=$(`[data-ml-module-state="${mod.id}"]`,library);if(badge)badge.textContent=`MÓDULO · ${window.RestaurantStudioConfig?.get(`modules.${key}.enabled`)?'ON':'OFF'}`});
     ENGINES.forEach(engine=>{
@@ -298,12 +323,14 @@
   }
 
   function boot(){
+    ensureSelectorOptions();maybeLoadRadial();
     if(ready)return;
     const panel=$('.studio-panel.motion-panel');
     if(!panel||panel.offsetParent===null)return;
     if(!build())return;
     ready=true;
   }
+  setTimeout(()=>{ensureSelectorOptions();maybeLoadRadial()},0);
   const timer=setInterval(()=>{boot();if(ready)clearInterval(timer)},200);
   setTimeout(()=>clearInterval(timer),120000);
   document.addEventListener('click',e=>{if(e.target.closest?.('.studio-open'))setTimeout(()=>{boot();sync()},260)},true);
