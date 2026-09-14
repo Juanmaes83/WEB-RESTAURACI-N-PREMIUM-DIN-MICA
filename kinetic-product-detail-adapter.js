@@ -7,6 +7,7 @@
   const $=(s,r=document)=>r.querySelector(s);
   const root=document.documentElement;
   const hero=$('#kps-hero');
+  const stage=$('#kps-stage');
   const rail=$('#kps-rail');
   const detail=$('#kps-product-detail');
   const close=$('#kps-detail-close');
@@ -14,6 +15,7 @@
   const order=$('#kps-detail-order');
   let lastFocus=null;
   let pointerStart=null;
+  let lastHeroOpen=0;
 
   const DEMO_DETAIL={
     'midnight-wagyu':{
@@ -80,6 +82,7 @@
     document.body.classList.add('kps-detail-open');root.dataset.kpsDetail='open';
     setTimeout(()=>close?.focus(),30);return true;
   }
+  function openHero(trigger){lastHeroOpen=performance.now();pointerStart=null;return open(trigger)}
   function closeDetail(){
     if(!detail?.classList.contains('is-open'))return;
     detail.classList.remove('is-open');detail.setAttribute('aria-hidden','true');backdrop?.classList.remove('is-open');
@@ -89,12 +92,20 @@
 
   if(hero){
     hero.setAttribute('role','button');hero.setAttribute('tabindex','0');hero.setAttribute('aria-label','Open selected product details');
-    hero.addEventListener('pointerdown',e=>{pointerStart={x:e.clientX,y:e.clientY}});
-    hero.addEventListener('click',e=>{
-      const moved=pointerStart?Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y):0;pointerStart=null;
-      if(moved>12)return;open('hero');
+    hero.addEventListener('pointerdown',e=>{pointerStart={id:e.pointerId,x:e.clientX,y:e.clientY}});
+    /* The selector captures the pointer on the stage so drag/swipe remains robust.
+       A short pointerup on the captured stage is therefore the canonical tap signal. */
+    stage?.addEventListener('pointerup',e=>{
+      if(!pointerStart||pointerStart.id!==e.pointerId)return;
+      const moved=Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y);
+      if(moved<=12)openHero('hero-pointer');else pointerStart=null;
     });
-    hero.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open('hero-keyboard')}});
+    hero.addEventListener('click',e=>{
+      if(performance.now()-lastHeroOpen<260)return;
+      const moved=pointerStart?Math.hypot(e.clientX-pointerStart.x,e.clientY-pointerStart.y):0;
+      pointerStart=null;if(moved>12)return;openHero('hero');
+    });
+    hero.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openHero('hero-keyboard')}});
   }
 
   rail?.addEventListener('click',e=>{
