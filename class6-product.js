@@ -101,7 +101,7 @@
   }
 
   function updateSEO(){
-    if(window.RubikSEOGeoPublisher&&window.RubikSEOGeoCore)return window.RubikSEOGeoPublisher.apply(config,'preview',document);
+    if(window.RubikSEOGeoCore){const seo=window.RubikSEOGeoCore.reconcile(config);const title=seo.pages.home.seo.title.value;if(title){document.title=title;const meta=$('meta[name="description"]');if(meta)meta.content=seo.pages.home.seo.description.value;}return;}
     const d=langData(),brand=config.brand?.name||'LÚMINA';document.title=locale==='es'?`${brand} — Restaurante mediterráneo en Alicante`:`${brand} — Mediterranean dining in Alicante`;
     let meta=$('meta[name="description"]');if(meta)meta.content=locale==='es'?'LÚMINA: experiencia gastronómica mediterránea en Alicante con carta orbital, producto local y cocina de fuego.':'LÚMINA: a Mediterranean dining experience in Alicante with an orbital menu, local produce and fire-led cooking.';
     const ensure=(selector,create)=>{let el=$(selector);if(!el){el=document.createElement(create.tag);Object.entries(create.attrs||{}).forEach(([k,v])=>el.setAttribute(k,v));document.head.appendChild(el)}return el};
