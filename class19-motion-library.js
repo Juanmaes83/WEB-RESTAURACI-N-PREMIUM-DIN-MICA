@@ -1,7 +1,7 @@
 /* CLASS 19 · MOTION + MODULE STUDIO INTEGRATION
 
-   Sixteen Motion elements exist in this project: twelve selectable product
-   choreographies, one transversal page motion and three complete experiences.
+   Seventeen Motion elements exist in this project: twelve selectable product
+   choreographies, one transversal page motion and four complete experiences.
 
    This is a LIBRARY, not a new engine. It owns no motion, no geometry and no state:
 
@@ -9,11 +9,10 @@
        and writes to it, exactly as a visitor would;
      · whether the traveler is on is still `scrollTraveler.enabled` through
        RestaurantStudioConfig;
-     · the three full-page experiences are still their own pages. They build their own
-       DOM (`.ds-lab`, `.cpr-page`, the rotator's own stage) and one of them asserts in
-       its contract that it does not depend on the shared motion engine. Turning them
-       into orbit presets would be a rewrite of approved work, so the library opens
-       them instead of pretending they are presets.
+     · the four full-page experiences are still their own pages. They build their own
+       DOM and keep their own rendering contracts. Turning them into orbit presets
+       would be a rewrite of approved work, so the library opens them instead of
+       pretending they are presets.
 
    Nothing here is per-engine geometry. The catalogue is data and the renderer switches
    on `kind`; native runtimes remain owned by their own files.
@@ -88,7 +87,11 @@
       note:'Versión nativa para Signature: raíl editorial de producto integrado en la web completa.'},
     {n:'16',id:'circular-radial-product',kind:'preset',value:'circular-radial-product',
       name:'Circular Dish Rotator · Radial',project:'Class 30',
-      note:'Motor radial original recuperado: nombres orbitando alrededor del plato activo, drag horizontal y navegación por producto.'}
+      note:'Motor radial original recuperado: nombres orbitando alrededor del plato activo, drag horizontal y navegación por producto.'},
+    {n:'17',id:'kinetic-product-selector',kind:'experience',
+      href:'experiences/kinetic-product-selector/index.html',studio:'kinetic-product-studio.js',
+      name:'Kinetic Product Selector',project:'Project 12',
+      note:'Selector editorial cinético: producto, copy, paleta y escena cambian como una sola coreografía configurable.'}
   ];
 
   /* Not engines. They are listed so Studio shows everything the product has, and they
@@ -213,6 +216,16 @@
     </article>`;
   }
 
+  /* Optional Studio companions belong to their own experience files. The library only
+     loads the extension declared by catalogue data; it still owns no experience state. */
+  function loadStudioExtensions(){
+    ENGINES.filter(e=>e.studio).forEach(engine=>{
+      if(document.querySelector(`script[data-ml-studio="${engine.id}"]`))return;
+      const s=document.createElement('script');s.src=engine.studio;s.dataset.mlStudio=engine.id;
+      document.body.appendChild(s);
+    });
+  }
+
   function build(){
     const panel=$('.studio-panel.motion-panel');
     if(!panel||$('.ml-library',panel))return false;
@@ -245,7 +258,7 @@
     const intro=$('.panel-intro',panel);
     if(intro&&intro.parentNode===panel)intro.insertAdjacentElement('afterend',library);
     else panel.insertBefore(library,panel.firstElementChild);
-    wire();
+    wire();loadStudioExtensions();
     library.addEventListener('click',e=>{const b=e.target.closest('[data-configure-module]');if(b)window.RestaurantModulesStudio?.open(({ 'social-reputation':'social','whatsapp-contact':'whatsapp' })[b.dataset.configureModule]||b.dataset.configureModule)});
     library.addEventListener('click',e=>{
       const b=e.target.closest('[data-experience-open]');if(!b)return;

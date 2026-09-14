@@ -1,0 +1,18 @@
+/* PROJECT 12 — clean-port Studio/Shell gate. */
+import {chromium} from 'playwright';
+import {startServer} from './static-server.mjs';
+const {server,url:BASE}=await startServer(0);const browser=await chromium.launch();const context=await browser.newContext({viewport:{width:1440,height:960}});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+const checks=[];const check=(name,ok,detail='')=>{checks.push({name,ok});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
+try{
+  await page.goto(BASE,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:30000});
+  await page.locator('.studio-open').click();await page.waitForTimeout(650);await page.locator('#studio button[data-panel="motion"]').click();
+  await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().count===17&&document.documentElement.dataset.kpsStudio==='ready',null,{timeout:25000});
+  const lib=await page.evaluate(()=>({count:RestaurantMotionLibrary.state().count,card:!!document.querySelector('[data-ml-card="kinetic-product-selector"]'),customize:!!document.querySelector('[data-ml-card="kinetic-product-selector"] [data-kps-configure]'),shell:RestaurantExperienceShell.experiences().some(e=>e.id==='kinetic-product-selector'),path:RestaurantKineticStudio?.statePath}));
+  check('Kinetic is engine 17 in Restaurant Studio',lib.count===17&&lib.card,`${lib.count} engines`);check('Studio personalization is present',lib.customize,'Personalizar');check('Experience Shell registers Project 12',lib.shell,'registry');check('canonical state path is modules.kineticProductSelector',lib.path==='modules.kineticProductSelector',lib.path);
+  await page.locator('[data-ml-card="kinetic-product-selector"] [data-kps-configure]').click();const field=page.locator('[data-kps-product="0"] [data-kps-key="name"]');await field.fill('NIGHT TEST');await field.dispatchEvent('input');await page.waitForTimeout(200);
+  const saved=await page.evaluate(()=>window.RestaurantStudioConfig.get('modules.kineticProductSelector.products')[0].name);check('personalization persists in canonical Project State',saved==='NIGHT TEST',saved);
+  await page.locator('[data-kps-preview]').click();await page.waitForFunction(()=>document.querySelector('.xs-frame')?.contentWindow?.KineticProductSelector?.state?.().ready===true,null,{timeout:25000});
+  const child=await page.evaluate(()=>{const f=document.querySelector('.xs-frame'),d=f.contentDocument,s=f.contentWindow.KineticProductSelector.state();return {source:d.documentElement.dataset.kpsSource,path:d.documentElement.dataset.kpsStatePath,title:d.getElementById('kps-title').innerText.replace(/\n/g,' ').trim(),hero:s.hero,frames:document.querySelectorAll('.xs-frame').length,loaded:s.heroNaturalWidth>0}});
+  check('Shell receives personalized canonical state',child.source==='project'&&child.path==='modules.kineticProductSelector'&&child.title==='NIGHT TEST',`${child.source} · ${child.title}`);check('transparent approved asset is rendered',/\.webp\.png(?:$|[?#])/.test(child.hero)&&child.loaded,child.hero);check('only one Experience Shell frame exists',child.frames===1,String(child.frames));check('no parent page errors',errors.length===0,errors.join(' | ')||'clean');
+} finally {await context.close();await browser.close();server.close()}
+const failed=checks.filter(x=>!x.ok);console.log(`\n${checks.length-failed.length}/${checks.length} checks passed`);if(failed.length){console.error(`KPS_STUDIO_FAIL: ${failed.map(x=>x.name).join(' | ')}`);process.exit(1)}console.log('KPS_STUDIO_PASS');

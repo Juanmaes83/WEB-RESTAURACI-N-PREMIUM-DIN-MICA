@@ -1,0 +1,65 @@
+name: Kinetic Product Selector Clean Port
+
+on:
+  push:
+    branches:
+      - feat/studio-kinetic-product-selector
+    paths:
+      - 'class19-motion-library.js'
+      - 'class22-experience-shell.js'
+      - 'experiences/kinetic-product-selector/**'
+      - 'kinetic-product-*.js'
+      - 'styles-kinetic-product-selector*.css'
+      - 'assets/kinetic-product-selector/**'
+      - 'tests/project12-integration-v2-e2e.mjs'
+      - 'tests/project12-kinetic-studio-e2e.mjs'
+      - '.github/workflows/kinetic-product-selector-clean-port.yml'
+  pull_request:
+    paths:
+      - 'class19-motion-library.js'
+      - 'class22-experience-shell.js'
+      - 'experiences/kinetic-product-selector/**'
+      - 'kinetic-product-*.js'
+      - 'styles-kinetic-product-selector*.css'
+      - 'assets/kinetic-product-selector/**'
+      - 'tests/project12-integration-v2-e2e.mjs'
+      - 'tests/project12-kinetic-studio-e2e.mjs'
+      - '.github/workflows/kinetic-product-selector-clean-port.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  kinetic-clean-port:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax and architecture contract
+        run: |
+          node --check kinetic-product-selector.js
+          node --check kinetic-product-source.js
+          node --check kinetic-product-studio.js
+          node --check kinetic-product-detail-adapter.js
+          node --check tests/project12-integration-v2-e2e.mjs
+          node --check tests/project12-kinetic-studio-e2e.mjs
+          grep -q "modules.kineticProductSelector" kinetic-product-source.js
+          grep -q "modules.kineticProductSelector" kinetic-product-studio.js
+          ! grep -q "set?.('kineticProductSelector'" kinetic-product-studio.js
+      - name: Verify approved transparent asset set
+        run: |
+          test "$(find assets/kinetic-product-selector -maxdepth 1 -name '*.webp.png' | wc -l)" -eq 6
+          test "$(find assets/kinetic-product-selector -maxdepth 1 -name '*.webp' | wc -l)" -eq 0
+          test -f experiences/kinetic-product-selector/index.html
+      - name: Install Playwright Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Standalone visual/interaction gate
+        run: node tests/project12-integration-v2-e2e.mjs
+      - name: Studio + Experience Shell gate
+        run: node tests/project12-kinetic-studio-e2e.mjs

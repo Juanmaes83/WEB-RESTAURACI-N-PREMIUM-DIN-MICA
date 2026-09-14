@@ -1,12 +1,12 @@
 /* CLASS 22 — IN-APP EXPERIENCE SHELL
 
-   Las tres experiencias autónomas dejan de ser una pestaña nueva. Se abren DENTRO de
-   la aplicación, sobre el mismo proyecto, y cerrar devuelve al Studio.
+   Las cuatro experiencias autónomas se abren DENTRO de la aplicación, sobre el mismo
+   proyecto, y cerrar devuelve al Studio.
 
    Por qué un iframe same-origin y no integración nativa está medido y razonado en
-   docs/IN-APP-EXPERIENCE-AUDIT.md; en una frase: ninguna de las tres tiene `destroy()`
-   y su CSS da por hecho que es el documento. Quitar el nodo del iframe apaga rAF,
-   timers, listeners y canvas sin tocar su motor, y aísla su CSS sin editar una regla.
+   docs/IN-APP-EXPERIENCE-AUDIT.md; en una frase: las experiencias no comparten un
+   contrato `destroy()` común y su CSS da por hecho que es el documento. Quitar el nodo
+   del iframe apaga rAF, timers, listeners y canvas sin tocar su motor, y aísla su CSS.
 
    La shell es la superficie de producto:
 
@@ -17,9 +17,8 @@
      · el foco entra en la shell y vuelve a quien la abrió.
 
    La shell carga los entrypoints PRODUCTIVOS de `experiences/`, no páginas de `/labs/`:
-   un LAB es evidencia, no la fuente operativa del producto. Ambas puertas cargan el
-   MISMO motor canónico de la raíz — una implementación, dos entradas — y los labs
-   siguen existiendo intactos para evidencia y regresión.
+   un LAB es evidencia, no la fuente operativa del producto. Cada experiencia carga su
+   motor canónico de la raíz y los labs siguen existiendo intactos para evidencia.
 */
 (() => {
   'use strict';
@@ -34,7 +33,9 @@
     {id:'dish-stage',name:'Dish Stage',project:'Project 10',
       url:'experiences/dish-stage/index.html'},
     {id:'cinematic-product-rail',name:'Cinematic Product Rail',project:'Project 11',
-      url:'experiences/cinematic-product-rail/index.html'}
+      url:'experiences/cinematic-product-rail/index.html'},
+    {id:'kinetic-product-selector',name:'Kinetic Product Selector',project:'Project 12',
+      url:'experiences/kinetic-product-selector/index.html'}
   ];
   const find=id=>EXPERIENCES.find(e=>e.id===id)||null;
 
@@ -64,6 +65,9 @@
          y no el snapshot entero: el hijo recibe lo que le corresponde, nada más. */
       pizzaSliceOrbit:snap.pizzaSliceOrbit||{},
       circularDishRotator:snap.circularDishRotator||{},
+      /* Project 12 sigue el mismo contrato: la shell sólo expone su configuración
+         explícita y el hijo la consume en modo lectura. */
+      kineticProductSelector:snap.kineticProductSelector||{},
       locale:root.dataset.locale||'es',
       /* la media subida vive como blob en el store del proyecto y el padre ya tiene
          sus URLs resueltas; un blob: del padre es legible desde un iframe del mismo

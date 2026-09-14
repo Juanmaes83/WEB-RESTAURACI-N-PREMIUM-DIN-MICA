@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#d8dad5">
+  <title>Project 12 — Kinetic Product Selector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles-kinetic-product-selector.css">
+  <link rel="stylesheet" href="../../styles-kinetic-product-selector-integration-v2.css">
+  <link rel="stylesheet" href="../../styles-kinetic-product-selector-polish.css">
+</head>
+<body>
+  <main class="kps-page" id="kps-page">
+    <div class="kps-bg" aria-hidden="true">
+      <i class="kps-shape kps-shape-a"></i><i class="kps-shape kps-shape-b"></i><i class="kps-shape kps-shape-c"></i><i class="kps-linework"></i>
+    </div>
+    <div class="kps-grain" aria-hidden="true"></div>
+
+    <header class="kps-topbar">
+      <div class="kps-brand-lockup">
+        <button class="kps-brand" id="kps-brand" type="button" data-kps-nav="burgers" aria-label="Show burgers">STACK°</button>
+        <span class="kps-rubik-sota" aria-label="Rubik Sota 629554870">RUBIK SOTA 629554870</span>
+      </div>
+      <nav class="kps-nav" id="kps-nav" aria-label="Brand navigation"></nav>
+      <button class="kps-bag" id="kps-bag" type="button" aria-expanded="false">BAG · 00</button>
+    </header>
+
+    <section class="kps-stage" id="kps-stage" tabindex="0" aria-label="Interactive product selector. Use left and right arrow keys, swipe, drag, or the visible arrows to change product.">
+      <div class="kps-copy">
+        <span class="kps-code" id="kps-code">01</span>
+        <h1 class="kps-title" id="kps-title"></h1>
+        <p class="kps-tagline" id="kps-tagline"></p>
+      </div>
+
+      <div class="kps-product-wrap" aria-live="off">
+        <div class="kps-product-shadow" id="kps-product-shadow" aria-hidden="true"></div>
+        <img class="kps-product" id="kps-hero" src="" alt="" draggable="false" fetchpriority="high">
+      </div>
+      <div class="kps-fx" id="kps-fx" aria-hidden="true"></div>
+
+      <button class="kps-arrow kps-arrow-prev" id="kps-prev" type="button" aria-label="Previous burger"><span aria-hidden="true">←</span></button>
+      <button class="kps-arrow kps-arrow-next" id="kps-next" type="button" aria-label="Next burger"><span aria-hidden="true">→</span></button>
+
+      <button class="kps-cta" id="kps-cta" type="button" aria-hidden="true" tabindex="-1"><span>TASTE THE CHAOS →</span><i aria-hidden="true">↗</i></button>
+
+      <aside class="kps-panel kps-story-panel" id="kps-story-panel" aria-hidden="true" aria-label="Our story">
+        <button class="kps-panel-close" type="button" data-kps-close-panel aria-label="Close story">×</button>
+        <span>STACK° / 06 BUILDS</span>
+        <strong>Six signatures. One kinetic menu.</strong>
+        <p>A configurable showcase where product, typography, palette and motion move as one system.</p>
+      </aside>
+
+      <aside class="kps-panel kps-bag-panel" id="kps-bag-panel" aria-hidden="true" aria-label="Bag">
+        <button class="kps-panel-close" type="button" data-kps-close-panel aria-label="Close bag">×</button>
+        <span>YOUR BAG</span>
+        <strong>00 ITEMS</strong>
+        <p>Checkout can be connected from the restaurant project configuration.</p>
+      </aside>
+
+      <div class="kps-toast" id="kps-toast" role="status" aria-live="polite"></div>
+
+      <div class="kps-rail-wrap">
+        <div class="kps-rail" id="kps-rail" aria-label="Products"></div>
+        <div class="kps-meta">
+          <span class="kps-progress" id="kps-progress">01 / 06</span>
+          <button class="kps-demo" id="kps-demo" type="button" aria-pressed="false" title="Play automatic choreography"><span>AUTO</span></button>
+        </div>
+      </div>
+      <p class="kps-sr" id="kps-live" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <div class="kps-detail-backdrop" id="kps-detail-backdrop" aria-hidden="true"></div>
+  <section class="kps-product-detail" id="kps-product-detail" role="dialog" aria-modal="true" aria-labelledby="kps-detail-title" aria-hidden="true">
+    <button class="kps-detail-close" id="kps-detail-close" type="button" aria-label="Close product details">×</button>
+    <div class="kps-detail-grid">
+      <div class="kps-detail-visual"><img id="kps-detail-image" src="" alt=""></div>
+      <article class="kps-detail-copy">
+        <p class="kps-detail-meta" id="kps-detail-meta"></p>
+        <h2 class="kps-detail-title" id="kps-detail-title"></h2>
+        <div class="kps-detail-price" id="kps-detail-price"></div>
+        <p class="kps-detail-description" id="kps-detail-description"></p>
+        <div class="kps-detail-columns">
+          <div><h3>Ingredients</h3><p id="kps-detail-ingredients"></p></div>
+          <div><h3>Origin</h3><p id="kps-detail-origin"></p></div>
+          <div><h3>Technique</h3><p id="kps-detail-technique"></p></div>
+          <div><h3>Pairing</h3><p id="kps-detail-pairing"></p></div>
+        </div>
+        <div class="kps-detail-note"><span>Chef's note</span><p id="kps-detail-note"></p></div>
+        <div class="kps-detail-bottom"><span class="kps-detail-allergens" id="kps-detail-allergens"></span><button class="kps-detail-order" id="kps-detail-order" type="button">ORDER →</button></div>
+      </article>
+    </div>
+  </section>
+
+  <script src="../../kinetic-product-source.js"></script>
+  <script src="../../kinetic-product-selector.js"></script>
+  <script src="../../kinetic-product-selector-polish.js"></script>
+  <script src="../../kinetic-product-detail-adapter.js"></script>
+</body>
+</html>

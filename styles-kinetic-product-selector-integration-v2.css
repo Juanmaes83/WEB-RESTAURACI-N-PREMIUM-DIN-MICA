@@ -1,0 +1,59 @@
+/* Project 12 · Integration V2 overlay.
+   Scoped to the standalone experience so shared Restaurant mobile/core styles stay untouched. */
+:root{--kps-rail-safe:clamp(138px,16vh,176px)}
+
+/* Decorative art must never read as product selection. */
+.kps-bg,.kps-fx{bottom:var(--kps-rail-safe)}
+.kps-rail-wrap{background:color-mix(in srgb,var(--kps-paper) 96%,white);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 -12px 44px color-mix(in srgb,var(--kps-ink) 8%,transparent);border:1px solid color-mix(in srgb,var(--kps-ink) 8%,transparent)}
+.kps-thumb{border-radius:18px;background:transparent!important}
+.kps-thumb:not(.is-active){box-shadow:none!important}
+.kps-thumb.is-active{background:transparent!important}
+.kps-thumb.is-active:after{height:4px;left:18%;right:18%}
+
+/* Hero uses a real clickable affordance without breaking stage swipe. */
+.kps-product-wrap{pointer-events:none}
+.kps-product{pointer-events:auto;cursor:zoom-in;image-rendering:auto;outline:none}
+.kps-product:focus-visible{filter:drop-shadow(0 29px 23px rgba(10,7,5,.20)) drop-shadow(0 7px 4px rgba(10,7,5,.11)) drop-shadow(0 0 0 color-mix(in srgb,var(--kps-primary) 70%,transparent));outline:3px solid var(--kps-primary);outline-offset:8px;border-radius:18px}
+.kps-cta{bottom:calc(var(--kps-rail-safe) + 14px)}
+
+/* Canonical-shaped fallback detail. In the full platform a host can intercept
+   kinetic:detail-request and use the shared Product Detail instead. */
+.kps-detail-backdrop{position:fixed;inset:0;z-index:79;background:rgba(18,12,8,.36);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .28s ease}
+.kps-detail-backdrop.is-open{opacity:1;pointer-events:auto}
+.kps-product-detail{position:fixed;inset:clamp(18px,3vw,44px);z-index:80;border-radius:32px;background:color-mix(in srgb,var(--kps-paper) 96%,white);color:var(--kps-ink);box-shadow:0 30px 100px rgba(15,10,6,.28);opacity:0;transform:translateY(28px) scale(.985);pointer-events:none;overflow:auto;overscroll-behavior:contain;transition:opacity .3s ease,transform .38s var(--kps-ease)}
+.kps-product-detail.is-open{opacity:1;transform:none;pointer-events:auto}
+.kps-detail-close{position:sticky;top:18px;margin:18px 18px -64px auto;z-index:4;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;border:1px solid color-mix(in srgb,var(--kps-ink) 16%,transparent);background:var(--kps-ink);color:var(--kps-paper);font-size:28px;cursor:pointer}
+.kps-detail-grid{min-height:100%;display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}
+.kps-detail-visual{min-height:70vh;display:grid;place-items:center;padding:clamp(40px,6vw,90px);background:linear-gradient(145deg,color-mix(in srgb,var(--kps-primary) 17%,var(--kps-paper)),var(--kps-paper));overflow:hidden}
+.kps-detail-visual img{display:block;max-width:min(92%,720px);max-height:72vh;object-fit:contain;filter:drop-shadow(0 28px 25px rgba(10,7,5,.18))}
+.kps-detail-copy{align-self:center;padding:clamp(48px,6vw,96px);min-width:0}
+.kps-detail-meta{margin:0 0 16px;font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--kps-primary)}
+.kps-detail-title{margin:0;font-family:"Anton","Arial Black",Impact,sans-serif;font-size:clamp(56px,6vw,112px);line-height:.88;letter-spacing:-.045em;text-transform:uppercase;color:var(--kps-primary)}
+.kps-detail-price{min-height:1em;margin-top:14px;font-size:18px;font-weight:900}
+.kps-detail-description{max-width:620px;margin:24px 0 30px;font-size:clamp(16px,1.2vw,20px);line-height:1.55}
+.kps-detail-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 28px;padding-top:24px;border-top:1px solid color-mix(in srgb,var(--kps-ink) 14%,transparent)}
+.kps-detail-columns h3{margin:0 0 6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--kps-ink) 58%,transparent)}
+.kps-detail-columns p{margin:0;font-size:14px;line-height:1.45}
+.kps-detail-note{margin-top:28px;padding:18px 20px;border-radius:18px;background:color-mix(in srgb,var(--kps-secondary) 26%,transparent)}
+.kps-detail-note span{display:block;margin-bottom:6px;font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.kps-detail-note p{margin:0;font-size:14px;line-height:1.45}
+.kps-detail-bottom{display:flex;gap:18px;align-items:center;justify-content:space-between;margin-top:28px;padding-top:20px;border-top:1px solid color-mix(in srgb,var(--kps-ink) 14%,transparent)}
+.kps-detail-allergens{font-size:11px;font-weight:800;letter-spacing:.04em}.kps-detail-order{min-height:48px;border:0;border-radius:999px;padding:0 20px;background:var(--kps-ink);color:var(--kps-paper);font-weight:900;cursor:pointer}
+body.kps-detail-open{overflow:hidden}
+
+@media(max-width:900px){
+  :root{--kps-rail-safe:clamp(126px,15vh,154px)}
+  .kps-detail-grid{grid-template-columns:1fr}.kps-detail-visual{min-height:44svh;padding:68px 22px 24px}.kps-detail-visual img{max-height:38svh;max-width:86vw}.kps-detail-copy{padding:28px 26px calc(34px + env(safe-area-inset-bottom))}.kps-detail-title{font-size:clamp(48px,13vw,78px)}
+}
+@media(max-width:620px){
+  :root{--kps-rail-safe:118px}
+  .kps-bg,.kps-fx{bottom:var(--kps-rail-safe)}
+  .kps-rail-wrap{left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));border-radius:24px;padding:.45rem .35rem .18rem}
+  .kps-thumb{min-height:64px}.kps-thumb-img{bottom:1.65rem}.kps-thumb:after{bottom:.55rem}
+  .kps-arrow{min-width:48px;min-height:48px;width:48px;height:48px}
+  .kps-cta{bottom:calc(var(--kps-rail-safe) + 10px);right:max(14px,env(safe-area-inset-right))}
+  .kps-product-detail{inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;box-sizing:border-box;border-radius:0;padding-top:env(safe-area-inset-top);transform:translateY(20px)}
+  .kps-product-detail.is-open{transform:translateY(0)}
+  .kps-detail-close{top:max(12px,env(safe-area-inset-top));margin:12px 12px -60px auto;width:48px;height:48px;min-width:48px;min-height:48px;box-sizing:border-box}
+  .kps-detail-visual{min-height:40svh;padding-top:72px}.kps-detail-copy{padding:24px 20px calc(30px + env(safe-area-inset-bottom))}.kps-detail-columns{grid-template-columns:1fr 1fr;gap:18px}.kps-detail-bottom{align-items:flex-start;flex-direction:column}.kps-detail-order{width:100%}
+}
+@media(max-width:360px){.kps-detail-columns{grid-template-columns:1fr}.kps-detail-title{font-size:46px}}
