@@ -54,6 +54,7 @@
     const group=document.createElement('div');group.id='class6-language';group.className='class6-language';group.setAttribute('role','group');group.setAttribute('aria-label','Language / Idioma');
     group.innerHTML='<button type="button" data-lang="es">ES</button><span aria-hidden="true">/</span><button type="button" data-lang="en">EN</button>';
     actions.insertBefore(group,actions.firstChild);
+    group.addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(b)setLocale(b.dataset.lang,true)});
   }
 
   function ensureStoryUI(){
