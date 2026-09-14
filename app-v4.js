@@ -14,19 +14,19 @@
 
   let config=clone(window.RestaurantDefaults), objectUrls={}, history=[], future=[], editIndex=0;
   let active=0,orbitProgress=0,orbitTween=null,dragging=false,dragStartX=0,lastPointerX=0,dragStartProgress=0,velocity=0,detailSource=null;
-  let saveTimer=null, savingPromise=Promise.resolve();
+  let saveTimer=null, savingPromise=Promise.resolve(), saveRevision=0, persistedRevision=0;
   const enabledDishes=()=>config.dishes.filter(d=>d.enabled!==false);
 
   function setStatus(kind,text){const el=$('#studio-status');if(el){el.dataset.state=kind;el.textContent=text;}}
-  async function saveNow(){
-    clearTimeout(saveTimer);setStatus('saving','Guardando…');
-    const payload={id:'restaurant-class4',schemaVersion:4,status:'draft',config:clone(config)};
+  async function saveNow(targetRevision=saveRevision){
+    clearTimeout(saveTimer);saveTimer=null;setStatus('saving','Guardando…');
+    const revision=targetRevision,payload={id:'restaurant-class4',schemaVersion:4,status:'draft',config:clone(config)};
     savingPromise=savingPromise.catch(()=>{}).then(()=>RestaurantStore.saveProject(payload));
-    try{await savingPromise;setStatus('saved','Guardado ✓');return true}catch(err){console.error(err);setStatus('error','Error al guardar');return false}
+    try{await savingPromise;persistedRevision=Math.max(persistedRevision,revision);if(persistedRevision>=saveRevision&&!saveTimer)setStatus('saved','Guardado ✓');else setStatus('saving','Guardando…');return true}catch(err){console.error(err);setStatus('error','Error al guardar');return false}
   }
-  function scheduleSave(delay=450){clearTimeout(saveTimer);setStatus('saving','Guardando…');saveTimer=setTimeout(saveNow,delay)}
+  function scheduleSave(delay=450){clearTimeout(saveTimer);const revision=++saveRevision;setStatus('saving','Guardando…');saveTimer=setTimeout(()=>saveNow(revision),delay)}
   function snapshot(){history.push(JSON.stringify(config));if(history.length>50)history.shift();future=[];}
-  function mutate(fn,{immediate=false}={}){snapshot();fn();applyAll();immediate?saveNow():scheduleSave()}
+  function mutate(fn,{immediate=false}={}){snapshot();fn();applyAll();if(immediate){const revision=++saveRevision;saveNow(revision)}else scheduleSave()}
 
   async function boot(){
     setStatus('saving','Cargando proyecto…');
@@ -197,6 +197,8 @@
   window.RestaurantStudioConfig={
     get:path=>pathGet(config,path),
     set(path,value){mutate(()=>pathSet(config,path,value))},
+    patch(entries,{immediate=false}={}){mutate(()=>{for(const [path,value] of Object.entries(entries||{}))pathSet(config,path,value)},{immediate})},
+    flush:()=>saveNow(saveRevision),
     snapshot:()=>clone(config)
   };
 
@@ -214,8 +216,8 @@
   function syncStudioInputs(){$$('[data-path]').forEach(input=>{const v=pathGet(config,input.dataset.path);if(v!==undefined&&document.activeElement!==input){if(input.type==='checkbox')input.checked=!!v;else input.value=v??''}});if($('#studio-project-name'))$('#studio-project-name').textContent=config.brand.name}
 
   function renderMediaCards(){$$('.media-card').forEach(card=>{const slot=card.dataset.slot,preview=$('.media-preview',card),src=resolveMedia(slot),type=config.media?.[slot]?.type||'image';if(!preview)return;preview.innerHTML='';if(src){const el=document.createElement(type==='video'?'video':'img');el.src=src;if(type==='video'){el.muted=true;el.autoplay=true;el.loop=true;el.playsInline=true}else safeImage(el,slot.toUpperCase());preview.appendChild(el)}const state=$('.media-state',card);if(state)state.textContent=objectUrls[slot]?'Guardado local ✓':'Placeholder';if(!card.querySelector('[data-remove-media]')){const b=document.createElement('button');b.type='button';b.dataset.removeMedia=slot;b.className='media-remove';b.textContent='Restaurar placeholder';card.appendChild(b)}})}
-  async function handleMediaUpload(slot,file){if(!slot||!file)return;if(!/^image\//.test(file.type)&&!/^video\//.test(file.type)){alert('Selecciona una imagen o vídeo válido.');return}setStatus('saving','Guardando media…');try{snapshot();await RestaurantStore.saveMedia(slot,file,{fit:config.media?.[slot]?.fit,position:config.media?.[slot]?.position});replaceObjectUrl(slot,file);config.media[slot]=config.media[slot]||{};config.media[slot].type=file.type.startsWith('video/')?'video':'image';config.media[slot].local=true;config.media[slot].name=file.name;applyAll();await saveNow();setStatus('saved','Media guardada ✓')}catch(err){console.error(err);setStatus('error','Error guardando media');alert('No se pudo guardar el archivo en IndexedDB.')}}
-  async function removeMedia(slot){try{await RestaurantStore.deleteMedia(slot);if(objectUrls[slot]){URL.revokeObjectURL(objectUrls[slot]);delete objectUrls[slot]}if(config.media?.[slot]){config.media[slot].local=false;delete config.media[slot].name}applyAll();await saveNow()}catch(err){console.error(err)}}
+  async function handleMediaUpload(slot,file){if(!slot||!file)return;if(!/^image\//.test(file.type)&&!/^video\//.test(file.type)){alert('Selecciona una imagen o vídeo válido.');return}setStatus('saving','Guardando media…');try{snapshot();await RestaurantStore.saveMedia(slot,file,{fit:config.media?.[slot]?.fit,position:config.media?.[slot]?.position});replaceObjectUrl(slot,file);config.media[slot]=config.media[slot]||{};config.media[slot].type=file.type.startsWith('video/')?'video':'image';config.media[slot].local=true;config.media[slot].name=file.name;applyAll();await saveNow(++saveRevision);setStatus('saved','Media guardada ✓')}catch(err){console.error(err);setStatus('error','Error guardando media');alert('No se pudo guardar el archivo en IndexedDB.')}}
+  async function removeMedia(slot){try{await RestaurantStore.deleteMedia(slot);if(objectUrls[slot]){URL.revokeObjectURL(objectUrls[slot]);delete objectUrls[slot]}if(config.media?.[slot]){config.media[slot].local=false;delete config.media[slot].name}applyAll();await saveNow(++saveRevision)}catch(err){console.error(err)}}
 
   function renderDishList(){const list=$('#studio-dish-list');if(!list)return;list.innerHTML='';config.dishes.forEach((d,i)=>{const b=document.createElement('button');b.type='button';b.className='studio-dish-item'+(i===editIndex?' active':'');b.innerHTML=`<img src="${resolveDishMedia(d)}" alt=""><span><strong>${String(i+1).padStart(2,'0')} · ${escapeHtml(d.name)}</strong><small>${escapeHtml(d.price)} · ${d.enabled===false?'oculto':'visible'}${d.localMedia?' · media guardada':''}</small></span>`;safeImage($('img',b),d.name);b.onclick=()=>{editIndex=i;renderDishList()};list.appendChild(b)});loadDishEditor()}
   function loadDishEditor(){const d=config.dishes[editIndex];if(!d)return;const fields={name:'dish-name',meta:'dish-meta-edit',short:'dish-short-edit',price:'dish-price',ingredients:'dish-ingredients',origin:'dish-origin-edit',technique:'dish-technique',pairing:'dish-pairing',note:'dish-note',allergens:'dish-allergens'};Object.entries(fields).forEach(([k,id])=>{if($('#'+id))$('#'+id).value=d[k]||''});if($('#dish-enabled'))$('#dish-enabled').checked=d.enabled!==false;const p=$('#dish-media-preview');if(p){p.innerHTML=`<img src="${resolveDishMedia(d)}" alt="">`;safeImage($('img',p),d.name)}}
@@ -225,13 +227,13 @@
   function duplicateDish(){const d=config.dishes[editIndex];if(!d)return;mutate(()=>{const copy=clone(d);copy.id=`dish-${Date.now()}`;copy.name=`${copy.name} — copy`;copy.localMedia=false;config.dishes.splice(editIndex+1,0,copy);editIndex++})}
   async function deleteDish(){if(config.dishes.length<=3){alert('Mantén al menos 3 platos para conservar la experiencia orbital.');return}const d=config.dishes[editIndex];if(!confirm(`Eliminar ${d.name}?`))return;await RestaurantStore.deleteMedia(d.id).catch(()=>{});if(objectUrls[d.id]){URL.revokeObjectURL(objectUrls[d.id]);delete objectUrls[d.id]}mutate(()=>{config.dishes.splice(editIndex,1);editIndex=Math.max(0,Math.min(editIndex,config.dishes.length-1))},{immediate:true})}
   function moveDish(dir){const next=editIndex+dir;if(next<0||next>=config.dishes.length)return;mutate(()=>{[config.dishes[editIndex],config.dishes[next]]=[config.dishes[next],config.dishes[editIndex]];editIndex=next})}
-  async function handleDishMedia(file){if(!file)return;if(!/^image\//.test(file.type)){alert('El menú orbital utiliza imagen 1:1.');return}const d=config.dishes[editIndex];setStatus('saving','Guardando plato…');try{snapshot();await RestaurantStore.saveMedia(d.id,file);replaceObjectUrl(d.id,file);d.localMedia=true;d.mediaName=file.name;applyAll();await saveNow();setStatus('saved','Imagen de plato guardada ✓')}catch(err){console.error(err);setStatus('error','Error guardando plato')}}
+  async function handleDishMedia(file){if(!file)return;if(!/^image\//.test(file.type)){alert('El menú orbital utiliza imagen 1:1.');return}const d=config.dishes[editIndex];setStatus('saving','Guardando plato…');try{snapshot();await RestaurantStore.saveMedia(d.id,file);replaceObjectUrl(d.id,file);d.localMedia=true;d.mediaName=file.name;applyAll();await saveNow(++saveRevision);setStatus('saved','Imagen de plato guardada ✓')}catch(err){console.error(err);setStatus('error','Error guardando plato')}}
 
   function undo(){if(!history.length)return;future.push(JSON.stringify(config));config=JSON.parse(history.pop());applyAll();scheduleSave(0)}
   function redo(){if(!future.length)return;history.push(JSON.stringify(config));config=JSON.parse(future.pop());applyAll();scheduleSave(0)}
   function exportConfig(){const blob=new Blob([RestaurantStore.exportJSON({id:'restaurant-class4',config})],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${slug(config.brand.name)}-restaurant-config.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-  async function importConfig(e){const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text()),incoming=data.project?.config||data.config||data;snapshot();config=merge(clone(RestaurantDefaults),incoming);applyAll();await saveNow();alert('Configuración importada y guardada.')}catch(err){console.error(err);alert('JSON no válido.')}e.target.value=''}
-  async function resetProject(){if(!confirm('Restaurar LÚMINA y eliminar media local?'))return;await RestaurantStore.clearMedia();await RestaurantStore.clearProject();Object.values(objectUrls).forEach(URL.revokeObjectURL);objectUrls={};config=clone(RestaurantDefaults);history=[];future=[];editIndex=0;applyAll();await saveNow()}
+  async function importConfig(e){const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text()),incoming=data.project?.config||data.config||data;snapshot();config=merge(clone(RestaurantDefaults),incoming);applyAll();await saveNow(++saveRevision);alert('Configuración importada y guardada.')}catch(err){console.error(err);alert('JSON no válido.')}e.target.value=''}
+  async function resetProject(){if(!confirm('Restaurar LÚMINA y eliminar media local?'))return;await RestaurantStore.clearMedia();await RestaurantStore.clearProject();Object.values(objectUrls).forEach(URL.revokeObjectURL);objectUrls={};config=clone(RestaurantDefaults);history=[];future=[];editIndex=0;applyAll();await saveNow(++saveRevision)}
 
   function setupReserve(){const dlg=$('#reserve-dialog');$$('.reserve-open').forEach(b=>b.onclick=()=>{if(config.visit.bookingUrl&&config.visit.bookingUrl!=='#'){window.open(config.visit.bookingUrl,'_blank','noopener');return}dlg?.showModal?.()});if($('.modal-close'))$('.modal-close').onclick=()=>dlg?.close?.();const date=dlg?$('input[type=date]',dlg):null;if(date)date.min=new Date().toISOString().split('T')[0];if($('#reserve-form'))$('#reserve-form').onsubmit=e=>{e.preventDefault();$('#reserve-form').style.display='none';$('#reserve-success').style.display='block'}}
   function setupScroll(){if(!window.gsap||!window.ScrollTrigger)return;$$('[data-reveal]').forEach(el=>gsap.to(el,{opacity:1,y:0,duration:1,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 84%'}}));$$('.reveal-lines').forEach(el=>gsap.from(el,{y:55,opacity:0,duration:1.2,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 82%'}}));ScrollTrigger.create({start:0,end:'max',onUpdate:self=>gsap.set('.page-progress',{width:`${self.progress*100}%`})})}
