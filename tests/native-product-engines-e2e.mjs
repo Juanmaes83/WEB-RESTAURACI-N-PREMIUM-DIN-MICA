@@ -3,167 +3,39 @@
 */
 import {chromium} from 'playwright';
 import {startServer} from './static-server.mjs';
-
-const target=process.argv[2];
-const local=target?null:await startServer(0);
-const BASE=(target||local.url).replace(/\/$/,'');
-const browser=await chromium.launch();
-const results=[];
-const check=(name,ok,detail='')=>{results.push({name,ok});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
+const target=process.argv[2];const local=target?null:await startServer(0);const BASE=(target||local.url).replace(/\/$/,'');
+const browser=await chromium.launch();const results=[];const check=(name,ok,detail='')=>{results.push({name,ok});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
 const MODES=['circular-product','dish-stage-product','cinematic-rail-product'];
-
-async function boot(viewport={width:1440,height:960},mobile=false){
-  const context=await browser.newContext({viewport,isMobile:mobile,hasTouch:mobile});
-  const page=await context.newPage();
-  const errors=[];const bad=[];
-  page.on('pageerror',e=>errors.push(e.message));
-  page.on('response',r=>{
-    try{
-      const u=new URL(r.url());const b=new URL(BASE);
-      if(u.origin===b.origin&&r.status()>=400)bad.push(`${r.status()} ${u.pathname}`);
-    }catch{}
-  });
-  await page.goto(BASE,{waitUntil:'domcontentloaded',timeout:45000});
-  await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().count===15,null,{timeout:35000});
-  await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:30000});
-  return {context,page,errors,bad};
-}
-
-async function activate(page,mode){
-  await page.evaluate(value=>{
-    const s=document.getElementById('motion-orbital-style');
-    s.value=value;
-    s.dispatchEvent(new Event('input',{bubbles:true}));
-    s.dispatchEvent(new Event('change',{bubbles:true}));
-    window.RestaurantMotionStudio?.publish?.();
-  },mode);
-  await page.waitForFunction(value=>
-    document.documentElement.dataset.orbitalMotion===value
-    &&window.RestaurantNativeProductEngines?.state?.().active===true
-    &&window.RestaurantNativeProductEngines?.state?.().mode===value,
-    mode,{timeout:25000});
-  await page.waitForTimeout(500);
-}
-
+async function boot(viewport={width:1440,height:960},mobile=false){const context=await browser.newContext({viewport,isMobile:mobile,hasTouch:mobile});const page=await context.newPage();const errors=[],bad=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{try{const u=new URL(r.url()),b=new URL(BASE);if(u.origin===b.origin&&r.status()>=400)bad.push(`${r.status()} ${u.pathname}`)}catch{}});await page.goto(BASE,{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().count===15,null,{timeout:35000});await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:30000});return {context,page,errors,bad}}
+async function activate(page,mode){await page.evaluate(value=>{const s=document.getElementById('motion-orbital-style');s.value=value;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));window.RestaurantMotionStudio?.publish?.()},mode);await page.waitForFunction(value=>document.documentElement.dataset.orbitalMotion===value&&window.RestaurantNativeProductEngines?.state?.().active===true&&window.RestaurantNativeProductEngines?.state?.().mode===value,mode,{timeout:25000});await page.waitForTimeout(500)}
 {
-  const {context,page,errors,bad}=await boot();
-  const catalogue=await page.evaluate(()=>({
-    state:window.RestaurantMotionLibrary.state(),
-    engines:window.RestaurantMotionLibrary.engines(),
-    options:[...document.querySelectorAll('#motion-orbital-style option')].map(o=>o.value),
-    lazyBefore:!!document.querySelector('script[data-native-product-engines-runtime]')
-  }));
-  check('Motion Library has 15 elements',catalogue.state.count===15,`${catalogue.state.count}`);
-  check('catalogue is 11 Product Engines + 1 Page Motion + 3 Experiences',
-    catalogue.engines.filter(e=>e.kind==='preset').length===11
-    &&catalogue.engines.filter(e=>e.kind==='page').length===1
-    &&catalogue.engines.filter(e=>e.kind==='experience').length===3,
-    `${catalogue.engines.filter(e=>e.kind==='preset').length} + ${catalogue.engines.filter(e=>e.kind==='page').length} + ${catalogue.engines.filter(e=>e.kind==='experience').length}`);
-  check('three native modes are real selector options',MODES.every(m=>catalogue.options.includes(m)),catalogue.options.filter(v=>MODES.includes(v)).join(', '));
-  check('native runtime is lazy before first native selection',catalogue.lazyBefore===false,String(catalogue.lazyBefore));
-  check('three original Experiences remain separate',
-    ['circular-dish-rotator','dish-stage','cinematic-product-rail'].every(id=>
-      catalogue.engines.some(e=>e.id===id&&e.kind==='experience')),
-    'experience rows preserved');
-
-  for(const mode of MODES){
-    await activate(page,mode);
-    const state=await page.evaluate(value=>{
-      const s=window.RestaurantNativeProductEngines.state();
-      const h=document.querySelector('.npe-stage');
-      const activeCard=document.querySelector('.npe-stage [data-active="1"]');
-      const image=h?.querySelector('img[src]');
-      const shell=document.querySelector('.orbit-shell').getBoundingClientRect();
-      return {
-        state:s,
-        root:document.documentElement.dataset.orbitalMotion,
-        native:document.documentElement.dataset.nativeProductEngine,
-        section:document.querySelector('.orbital-section').dataset.nativeEngine,
-        hidden:h?.hidden,
-        inert:h?.inert,
-        activeCard:!!activeCard,
-        imageSrc:image?.getAttribute('src')||'',
-        overflow:document.documentElement.scrollWidth-innerWidth,
-        shell:{left:shell.left,right:shell.right,width:shell.width}
-      };
-    },mode);
-    check(`${mode} · mounts as native Product Engine`,state.root===mode&&state.native===mode&&state.section===mode&&!state.hidden&&!state.inert,JSON.stringify(state.state));
-    check(`${mode} · uses live project dishes`,state.state.count>=3&&state.state.activeIndex>=0,`${state.state.count} dishes`);
-    check(`${mode} · visible product media exists`,!!state.imageSrc,state.imageSrc||'missing src');
-    check(`${mode} · no horizontal page overflow`,state.overflow<=1,`${state.overflow}px`);
-
-    const before=state.state.activeIndex;
-    await page.click('.npe-stage [data-npe-next]');
-    await page.waitForFunction(i=>window.RestaurantNativeProductEngines.state().activeIndex!==i,before,{timeout:4000});
-    const after=await page.evaluate(()=>window.RestaurantNativeProductEngines.state().activeIndex);
-    check(`${mode} · controls change active product`,after!==before,`${before} → ${after}`);
-
-    await page.click('.npe-stage [data-npe-detail]');
-    await page.waitForTimeout(350);
-    const detail=await page.evaluate(()=>({
-      open:window.RestaurantProductDetail?.isOpen?.()===true
-        ||document.querySelector('#dish-detail')?.getAttribute('aria-hidden')==='false',
-      title:document.querySelector('#detail-title')?.textContent.trim()||document.querySelector('[data-upd="name"]')?.textContent.trim()||''
-    }));
-    check(`${mode} · shared Product Detail opens`,detail.open&&detail.title.length>0,detail.title||'no title');
-    await page.evaluate(()=>window.RestaurantProductDetail?.close?.());
-    await page.waitForTimeout(180);
+ const {context,page,errors,bad}=await boot();
+ const catalogue=await page.evaluate(()=>({state:window.RestaurantMotionLibrary.state(),engines:window.RestaurantMotionLibrary.engines(),options:[...document.querySelectorAll('#motion-orbital-style option')].map(o=>o.value),lazyBefore:!!document.querySelector('script[data-native-product-engines-runtime]')}));
+ check('Motion Library has 15 elements',catalogue.state.count===15,`${catalogue.state.count}`);
+ check('catalogue is 11 Product Engines + 1 Page Motion + 3 Experiences',catalogue.engines.filter(e=>e.kind==='preset').length===11&&catalogue.engines.filter(e=>e.kind==='page').length===1&&catalogue.engines.filter(e=>e.kind==='experience').length===3);
+ check('three native modes are real selector options',MODES.every(m=>catalogue.options.includes(m)),catalogue.options.filter(v=>MODES.includes(v)).join(', '));
+ check('native runtime is lazy before first native selection',catalogue.lazyBefore===false,String(catalogue.lazyBefore));
+ check('three original Experiences remain separate',['circular-dish-rotator','dish-stage','cinematic-product-rail'].every(id=>catalogue.engines.some(e=>e.id===id&&e.kind==='experience')));
+ for(const mode of MODES){
+  await activate(page,mode);
+  const state=await page.evaluate(value=>{const s=window.RestaurantNativeProductEngines.state(),h=document.querySelector('.npe-stage'),activeCard=document.querySelector('.npe-stage [data-active="1"]'),image=h?.querySelector('img[src]');return {state:s,root:document.documentElement.dataset.orbitalMotion,native:document.documentElement.dataset.nativeProductEngine,section:document.querySelector('.orbital-section').dataset.nativeEngine,hidden:h?.hidden,inert:h?.inert,activeCard:!!activeCard,imageSrc:image?.getAttribute('src')||'',overflow:document.documentElement.scrollWidth-innerWidth,fullPizza:document.querySelector('[data-npe-disc]')?.getAttribute('src')||'',sector:!!document.querySelector('.npe-cdr-sector-window'),selected:document.querySelector('[data-npe-selected]')?.textContent.trim()||''}},mode);
+  check(`${mode} · mounts as native Product Engine`,state.root===mode&&state.native===mode&&state.section===mode&&!state.hidden&&!state.inert,JSON.stringify(state.state));
+  check(`${mode} · has live product data`,state.state.count>=3&&state.state.activeIndex>=0,`${state.state.count} products`);
+  check(`${mode} · visible product media exists`,!!state.imageSrc,state.imageSrc||'missing src');check(`${mode} · no horizontal page overflow`,state.overflow<=1,`${state.overflow}px`);
+  if(mode==='circular-product'){
+   check('circular-product · uses exactly eight pizza sectors',state.state.count===8,`${state.state.count}`);
+   check('circular-product · uses canonical runtime full-pizza asset',/assets\/pizza-motion\/runtime\/full-pizza\/full-pizza\.png$/.test(state.fullPizza),state.fullPizza);
+   check('circular-product · has lifted selected-sector layer',state.sector===true,String(state.sector));
+   check('circular-product · selected pizza copy is visible',state.selected.length>0,state.selected);
   }
-
-  await page.evaluate(()=>{
-    const s=document.getElementById('motion-orbital-style');s.value='elegant';
-    s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));
-    window.RestaurantMotionStudio?.publish?.();
-  });
-  await page.waitForTimeout(400);
-  const off=await page.evaluate(()=>({
-    mode:document.documentElement.dataset.orbitalMotion,
-    native:document.documentElement.dataset.nativeProductEngine||'',
-    hidden:document.querySelector('.npe-stage')?.hidden,
-    inert:document.querySelector('.npe-stage')?.inert,
-    section:document.querySelector('.orbital-section')?.classList.contains('npe-active')
-  }));
-  check('switching back to Elegant gives true OFF',off.mode==='elegant'&&!off.native&&off.hidden===true&&off.inert===true&&!off.section,JSON.stringify(off));
-
-  for(const id of ['circular-dish-rotator','dish-stage','cinematic-product-rail']){
-    await page.evaluate(exp=>window.RestaurantExperienceShell.open(exp,{history:false}),id);
-    await page.waitForFunction(exp=>window.RestaurantExperienceShell?.getActive?.()?.id===exp&&document.querySelectorAll('.xs-frame').length===1,id,{timeout:12000});
-    const preserved=await page.evaluate(exp=>({id:window.RestaurantExperienceShell.getActive()?.id,frame:document.querySelector('.xs-frame')?.getAttribute('src')||''}),id);
-    check(`${id} · original Experience still opens`,preserved.id===id&&preserved.frame.includes(`experiences/${id}/index.html`),preserved.frame);
-    await page.evaluate(()=>window.RestaurantExperienceShell.close({reason:'test'}));
-    await page.waitForTimeout(120);
-  }
-
-  check('desktop · no JS errors',errors.length===0,errors.slice(0,3).join(' | ')||'clean');
-  check('desktop · no same-origin failed resources',bad.length===0,bad.slice(0,5).join(' | ')||'clean');
-  await context.close();
+  const before=state.state.activeIndex;await page.click('.npe-stage [data-npe-next]');await page.waitForFunction(i=>window.RestaurantNativeProductEngines.state().activeIndex!==i,before,{timeout:4000});const after=await page.evaluate(()=>window.RestaurantNativeProductEngines.state().activeIndex);check(`${mode} · controls change active product`,after!==before,`${before} → ${after}`);
+  await page.click('.npe-stage [data-npe-detail]');await page.waitForTimeout(350);const detail=await page.evaluate(()=>({open:window.RestaurantProductDetail?.isOpen?.()===true||document.querySelector('#dish-detail')?.getAttribute('aria-hidden')==='false'||document.querySelector('.npe-pizza-dialog')?.classList.contains('is-open')===true,title:document.querySelector('.npe-pizza-dialog.is-open [data-npe-dialog-title]')?.textContent.trim()||document.querySelector('#detail-title')?.textContent.trim()||document.querySelector('[data-upd="name"]')?.textContent.trim()||''}));check(`${mode} · product detail opens`,detail.open&&detail.title.length>0,detail.title||'no title');
+  if(mode==='circular-product')await page.click('[data-npe-dialog-close]');else await page.evaluate(()=>window.RestaurantProductDetail?.close?.());await page.waitForTimeout(180);
+ }
+ await page.evaluate(()=>{const s=document.getElementById('motion-orbital-style');s.value='elegant';s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));window.RestaurantMotionStudio?.publish?.()});await page.waitForTimeout(400);
+ const off=await page.evaluate(()=>({mode:document.documentElement.dataset.orbitalMotion,native:document.documentElement.dataset.nativeProductEngine||'',hidden:document.querySelector('.npe-stage')?.hidden,inert:document.querySelector('.npe-stage')?.inert,section:document.querySelector('.orbital-section')?.classList.contains('npe-active')}));check('switching back to Elegant gives true OFF',off.mode==='elegant'&&!off.native&&off.hidden===true&&off.inert===true&&!off.section,JSON.stringify(off));
+ for(const id of ['circular-dish-rotator','dish-stage','cinematic-product-rail']){await page.evaluate(exp=>window.RestaurantExperienceShell.open(exp,{history:false}),id);await page.waitForFunction(exp=>window.RestaurantExperienceShell?.getActive?.()?.id===exp&&document.querySelectorAll('.xs-frame').length===1,id,{timeout:12000});const preserved=await page.evaluate(exp=>({id:window.RestaurantExperienceShell.getActive()?.id,frame:document.querySelector('.xs-frame')?.getAttribute('src')||''}),id);check(`${id} · original Experience still opens`,preserved.id===id&&preserved.frame.includes(`experiences/${id}/index.html`),preserved.frame);await page.evaluate(()=>window.RestaurantExperienceShell.close({reason:'test'}));await page.waitForTimeout(120)}
+ check('desktop · no JS errors',errors.length===0,errors.slice(0,3).join(' | ')||'clean');check('desktop · no same-origin failed resources',bad.length===0,bad.slice(0,5).join(' | ')||'clean');await context.close();
 }
-
-for(const spec of [
-  {name:'mobile 390×844',viewport:{width:390,height:844},mobile:true},
-  {name:'landscape 844×390',viewport:{width:844,height:390},mobile:false}
-]){
-  const {context,page,errors,bad}=await boot(spec.viewport,spec.mobile);
-  for(const mode of MODES){
-    await activate(page,mode);
-    await page.evaluate(()=>document.querySelector('#signature')?.scrollIntoView({block:'start'}));
-    await page.waitForTimeout(180);
-    const m=await page.evaluate(()=>{
-      const host=document.querySelector('.npe-stage')?.getBoundingClientRect();
-      const detail=document.querySelector('.npe-detail')?.getBoundingClientRect();
-      const controls=document.querySelector('.npe-controls')?.getBoundingClientRect();
-      return {scrollWidth:document.documentElement.scrollWidth,innerWidth,host,detail,controls};
-    });
-    check(`${spec.name} · ${mode} no horizontal overflow`,m.scrollWidth<=m.innerWidth+1,`${m.scrollWidth}/${m.innerWidth}`);
-    check(`${spec.name} · ${mode} controls reachable`,!!m.detail&&!!m.controls&&m.detail.width>=48&&m.controls.width>100,`detail ${Math.round(m.detail?.width||0)}px`);
-  }
-  check(`${spec.name} · no JS errors`,errors.length===0,errors.slice(0,2).join(' | ')||'clean');
-  check(`${spec.name} · no same-origin failed resources`,bad.length===0,bad.slice(0,3).join(' | ')||'clean');
-  await context.close();
-}
-
-await browser.close();
-if(local)await new Promise(resolve=>local.server.close(resolve));
-const failed=results.filter(r=>!r.ok);
-console.log(`\n${results.length-failed.length}/${results.length} ${failed.length?'NATIVE_PRODUCT_ENGINES_FAIL':'NATIVE_PRODUCT_ENGINES_PASS'}`);
-if(failed.length){console.error(failed.map(f=>f.name).join(' | '));process.exit(1)}
+for(const spec of [{name:'mobile 390×844',viewport:{width:390,height:844},mobile:true},{name:'landscape 844×390',viewport:{width:844,height:390},mobile:false}]){const {context,page,errors,bad}=await boot(spec.viewport,spec.mobile);for(const mode of MODES){await activate(page,mode);await page.evaluate(()=>document.querySelector('#signature')?.scrollIntoView({block:'start'}));await page.waitForTimeout(180);const m=await page.evaluate(()=>{const host=document.querySelector('.npe-stage')?.getBoundingClientRect(),detail=document.querySelector('.npe-detail')?.getBoundingClientRect(),controls=document.querySelector('.npe-controls')?.getBoundingClientRect();return {scrollWidth:document.documentElement.scrollWidth,innerWidth,host,detail,controls}});check(`${spec.name} · ${mode} no horizontal overflow`,m.scrollWidth<=m.innerWidth+1,`${m.scrollWidth}/${m.innerWidth}`);check(`${spec.name} · ${mode} controls reachable`,!!m.detail&&!!m.controls&&m.detail.width>=48&&m.controls.width>100,`detail ${Math.round(m.detail?.width||0)}px`)}check(`${spec.name} · no JS errors`,errors.length===0,errors.slice(0,2).join(' | ')||'clean');check(`${spec.name} · no same-origin failed resources`,bad.length===0,bad.slice(0,3).join(' | ')||'clean');await context.close()}
+await browser.close();if(local)await new Promise(resolve=>local.server.close(resolve));const failed=results.filter(r=>!r.ok);console.log(`\n${results.length-failed.length}/${results.length} ${failed.length?'NATIVE_PRODUCT_ENGINES_FAIL':'NATIVE_PRODUCT_ENGINES_PASS'}`);if(failed.length){console.error(failed.map(f=>f.name).join(' | '));process.exit(1)}
