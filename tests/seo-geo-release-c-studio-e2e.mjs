@@ -33,8 +33,15 @@ try {
       await base.press('Tab');
       await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.site.baseUrl')==='https://restaurant.example/');
 
-      await box.locator('[data-intelligence-endpoint]').fill('https://mock-openseo.test');
-      await box.locator('[data-intelligence-endpoint]').press('Tab');
+      let endpoint=box.locator('[data-intelligence-endpoint]');
+      await endpoint.fill('https://user:secret@mock-openseo.test');
+      await endpoint.press('Tab');
+      await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.integrations.openseo.endpoint')==='');
+      endpoint=box.locator('[data-intelligence-endpoint]');
+      assert.equal(await endpoint.inputValue(),'');
+
+      await endpoint.fill('https://mock-openseo.test');
+      await endpoint.press('Tab');
       await box.getByRole('button',{name:'Test OpenSEO connection'}).click();
       await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.integrations.openseo.status')==='CONNECTED');
       await box.getByRole('button',{name:'Run OpenSEO crawl'}).click();
