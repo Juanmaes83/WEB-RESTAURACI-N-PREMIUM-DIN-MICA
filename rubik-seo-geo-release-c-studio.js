@@ -9,6 +9,7 @@
   const clients=()=>window.RubikSEOGeoProviderClients||{};
   const snapshot=()=>api()?.snapshot?.()||{};
   const patch=entries=>api()?.patch?api().patch(entries):Object.entries(entries||{}).forEach(([path,value])=>api()?.set?.(path,value));
+  const safeProviderEndpoint=value=>intelligence()?.providerEndpoint?.(value)||'';
   const input=(label,value,{type='text',textarea=false,onChange,data}={})=>{
     const wrap=el('label','seo-field',label),field=el(textarea?'textarea':'input');
     if(!textarea)field.type=type;
@@ -89,6 +90,7 @@
       const e=a.get('seo.integrations.dataForSEO')||{},client=clients().dataForSEO;
       if(!e.enabled){a.set('seo.integrations.dataForSEO',{...e,status:'NOT_MEASURED',error:'Activa las consultas manuales antes del refresh.'});return;}
       if(!client){a.set('seo.integrations.dataForSEO',{...e,status:'NOT_MEASURED',error:'Backend DataForSEO no conectado.'});return;}
+      if(!window.confirm('DataForSEO puede generar coste. ¿Confirmas este refresh manual?'))return;
       const adapter=new i.DataForSEOAdapter({enabled:true,client});a.set('seo.integrations.dataForSEO',{...e,status:'SYNCING',error:'',costWarning:true,lastSyncAt:new Date().toISOString()});
       const result=await adapter.manualRefresh('keyword',{query:e.lastQuery||''}),fresh=snapshot(),latest=fresh.seo?.integrations?.dataForSEO||e,state=fresh.seo?.intelligence||{};
       if(result.status==='ERROR'){a.set('seo.integrations.dataForSEO',{...latest,status:'ERROR',error:result.error||'DataForSEO refresh failed',lastFetchedAt:result.lastFetchedAt||''});return;}
@@ -130,6 +132,13 @@
     body.append(insightBox);
   }
 
+  document.addEventListener('change',event=>{
+    const field=event.target;
+    if(!field?.matches?.('[data-intelligence-endpoint]'))return;
+    const raw=String(field.value||'').trim(),clean=safeProviderEndpoint(raw);
+    if(raw&&!clean){field.value='';field.setCustomValidity('Usa un endpoint HTTPS sin usuario, contraseña, query ni fragment.');field.reportValidity();}
+    else{field.value=clean;field.setCustomValidity('');}
+  },true);
   const nav=$('.studio-nav [data-panel="seo-geo"]');
   nav?.addEventListener('click',()=>queueMicrotask(ensure));
   document.addEventListener('restaurant:config-applied',()=>queueMicrotask(ensure));
