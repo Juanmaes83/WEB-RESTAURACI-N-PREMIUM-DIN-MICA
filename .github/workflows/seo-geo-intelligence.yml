@@ -14,10 +14,11 @@ jobs:
         with:
           name: pr46-source-${{ github.sha }}
           path: |
-            .
-            !.git
-            !node_modules
-          include-hidden-files: true
+            *.html
+            *.js
+            *.css
+            tests/**
+            .github/workflows/seo-geo-intelligence.yml
           retention-days: 1
       - run: |
           node --test tests/seo-geo-core.test.cjs tests/seo-geo-publisher.test.cjs tests/seo-geo-source-convergence.test.cjs tests/seo-geo-spain-first-contract.test.cjs tests/seo-geo-encoding-gate.test.cjs tests/seo-geo-media-b1.test.cjs tests/seo-geo-release-b.test.cjs tests/seo-geo-release-c.test.cjs
