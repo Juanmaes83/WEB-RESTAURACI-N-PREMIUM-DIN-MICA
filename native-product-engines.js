@@ -1,559 +1,267 @@
 /* MOTION 15 — THREE NATIVE PRODUCT ENGINES
 
-   Additive product-engine siblings of the three approved full-page Experiences.
-   The Experiences remain untouched and continue to live in Class 22.
+   Native siblings of the approved full-page Experiences. The three Experiences stay
+   untouched in Class 22. This runtime only owns the product-area presentation and
+   reads the existing Project State.
 
-   Modes:
-     circular-product       → radial selector inspired by Circular Dish Rotator
-     dish-stage-product     → cinematic hero stage inspired by Dish Stage
-     cinematic-rail-product → perspective rail inspired by Cinematic Product Rail
-
-   CONTRACT
-     · one Studio / one Project State / one Media Library;
-     · dishes[] is the canonical collection;
-     · no iframe, no second store, no persistence;
-     · only the Signature section is replaced while a native mode is active;
-     · vertical touch stays page scroll; horizontal intent owns the product gesture;
-     · true OFF: inactive host is hidden, inert and has no running animation loop.
+   circular-product is the real full-pizza Circular Dish Rotator grammar: one baked
+   eight-sector pizza, fixed selector, lifted active wedge and the existing
+   pizzaSliceOrbit product domain. It is not a generic radial menu.
 */
 (() => {
   'use strict';
 
-  const MODES = Object.freeze([
-    'circular-product',
-    'dish-stage-product',
-    'cinematic-rail-product'
-  ]);
-  const MODE_SET = new Set(MODES);
-  const root = document.documentElement;
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const $ = (s, r = document) => r.querySelector(s);
-  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-  const mod = (v, n) => n ? ((v % n) + n) % n : 0;
-  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  })[c]);
+  const MODES=new Set(['circular-product','dish-stage-product','cinematic-rail-product']);
+  const CIRCULAR_ORDER=['Diavola','Prosciutto Funghi','4 Quesos','Mortadela y Pistacho','Carbonara','Barbacoa','Verduras','Margarita'];
+  const FULL_PIZZA='assets/pizza-motion/runtime/full-pizza/full-pizza.png';
+  const $=(s,r=document)=>r.querySelector(s);
+  const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  const root=document.documentElement;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const mod=(v,n)=>((v%n)+n)%n;
+  const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'');
 
-  let section = null;
-  let shell = null;
-  let host = null;
-  let items = [];
-  let mode = '';
-  let progress = 0;
-  let activeIndex = 0;
-  let lastSignature = '';
-  let mounted = false;
-  let transitionTimer = 0;
-  let refreshTimer = 0;
+  let host=null;
+  let mode='';
+  let index=0;
+  let progress=0;
+  let drag=null;
+  let anim=null;
+  let detail=null;
 
-  const drag = {
-    pointerId: null,
-    intent: 'idle',
-    startX: 0,
-    startY: 0,
-    startProgress: 0,
-    lastX: 0,
-    lastT: 0,
-    velocity: 0,
-    moved: false
+  const config=(path)=>window.RestaurantStudioConfig?.get?.(path);
+  const dishes=()=>{
+    const list=config('dishes')||window.RestaurantDefaults?.dishes||[];
+    return list.filter(d=>d&&d.enabled!==false);
   };
+  const pizzaProducts=()=>{
+    const list=config('pizzaSliceOrbit.products')||window.RestaurantDefaults?.pizzaSliceOrbit?.products||[];
+    const byName=new Map(list.map(p=>[norm(p?.name),p]));
+    return CIRCULAR_ORDER.map((name,i)=>{
+      const p=byName.get(norm(name))||{};
+      return {
+        id:p.id||`pizza-${i+1}`,
+        name:p.name||name,
+        meta:[p.mood,p.descriptor].filter(Boolean).join(' · '),
+        short:p.headlineTail||p.headlineLead||p.descriptor||'',
+        price:p.price??null,
+        ingredients:p.ingredients||'',
+        accent:p.accent||'#ff5a36',
+        demoContent:p.demoContent===true
+      };
+    });
+  };
+  const items=()=>mode==='circular-product'?pizzaProducts():dishes();
+  const item=()=>items()[mod(index,Math.max(1,items().length))]||null;
+  const accentOf=d=>d?.accent||d?.depthCarousel?.accent||window.RestaurantDefaults?.brand?.accent||'#d8ff4f';
+  const worldOf=d=>d?.background?.a||d?.depthCarousel?.backgroundColor||'#100806';
 
-  function isNative(value = root.dataset.orbitalMotion) {
-    return MODE_SET.has(value || '');
+  function ensureStyles(){
+    if(!$('link[data-native-product-engines-styles]')){
+      const l=document.createElement('link');l.rel='stylesheet';l.href='styles-native-product-engines.css';l.dataset.nativeProductEnginesStyles='1';document.head.appendChild(l);
+    }
   }
 
-  function liveImage(dish) {
-    if (!dish) return '';
-    const id = String(dish.id || '');
-    const live = id ? $(`#orbit-stage .orbit-dish[data-id="${CSS.escape(id)}"] img`) : null;
-    return live?.currentSrc || live?.src || dish.depthCarousel?.asset || dish.image || '';
-  }
-
-  function collectItems() {
-    const list = window.RestaurantOrbit?.getDishes?.()
-      || window.RestaurantStudioConfig?.snapshot?.().dishes
-      || window.RestaurantDefaults?.dishes
-      || [];
-    return list.filter(d => d && d.enabled !== false).map((d, i) => ({
-      id: d.id || `dish-${i}`,
-      name: d.name || `Plato ${i + 1}`,
-      meta: d.meta || '',
-      short: d.short || d.description || '',
-      ingredients: d.ingredients || '',
-      price: d.price ?? '',
-      image: liveImage(d),
-      accent: d.depthCarousel?.accent
-        || window.RestaurantStudioConfig?.get?.('brand.accent')
-        || '#d8ff4f',
-      background: d.depthCarousel?.backgroundColor
-        || window.RestaurantStudioConfig?.get?.('brand.ink')
-        || '#0a0a09',
-      word: d.depthCarousel?.word || String(d.name || 'SIGNATURE').split(/\s+/)[0].toUpperCase(),
-      raw: d
-    }));
-  }
-
-  function signatureOf(list) {
-    return list.map(x => [x.id,x.name,x.meta,x.short,x.ingredients,x.price,x.image,x.accent,x.background,x.word]
-      .map(v => String(v ?? '')).join('~')).join('|');
-  }
-
-  function ensureStyles() {
-    if ($('link[data-native-product-engines-styles]')) return;
-    const l = document.createElement('link');
-    l.rel = 'stylesheet';
-    l.href = 'styles-native-product-engines.css';
-    l.dataset.nativeProductEnginesStyles = '1';
-    document.head.appendChild(l);
-  }
-
-  function ensureHost() {
-    section ||= $('.orbital-section');
-    shell ||= $('.orbit-shell');
-    if (!section || !shell) return false;
-    if (host?.isConnected) return true;
+  function ensureHost(){
+    if(host?.isConnected)return host;
+    const shell=$('.orbit-shell');
+    if(!shell)return null;
     ensureStyles();
-    host = document.createElement('div');
-    host.className = 'npe-stage';
-    host.hidden = true;
-    host.inert = true;
-    host.setAttribute('aria-hidden', 'true');
-    host.tabIndex = -1;
+    host=document.createElement('div');
+    host.className='npe-stage';host.hidden=true;host.inert=true;
+    host.setAttribute('aria-live','polite');
     shell.appendChild(host);
-    bindHost();
-    mounted = true;
-    return true;
+    return host;
   }
 
-  function baseTemplate(kind) {
-    const item = items[activeIndex] || items[0] || {};
-    const controls = `
-      <div class="npe-controls" aria-label="Navegación de productos">
-        <button type="button" data-npe-prev aria-label="Producto anterior">←</button>
-        <span data-npe-counter></span>
-        <button type="button" data-npe-next aria-label="Producto siguiente">→</button>
-      </div>`;
-    const copy = `
-      <div class="npe-copy" aria-live="polite">
-        <p class="npe-kicker" data-npe-meta></p>
-        <h3 class="npe-title" data-npe-title>${esc(item.name || '')}</h3>
-        <p class="npe-short" data-npe-short></p>
-        <div class="npe-copy-foot">
-          <span class="npe-price" data-npe-price></span>
-          <button type="button" class="npe-detail" data-npe-detail>Descubrir plato +</button>
+  function commonCopy(d,kind){
+    const count=items().length;
+    const kicker=kind==='circular-product'?'PIZZA SELECTION · FULL PIZZA ENGINE':kind==='dish-stage-product'?'SIGNATURE DISH · CINEMATIC STAGE':'MENU STORY · CINEMATIC RAIL';
+    return `<div class="npe-copy">
+      <p class="npe-kicker">${kicker}</p>
+      <h3 class="npe-title" data-npe-title></h3>
+      <p class="npe-short" data-npe-short></p>
+      <div class="npe-copy-foot"><span class="npe-price" data-npe-price></span><button class="npe-detail" data-npe-detail type="button">Ver producto ↗</button></div>
+    </div>
+    <div class="npe-controls" aria-label="Navegación de productos">
+      <button type="button" data-npe-prev aria-label="Anterior">←</button>
+      ${kind==='circular-product'?'<button type="button" class="npe-spin" data-npe-spin aria-label="Descubrir pizza">↻</button>':''}
+      <span data-npe-counter>${String(index+1).padStart(2,'0')} / ${String(count).padStart(2,'0')}</span>
+      <button type="button" data-npe-next aria-label="Siguiente">→</button>
+    </div>`;
+  }
+
+  function mountCircular(){
+    const d=item();
+    host.className='npe-stage npe-circular-product';
+    host.innerHTML=`<div class="npe-world"></div><div class="npe-grain"></div>
+      <div class="npe-cdr-word" data-npe-world-word aria-hidden="true"></div>
+      <div class="npe-cdr" tabindex="0" role="application" aria-label="Selector circular de pizza completa. Arrastra alrededor de la pizza o usa las flechas.">
+        <div class="npe-cdr-beam" aria-hidden="true"></div>
+        <div class="npe-cdr-disc-wrap">
+          <div class="npe-cdr-shadow" aria-hidden="true"></div>
+          <img class="npe-cdr-disc" data-npe-disc draggable="false" alt="Pizza completa formada por ocho variedades" src="${FULL_PIZZA}">
+          <div class="npe-cdr-sector-window" aria-hidden="true"><img class="npe-cdr-sector-disc" data-npe-sector-disc draggable="false" alt="" src="${FULL_PIZZA}"></div>
+          <div class="npe-cdr-selector" aria-hidden="true"></div>
+          <div class="npe-cdr-center" aria-hidden="true"><span></span></div>
         </div>
-      </div>`;
-
-    if (kind === 'circular-product') {
-      return `
-        <div class="npe-world" aria-hidden="true"><div class="npe-grain"></div></div>
-        <div class="npe-circular" data-npe-gesture tabindex="0" aria-label="Selector circular de platos. Arrastra horizontalmente o usa las flechas.">
-          <div class="npe-circular-halo" aria-hidden="true"></div>
-          <div class="npe-circular-ring" data-npe-ring></div>
-          <div class="npe-circular-center">
-            <div class="npe-circular-image-wrap"><img data-npe-hero alt=""></div>
-            <span class="npe-circular-index" data-npe-index></span>
-          </div>
-          <div class="npe-circular-marker" aria-hidden="true"><i></i></div>
-        </div>
-        ${copy}${controls}`;
-    }
-
-    if (kind === 'dish-stage-product') {
-      return `
-        <div class="npe-world npe-stage-world" aria-hidden="true"><div class="npe-grain"></div></div>
-        <div class="npe-stage-word" data-npe-word aria-hidden="true"></div>
-        <div class="npe-stage-track" data-npe-gesture tabindex="0" aria-label="Escenario de platos. Arrastra horizontalmente o usa las flechas."></div>
-        <div class="npe-stage-line" aria-hidden="true"></div>
-        ${copy}${controls}`;
-    }
-
-    return `
-      <div class="npe-world npe-rail-world" aria-hidden="true"><div class="npe-grain"></div></div>
-      <div class="npe-rail-word" data-npe-word aria-hidden="true"></div>
-      <div class="npe-rail-viewport" data-npe-gesture tabindex="0" aria-label="Raíl cinematográfico de platos. Arrastra horizontalmente o usa las flechas.">
-        <div class="npe-rail-track" data-npe-track></div>
+        <p class="npe-cdr-selected"><span>PORCIÓN SELECCIONADA</span><strong data-npe-selected></strong></p>
       </div>
-      ${copy}${controls}`;
+      ${commonCopy(d,'circular-product')}
+      <div class="npe-pizza-dialog" data-npe-pizza-dialog aria-hidden="true" role="dialog" aria-modal="true">
+        <button class="npe-pizza-dialog-close" data-npe-dialog-close type="button" aria-label="Cerrar">×</button>
+        <p data-npe-dialog-meta></p><h3 data-npe-dialog-title></h3><p data-npe-dialog-ingredients></p>
+      </div>`;
+    bindCommon();
+    bindCircular();
+    renderCircular(true);
   }
 
-  function buildMode(nextMode) {
-    if (!host) return;
-    host.className = `npe-stage npe-${nextMode}`;
-    host.dataset.engine = nextMode;
-    host.innerHTML = baseTemplate(nextMode);
-    if (nextMode === 'circular-product') buildCircularNodes();
-    if (nextMode === 'dish-stage-product') buildStageNodes();
-    if (nextMode === 'cinematic-rail-product') buildRailNodes();
-  }
-
-  function buildCircularNodes() {
-    const ring = $('[data-npe-ring]', host);
-    if (!ring) return;
-    ring.innerHTML = items.map((item, i) => `
-      <button type="button" class="npe-circular-label" data-npe-go="${i}" aria-label="Seleccionar ${esc(item.name)}">
-        <span>${String(i + 1).padStart(2,'0')}</span><strong>${esc(item.name)}</strong>
-      </button>`).join('');
-  }
-
-  function buildStageNodes() {
-    const track = $('.npe-stage-track', host);
-    if (!track) return;
-    track.innerHTML = items.map((item, i) => `
-      <button type="button" class="npe-stage-card" data-npe-go="${i}" aria-label="Seleccionar ${esc(item.name)}">
-        <img src="${esc(item.image)}" alt="${esc(item.name)}" draggable="false">
-      </button>`).join('');
-  }
-
-  function buildRailNodes() {
-    const track = $('[data-npe-track]', host);
-    if (!track) return;
-    track.innerHTML = items.map((item, i) => `
-      <button type="button" class="npe-rail-card" data-npe-go="${i}" aria-label="Seleccionar ${esc(item.name)}">
-        <span class="npe-rail-no">${String(i + 1).padStart(2,'0')}</span>
-        <img src="${esc(item.image)}" alt="${esc(item.name)}" draggable="false">
-        <span class="npe-rail-card-title">${esc(item.name)}</span>
-      </button>`).join('');
-  }
-
-  function distance(index) {
-    const n = items.length;
-    if (!n) return 0;
-    let d = index - mod(progress, n);
-    if (d > n / 2) d -= n;
-    if (d < -n / 2) d += n;
-    return d;
-  }
-
-  function syncCopy() {
-    const item = items[activeIndex];
-    if (!item || !host) return;
-    const set = (sel, value) => { const el = $(sel, host); if (el) el.textContent = value || ''; };
-    set('[data-npe-meta]', item.meta || 'Signature selection');
-    set('[data-npe-title]', item.name);
-    set('[data-npe-short]', item.short || item.ingredients);
-    set('[data-npe-price]', item.price);
-    set('[data-npe-counter]', `${String(activeIndex + 1).padStart(2,'0')} / ${String(items.length).padStart(2,'0')}`);
-    set('[data-npe-index]', String(activeIndex + 1).padStart(2,'0'));
-    set('[data-npe-word]', item.word);
-    host.style.setProperty('--npe-accent', item.accent || '#d8ff4f');
-    host.style.setProperty('--npe-world', item.background || '#0a0a09');
-    host.dataset.activeIndex = String(activeIndex);
-  }
-
-  function renderCircular() {
-    const n = items.length;
-    if (!n) return;
-    const hero = $('[data-npe-hero]', host);
-    const item = items[activeIndex];
-    if (hero && item) {
-      if (hero.getAttribute('src') !== item.image) hero.src = item.image || '';
-      hero.alt = item.name || '';
-    }
-    $$('.npe-circular-label', host).forEach((el, i) => {
-      const d = distance(i);
-      const angle = d * (360 / n) - 90;
-      const r = innerWidth < 760 ? 38 : 41;
-      const rad = angle * Math.PI / 180;
-      const x = Math.cos(rad) * r;
-      const y = Math.sin(rad) * r;
-      const ad = Math.abs(d);
-      const focus = clamp(1 - ad / Math.max(2.8, n / 2), 0, 1);
-      el.style.setProperty('--npe-x', `${x.toFixed(3)}%`);
-      el.style.setProperty('--npe-y', `${y.toFixed(3)}%`);
-      el.style.setProperty('--npe-scale', (0.72 + focus * 0.32).toFixed(3));
-      el.style.setProperty('--npe-opacity', (0.25 + focus * 0.75).toFixed(3));
-      el.dataset.active = ad < 0.45 ? '1' : '0';
-      el.tabIndex = ad < 0.45 ? 0 : -1;
+  function bindCircular(){
+    const surface=$('.npe-cdr',host);
+    if(!surface)return;
+    const angle=e=>{const r=surface.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;return Math.atan2(e.clientY-cy,e.clientX-cx)*180/Math.PI};
+    const delta=(a,b)=>{let d=a-b;while(d>180)d-=360;while(d<-180)d+=360;return d};
+    surface.addEventListener('pointerdown',e=>{
+      cancelAnim();
+      drag={id:e.pointerId,angle:angle(e),progress};
+      surface.setPointerCapture?.(e.pointerId);host.dataset.dragging='true';
     });
-    const ring = $('[data-npe-ring]', host);
-    if (ring) ring.style.setProperty('--npe-ring-turn', `${(-progress * 360 / n).toFixed(2)}deg`);
-  }
-
-  function renderStage() {
-    $$('.npe-stage-card', host).forEach((el, i) => {
-      const d = distance(i);
-      const ad = Math.abs(d);
-      const x = d * (innerWidth < 760 ? 54 : 42);
-      const y = ad * (innerWidth < 760 ? 9 : 12);
-      const scale = ad < 1 ? 1 - ad * .24 : .76 - Math.min(ad - 1, 2) * .14;
-      const opacity = clamp(1 - ad * .30, .08, 1);
-      const rotate = d * -5.5;
-      el.style.transform = `translate(-50%,-50%) translateX(${x}vw) translateY(${y}px) scale(${scale}) rotate(${rotate}deg)`;
-      el.style.opacity = String(opacity);
-      el.style.zIndex = String(100 - Math.round(ad * 20));
-      el.style.filter = ad < .45 ? 'brightness(1.08) saturate(1.04)' : `brightness(${clamp(1 - ad * .12,.55,.92)}) saturate(.76)`;
-      el.dataset.active = ad < .45 ? '1' : '0';
-      el.setAttribute('aria-hidden', ad > 2.6 ? 'true' : 'false');
+    surface.addEventListener('pointermove',e=>{
+      if(!drag||drag.id!==e.pointerId)return;
+      const next=angle(e),d=delta(next,drag.angle);drag.angle=next;progress-=d/45;drag.progress=progress;renderCircular(false);
     });
-  }
-
-  function renderRail() {
-    $$('.npe-rail-card', host).forEach((el, i) => {
-      const d = distance(i);
-      const ad = Math.abs(d);
-      const x = d * (innerWidth < 760 ? 72 : 61);
-      const y = Math.min(ad, 3) * (innerWidth < 760 ? 18 : 24);
-      const scale = ad <= 1 ? 1 - ad * .25 : .75 - Math.min(ad - 1, 2) * .15;
-      const opacity = clamp(1 - ad * .30, .05, 1);
-      el.style.transform = `translate(-50%,-50%) translateX(${x}%) translateY(${y}px) scale(${scale}) rotate(${d * -3.8}deg)`;
-      el.style.opacity = String(opacity);
-      el.style.zIndex = String(100 - Math.round(ad * 22));
-      el.style.filter = ad < .45 ? 'brightness(1.08) saturate(1.06)' : `brightness(${clamp(.9 - ad * .12,.48,.85)}) saturate(.72)`;
-      el.dataset.active = ad < .45 ? '1' : '0';
-      el.setAttribute('aria-hidden', ad > 2.7 ? 'true' : 'false');
-    });
-  }
-
-  function render() {
-    if (!host || !items.length || !isNative(mode)) return;
-    activeIndex = mod(Math.round(progress), items.length);
-    syncCopy();
-    if (mode === 'circular-product') renderCircular();
-    else if (mode === 'dish-stage-product') renderStage();
-    else renderRail();
-    try { window.RestaurantOrbit?.setProgress?.(activeIndex); } catch (_) {}
-  }
-
-  function goTo(index, {animate = true} = {}) {
-    if (!items.length) return;
-    const target = mod(Number(index) || 0, items.length);
-    let delta = target - mod(progress, items.length);
-    if (delta > items.length / 2) delta -= items.length;
-    if (delta < -items.length / 2) delta += items.length;
-    const finalValue = progress + delta;
-    if (!animate || reduced.matches || !window.gsap) {
-      progress = finalValue;
-      render();
-      return;
-    }
-    clearTimeout(transitionTimer);
-    const box = {v: progress};
-    host.dataset.transitioning = 'true';
-    gsap.killTweensOf(box);
-    gsap.to(box, {
-      v: finalValue,
-      duration: mode === 'circular-product' ? .72 : .58,
-      ease: mode === 'circular-product' ? 'power4.inOut' : 'power3.inOut',
-      onUpdate(){ progress = box.v; render(); },
-      onComplete(){
-        progress = finalValue;
-        render();
-        transitionTimer = setTimeout(() => { if (host) delete host.dataset.transitioning; }, 80);
-      }
-    });
-  }
-
-  const step = (delta) => goTo(activeIndex + delta);
-
-  function openDetail() {
-    const item = items[activeIndex];
-    if (!item) return false;
-    try { window.RestaurantOrbit?.setProgress?.(activeIndex); } catch (_) {}
-    if (window.RestaurantProductDetail?.open) {
-      return window.RestaurantProductDetail.open(item.id, {via:'button'}) !== false;
-    }
-    window.dispatchEvent(new CustomEvent('restaurant:class6-open-dish', {detail:{id:item.id}}));
-    return true;
-  }
-
-  function bindHost() {
-    host.addEventListener('click', event => {
-      const prev = event.target.closest('[data-npe-prev]');
-      const next = event.target.closest('[data-npe-next]');
-      const detail = event.target.closest('[data-npe-detail]');
-      const go = event.target.closest('[data-npe-go]');
-      if (prev) { event.stopPropagation(); step(-1); return; }
-      if (next) { event.stopPropagation(); step(1); return; }
-      if (detail) { event.stopPropagation(); openDetail(); return; }
-      if (go) {
-        event.stopPropagation();
-        const i = Number(go.dataset.npeGo);
-        if (Number.isFinite(i)) {
-          if (i === activeIndex && go.dataset.active === '1') openDetail();
-          else goTo(i);
-        }
-      }
-    });
-
-    host.addEventListener('keydown', event => {
-      if (!isNative(mode)) return;
-      if (event.key === 'ArrowRight') { event.preventDefault(); event.stopPropagation(); step(1); }
-      else if (event.key === 'ArrowLeft') { event.preventDefault(); event.stopPropagation(); step(-1); }
-      else if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-npe-gesture]')) {
-        event.preventDefault(); event.stopPropagation(); openDetail();
-      }
-    });
-
-    host.addEventListener('pointerdown', event => {
-      if (!isNative(mode) || !event.target.closest('[data-npe-gesture]')) return;
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      drag.pointerId = event.pointerId;
-      drag.intent = 'idle';
-      drag.startX = event.clientX;
-      drag.startY = event.clientY;
-      drag.startProgress = progress;
-      drag.lastX = event.clientX;
-      drag.lastT = performance.now();
-      drag.velocity = 0;
-      drag.moved = false;
-    }, true);
-
-    host.addEventListener('pointermove', event => {
-      if (drag.pointerId !== event.pointerId || drag.intent === 'vertical') return;
-      const dx = event.clientX - drag.startX;
-      const dy = event.clientY - drag.startY;
-      if (drag.intent === 'idle') {
-        if (Math.max(Math.abs(dx), Math.abs(dy)) < 10) return;
-        if (Math.abs(dx) <= Math.abs(dy) * 1.18) {
-          drag.intent = 'vertical';
-          drag.pointerId = null;
-          return;
-        }
-        drag.intent = 'horizontal';
-        drag.moved = true;
-        host.dataset.dragging = 'true';
-        event.target.closest('[data-npe-gesture]')?.setPointerCapture?.(event.pointerId);
-      }
-      if (drag.intent !== 'horizontal') return;
-      event.preventDefault();
-      event.stopPropagation();
-      const divisor = mode === 'circular-product'
-        ? Math.max(105, shell.clientWidth * .17)
-        : Math.max(190, shell.clientWidth * .28);
-      progress = drag.startProgress - dx / divisor;
-      const now = performance.now();
-      const dt = Math.max(8, now - drag.lastT);
-      drag.velocity = (event.clientX - drag.lastX) / dt;
-      drag.lastX = event.clientX;
-      drag.lastT = now;
-      render();
-    }, {passive:false});
-
-    const finish = event => {
-      if (drag.pointerId !== event.pointerId && drag.pointerId !== null) return;
-      const horizontal = drag.intent === 'horizontal';
-      const velocity = drag.velocity;
-      drag.pointerId = null;
-      drag.intent = 'idle';
-      delete host.dataset.dragging;
-      if (!horizontal) return;
-      event.stopPropagation();
-      const projected = progress - velocity * (mode === 'circular-product' ? .28 : .18);
-      goTo(Math.round(projected));
+    const end=e=>{
+      if(!drag||drag.id!==e.pointerId)return;
+      surface.releasePointerCapture?.(e.pointerId);drag=null;delete host.dataset.dragging;
+      goTo(Math.round(progress),420);
     };
-    host.addEventListener('pointerup', finish);
-    host.addEventListener('pointercancel', finish);
-
-    host.addEventListener('wheel', event => {
-      if (!isNative(mode) || !event.target.closest('[data-npe-gesture]')) return;
-      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
-      event.preventDefault();
-      event.stopPropagation();
-      step(event.deltaX > 0 ? 1 : -1);
-    }, {passive:false});
+    surface.addEventListener('pointerup',end);surface.addEventListener('pointercancel',end);
+    surface.addEventListener('keydown',e=>{
+      if(e.key==='ArrowRight'){e.preventDefault();step(1)}
+      else if(e.key==='ArrowLeft'){e.preventDefault();step(-1)}
+      else if(e.key==='Enter'||e.key===' '){e.preventDefault();discover()}
+    });
+    $('[data-npe-spin]',host)?.addEventListener('click',discover);
   }
 
-  function setActive(nextMode) {
-    if (!ensureHost()) return false;
-    if (!MODE_SET.has(nextMode)) {
-      deactivate();
-      return false;
-    }
-    const nextItems = collectItems();
-    const sig = signatureOf(nextItems);
-    const modeChanged = mode !== nextMode;
-    const dataChanged = sig !== lastSignature;
-    mode = nextMode;
-    items = nextItems;
-    lastSignature = sig;
-
-    const orbitIndex = Number(window.RestaurantOrbit?.getActiveIndex?.());
-    if (modeChanged && Number.isFinite(orbitIndex)) progress = orbitIndex;
-    if (items.length) {
-      progress = mod(progress, items.length);
-      activeIndex = mod(Math.round(progress), items.length);
-    } else {
-      progress = 0;
-      activeIndex = 0;
-    }
-
-    if (modeChanged || dataChanged || !host.children.length) buildMode(mode);
-    section.classList.add('npe-active');
-    section.dataset.nativeEngine = mode;
-    host.hidden = false;
-    host.inert = false;
-    host.setAttribute('aria-hidden', 'false');
-    root.dataset.nativeProductEngine = mode;
-    root.dataset.orbitalChoreography = mode;
-    render();
-    document.dispatchEvent(new CustomEvent('restaurant:native-product-engine-change', {
-      detail:{mode,activeIndex,count:items.length}
-    }));
-    return true;
+  function renderCircular(){
+    const list=items();if(!list.length)return;
+    index=mod(Math.round(progress),list.length);
+    const d=list[index];
+    const deg=-22.5-progress*45;
+    host.style.setProperty('--npe-accent',accentOf(d));host.style.setProperty('--npe-world',worldOf(d));
+    const disc=$('[data-npe-disc]',host),sector=$('[data-npe-sector-disc]',host);
+    if(disc)disc.style.transform=`rotate(${deg}deg)`;
+    if(sector)sector.style.transform=`rotate(${deg}deg)`;
+    host.dataset.activeIndex=String(index);
+    renderCopy(d);
+    const selected=$('[data-npe-selected]',host);if(selected)selected.textContent=d.name||'';
+    const word=$('[data-npe-world-word]',host);if(word)word.textContent=(d.meta||d.name||'PIZZA').split(' · ')[0].toUpperCase();
   }
 
-  function deactivate() {
-    if (!host) return;
-    if (window.gsap) {
-      try { gsap.killTweensOf($$('*', host)); } catch (_) {}
-    }
-    host.hidden = true;
-    host.inert = true;
-    host.setAttribute('aria-hidden', 'true');
-    delete host.dataset.dragging;
-    section?.classList.remove('npe-active');
-    if (section) delete section.dataset.nativeEngine;
-    delete root.dataset.nativeProductEngine;
-    if (MODE_SET.has(root.dataset.orbitalChoreography || '')) delete root.dataset.orbitalChoreography;
-    mode = '';
-    drag.pointerId = null;
-    drag.intent = 'idle';
+  function cancelAnim(){if(anim){cancelAnimationFrame(anim);anim=null}}
+  function animateCircular(target,duration=520){
+    cancelAnim();
+    if(reduced.matches||duration<=0){progress=target;renderCircular();return Promise.resolve()}
+    const start=progress,delta=target-start,t0=performance.now();
+    return new Promise(resolve=>{
+      const frame=now=>{const p=clamp((now-t0)/duration,0,1),ease=1-Math.pow(1-p,4);progress=start+delta*ease;renderCircular();if(p<1)anim=requestAnimationFrame(frame);else{anim=null;progress=target;renderCircular();resolve()}};
+      anim=requestAnimationFrame(frame);
+    });
+  }
+  function goTo(target,duration=520){return animateCircular(target,duration)}
+  function discover(){
+    if(mode!=='circular-product')return;
+    const n=items().length,current=mod(Math.round(progress),n),targetIndex=Math.floor(Math.random()*n);
+    const forward=mod(targetIndex-current,n)||n;
+    return animateCircular(Math.round(progress)+n*3+forward,reduced.matches?0:2300);
   }
 
-  function activateFromDocument() {
-    const desired = root.dataset.orbitalMotion || '';
-    if (MODE_SET.has(desired)) setActive(desired);
-    else deactivate();
+  function mountDishStage(){
+    const d=item();host.className='npe-stage npe-dish-stage-product';
+    host.innerHTML=`<div class="npe-world"></div><div class="npe-grain"></div><div class="npe-stage-word" data-npe-word aria-hidden="true"></div>
+      <div class="npe-stage-track" tabindex="0" aria-label="Escenario de platos"><div class="npe-stage-line"></div></div>
+      ${commonCopy(d,'dish-stage-product')}`;
+    const track=$('.npe-stage-track',host);
+    items().forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='npe-stage-card';b.dataset.index=i;b.innerHTML=`<img src="${p.depthCarousel?.asset||p.image||''}" alt="${esc(p.name||'Plato')}">`;b.onclick=()=>i===index?openDetail():setIndex(i);track.appendChild(b)});
+    bindCommon();bindLinear(track);renderDishStage();
+  }
+  function renderDishStage(){
+    const list=items(),n=list.length;if(!n)return;index=mod(index,n);const d=list[index];host.style.setProperty('--npe-accent',accentOf(d));host.style.setProperty('--npe-world',worldOf(d));
+    $$('.npe-stage-card',host).forEach((el,i)=>{let x=i-index;while(x>n/2)x-=n;while(x<-n/2)x+=n;const a=Math.abs(x),scale=1-Math.min(a,3)*.16,tx=x*clamp(innerWidth*.18,170,290),ty=a*30,rot=x*6;el.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) scale(${scale}) rotate(${rot}deg)`;el.style.opacity=String(a>3?0:.35+(1-a/4)*.65);el.style.zIndex=String(50-Math.round(a*10));el.dataset.active=i===index?'1':'0'});
+    const word=$('[data-npe-word]',host);if(word)word.textContent=(d.depthCarousel?.word||d.name||'').toUpperCase();renderCopy(d);
   }
 
-  function refresh() {
-    if (!isNative()) return false;
-    clearTimeout(refreshTimer);
-    refreshTimer = setTimeout(() => setActive(root.dataset.orbitalMotion), 0);
-    return true;
+  function mountRail(){
+    const d=item();host.className='npe-stage npe-cinematic-rail-product';
+    host.innerHTML=`<div class="npe-world"></div><div class="npe-grain"></div><div class="npe-rail-word" data-npe-word aria-hidden="true"></div>
+      <div class="npe-rail-viewport" tabindex="0" aria-label="Carril cinematográfico"><div class="npe-rail-track"></div></div>
+      ${commonCopy(d,'cinematic-rail-product')}`;
+    const track=$('.npe-rail-track',host);
+    items().forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='npe-rail-card';b.dataset.index=i;b.innerHTML=`<span class="npe-rail-no">${String(i+1).padStart(2,'0')}</span><img src="${p.image||p.depthCarousel?.asset||''}" alt="${esc(p.name||'Plato')}"><strong class="npe-rail-card-title">${esc(p.name||'')}</strong>`;b.onclick=()=>i===index?openDetail():setIndex(i);track.appendChild(b)});
+    bindCommon();bindLinear($('.npe-rail-viewport',host));renderRail();
+  }
+  function renderRail(){
+    const list=items(),n=list.length;if(!n)return;index=mod(index,n);const d=list[index];host.style.setProperty('--npe-accent',accentOf(d));host.style.setProperty('--npe-world',worldOf(d));
+    $$('.npe-rail-card',host).forEach((el,i)=>{let x=i-index;while(x>n/2)x-=n;while(x<-n/2)x+=n;const a=Math.abs(x),tx=x*clamp(innerWidth*.235,220,360),scale=1-Math.min(a,3)*.11,rot=x*-3;el.style.transform=`translate(-50%,-50%) translateX(${tx}px) translateZ(${-a*120}px) scale(${scale}) rotateY(${rot}deg)`;el.style.opacity=String(a>3?0:.28+(1-a/4)*.72);el.style.zIndex=String(60-Math.round(a*10));el.dataset.active=i===index?'1':'0'});
+    const word=$('[data-npe-word]',host);if(word)word.textContent=(d.depthCarousel?.word||d.name||'').toUpperCase();renderCopy(d);
   }
 
-  window.addEventListener('restaurant:motion-change', activateFromDocument);
-  document.addEventListener('restaurant:config-applied', refresh);
-  window.addEventListener('resize', () => { if (isNative(mode)) render(); }, {passive:true});
-  reduced.addEventListener?.('change', () => { if (isNative(mode)) render(); });
+  function esc(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function renderCopy(d){
+    const title=$('[data-npe-title]',host),short=$('[data-npe-short]',host),price=$('[data-npe-price]',host),counter=$('[data-npe-counter]',host);
+    if(title)title.textContent=d?.name||'';if(short)short.textContent=d?.short||d?.ingredients||'';if(price){price.textContent=d?.price==null?'':String(d.price);price.hidden=!price.textContent}if(counter)counter.textContent=`${String(index+1).padStart(2,'0')} / ${String(items().length).padStart(2,'0')}`;
+    host.dataset.activeIndex=String(index);
+  }
+  function render(){if(mode==='circular-product')renderCircular();else if(mode==='dish-stage-product')renderDishStage();else if(mode==='cinematic-rail-product')renderRail()}
+  function step(delta){if(mode==='circular-product')return goTo(Math.round(progress)+delta);setIndex(index+delta)}
+  function setIndex(i){const n=items().length;if(!n)return;index=mod(i,n);progress=index;render()}
 
-  const api = Object.freeze({
-    modes: () => MODES.slice(),
-    activate: setActive,
-    refresh,
-    deactivate,
-    step,
-    goTo,
-    openDetail,
-    state: () => ({
-      mounted,
-      active: isNative(mode),
-      mode,
-      activeIndex,
-      progress,
-      count: items.length,
-      hidden: host?.hidden ?? true
-    })
+  function bindCommon(){
+    $('[data-npe-prev]',host)?.addEventListener('click',()=>step(-1));$('[data-npe-next]',host)?.addEventListener('click',()=>step(1));$('[data-npe-detail]',host)?.addEventListener('click',openDetail);
+  }
+  function bindLinear(surface){
+    if(!surface)return;let start=null;
+    surface.addEventListener('pointerdown',e=>{start={id:e.pointerId,x:e.clientX};surface.setPointerCapture?.(e.pointerId);host.dataset.dragging='true'});
+    surface.addEventListener('pointerup',e=>{if(!start||start.id!==e.pointerId)return;const dx=e.clientX-start.x;surface.releasePointerCapture?.(e.pointerId);start=null;delete host.dataset.dragging;if(Math.abs(dx)>42)step(dx<0?1:-1)});
+    surface.addEventListener('pointercancel',()=>{start=null;delete host.dataset.dragging});
+    surface.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){e.preventDefault();step(1)}else if(e.key==='ArrowLeft'){e.preventDefault();step(-1)}else if(e.key==='Enter'){e.preventDefault();openDetail()}});
+  }
+
+  function openDetail(){
+    const d=item();if(!d)return false;
+    if(mode!=='circular-product')return window.RestaurantProductDetail?.open?.(d.id,{via:'button'})!==false;
+    detail=$('[data-npe-pizza-dialog]',host);if(!detail)return false;
+    $('[data-npe-dialog-meta]',detail).textContent=d.meta||'';$('[data-npe-dialog-title]',detail).textContent=d.name||'';$('[data-npe-dialog-ingredients]',detail).textContent=d.ingredients||d.short||'';detail.classList.add('is-open');detail.setAttribute('aria-hidden','false');$('[data-npe-dialog-close]',detail)?.focus();return true;
+  }
+  function closeCircularDetail(){if(!detail)return;detail.classList.remove('is-open');detail.setAttribute('aria-hidden','true')}
+
+  function activate(next){
+    if(!MODES.has(next))return deactivate();
+    const h=ensureHost();if(!h)return;
+    mode=next;index=0;progress=0;detail=null;h.hidden=false;h.inert=false;
+    $('.orbital-section')?.classList.add('npe-active');$('.orbital-section')?.setAttribute('data-native-engine',mode);root.dataset.nativeProductEngine=mode;
+    if(mode==='circular-product')mountCircular();else if(mode==='dish-stage-product')mountDishStage();else mountRail();
+    $('[data-npe-dialog-close]',host)?.addEventListener('click',closeCircularDetail);
+  }
+  function deactivate(){
+    cancelAnim();mode='';index=0;progress=0;drag=null;detail=null;
+    if(host){host.hidden=true;host.inert=true;host.innerHTML='';host.className='npe-stage'}
+    $('.orbital-section')?.classList.remove('npe-active');$('.orbital-section')?.removeAttribute('data-native-engine');delete root.dataset.nativeProductEngine;
+  }
+  function currentMode(e){return e?.detail?.orbital||root.dataset.orbitalMotion||$('#motion-orbital-style')?.value||''}
+  function sync(e){const next=currentMode(e);if(MODES.has(next)){if(next!==mode)activate(next);else render()}else if(mode)deactivate()}
+
+  window.addEventListener('restaurant:motion-change',sync);
+  document.addEventListener('restaurant:config-applied',sync);
+  addEventListener('resize',()=>{if(mode&&mode!=='circular-product')render()},{passive:true});
+
+  window.RestaurantNativeProductEngines=Object.freeze({
+    activate,deactivate,refresh:()=>mode&&render(),
+    state:()=>({active:!!mode,mode,activeIndex:index,count:items().length,progress}),
+    next:()=>step(1),prev:()=>step(-1),discover,openDetail
   });
-  window.RestaurantNativeProductEngines = api;
-  root.dataset.nativeProductEnginesReady = 'ready';
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(activateFromDocument, 0), {once:true});
-  } else {
-    setTimeout(activateFromDocument, 0);
-  }
+  setTimeout(sync,0);
 })();
