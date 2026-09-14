@@ -3,7 +3,7 @@
 **Estado:** APROBADO + MERGED  
 **Fecha:** 2026-09-14  
 **PR:** #43  
-**Merge commit:** `4dbd9c4d0e76e6b8ffe5ebe22f25fb94596a09a2`
+**Merge commit:** `5c25f346e96e3ced24d3de01ffae48c3473c1457`
 
 ## Decisión canónica
 
@@ -90,7 +90,7 @@ Validaciones específicas previas al merge:
 - Motion Library regression — **PASS**
 - Half Orbit regression — **PASS**
 
-PR #43 fue mergeado a `main` mediante el commit `4dbd9c4d0e76e6b8ffe5ebe22f25fb94596a09a2`.
+PR #43 fue mergeado a `main` mediante el commit `5c25f346e96e3ced24d3de01ffae48c3473c1457`.
 
 ## Gobernanza para cambios futuros
 
