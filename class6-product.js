@@ -52,7 +52,7 @@
     if($('#class6-language'))return;
     const actions=$('.nav-actions');if(!actions)return;
     const group=document.createElement('div');group.id='class6-language';group.className='class6-language';group.setAttribute('role','group');group.setAttribute('aria-label','Language / Idioma');
-    group.innerHTML='<span data-lang="es">ES</span>';
+    group.innerHTML='<button type="button" data-lang="es">ES</button><span aria-hidden="true">/</span><button type="button" data-lang="en">EN</button>';
     actions.insertBefore(group,actions.firstChild);
   }
 
