@@ -7,8 +7,12 @@
   };
   const project=()=>{try{return framed()?window.parent.RestaurantExperienceShell.project():null}catch{return null}};
   const text=v=>typeof v==='string'?v.trim():'';
+  const canonicalAsset=v=>{
+    const s=text(v);
+    return /^(?:\.\.\/\.\.\/)?assets\/kinetic-product-selector\/0[1-6]-[^/]+\.webp$/i.test(s)?`${s}.png`:s;
+  };
   const image=(ref,p)=>{
-    const v=text(ref);if(!v)return '';
+    const v=canonicalAsset(ref);if(!v)return '';
     if(v.startsWith('slot:')){try{return text(p?.resolveMedia?.(v.slice(5)))}catch{return ''}}
     if(/^(https?:|data:|blob:|\/)/.test(v))return v;
     if(v.startsWith('assets/'))return `../../${v}`;
@@ -16,8 +20,12 @@
   };
   function config(defaults){
     const p=project();const src=p?.kineticProductSelector;
-    if(!src||typeof src!=='object')return defaults;
     const out=structuredClone(defaults);
+    out.products=(out.products||[]).map(base=>({...base,image:image(base.image,p)||base.image}));
+    if(!src||typeof src!=='object'){
+      document.documentElement.dataset.kpsSource='defaults';
+      return out;
+    }
     out.brand={...out.brand,...(src.brand||{})};
     out.cta={...out.cta,...(src.cta||{})};
     out.autoplay={...out.autoplay,...(src.autoplay||{})};
