@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../styles-kinetic-product-selector.css">
+  <link rel="stylesheet" href="../../styles-kinetic-product-selector-integration-v2.css">
 </head>
 <body>
   <main class="kps-page" id="kps-page">
@@ -68,7 +69,30 @@
     </section>
   </main>
 
+  <div class="kps-detail-backdrop" id="kps-detail-backdrop" aria-hidden="true"></div>
+  <section class="kps-product-detail" id="kps-product-detail" role="dialog" aria-modal="true" aria-labelledby="kps-detail-title" aria-hidden="true">
+    <button class="kps-detail-close" id="kps-detail-close" type="button" aria-label="Close product details">×</button>
+    <div class="kps-detail-grid">
+      <div class="kps-detail-visual"><img id="kps-detail-image" src="" alt=""></div>
+      <article class="kps-detail-copy">
+        <p class="kps-detail-meta" id="kps-detail-meta"></p>
+        <h2 class="kps-detail-title" id="kps-detail-title"></h2>
+        <div class="kps-detail-price" id="kps-detail-price"></div>
+        <p class="kps-detail-description" id="kps-detail-description"></p>
+        <div class="kps-detail-columns">
+          <div><h3>Ingredients</h3><p id="kps-detail-ingredients"></p></div>
+          <div><h3>Origin</h3><p id="kps-detail-origin"></p></div>
+          <div><h3>Technique</h3><p id="kps-detail-technique"></p></div>
+          <div><h3>Pairing</h3><p id="kps-detail-pairing"></p></div>
+        </div>
+        <div class="kps-detail-note"><span>Chef's note</span><p id="kps-detail-note"></p></div>
+        <div class="kps-detail-bottom"><span class="kps-detail-allergens" id="kps-detail-allergens"></span><button class="kps-detail-order" id="kps-detail-order" type="button">ORDER →</button></div>
+      </article>
+    </div>
+  </section>
+
   <script src="../../kinetic-product-source.js"></script>
   <script src="../../kinetic-product-selector.js"></script>
+  <script src="../../kinetic-product-detail-adapter.js"></script>
 </body>
 </html>
