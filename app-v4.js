@@ -33,7 +33,7 @@
     try{
       const saved=await RestaurantStore.loadProject();
       if(saved?.config)config=merge(clone(RestaurantDefaults),saved.config);
-      if(window.RubikSEOGeoIntelligence?.defaults){const d=window.RubikSEOGeoIntelligence.defaults();config.seo=merge(config.seo,d);}
+      if(window.RubikSEOGeoIntelligence?.defaults){const d=window.RubikSEOGeoIntelligence.defaults();config.seo=merge(d,config.seo||{});}
       await hydrateMedia();
       bindStudio();bindGlobal();applyAll();setupOrbitInteraction();setupDetail();setupReserve();setupScroll();setupCursor();
       await RestaurantStore.verifyPersistence();

@@ -2,93 +2,12 @@ name: SEO GEO Intelligence
 on:
   pull_request:
   workflow_dispatch:
-permissions:
-  contents: write
-  pull-requests: read
 jobs:
   intelligence:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-      - name: Finalize Release C repair
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          app=Path('app-v4.js')
-          s=app.read_text()
-          old="config.seo=merge(config.seo,d);"
-          new="config.seo=merge(d,config.seo||{});"
-          if old in s: s=s.replace(old,new,1)
-          elif new not in s: raise SystemExit('app-v4 persistence marker not found')
-          app.write_text(s)
-
-          intel=Path('rubik-seo-geo-intelligence.js')
-          s=intel.read_text()
-          old_ctor="constructor({endpoint='',fetchImpl,timeout=8000}={}){this.endpoint=text(endpoint);this.fetchImpl=fetchImpl;this.timeout=timeout;}"
-          new_ctor="constructor({endpoint='',fetchImpl,timeout=8000,pollInterval=400,maxPolls=30}={}){this.endpoint=text(endpoint);this.fetchImpl=fetchImpl;this.timeout=timeout;this.pollInterval=Math.max(0,Number(pollInterval)||0);this.maxPolls=Math.max(1,Number(maxPolls)||1);}"
-          if old_ctor in s: s=s.replace(old_ctor,new_ctor,1)
-          elif new_ctor not in s: raise SystemExit('OpenSEO constructor marker not found')
-          start=s.index('async crawl({baseUrl,pages:pageList=[],fetchImpl=this.fetchImpl}={}){')
-          end=s.index('normalize(raw,config,snapshotId)',start)
-          crawl="""async crawl({baseUrl,pages:pageList=[],fetchImpl=this.fetchImpl}={}){if(!this.endpoint)return {status:'NOT_CONFIGURED'};if(!baseUrl)return {status:'ERROR',error:'production baseUrl required'};try{const r=await request(this.endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'crawl',baseUrl,urls:pageList.map(p=>({pageId:p.id,url:p.canonical||baseUrl}))}),timeout:this.timeout},fetchImpl);if(!r.ok)return {status:'ERROR',httpStatus:r.status};const payload=await r.json();if(!payload.jobId)return {status:'READY',result:payload};const u=payload.resultUrl||`${this.endpoint.replace(/\\/$/,'')}/crawl/${encodeURIComponent(payload.jobId)}`;for(let attempt=1;attempt<=this.maxPolls;attempt++){const done=await request(u,{method:'GET',timeout:this.timeout},fetchImpl);if(!done.ok)return {status:'ERROR',httpStatus:done.status,jobId:payload.jobId,attempt};const result=await done.json(),providerState=text(result?.status||result?.state).toLowerCase();if(['failed','failure','error','cancelled','canceled'].includes(providerState))return {status:'ERROR',jobId:payload.jobId,attempts:attempt,error:result?.error||result?.message||'OpenSEO crawl failed'};const pending=['pending','queued','running','processing','in_progress','in-progress','syncing'].includes(providerState);if(!pending)return {status:'READY',jobId:payload.jobId,attempts:attempt,result};if(attempt<this.maxPolls)await new Promise(resolve=>setTimeout(resolve,this.pollInterval));}return {status:'ERROR',jobId:payload.jobId,error:'OpenSEO polling timeout'};}catch(e){return {status:'ERROR',error:e?.name==='AbortError'?'OpenSEO request timeout':e.message};}}"""
-          s=s[:start]+crawl+s[end:]
-          old_diff="function diff(previous,current){const old="
-          new_diff="function diff(previous,current){if(previous?.provider&&current?.provider&&previous.provider!==current.provider)return [];const old="
-          if old_diff in s: s=s.replace(old_diff,new_diff,1)
-          elif new_diff not in s: raise SystemExit('diff marker not found')
-          intel.write_text(s)
-
-          index=Path('index.html')
-          s=index.read_text()
-          marker='<script src="rubik-seo-geo-intelligence.js"></script>'
-          extended=marker+'<script src="rubik-seo-geo-release-c-studio.js"></script>'
-          if extended not in s:
-              if marker not in s: raise SystemExit('index intelligence script marker not found')
-              s=s.replace(marker,extended,1)
-          index.write_text(s)
-
-          final="""name: SEO GEO Intelligence
-          on:
-            pull_request:
-            workflow_dispatch:
-          jobs:
-            intelligence:
-              runs-on: ubuntu-24.04
-              timeout-minutes: 15
-              steps:
-                - uses: actions/checkout@v4
-                - uses: actions/setup-node@v4
-                  with: {node-version: 22}
-                - run: |
-                    node --test tests/seo-geo-core.test.cjs tests/seo-geo-publisher.test.cjs tests/seo-geo-source-convergence.test.cjs tests/seo-geo-spain-first-contract.test.cjs tests/seo-geo-encoding-gate.test.cjs tests/seo-geo-media-b1.test.cjs tests/seo-geo-release-b.test.cjs tests/seo-geo-release-c.test.cjs
-                    node --check rubik-seo-geo-core.js
-                    node --check rubik-seo-geo-publisher.js
-                    node --check rubik-seo-geo-media.js
-                    node --check rubik-seo-geo-release-b.js
-                    node --check rubik-seo-geo-intelligence.js
-                    node --check rubik-seo-geo-studio.js
-                    node --check rubik-seo-geo-release-c-studio.js
-                    node --check app-v4.js
-                - run: npm install --no-save playwright@1.55.0
-                - run: npx playwright install --with-deps chromium webkit
-                - run: node tests/seo-geo-release-c-studio-e2e.mjs
-          """
-          import textwrap
-          Path('.github/workflows/seo-geo-intelligence.yml').write_text(textwrap.dedent(final))
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app-v4.js rubik-seo-geo-intelligence.js index.html .github/workflows/seo-geo-intelligence.yml
-          if ! git diff --cached --quiet; then
-            git commit -m "fix(seo-geo): complete Release C intelligence"
-            git push origin HEAD:${{ github.head_ref }}
-          fi
       - uses: actions/setup-node@v4
         with: {node-version: 22}
       - run: |
