@@ -65,7 +65,7 @@
     const context=section('Contexto y medición','La base funciona sin servicios de pago. Las integraciones y Media SEO se implementarán en sus fases.');
     const info=el('p','seo-help');info.dataset.seoContext='';context.append(info);
     context.append(el('p','seo-help','DataForSEO: NOT MEASURED · Search Console: NOT CONNECTED · OpenSEO: NOT CONNECTED · Visibilidad IA: NOT MEASURED.'));
-    document.querySelector('#studio-scroll').append(panel);render();
+    const media=section('Media SEO · Biblioteca compartida','Metadatos AUTO/CUSTOM y advertencias basados en los assets reales del mismo Project State.');const mediaList=el('div','seo-media-list');mediaList.dataset.seoMediaList='';media.append(mediaList);document.querySelector('#studio-scroll').append(panel);render();
   }
   function render(){
     if(!panel||!api())return;
@@ -90,6 +90,7 @@
     const list=panel.querySelector('[data-seo-checks]');list.replaceChildren();
     for(const c of result.checks){const li=el('li');li.dataset.severity=c.severity;li.append(el('strong','',c.severity),el('span','',c.message));list.append(li);}
     panel.querySelector('[data-seo-context]').textContent=`${result.source.dishes.length} platos disponibles para contexto futuro; no se introducen en el title de HOME. ${result.source.media.length} referencias a la Media Library compartida. El Core no guarda archivos ni crea otra biblioteca.`;
+    const mediaList=panel.querySelector('[data-seo-media-list]');if(mediaList&&window.RubikSEOGeoMedia){mediaList.replaceChildren();for(const ref of Object.keys(api().get('media')||{})){const a=RubikSEOGeoMedia.project(api().snapshot(),ref),row=el('article','seo-media-row');row.append(el('strong','',a.originalName),el('small','seo-help',`SEO filename: ${a.seoFilename.value} · ALT: ${a.decorative?'decorativa':a.alt.value||'contexto pendiente'} · ${a.width||'?'}×${a.height||'?'} · ${a.format||'formato pendiente'}`));mediaList.append(row);}}
   }
   nav.addEventListener('click',build);
   document.addEventListener('restaurant:config-applied',render);
