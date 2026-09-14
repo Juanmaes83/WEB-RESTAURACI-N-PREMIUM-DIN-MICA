@@ -1,0 +1,49 @@
+name: Project 12 Integration V2 Review
+
+on:
+  push:
+    branches:
+      - feat/kinetic-product-selector-integration-v2
+    paths:
+      - 'experiences/kinetic-product-selector/**'
+      - 'kinetic-product-selector.js'
+      - 'kinetic-product-source.js'
+      - 'kinetic-product-studio.js'
+      - 'kinetic-product-detail-adapter.js'
+      - 'styles-kinetic-product-selector.css'
+      - 'styles-kinetic-product-selector-integration-v2.css'
+      - 'assets/kinetic-product-selector/**'
+      - 'tests/project12-integration-v2-e2e.mjs'
+      - '.github/workflows/project12-integration-v2-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-gate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Project 12 syntax contract
+        run: |
+          node --check kinetic-product-selector.js
+          node --check kinetic-product-source.js
+          node --check kinetic-product-studio.js
+          node --check kinetic-product-detail-adapter.js
+          node --check tests/project12-integration-v2-e2e.mjs
+      - name: Verify isolated files and six assets
+        run: |
+          test -f styles-kinetic-product-selector-integration-v2.css
+          test -f experiences/kinetic-product-selector/index.html
+          test "$(find assets/kinetic-product-selector -maxdepth 1 -name '*.webp' | wc -l)" -eq 6
+      - name: Install Playwright Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Product detail, safe-zone and mobile-first gate
+        run: node tests/project12-integration-v2-e2e.mjs
