@@ -23,10 +23,17 @@ try {
       await page.locator('.studio-open').click();
       await page.locator('.studio-nav [data-panel="seo-geo"]').click();
       await page.getByText('Intelligence · Medición post-publicación',{exact:true}).click();
+
       const box=page.locator('[data-seo-intelligence]');
+      await box.waitFor();
+      assert.equal(await page.getByText('Intelligence avanzado · Release C',{exact:true}).count(),0);
       assert.match(await box.textContent(),/NOT_CONFIGURED/);
       assert.match(await box.textContent(),/NOT_CONNECTED/);
       assert.match(await box.textContent(),/NOT_MEASURED/);
+      assert.equal(await box.locator('[data-crawler-http]').inputValue(),'');
+      assert.equal(await box.getByRole('button',{name:'Conectar / comprobar Search Console'}).isDisabled(),true);
+      assert.equal(await box.getByRole('button',{name:'Sincronizar Search Console'}).isDisabled(),true);
+      assert.equal(await box.getByRole('button',{name:'Refresh manual DataForSEO'}).isDisabled(),true);
 
       const base=page.locator('[data-seo-path="seo.site.baseUrl"]');
       await base.fill('https://restaurant.example/');
@@ -44,6 +51,7 @@ try {
       await endpoint.press('Tab');
       await box.getByRole('button',{name:'Test OpenSEO connection'}).click();
       await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.integrations.openseo.status')==='CONNECTED');
+
       await box.getByRole('button',{name:'Run OpenSEO crawl'}).click();
       await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.intelligence.snapshots').length===1);
       await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.integrations.openseo.status')==='READY');
