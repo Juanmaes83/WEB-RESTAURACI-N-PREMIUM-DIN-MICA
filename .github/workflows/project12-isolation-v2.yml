@@ -1,0 +1,70 @@
+name: Project 12 Isolation V2
+
+on:
+  push:
+    branches:
+      - feat/kinetic-product-selector-integration-v2
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reject shared-core/Astra changes after safe base
+        shell: bash
+        run: |
+          set -euo pipefail
+          SAFE_BASE="570f21f75322d507618782415680ac3a7f73e37a"
+          git cat-file -e "${SAFE_BASE}^{commit}"
+          changed="$(git diff --name-only "${SAFE_BASE}"...HEAD)"
+          printf '%s\n' "$changed"
+
+          protected=(
+            "index.html"
+            "app-v4.js"
+            "class4-config.js"
+            "class4-store.js"
+            "class5-studio-motion.js"
+            "styles-mobile-first.css"
+            "class19-motion-library.js"
+            "class22-experience-shell.js"
+            ".gitignore"
+            "rubik-seo-geo-core.js"
+            "rubik-seo-geo-studio.js"
+            "styles-seo-geo.css"
+            "docs/SEO-GEO-FOUNDATION.md"
+            "docs/SEO-GEO-RELEASE-A-CONTRACT.md"
+            "tests/seo-geo-core.test.cjs"
+            "tests/seo-geo-studio-e2e.mjs"
+            ".github/workflows/seo-geo-foundation.yml"
+          )
+
+          failed=0
+          for path in "${protected[@]}"; do
+            if grep -Fxq "$path" <<<"$changed"; then
+              echo "ERROR: Project 12 isolated phase modified protected path: $path"
+              failed=1
+            fi
+          done
+          test "$failed" -eq 0
+
+      - name: Assert Project 12 changes remain scoped
+        shell: bash
+        run: |
+          set -euo pipefail
+          SAFE_BASE="570f21f75322d507618782415680ac3a7f73e37a"
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            case "$path" in
+              experiences/kinetic-product-selector/*|kinetic-product-selector.js|kinetic-product-source.js|kinetic-product-studio.js|kinetic-product-detail-adapter.js|styles-kinetic-product-selector.css|styles-kinetic-product-selector-integration-v2.css|assets/kinetic-product-selector/*|tests/project12-*|scripts/project12-*|docs/PROJECT-12-*|.github/workflows/project12-*) ;;
+              *) echo "ERROR: out-of-scope file after safe base: $path"; exit 1 ;;
+            esac
+          done < <(git diff --name-only "${SAFE_BASE}"...HEAD)
