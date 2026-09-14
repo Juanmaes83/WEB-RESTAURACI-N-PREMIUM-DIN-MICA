@@ -1,32 +1,37 @@
-/* MOTION 15 — THREE NATIVE PRODUCT ENGINES gate
+/* MOTION 16 — FOUR NATIVE PRODUCT ENGINES gate
    Usage: node tests/native-product-engines-e2e.mjs [baseUrl]
 */
 import {chromium} from 'playwright';
 import {startServer} from './static-server.mjs';
 const target=process.argv[2];const local=target?null:await startServer(0);const BASE=(target||local.url).replace(/\/$/,'');
 const browser=await chromium.launch();const results=[];const check=(name,ok,detail='')=>{results.push({name,ok});console.log(`${ok?'PASS':'FAIL'} ${name}${detail?` — ${detail}`:''}`)};
-const MODES=['circular-product','dish-stage-product','cinematic-rail-product'];
-async function boot(viewport={width:1440,height:960},mobile=false){const context=await browser.newContext({viewport,isMobile:mobile,hasTouch:mobile});const page=await context.newPage();const errors=[],bad=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{try{const u=new URL(r.url()),b=new URL(BASE);if(u.origin===b.origin&&r.status()>=400)bad.push(`${r.status()} ${u.pathname}`)}catch{}});await page.goto(BASE,{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().count===15,null,{timeout:35000});await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:30000});return {context,page,errors,bad}}
+const MODES=['circular-product','circular-radial-product','dish-stage-product','cinematic-rail-product'];
+async function boot(viewport={width:1440,height:960},mobile=false){const context=await browser.newContext({viewport,isMobile:mobile,hasTouch:mobile});const page=await context.newPage();const errors=[],bad=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{try{const u=new URL(r.url()),b=new URL(BASE);if(u.origin===b.origin&&r.status()>=400)bad.push(`${r.status()} ${u.pathname}`)}catch{}});await page.goto(BASE,{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().count===16,null,{timeout:35000});await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:30000});return {context,page,errors,bad}}
 async function activate(page,mode){await page.evaluate(value=>{const s=document.getElementById('motion-orbital-style');s.value=value;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));window.RestaurantMotionStudio?.publish?.()},mode);await page.waitForFunction(value=>document.documentElement.dataset.orbitalMotion===value&&window.RestaurantNativeProductEngines?.state?.().active===true&&window.RestaurantNativeProductEngines?.state?.().mode===value,mode,{timeout:25000});await page.waitForTimeout(500)}
 {
  const {context,page,errors,bad}=await boot();
- const catalogue=await page.evaluate(()=>({state:window.RestaurantMotionLibrary.state(),engines:window.RestaurantMotionLibrary.engines(),options:[...document.querySelectorAll('#motion-orbital-style option')].map(o=>o.value),lazyBefore:!!document.querySelector('script[data-native-product-engines-runtime]')}));
- check('Motion Library has 15 elements',catalogue.state.count===15,`${catalogue.state.count}`);
- check('catalogue is 11 Product Engines + 1 Page Motion + 3 Experiences',catalogue.engines.filter(e=>e.kind==='preset').length===11&&catalogue.engines.filter(e=>e.kind==='page').length===1&&catalogue.engines.filter(e=>e.kind==='experience').length===3);
- check('three native modes are real selector options',MODES.every(m=>catalogue.options.includes(m)),catalogue.options.filter(v=>MODES.includes(v)).join(', '));
+ const catalogue=await page.evaluate(()=>({state:window.RestaurantMotionLibrary.state(),engines:window.RestaurantMotionLibrary.engines(),options:[...document.querySelectorAll('#motion-orbital-style option')].map(o=>o.value),labels:[...document.querySelectorAll('#motion-orbital-style option')].map(o=>o.textContent.trim()),lazyBefore:!!document.querySelector('script[data-native-product-engines-runtime]')}));
+ check('Motion Library has 16 elements',catalogue.state.count===16,`${catalogue.state.count}`);
+ check('catalogue is 12 Product Engines + 1 Page Motion + 3 Experiences',catalogue.engines.filter(e=>e.kind==='preset').length===12&&catalogue.engines.filter(e=>e.kind==='page').length===1&&catalogue.engines.filter(e=>e.kind==='experience').length===3);
+ check('four native modes are real selector options',MODES.every(m=>catalogue.options.includes(m)),catalogue.options.filter(v=>MODES.includes(v)).join(', '));
+ check('Full Pizza and Radial have separate Studio labels',catalogue.labels.includes('Full Pizza Rotator · Engine')&&catalogue.labels.includes('Circular Dish Rotator · Radial'),catalogue.labels.filter(x=>/Pizza Rotator|Circular Dish Rotator/.test(x)).join(' | '));
  check('native runtime is lazy before first native selection',catalogue.lazyBefore===false,String(catalogue.lazyBefore));
  check('three original Experiences remain separate',['circular-dish-rotator','dish-stage','cinematic-product-rail'].every(id=>catalogue.engines.some(e=>e.id===id&&e.kind==='experience')));
  for(const mode of MODES){
   await activate(page,mode);
-  const state=await page.evaluate(value=>{const s=window.RestaurantNativeProductEngines.state(),h=document.querySelector('.npe-stage'),activeCard=document.querySelector('.npe-stage [data-active="1"]'),image=h?.querySelector('img[src]');return {state:s,root:document.documentElement.dataset.orbitalMotion,native:document.documentElement.dataset.nativeProductEngine,section:document.querySelector('.orbital-section').dataset.nativeEngine,hidden:h?.hidden,inert:h?.inert,activeCard:!!activeCard,imageSrc:image?.getAttribute('src')||'',overflow:document.documentElement.scrollWidth-innerWidth,fullPizza:document.querySelector('[data-npe-disc]')?.getAttribute('src')||'',sector:!!document.querySelector('.npe-cdr-sector-window'),selected:document.querySelector('[data-npe-selected]')?.textContent.trim()||''}},mode);
+  const state=await page.evaluate(value=>{const s=window.RestaurantNativeProductEngines.state(),h=document.querySelector('.npe-stage'),activeCard=document.querySelector('.npe-stage [data-active="1"]'),image=h?.querySelector('img[src]');return {state:s,root:document.documentElement.dataset.orbitalMotion,native:document.documentElement.dataset.nativeProductEngine,section:document.querySelector('.orbital-section').dataset.nativeEngine,hidden:h?.hidden,inert:h?.inert,activeCard:!!activeCard,imageSrc:image?.getAttribute('src')||'',overflow:document.documentElement.scrollWidth-innerWidth,fullPizza:document.querySelector('[data-npe-disc]')?.getAttribute('src')||'',sector:!!document.querySelector('.npe-cdr-sector-window'),selected:document.querySelector('[data-npe-selected]')?.textContent.trim()||'',radial:!!document.querySelector('.npe-circular'),radialLabels:document.querySelectorAll('.npe-circular-label').length,radialHero:document.querySelector('[data-npe-radial-hero]')?.getAttribute('src')||''}},mode);
   check(`${mode} · mounts as native Product Engine`,state.root===mode&&state.native===mode&&state.section===mode&&!state.hidden&&!state.inert,JSON.stringify(state.state));
   check(`${mode} · has live product data`,state.state.count>=3&&state.state.activeIndex>=0,`${state.state.count} products`);
   check(`${mode} · visible product media exists`,!!state.imageSrc,state.imageSrc||'missing src');check(`${mode} · no horizontal page overflow`,state.overflow<=1,`${state.overflow}px`);
   if(mode==='circular-product'){
-   check('circular-product · uses exactly eight pizza sectors',state.state.count===8,`${state.state.count}`);
-   check('circular-product · uses canonical runtime full-pizza asset',/assets\/pizza-motion\/runtime\/full-pizza\/full-pizza\.png$/.test(state.fullPizza),state.fullPizza);
-   check('circular-product · has lifted selected-sector layer',state.sector===true,String(state.sector));
-   check('circular-product · selected pizza copy is visible',state.selected.length>0,state.selected);
+   check('full-pizza · uses exactly eight pizza sectors',state.state.count===8,`${state.state.count}`);
+   check('full-pizza · uses canonical runtime full-pizza asset',/assets\/pizza-motion\/runtime\/full-pizza\/full-pizza\.png$/.test(state.fullPizza),state.fullPizza);
+   check('full-pizza · has lifted selected-sector layer',state.sector===true,String(state.sector));
+   check('full-pizza · selected pizza copy is visible',state.selected.length>0,state.selected);
+  }
+  if(mode==='circular-radial-product'){
+   check('radial · restored circular selector exists',state.radial===true&&state.radialLabels===state.state.count,`${state.radialLabels}/${state.state.count} labels`);
+   check('radial · restored engine uses dish media, not full pizza',!!state.radialHero&&!state.fullPizza,state.radialHero||'missing hero');
   }
   const before=state.state.activeIndex;await page.click('.npe-stage [data-npe-next]');await page.waitForFunction(i=>window.RestaurantNativeProductEngines.state().activeIndex!==i,before,{timeout:4000});const after=await page.evaluate(()=>window.RestaurantNativeProductEngines.state().activeIndex);check(`${mode} · controls change active product`,after!==before,`${before} → ${after}`);
   await page.click('.npe-stage [data-npe-detail]');await page.waitForTimeout(350);const detail=await page.evaluate(()=>({open:window.RestaurantProductDetail?.isOpen?.()===true||document.querySelector('#dish-detail')?.getAttribute('aria-hidden')==='false'||document.querySelector('.npe-pizza-dialog')?.classList.contains('is-open')===true,title:document.querySelector('.npe-pizza-dialog.is-open [data-npe-dialog-title]')?.textContent.trim()||document.querySelector('#detail-title')?.textContent.trim()||document.querySelector('[data-upd="name"]')?.textContent.trim()||''}));check(`${mode} · product detail opens`,detail.open&&detail.title.length>0,detail.title||'no title');
