@@ -9,7 +9,7 @@ try {
     try {
       const page=await browser.newPage({viewport:{width:1440,height:1000}});
       let polls=0;
-      await page.route('https://mock-openseo.test/**',route=>{
+      await page.route(/^https:\/\/mock-openseo\.test(?:\/.*)?$/,route=>{
         const request=route.request(),method=request.method(),requestUrl=request.url();
         let body={};
         if(method==='POST')body={jobId:'j1',status:'pending'};
@@ -22,7 +22,7 @@ try {
       await page.goto(url,{waitUntil:'domcontentloaded'});
       await page.locator('.studio-open').click();
       await page.locator('.studio-nav [data-panel="seo-geo"]').click();
-      await page.locator('.seo-card summary').filter({hasText:'Intelligence'}).click();
+      await page.getByText('Intelligence · Medición post-publicación',{exact:true}).click();
       const box=page.locator('[data-seo-intelligence]');
       assert.match(await box.textContent(),/NOT_CONFIGURED/);
       assert.match(await box.textContent(),/NOT_CONNECTED/);
