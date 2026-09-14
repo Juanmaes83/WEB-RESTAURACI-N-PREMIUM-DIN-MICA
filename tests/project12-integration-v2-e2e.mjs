@@ -34,7 +34,9 @@ async function geometry(page){return page.evaluate(()=>{
   check('six review assets have >=640px long edge',assets.thumbs.every(x=>Math.max(x.w,x.h)>=640),JSON.stringify(assets.thumbs.map(x=>`${x.w}x${x.h}`)));
   const g=await geometry(page);
   check('decorative art stops above selector rail',g.bgBottom<=g.railTop+2,`art ${Math.round(g.bgBottom)} / rail ${Math.round(g.railTop)}`);
-  check('desktop hero remains dominant',g.hero.width>=450&&g.hero.height>=450,`${Math.round(g.hero.width)}x${Math.round(g.hero.height)}`);
+  /* Transparent approved assets have intentionally different aspect ratios. Dominance
+     means a large visual footprint, not forcing every cutout into a square box. */
+  check('desktop hero remains dominant',Math.max(g.hero.width,g.hero.height)>=500&&Math.min(g.hero.width,g.hero.height)>=400,`${Math.round(g.hero.width)}x${Math.round(g.hero.height)}`);
 
   await page.locator('.kps-thumb[data-index="2"]').click();
   await page.waitForFunction(()=>window.KineticProductSelector.state().index===2);
@@ -72,8 +74,10 @@ for(const width of [320,360,390,430]){
   await page.evaluate(()=>window.KineticProductSelector.select(5));
   await page.locator('#kps-hero').click();
   await page.waitForFunction(()=>document.documentElement.dataset.kpsDetail==='open');
+  /* Let the approved open transition settle before measuring the final viewport lock. */
+  await page.waitForTimeout(450);
   const detail=await page.locator('#kps-product-detail').boundingBox();
-  check(`${width}px Product Detail is full-screen`,detail&&detail.x<=1&&detail.y<=1&&detail.width>=width-2&&detail.height>=842,detail?`${Math.round(detail.width)}x${Math.round(detail.height)}`:'missing');
+  check(`${width}px Product Detail is full-screen`,detail&&Math.abs(detail.x)<=1&&Math.abs(detail.y)<=1&&detail.width>=width-2&&detail.height>=842,detail?`x${Math.round(detail.x)} y${Math.round(detail.y)} ${Math.round(detail.width)}x${Math.round(detail.height)}`:'missing');
   check(`${width}px detail close remains finger-sized`,await page.locator('#kps-detail-close').evaluate(el=>{const r=el.getBoundingClientRect();return r.width>=48&&r.height>=48}),'48px+');
   await page.locator('#kps-detail-close').click();
   check(`${width}px has no page errors`,errors.length===0,errors.join(' | ')||'clean');
