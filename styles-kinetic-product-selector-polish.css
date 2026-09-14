@@ -7,7 +7,36 @@
   transform-origin:50% 78%;
 }
 
+/* Rubik Sota signature beside the STACK° brand. */
+.kps-brand-lockup{
+  justify-self:start;
+  display:flex;
+  align-items:center;
+  gap:clamp(9px,.9vw,16px);
+  min-width:0;
+}
+.kps-rubik-sota{
+  display:inline-flex;
+  align-items:center;
+  min-height:20px;
+  padding-left:clamp(9px,.9vw,16px);
+  border-left:1px solid color-mix(in srgb,var(--kps-ink) 28%,transparent);
+  font-size:clamp(8px,.63vw,10px);
+  font-weight:900;
+  letter-spacing:.08em;
+  line-height:1;
+  white-space:nowrap;
+  color:color-mix(in srgb,var(--kps-ink) 72%,transparent);
+}
+
 @media(max-width:900px){
   [data-kps-product="lava-brisket"] .kps-product{scale:1.1}
   .kps-thumb[data-index="5"] .kps-thumb-img img{scale:1.28}
+  .kps-brand-lockup{gap:8px}
+  .kps-rubik-sota{padding-left:8px;font-size:8px;letter-spacing:.05em}
+}
+
+@media(max-width:620px){
+  .kps-brand-lockup{align-items:flex-start;flex-direction:column;gap:2px}
+  .kps-rubik-sota{min-height:0;padding-left:0;border-left:0;font-size:7px;letter-spacing:.04em}
 }
