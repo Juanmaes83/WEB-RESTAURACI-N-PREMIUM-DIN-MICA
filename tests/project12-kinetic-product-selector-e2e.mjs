@@ -17,7 +17,7 @@ const check=(name,ok,detail='')=>{results.push({name,ok});console.log(`${ok?'PAS
 async function direct(viewport={width:1440,height:900}){
   const context=await browser.newContext({viewport});const page=await context.newPage();const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(`${BASE}experiences/kinetic-product-selector/index.html`,{waitUntil:'domcontentloaded'});
+  await page.goto(`${BASE}/experiences/kinetic-product-selector/index.html`,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.KineticProductSelector?.state?.().ready===true,null,{timeout:15000});
   return {context,page,errors};
 }
