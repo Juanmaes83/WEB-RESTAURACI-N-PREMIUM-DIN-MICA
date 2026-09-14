@@ -8,6 +8,7 @@ dbg-*.mjs
 # Reproducible mobile QA artifacts (CI uploads screenshots and complete logs).
 output/mobile-first/
 output/playwright/mobile-first/
+output/playwright/seo-geo/
 tests/screenshots/class25-beverages/
 tests/screenshots/motion-library/02-half-orbit.png
 
