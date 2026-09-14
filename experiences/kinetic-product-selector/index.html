@@ -18,12 +18,12 @@
     <div class="kps-grain" aria-hidden="true"></div>
 
     <header class="kps-topbar">
-      <strong class="kps-brand" id="kps-brand">STACK°</strong>
+      <button class="kps-brand" id="kps-brand" type="button" data-kps-nav="burgers" aria-label="Show burgers">STACK°</button>
       <nav class="kps-nav" id="kps-nav" aria-label="Brand navigation"></nav>
-      <span class="kps-bag" id="kps-bag">BAG · 00</span>
+      <button class="kps-bag" id="kps-bag" type="button" aria-expanded="false">BAG · 00</button>
     </header>
 
-    <section class="kps-stage" id="kps-stage" tabindex="0" aria-label="Interactive product selector. Use left and right arrow keys to change product.">
+    <section class="kps-stage" id="kps-stage" tabindex="0" aria-label="Interactive product selector. Use left and right arrow keys, swipe, drag, or the visible arrows to change product.">
       <div class="kps-copy">
         <span class="kps-code" id="kps-code">01</span>
         <h1 class="kps-title" id="kps-title"></h1>
@@ -36,13 +36,32 @@
       </div>
       <div class="kps-fx" id="kps-fx" aria-hidden="true"></div>
 
+      <button class="kps-arrow kps-arrow-prev" id="kps-prev" type="button" aria-label="Previous burger"><span aria-hidden="true">←</span></button>
+      <button class="kps-arrow kps-arrow-next" id="kps-next" type="button" aria-label="Next burger"><span aria-hidden="true">→</span></button>
+
       <button class="kps-cta" id="kps-cta" type="button" aria-hidden="true" tabindex="-1"><span>TASTE THE CHAOS →</span><i aria-hidden="true">↗</i></button>
+
+      <aside class="kps-panel kps-story-panel" id="kps-story-panel" aria-hidden="true" aria-label="Our story">
+        <button class="kps-panel-close" type="button" data-kps-close-panel aria-label="Close story">×</button>
+        <span>STACK° / 06 BUILDS</span>
+        <strong>Six signatures. One kinetic menu.</strong>
+        <p>A configurable showcase where product, typography, palette and motion move as one system.</p>
+      </aside>
+
+      <aside class="kps-panel kps-bag-panel" id="kps-bag-panel" aria-hidden="true" aria-label="Bag">
+        <button class="kps-panel-close" type="button" data-kps-close-panel aria-label="Close bag">×</button>
+        <span>YOUR BAG</span>
+        <strong>00 ITEMS</strong>
+        <p>Checkout can be connected from the restaurant project configuration.</p>
+      </aside>
+
+      <div class="kps-toast" id="kps-toast" role="status" aria-live="polite"></div>
 
       <div class="kps-rail-wrap">
         <div class="kps-rail" id="kps-rail" aria-label="Products"></div>
         <div class="kps-meta">
           <span class="kps-progress" id="kps-progress">01 / 06</span>
-          <button class="kps-demo" id="kps-demo" type="button" aria-pressed="false" title="Toggle automatic choreography"><span>AUTO</span></button>
+          <button class="kps-demo" id="kps-demo" type="button" aria-pressed="false" title="Play automatic choreography"><span>AUTO</span></button>
         </div>
       </div>
       <p class="kps-sr" id="kps-live" aria-live="polite"></p>
