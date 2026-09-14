@@ -15,6 +15,7 @@ try {
       const box=page.locator('[data-seo-intelligence]');
       assert.match(await box.textContent(),/NOT_CONFIGURED/);
       await box.locator('[data-intelligence-endpoint]').fill('https://mock-openseo.test');
+      await box.locator('[data-intelligence-endpoint]').press('Tab');
       await box.getByRole('button',{name:'Test OpenSEO connection'}).click();
       await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.integrations.openseo.status')==='CONNECTED');
       await box.getByRole('button',{name:'Run OpenSEO crawl'}).click();
