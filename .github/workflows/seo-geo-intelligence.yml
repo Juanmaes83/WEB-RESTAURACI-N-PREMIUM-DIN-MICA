@@ -10,6 +10,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: 22}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr46-source-${{ github.sha }}
+          path: |
+            .
+            !.git
+            !node_modules
+          include-hidden-files: true
+          retention-days: 1
       - run: |
           node --test tests/seo-geo-core.test.cjs tests/seo-geo-publisher.test.cjs tests/seo-geo-source-convergence.test.cjs tests/seo-geo-spain-first-contract.test.cjs tests/seo-geo-encoding-gate.test.cjs tests/seo-geo-media-b1.test.cjs tests/seo-geo-release-b.test.cjs tests/seo-geo-release-c.test.cjs
           node --check rubik-seo-geo-core.js
