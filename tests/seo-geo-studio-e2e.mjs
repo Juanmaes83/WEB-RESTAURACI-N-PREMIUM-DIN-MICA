@@ -1,4 +1,4 @@
-import {chromium,webkit,devices} from 'playwright';
+import {chromium,webkit} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {startServer} from './static-server.mjs';
@@ -15,6 +15,7 @@ try{
    assert.equal(await page.locator('.seo-panel').count(),0,'panel is built only on demand');
    await page.locator('.studio-open').click();await page.locator('.studio-nav [data-panel="seo-geo"]').click();
    await page.waitForSelector('.seo-panel:visible');
+   for(const label of ['Páginas','Media SEO','Blog','Contenido','Auditoría'])assert.ok(await page.locator('.seo-card summary').filter({hasText:label}).count(),`Release B Studio section ${label}`);
    const title=page.locator('#seo-seo-pages-home-seo-title-value');
    assert.equal(await title.getAttribute('readonly'),'');
    const edit=async(path,value)=>{const input=page.locator(`[data-seo-path="${path}"]`);await input.fill(value);await input.blur();};
@@ -36,14 +37,37 @@ try{
    await page.locator('[data-seo-mode="description"]').click();await edit('seo.pages.home.seo.description.value','<img src=x onerror=alert(1)> Texto propio.');
    assert.equal(await page.locator('.seo-serp img').count(),0,'untrusted text cannot create HTML');
    const json=await page.locator('[data-seo-schema]').textContent();assert.equal(JSON.parse(json)['@type'],'Restaurant');assert.equal(JSON.parse(json).aggregateRating,undefined);
-   await page.waitForFunction(()=>document.querySelector('#studio-status').dataset.state==='saved');
+   await page.evaluate(()=>RestaurantStudioConfig.flush());
+   await page.waitForFunction(async expected=>(await RestaurantStore.loadProject())?.config?.seo?.pages?.home?.seo?.description?.value===expected,'<img src=x onerror=alert(1)> Texto propio.');
    assert.equal(await page.evaluate(async()=>(await RestaurantStore.loadProject()).config.seo.pages.home.seo.description.value),'<img src=x onerror=alert(1)> Texto propio.');
+
+   // Media SEO uses the same Project State and supports CUSTOM -> AUTO reset.
+   await page.locator('.seo-card summary').filter({hasText:'Media SEO'}).click();
+   const firstMedia=page.locator('[data-seo-media-list] [data-media-ref]').first();await firstMedia.waitFor();const mediaRef=await firstMedia.getAttribute('data-media-ref');
+   const altBox=page.locator(`[data-media-ref="${mediaRef}"] .seo-generated`).nth(1);await altBox.locator('button').click();
+   assert.equal(await page.evaluate(ref=>RestaurantStudioConfig.get(`seo.media.${ref}.alt.mode`),mediaRef),'custom');
+   await page.locator(`[data-media-ref="${mediaRef}"] .seo-generated`).nth(1).locator('button').click();
+   assert.equal(await page.evaluate(ref=>RestaurantStudioConfig.get(`seo.media.${ref}.alt.mode`),mediaRef),'auto');
+
+   // Page Registry UI creates a real draft in the shared Project State.
+   await page.locator('.seo-card summary').filter({hasText:'Páginas'}).click();
+   const pageCount=await page.evaluate(()=>Object.keys(RestaurantStudioConfig.get('seo.pages')||{}).length);await page.getByRole('button',{name:'+ Nueva página draft'}).click();
+   await page.waitForFunction(n=>Object.keys(RestaurantStudioConfig.get('seo.pages')||{}).length>n,pageCount);
+
+   // Blog UI adds a real author and persists a draft article in the same Project State.
+   await page.locator('.seo-card summary').filter({hasText:'Blog'}).click();
+   await page.locator('[data-author-name]').fill('Ana Ruiz');await page.locator('[data-author-role]').fill('Editora');await page.getByRole('button',{name:'Añadir autor real'}).click();
+   await page.waitForFunction(()=>Array.isArray(RestaurantStudioConfig.get('seo.people'))&&RestaurantStudioConfig.get('seo.people').length>0);
+   await page.getByRole('button',{name:'+ Nuevo artículo draft'}).click();
+   await page.waitForFunction(()=>Array.isArray(RestaurantStudioConfig.get('seo.blog.articles'))&&RestaurantStudioConfig.get('seo.blog.articles').length>0);
+   await page.evaluate(()=>RestaurantStudioConfig.flush());
+
    await page.locator('.studio-nav [data-panel="project"]').click();
    const downloadPromise=page.waitForEvent('download');await page.locator('#export-config').click();const download=await downloadPromise;const exported=JSON.parse(fs.readFileSync(await download.path(),'utf8'));
-   assert.equal(exported.project.config.seo.pages.home.seo.description.mode,'custom');
+   assert.equal(exported.project.config.seo.pages.home.seo.description.mode,'custom');assert.ok(exported.project.config.seo.blog.articles.length>=1);
    await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.pages.home.seo.description.mode')==='custom');
    await page.locator('.studio-open').click();await page.locator('.studio-nav [data-panel="seo-geo"]').click();
-   assert.equal(await title.inputValue(),'Mar Nuevo | Restaurante en Calpe');
+   assert.equal(await title.inputValue(),'Mar Nuevo | Restaurante en Calpe');assert.ok(await page.evaluate(()=>RestaurantStudioConfig.get('seo.blog.articles')?.length>=1));
    // Import goes through the existing Project import, not a feature-specific loader.
    await page.locator('.studio-nav [data-panel="project"]').click();page.once('dialog',d=>d.accept());
    await page.locator('#import-config').setInputFiles({name:'seo-project.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(exported))});
@@ -53,7 +77,7 @@ try{
    await page.setViewportSize({width:390,height:844});await page.screenshot({path:`${out}/${engine}-mobile.png`});
    assert.equal(await page.locator('.seo-panel').evaluate(n=>n.scrollWidth<=n.clientWidth+1),true,'panel has no horizontal overflow');
    assert.equal(await page.locator('meta[name="keywords"]').count(),0);
-   assert.deepEqual(errors,[]);await context.close();console.log(`${engine.toUpperCase()} SEO STUDIO PASS: inheritance / custom / reset / undo / redo / privacy / persistence / export / import / mobile`);
+   assert.deepEqual(errors,[]);await context.close();console.log(`${engine.toUpperCase()} SEO STUDIO PASS: Release A inheritance/custom/reset + durable persistence + Release B pages/media/blog/mobile`);
   }finally{await browser.close();}
  }
 }finally{local?.server.close();}

@@ -1,97 +1,76 @@
-/* Native Studio view; every write goes through RestaurantStudioConfig. */
+/* Native SEO · GEO Studio. Every write uses the existing RestaurantStudioConfig / Project State. */
 (() => {
   'use strict';
   const el=(tag,cls,value)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=value;return n;};
-  const core=()=>window.RubikSEOGeoCore,api=()=>window.RestaurantStudioConfig;
-  let panel;
+  const core=()=>window.RubikSEOGeoCore,api=()=>window.RestaurantStudioConfig,b=()=>window.RubikSEOGeoReleaseB,mediaApi=()=>window.RubikSEOGeoMedia;
+  let panel,mediaRecords=[],activeArticleId='';
   const nav=el('button','','SEO · GEO');nav.type='button';nav.dataset.panel='seo-geo';
-  document.querySelector('.studio-nav [data-panel="project"]').before(nav);
+  document.querySelector('.studio-nav [data-panel="project"]')?.before(nav);
+  const text=x=>typeof x==='string'?x.trim():'';
+  const clone=x=>JSON.parse(JSON.stringify(x));
+  const split=x=>text(x).split(',').map(v=>v.trim()).filter(Boolean);
+  const patch=entries=>api().patch?api().patch(entries):Object.entries(entries).forEach(([path,value])=>api().set(path,value));
   function field(parent,label,path,{type='text',help='',options}={}){
     const wrap=el('label','seo-field',label),input=el(options?'select':type==='textarea'?'textarea':'input');
-    if(options)for(const [value,label] of options){const o=el('option','',label);o.value=value;input.append(o);}
-    else if(type!=='textarea')input.type=type;
-    if(type==='textarea')input.rows=3;
-    input.dataset.seoPath=path;input.id='seo-'+path.replaceAll('.','-');
-    input.addEventListener('change',()=>{
-      if(path.startsWith('seo.pages.home.seo.')&&path.endsWith('.value')){
-        const parentPath=path.slice(0,-6);api().set(parentPath,{...api().get(parentPath),value:input.value,updatedAt:new Date().toISOString()});
-      }else api().set(path,type==='checkbox'?input.checked:path==='seo.business.cuisine'?input.value.split(',').map(x=>x.trim()).filter(Boolean):input.value);
-    });
+    if(options)for(const [value,name] of options){const o=el('option','',name);o.value=value;input.append(o);}else if(type!=='textarea')input.type=type;
+    if(type==='textarea')input.rows=3;input.dataset.seoPath=path;input.id='seo-'+path.replaceAll('.','-');
+    input.addEventListener('change',()=>{if(path.startsWith('seo.pages.home.seo.')&&path.endsWith('.value')){const parentPath=path.slice(0,-6);api().set(parentPath,{...api().get(parentPath),value:input.value,updatedAt:new Date().toISOString()});}else api().set(path,type==='checkbox'?input.checked:path==='seo.business.cuisine'?split(input.value):input.value);});
     wrap.append(input);if(help)wrap.append(el('small','seo-help',help));parent.append(wrap);return input;
   }
-  function section(title,description,{open=false}={}){
-    const d=el('details','seo-card');d.open=open;d.append(el('summary','',title));
-    if(description)d.append(el('p','seo-help',description));panel.append(d);return d;
-  }
+  function section(title,description,{open=false}={}){const d=el('details','seo-card');d.open=open;d.append(el('summary','',title));if(description)d.append(el('p','seo-help',description));panel.append(d);return d;}
+  function labeledInput(label,value,onChange,{textarea=false,type='text',readonly=false}={}){const wrap=el('label','seo-field',label),input=el(textarea?'textarea':'input');if(!textarea)input.type=type;if(textarea)input.rows=3;input.value=value??'';input.readOnly=readonly;input.addEventListener('change',()=>onChange(input.value,input));wrap.append(input);return {wrap,input};}
+  function button(label,fn,cls='studio-primary'){const x=el('button',cls,label);x.type='button';x.onclick=fn;return x;}
+  function stateCopy(){return api().snapshot();}
+
   function build(){
     if(panel){render();return;}
     const style=el('link');style.rel='stylesheet';style.href='styles-seo-geo.css';document.head.append(style);
     panel=el('section','studio-panel seo-panel');panel.dataset.panel='seo-geo';panel.hidden=true;
-    const intro=el('div','panel-intro');intro.append(el('p','eyebrow','RUBIK / SEO FOUNDATION'),el('h3','','Tu negocio, bien descrito.'),el('p','','Reutiliza tus datos, revisa cómo se presenta HOME y personaliza sólo lo necesario.'));
-    panel.append(intro,el('p','seo-notice','SEO generado desde Project State. El preview es seguro y noindex; Publisher materializa la producción. Define un baseUrl/canonical HTTPS válido para publicar. No es una promesa de ranking.'));
+    const intro=el('div','panel-intro');intro.append(el('p','eyebrow','RUBIK / SEO · GEO'),el('h3','','Search-ready restaurant system.'),el('p','','Un Studio, un Project State, una Media Library, un Page Registry y un Publisher.'));
+    panel.append(intro,el('p','seo-notice','SEO generado desde datos reales del proyecto. Preview = noindex. Producción sólo indexa rutas que pasan los guards. Release C sigue diferida.'));
     const overview=el('p','seo-overview');overview.dataset.seoOverview='';overview.setAttribute('role','status');panel.append(overview);
-    const home=section('HOME · Apariencia en buscadores','Una página real: /. Los anchors del menú no se convierten en páginas nuevas.',{open:true});
-    field(home,'Idioma de las fórmulas','seo.site.defaultLanguage',{options:[['es','Español']]});
-    field(home,'URL de producción','seo.site.baseUrl',{type:'url',help:'Tu dominio definitivo. No se toma automáticamente la URL temporal de Vercel.'});
-    for(const [key,label] of [['title','SEO title'],['description','Meta description'],['h1','H1 sugerido']]){
-      const box=el('div','seo-generated');box.dataset.seoGenerated=key;
-      const path=`seo.pages.home.seo.${key}`;
-      const input=field(box,label,`${path}.value`,{type:key==='description'?'textarea':'text'});
-      const provenance=el('small','seo-help');provenance.dataset.seoProvenance=key;box.append(provenance);
-      const toggle=el('button','studio-primary');toggle.type='button';toggle.dataset.seoMode=key;
-      toggle.onclick=()=>{const f=api().get(path);api().set(path,{...f,mode:f.mode==='custom'?'auto':'custom',updatedAt:new Date().toISOString()});if(api().get(path).mode==='custom')input.focus();};
-      box.append(toggle);home.append(box);
-    }
-    field(home,'Permitir indexación de HOME al publicar','seo.pages.home.indexable',{type:'checkbox'});
-    const serp=el('div','seo-serp');serp.setAttribute('aria-label','Preview orientativo del resultado de búsqueda');
-    for(const name of ['url','title','description']){const n=el(name==='title'?'strong':'p');n.dataset.seoSerp=name;serp.append(n);}home.append(serp,el('p','seo-help','Preview orientativo. Google puede reescribir el título y el snippet; no hay un límite rígido de caracteres. El H1 sugerido no cambia aún el hero público.'));
-    const entity=section('Negocio · Fuentes compartidas','Estos campos editan Marca, Hero y Ubicación en el mismo proyecto. No hay una segunda ficha SEO.');
-    const grid=el('div','seo-grid');entity.append(grid);
-    for(const [label,path,type,help] of [
-      ['Nombre comercial','brand.name','text','Fuente: Marca'],['Descripción del negocio','hero.body','textarea','Fuente: texto del Hero'],
-      ['Categoría','seo.business.category','text','Si está vacío, se usa Restaurante.'],['Cocina','seo.business.cuisine','text','Sólo cocinas reales, separadas por coma.'],
-      ['Nombre legal','seo.business.legalName','text','Opcional; sólo información pública.'],['Rango de precios','seo.business.priceRange','text','Opcional; no se calcula ni se inventa.'],
-      ['Calle','modules.location.address.street'],['Ciudad','modules.location.address.city'],['Región','modules.location.address.region'],['Código postal','modules.location.address.postalCode'],['País','modules.location.address.country'],
-      ['Teléfono público','modules.location.phone','tel','Fuente: Ubicación'],['Contacto / email visible','visit.contact','text','Fuente: Visit. No introduzcas un email administrativo privado.']
-    ])field(grid,label,path,{type:type||'text',help:help||'Fuente: Ubicación'});
-    const privacy=section('Revisión y privacidad','Los datos de contacto se omiten del schema hasta confirmarlos. Los datos se publican en schema sólo cuando están estructurados, confirmados y marcados como públicos. La visibilidad del módulo Location/Maps es independiente de la elegibilidad SEO.');
-    for(const [key,label] of [['address','Dirección en schema'],['phone','Teléfono en schema'],['email','Email en schema']])field(privacy,label,`seo.visibility.${key}`,{options:[['private','Omitir'],['public','Permitir datos públicos']]});
-    const confirm=el('button','studio-primary','Confirmar datos reales revisados');confirm.type='button';confirm.dataset.seoConfirm='';
-    confirm.onclick=()=>{const config=api().snapshot();api().set('seo.business',{...config.seo.business,publicDataConfirmed:true,confirmationSignature:core().signature(config)});};privacy.append(confirm);
-    const state=el('p','seo-help');state.dataset.seoConfirmation='';privacy.append(state);
-    const schema=section('Restaurant schema · Preview','Sólo datos disponibles y autorizados. No se generan reviews, ratings, horarios estructurados ni coordenadas desde texto libre.');
-    const pre=el('pre','seo-json');pre.dataset.seoSchema='';pre.tabIndex=0;schema.append(pre);
-    const audit=section('Comprobaciones antes de publicar','Checks locales del proyecto. No son rankings ni una auditoría de la web online.',{open:true});const list=el('ul','seo-checks');list.dataset.seoChecks='';audit.append(list);
-    const context=section('Contexto y medición','La base funciona sin servicios de pago. Las integraciones y Media SEO se implementarán en sus fases.');
-    const info=el('p','seo-help');info.dataset.seoContext='';context.append(info);
-    context.append(el('p','seo-help','DataForSEO: NOT MEASURED · Search Console: NOT CONNECTED · OpenSEO: NOT CONNECTED · Visibilidad IA: NOT MEASURED.'));
-    document.querySelector('#studio-scroll').append(panel);render();
+
+    const home=section('HOME · Apariencia en buscadores','La HOME conserva el contrato de Release A.',{open:true});
+    field(home,'Idioma de las fórmulas','seo.site.defaultLanguage',{options:[['es','Español']]});field(home,'URL de producción','seo.site.baseUrl',{type:'url',help:'Dominio definitivo HTTPS.'});
+    for(const [key,label] of [['title','SEO title'],['description','Meta description'],['h1','H1 sugerido']]){const box=el('div','seo-generated');box.dataset.seoGenerated=key;const path=`seo.pages.home.seo.${key}`,input=field(box,label,`${path}.value`,{type:key==='description'?'textarea':'text'}),provenance=el('small','seo-help');provenance.dataset.seoProvenance=key;box.append(provenance);const toggle=button('',()=>{const f=api().get(path);api().set(path,{...f,mode:f.mode==='custom'?'auto':'custom',updatedAt:new Date().toISOString()});if(api().get(path).mode==='custom')input.focus();});toggle.dataset.seoMode=key;box.append(toggle);home.append(box);}
+    field(home,'Permitir indexación de HOME al publicar','seo.pages.home.indexable',{type:'checkbox'});const serp=el('div','seo-serp');serp.setAttribute('aria-label','Preview orientativo del resultado de búsqueda');for(const name of ['url','title','description']){const n=el(name==='title'?'strong':'p');n.dataset.seoSerp=name;serp.append(n);}home.append(serp);
+
+    const entity=section('Negocio · Fuentes compartidas','Edita las fuentes canónicas del mismo proyecto.');const grid=el('div','seo-grid');entity.append(grid);for(const [label,path,type,help] of [['Nombre comercial','brand.name','text','Fuente: Marca'],['Descripción del negocio','hero.body','textarea','Fuente: Hero'],['Categoría','seo.business.category','text','Categoría real'],['Cocina','seo.business.cuisine','text','Separada por comas'],['Nombre legal','seo.business.legalName'],['Rango de precios','seo.business.priceRange'],['Calle','modules.location.address.street'],['Ciudad','modules.location.address.city'],['Región','modules.location.address.region'],['Código postal','modules.location.address.postalCode'],['País','modules.location.address.country'],['Teléfono público','modules.location.phone','tel'],['Contacto / email visible','visit.contact']])field(grid,label,path,{type:type||'text',help:help||''});
+    const privacy=section('Revisión y privacidad','Schema sólo con datos públicos confirmados.');for(const [key,label] of [['address','Dirección en schema'],['phone','Teléfono en schema'],['email','Email en schema']])field(privacy,label,`seo.visibility.${key}`,{options:[['private','Omitir'],['public','Permitir datos públicos']]});const confirm=button('Confirmar datos reales revisados',()=>{const c=stateCopy();api().set('seo.business',{...c.seo.business,publicDataConfirmed:true,confirmationSignature:core().signature(c)});});confirm.dataset.seoConfirm='';privacy.append(confirm);const confirmation=el('p','seo-help');confirmation.dataset.seoConfirmation='';privacy.append(confirmation);
+
+    const pages=section('Páginas · Page Registry','Rutas reales, thin-page guard, canonical y redirects.');pages.append(button('+ Nueva página draft',()=>createPageDraft()));const pageList=el('div','seo-pages-list');pageList.dataset.seoPagesList='';pages.append(pageList);
+    const media=section('Media SEO · Biblioteca compartida','AUTO/CUSTOM, reset, provenance y warnings sobre los mismos assets.');const mediaList=el('div','seo-media-list');mediaList.dataset.seoMediaList='';media.append(mediaList);
+    const blog=section('Blog · Contenido editorial','Artículos persistentes dentro del mismo Project State y Publisher.');const authorBox=el('div','seo-grid');authorBox.dataset.seoAuthors='';blog.append(authorBox,button('+ Nuevo artículo draft',()=>newArticle()));const blogList=el('div','seo-blog-list');blogList.dataset.seoBlogList='';const blogEditor=el('div','seo-blog-editor');blogEditor.dataset.seoBlogEditor='';blog.append(blogList,blogEditor);
+    const content=section('Contenido · Internal Linking','Sugerencias sólo cuando existe relación factual. Requieren revisión.');const linkList=el('div','seo-link-list');linkList.dataset.seoLinkList='';content.append(linkList);
+    const schema=section('Schema · Preview','Restaurant + WebSite/WebPage y Article/BlogPosting cuando corresponde.');const pre=el('pre','seo-json');pre.dataset.seoSchema='';pre.tabIndex=0;schema.append(pre);
+    const audit=section('Auditoría Release B','Media, páginas, blog, redirects, enlaces y Release A.',{open:true});const list=el('ul','seo-checks');list.dataset.seoChecks='';audit.append(list);
+    const context=section('Contexto y medición','Release C permanece fuera de alcance.');const info=el('p','seo-help');info.dataset.seoContext='';context.append(info,el('p','seo-help','DataForSEO: NOT MEASURED · Search Console: NOT CONNECTED · OpenSEO: NOT CONNECTED · Visibilidad IA: NOT MEASURED.'));
+    document.querySelector('#studio-scroll').append(panel);refreshMediaRecords();render();
   }
-  function render(){
-    if(!panel||!api())return;
-    const result=core().preview(api().snapshot());
-    for(const input of panel.querySelectorAll('[data-seo-path]')){
-      const value=api().get(input.dataset.seoPath);
-      if(document.activeElement!==input){if(input.type==='checkbox')input.checked=!!value;else input.value=Array.isArray(value)?value.join(', '):(value??'');}
-    }
-    const names={'brand.name':'Marca','hero.body':'Hero','seo.business.category':'Categoría','seo.business.cuisine':'Cocina','modules.location.address.city':'Ubicación','seo.site.defaultLanguage':'Idioma'};
-    for(const key of ['title','description','h1']){
-      const f=result.home.seo[key],box=panel.querySelector(`[data-seo-generated="${key}"]`),input=box.querySelector('input,textarea');
-      input.readOnly=f.mode==='auto';input.value=f.value;
-      box.querySelector('[data-seo-mode]').textContent=f.mode==='auto'?'Personalizar':'Volver a automático';
-      box.querySelector('[data-seo-provenance]').textContent=f.mode==='auto'?`AUTO · ${f.derivedFrom.map(p=>names[p]||p).join(' ← ')}`:'CUSTOM · Se conserva aunque cambien los datos del negocio.';
-    }
-    panel.querySelector('[data-seo-serp="url"]').textContent=result.canonical||'Dominio pendiente';
-    for(const key of ['title','description'])panel.querySelector(`[data-seo-serp="${key}"]`).textContent=result.home.seo[key].value||'Pendiente';
-    panel.querySelector('[data-seo-schema]').textContent=JSON.stringify(result.schema,null,2);
-    panel.querySelector('[data-seo-confirmation]').textContent=result.seo.business.publicDataConfirmed?'Datos confirmados.':'Pendiente de revisión; cualquier cambio en las fuentes invalida la confirmación anterior.';
-    const counts=result.checks.reduce((a,c)=>(a[c.severity]=(a[c.severity]||0)+1,a),{});
-    panel.querySelector('[data-seo-overview]').textContent=`${counts.PASS||0} comprobaciones correctas · ${counts.BLOCKER||0} bloqueos · ${counts.WARNING||0} avisos. Preparación local, no medición de visibilidad.`;
-    const list=panel.querySelector('[data-seo-checks]');list.replaceChildren();
-    for(const c of result.checks){const li=el('li');li.dataset.severity=c.severity;li.append(el('strong','',c.severity),el('span','',c.message));list.append(li);}
-    panel.querySelector('[data-seo-context]').textContent=`${result.source.dishes.length} platos disponibles para contexto futuro; no se introducen en el title de HOME. ${result.source.media.length} referencias a la Media Library compartida. El Core no guarda archivos ni crea otra biblioteca.`;
+
+  function createPageDraft(){if(!b())return;const c=stateCopy(),stamp=Date.now(),id=`page-${stamp}`;try{b().createPage(c,{id,path:`/pagina-${stamp}/`,pageType:'generic',status:'draft',indexable:false,title:'',description:'',h1:'',primaryQuery:'',topics:[],entities:[],content:''});api().set('seo.pages',c.seo.pages);}catch(err){alert(err.message);}}
+  function setPageField(id,key,value){const c=stateCopy(),raw=c.seo?.pages?.[id];if(!raw)return;if(key==='path'){try{b().migratePath(c,id,value);patch({'seo.pages':c.seo.pages,'seo.redirects':c.seo.redirects||[],'seo.blog':c.seo.blog||{articles:[]}});}catch(err){alert(err.message);}return;}const next={...raw,[key]:value};if(key==='status'&&value==='published'){const normalized=b().normalizePage(c,id,next),check=b().pageEligibility(c,normalized);if(!check.ok){alert('No se puede publicar: '+check.reasons.join(', '));return;}next.indexable=true;}if(key==='indexable'&&value===true){const normalized=b().normalizePage(c,id,next),check=b().pageEligibility(c,normalized);if(!check.ok){alert('No se puede indexar: '+check.reasons.join(', '));return;}}api().set(`seo.pages.${id}`,next);}
+  function renderPages(c){const host=panel.querySelector('[data-seo-pages-list]');if(!host||!b())return;host.replaceChildren();for(const p of b().registry(c)){const row=el('article','seo-media-row');row.dataset.pageId=p.id;row.append(el('strong','',`${p.path} · ${p.status.toUpperCase()} · ${p.auditStatus}`),el('small','seo-help',p.eligibility.ok?'Elegible: '+p.eligibility.signals.join(', '):'Guard: '+p.eligibility.reasons.join(', ')));if(p.id==='home'){row.append(el('small','seo-help','HOME se edita arriba y conserva el modelo Release A.'));host.append(row);continue;}const path=labeledInput('Ruta',p.path,v=>setPageField(p.id,'path',v));const title=labeledInput('SEO title',p.title,v=>setPageField(p.id,'title',v));const desc=labeledInput('Descripción',p.description,v=>setPageField(p.id,'description',v),{textarea:true});const h1=labeledInput('H1',p.h1,v=>setPageField(p.id,'h1',v));const intent=labeledInput('Primary query / intención',p.primaryQuery,v=>setPageField(p.id,'primaryQuery',v));const content=labeledInput('Contenido factual',p.content,v=>setPageField(p.id,'content',v),{textarea:true});const status=el('select');for(const v of ['draft','published']){const o=el('option','',v);o.value=v;o.selected=p.status===v;status.append(o);}status.onchange=()=>setPageField(p.id,'status',status.value);const idx=el('input');idx.type='checkbox';idx.checked=p.indexable;idx.onchange=()=>setPageField(p.id,'indexable',idx.checked);row.append(path.wrap,title.wrap,desc.wrap,h1.wrap,intent.wrap,content.wrap,el('label','seo-field','Estado'),status,el('label','seo-field','Indexable'),idx);host.append(row);}}
+
+  function renderMedia(c){const host=panel.querySelector('[data-seo-media-list]');if(!host||!mediaApi())return;host.replaceChildren();const records=new Map(mediaRecords.map(r=>[r.slot,r]));for(const ref of mediaApi().mediaRefs(c,mediaRecords)){const a=mediaApi().project(c,ref,new Date().toISOString(),records.get(ref)),row=el('article','seo-media-row');row.dataset.mediaRef=ref;row.append(el('strong','',`${ref} · ${a.originalName||'asset'}`));for(const key of ['seoFilename','alt','caption','title']){const box=el('div','seo-generated'),label=el('label','seo-field',key),input=el('input');input.value=a[key].value;input.readOnly=a[key].mode==='auto';input.dataset.mediaKey=key;input.onchange=()=>api().set(`seo.media.${ref}.${key}`,{...api().get(`seo.media.${ref}.${key}`),mode:'custom',value:input.value,updatedAt:new Date().toISOString()});const toggle=button(a[key].mode==='auto'?'Personalizar':'Volver a automático',()=>{if(a[key].mode==='auto')api().set(`seo.media.${ref}.${key}`,{...a[key],mode:'custom'});else api().set(`seo.media.${ref}.${key}`,{mode:'auto'});});label.append(input);box.append(label,toggle,el('small','seo-help',`${a[key].mode.toUpperCase()} · ${(a[key].derivedFrom||[]).join(' ← ')||'sin fuente'} · ${a[key].decisionReason||''}`));row.append(box);}row.append(button(a.decorative?'Marcar informativa':'Marcar decorativa',()=>api().set(`seo.media.${ref}.decorative`,!a.decorative)));const issues=mediaApi().audit(c,mediaRecords).filter(x=>x.id.startsWith(`media.${ref}.`));row.append(el('small','seo-help',issues.length?issues.map(x=>`${x.severity}: ${x.message}`).join(' · '):'Sin warnings Media SEO.'));host.append(row);}}
+  async function refreshMediaRecords(){try{mediaRecords=await window.RestaurantStore?.listMedia?.()||[];if(panel)renderMedia(stateCopy());}catch{mediaRecords=[];}}
+
+  function newArticle(){const c=stateCopy(),id=`post-${Date.now()}`;try{const a=b().saveArticle(c,{id,title:'',slug:'',excerpt:'',status:'draft',authorId:'',datePublished:'',dateModified:new Date().toISOString(),category:'',topics:[],entities:[],primaryQuery:'',headings:[],body:'',coverMediaRef:'',internalLinks:[],externalSources:[],seo:{}});activeArticleId=a.id;patch({'seo.blog':c.seo.blog,'seo.pages':c.seo.pages});}catch(err){alert(err.message);}}
+  function parseHeadings(value){return text(value).split('\n').map(x=>x.trim()).filter(Boolean).map(line=>{const m=line.match(/^H([123])\s*:\s*(.+)$/i);return m?{level:Number(m[1]),text:m[2].trim()}:null;}).filter(Boolean);}
+  function articleDraftFromEditor(c,a){const host=panel.querySelector('[data-seo-blog-editor]');const get=k=>host.querySelector(`[data-blog-field="${k}"]`)?.value??'';return {...a,title:get('title'),slug:get('slug'),excerpt:get('excerpt'),authorId:get('authorId'),category:get('category'),topics:split(get('topics')),entities:split(get('entities')),primaryQuery:get('primaryQuery'),headings:parseHeadings(get('headings')),body:get('body'),coverMediaRef:get('coverMediaRef'),internalLinks:split(get('internalLinks')),datePublished:a.datePublished||'',dateModified:new Date().toISOString()};}
+  function saveEditor(status){const c=stateCopy(),a=(c.seo?.blog?.articles||[]).find(x=>x.id===activeArticleId);if(!a)return;const next={...articleDraftFromEditor(c,a),status};if(status==='published'&&!next.datePublished)next.datePublished=new Date().toISOString();try{const saved=b().saveArticle(c,next);activeArticleId=saved.id;patch({'seo.blog':c.seo.blog,'seo.pages':c.seo.pages});}catch(err){alert(err.message);}}
+  function addAuthor(){const host=panel.querySelector('[data-seo-authors]'),name=text(host.querySelector('[data-author-name]')?.value),role=text(host.querySelector('[data-author-role]')?.value),type=host.querySelector('[data-author-type]')?.value||'Person';if(!name){alert('Nombre de autor obligatorio.');return;}const list=[...(api().get('seo.people')||[])],id=`author-${Date.now()}`;list.push({id,name,role,type});api().set('seo.people',list);}
+  function renderAuthors(c){const host=panel.querySelector('[data-seo-authors]');if(!host)return;host.replaceChildren();const name=el('input');name.placeholder='Nombre real';name.dataset.authorName='';const role=el('input');role.placeholder='Rol / chef / equipo';role.dataset.authorRole='';const type=el('select');type.dataset.authorType='';for(const v of ['Person','Organization']){const o=el('option','',v);o.value=v;type.append(o);}host.append(name,role,type,button('Añadir autor real',addAuthor),el('small','seo-help',`${(c.seo?.people||[]).length} autores/entidades disponibles.`));}
+  function renderBlog(c){renderAuthors(c);const list=panel.querySelector('[data-seo-blog-list]'),editor=panel.querySelector('[data-seo-blog-editor]');if(!list||!editor||!b())return;list.replaceChildren();const articles=b().blogArticles(c);if(!activeArticleId&&articles[0])activeArticleId=articles[0].id;for(const a of articles){const x=button(`${a.status==='published'?'PUBLICADO':'DRAFT'} · ${a.title||a.id}`,()=>{activeArticleId=a.id;renderBlog(stateCopy());},'');x.dataset.articleId=a.id;list.append(x);}editor.replaceChildren();const a=articles.find(x=>x.id===activeArticleId);if(!a){editor.append(el('p','seo-help','Crea un artículo para empezar.'));return;}const fields=[['title','Título',a.title],['slug','Slug',a.slug],['excerpt','Excerpt',a.excerpt],['authorId','Author ID',a.authorId],['category','Categoría',a.category],['topics','Topics',a.topics.join(', ')],['entities','Entities',a.entities.join(', ')],['primaryQuery','Primary query',a.primaryQuery],['coverMediaRef','Cover media ref',a.coverMediaRef],['internalLinks','Internal links',a.internalLinks.map(x=>typeof x==='string'?x:(x.to||x.href||'')).join(', ')],['headings','Headings (H1:/H2:/H3:)',a.headings.map(h=>`H${h.level}: ${h.text}`).join('\n'),true],['body','Body',a.body,true]];for(const [key,label,value,textarea] of fields){const f=labeledInput(label,value,()=>{}, {textarea:!!textarea});f.input.dataset.blogField=key;editor.append(f.wrap);}editor.append(el('small','seo-help',`Validación: ${a.validation.ok?'PASS':a.validation.blockers.join(', ')}${a.validation.warnings.length?' · '+a.validation.warnings.join(', '):''}`),button('Guardar draft',()=>saveEditor('draft')),button('Publicar',()=>saveEditor('published')),button('Volver a draft',()=>saveEditor('draft')));}
+
+  function addSuggestedLink(s){const c=stateCopy(),raw=c.seo?.pages?.[s.from];if(!raw)return;const links=[...(raw.internalLinks||[])];if(!links.some(x=>(typeof x==='string'?x:(x.to||x.href))===s.to))links.push({to:s.to,anchor:s.anchorCandidate,reason:s.reason,reviewedAt:new Date().toISOString()});raw.internalLinks=links;api().set(`seo.pages.${s.from}`,raw);}
+  function renderLinks(c){const host=panel.querySelector('[data-seo-link-list]');if(!host||!b())return;host.replaceChildren();const suggestions=b().semanticLinks(c).slice(0,30);if(!suggestions.length)host.append(el('p','seo-help','Sin relaciones semánticas suficientes. No se fuerzan enlaces.'));for(const s of suggestions){const row=el('article','seo-media-row');row.append(el('strong','',`${s.from} → ${s.to}`),el('small','seo-help',`${s.reason} Score ${s.score}. Revisión obligatoria.`),button('Añadir enlace revisado',()=>addSuggestedLink(s)));host.append(row);}}
+
+  function render(){if(!panel||!api())return;const c=stateCopy(),result=core().preview(c);for(const input of panel.querySelectorAll('[data-seo-path]')){const value=api().get(input.dataset.seoPath);if(document.activeElement!==input){if(input.type==='checkbox')input.checked=!!value;else input.value=Array.isArray(value)?value.join(', '):(value??'');}}
+    const names={'brand.name':'Marca','hero.body':'Hero','seo.business.category':'Categoría','seo.business.cuisine':'Cocina','modules.location.address.city':'Ubicación','seo.site.defaultLanguage':'Idioma'};for(const key of ['title','description','h1']){const f=result.home.seo[key],box=panel.querySelector(`[data-seo-generated="${key}"]`),input=box.querySelector('input,textarea');input.readOnly=f.mode==='auto';input.value=f.value;box.querySelector('[data-seo-mode]').textContent=f.mode==='auto'?'Personalizar':'Volver a automático';box.querySelector('[data-seo-provenance]').textContent=f.mode==='auto'?`AUTO · ${f.derivedFrom.map(p=>names[p]||p).join(' ← ')}`:'CUSTOM · Se conserva aunque cambien los datos del negocio.';}
+    panel.querySelector('[data-seo-serp="url"]').textContent=result.canonical||'Dominio pendiente';for(const key of ['title','description'])panel.querySelector(`[data-seo-serp="${key}"]`).textContent=result.home.seo[key].value||'Pendiente';panel.querySelector('[data-seo-schema]').textContent=JSON.stringify(result.schema,null,2);panel.querySelector('[data-seo-confirmation]').textContent=result.seo.business.publicDataConfirmed?'Datos confirmados.':'Pendiente de revisión; cualquier cambio en fuentes invalida la confirmación.';
+    const issues=[...result.checks,...(b()?.audit(c,mediaRecords)||[])],counts=issues.reduce((a,x)=>(a[x.severity]=(a[x.severity]||0)+1,a),{});panel.querySelector('[data-seo-overview]').textContent=`${counts.PASS||0} PASS · ${counts.BLOCKER||0} BLOCKER · ${counts.ERROR||0} ERROR · ${counts.WARNING||0} WARNING. Release C: DEFERRED.`;const list=panel.querySelector('[data-seo-checks]');list.replaceChildren();for(const x of issues){const li=el('li');li.dataset.severity=x.severity;li.append(el('strong','',x.severity),el('span','',x.message||x.id));list.append(li);}panel.querySelector('[data-seo-context]').textContent=`${result.source.dishes.length} platos · ${mediaApi()?.mediaRefs(c,mediaRecords).length||0} assets SEO · ${b()?.registry(c).length||1} rutas · ${b()?.blogArticles(c).length||0} artículos.`;
+    renderPages(c);renderMedia(c);renderBlog(c);renderLinks(c);
   }
-  nav.addEventListener('click',build);
-  document.addEventListener('restaurant:config-applied',render);
-  window.RestaurantSEOGeoStudio={open(){build();window.RestaurantStudioShell?.open();nav.click();}};
+  nav.addEventListener('click',build);document.addEventListener('restaurant:config-applied',render);window.RestaurantSEOGeoStudio={open(){build();window.RestaurantStudioShell?.open();nav.click();},refreshMedia:refreshMediaRecords};
 })();
