@@ -11,6 +11,7 @@ try {
       await page.goto(url,{waitUntil:'domcontentloaded'});
       await page.locator('.studio-open').click();
       await page.locator('.studio-nav [data-panel="seo-geo"]').click();
+      await page.locator('.seo-card summary').filter({hasText:'Intelligence'}).click();
       const box=page.locator('[data-seo-intelligence]');
       assert.match(await box.textContent(),/NOT_CONFIGURED/);
       await box.locator('[data-intelligence-endpoint]').fill('https://mock-openseo.test');
