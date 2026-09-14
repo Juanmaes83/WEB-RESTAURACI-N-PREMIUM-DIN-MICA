@@ -1,0 +1,47 @@
+name: Project 12 Kinetic Product Selector
+
+on:
+  pull_request:
+    paths:
+      - 'kinetic-product-selector.js'
+      - 'kinetic-product-source.js'
+      - 'kinetic-product-studio.js'
+      - 'styles-kinetic-product-selector.css'
+      - 'experiences/kinetic-product-selector/**'
+      - 'assets/kinetic-product-selector/**'
+      - 'class19-motion-library.js'
+      - 'class22-experience-shell.js'
+      - 'tests/project12-kinetic-product-selector-e2e.mjs'
+      - 'docs/PROJECT-12-KINETIC-PRODUCT-SELECTOR.md'
+      - '.github/workflows/project12-kinetic-product-selector.yml'
+  push:
+    branches:
+      - feat/kinetic-product-selector
+
+jobs:
+  project12:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check kinetic-product-selector.js
+          node --check kinetic-product-source.js
+          node --check kinetic-product-studio.js
+          node --check class19-motion-library.js
+          node --check class22-experience-shell.js
+          node --check tests/project12-kinetic-product-selector-e2e.mjs
+      - name: Verify reference assets
+        run: |
+          test "$(find assets/kinetic-product-selector -maxdepth 1 -name '*.webp' | wc -l)" -eq 6
+          test -f experiences/kinetic-product-selector/index.html
+      - name: Install Playwright Chromium
+        run: |
+          test -f package.json || npm init -y >/dev/null 2>&1
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Kinetic Product Selector product gate
+        run: node tests/project12-kinetic-product-selector-e2e.mjs
