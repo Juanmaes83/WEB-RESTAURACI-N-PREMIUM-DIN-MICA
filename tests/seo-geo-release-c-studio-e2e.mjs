@@ -45,6 +45,7 @@ try {
       assert.equal(await page.locator('[data-gsc-date-range]').inputValue(),'28d');
 
       const snapshotId=await page.evaluate(()=>RestaurantStudioConfig.get('seo.intelligence.snapshots')[0].snapshotId);
+      assert.equal(await page.evaluate(()=>RestaurantStudioConfig.flush()),true);
       await page.reload({waitUntil:'domcontentloaded'});
       await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.intelligence.snapshots')?.length===1);
       await page.waitForFunction(()=>RestaurantStudioConfig.get('seo.integrations.openseo.endpoint')==='https://mock-openseo.test');
