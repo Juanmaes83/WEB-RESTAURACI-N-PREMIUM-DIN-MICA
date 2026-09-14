@@ -60,7 +60,7 @@ async function direct(viewport={width:1440,height:900}){
   const context=await browser.newContext({viewport:{width:1440,height:960}});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>document.querySelectorAll('#orbit-stage .orbit-dish').length>=3,null,{timeout:30000});
-  await page.locator('.studio-open').click();await page.waitForTimeout(650);await page.locator('#studio [data-panel="motion"]').click();
+  await page.locator('.studio-open').click();await page.waitForTimeout(650);await page.locator('#studio button[data-panel="motion"]').click();
   await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().count===17&&document.documentElement.dataset.kpsStudio==='ready',null,{timeout:25000});
   const library=await page.evaluate(()=>({count:window.RestaurantMotionLibrary.state().count,card:!!document.querySelector('[data-ml-card="kinetic-product-selector"]'),button:!!document.querySelector('[data-ml-card="kinetic-product-selector"] [data-kps-configure]'),shell:window.RestaurantExperienceShell.experiences().some(e=>e.id==='kinetic-product-selector')}));
   check('Motion Library exposes Kinetic Product Selector as engine 17',library.count===17&&library.card,`${library.count} engines`);
