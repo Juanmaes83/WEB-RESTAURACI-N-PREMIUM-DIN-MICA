@@ -84,3 +84,8 @@ Contraste normativo: [Google title links](https://developers.google.com/search/d
 [AI features](https://developers.google.com/search/docs/appearance/ai-features) y
 [Schema.org Restaurant](https://schema.org/Restaurant).
 El contrato canónico prevalece sobre sugerencias antiguas o incompatibles de las referencias.
+# Release A — Search-Ready Core
+
+Esta entrega reúne Foundation + Publisher. El motor determinista transforma datos reales del Project State en decisiones AUTO/CUSTOM trazables (`value`, `templateId`, `derivedFrom`, `updatedAt`, `decisionReason`) y materializa metadata, políticas de rastreo, Open Graph/Twitter, grafo JSON-LD, sitemap y robots.
+
+Release A es España-first (`es`, `es-ES`, `supportedLanguages: ['es']`). Preview usa `noindex`; producción requiere `seo.site.baseUrl` HTTPS válida y nunca usa una URL Vercel como canonical. Search Console, DataForSEO, OpenSEO, Blog, Media SEO, GEO externo y multidioma quedan DEFERRED para Releases posteriores.

@@ -45,16 +45,15 @@
     try{const saved=await window.RestaurantStore?.loadProject?.();if(saved?.config)config=merge(clone(defaults),saved.config)}catch(err){console.warn('Class 06 config fallback',err)}
     const q=new URLSearchParams(location.search).get('lang');
     const stored=localStorage.getItem('restaurant-locale');
-    locale=(q==='es'||q==='en')?q:((stored==='es'||stored==='en')?stored:(config.locale||'es'));
+    locale='es';
   }
 
   function ensureLanguageSwitch(){
     if($('#class6-language'))return;
     const actions=$('.nav-actions');if(!actions)return;
     const group=document.createElement('div');group.id='class6-language';group.className='class6-language';group.setAttribute('role','group');group.setAttribute('aria-label','Language / Idioma');
-    group.innerHTML='<button type="button" data-lang="es">ES</button><span aria-hidden="true">/</span><button type="button" data-lang="en">EN</button>';
+    group.innerHTML='<span data-lang="es">ES</span>';
     actions.insertBefore(group,actions.firstChild);
-    group.addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(b)setLocale(b.dataset.lang,true)});
   }
 
   function ensureStoryUI(){
@@ -102,6 +101,7 @@
   }
 
   function updateSEO(){
+    if(window.RubikSEOGeoPublisher&&window.RubikSEOGeoCore)return window.RubikSEOGeoPublisher.apply(config,'preview',document);
     const d=langData(),brand=config.brand?.name||'LÚMINA';document.title=locale==='es'?`${brand} — Restaurante mediterráneo en Alicante`:`${brand} — Mediterranean dining in Alicante`;
     let meta=$('meta[name="description"]');if(meta)meta.content=locale==='es'?'LÚMINA: experiencia gastronómica mediterránea en Alicante con carta orbital, producto local y cocina de fuego.':'LÚMINA: a Mediterranean dining experience in Alicante with an orbital menu, local produce and fire-led cooking.';
     const ensure=(selector,create)=>{let el=$(selector);if(!el){el=document.createElement(create.tag);Object.entries(create.attrs||{}).forEach(([k,v])=>el.setAttribute(k,v));document.head.appendChild(el)}return el};

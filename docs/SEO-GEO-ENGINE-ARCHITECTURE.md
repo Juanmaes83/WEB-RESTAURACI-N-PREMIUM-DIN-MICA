@@ -1,5 +1,18 @@
 # RUBIK SEO/GEO CORE — Arquitectura canónica
 
+## Plan operativo oficial por Releases
+
+- **Release A — Search-Ready Core:** Foundation + Publisher (SEO operativo español, metadata, schema, canonical, robots, OG/Twitter, sitemap y HTML inicial).
+- **Release B — Content & Media:** Media SEO + Page Registry + Blog.
+- **Release C — Intelligence & GEO:** OpenSEO + Search Console + DataForSEO + GEO/AI Search.
+- **Release D — Multi-vertical:** extracción del Core + adapters Rubik.
+
+El roadmap técnico histórico inferior se conserva sólo como trazabilidad; estas cuatro Releases son el plan operativo vigente.
+
+### España-first (Release A)
+
+Release A soporta únicamente `es`/`es-ES` (`supportedLanguages: ['es']`). Studio no ofrece selector English ni genera hreflang bilingüe. Queda registrado **TECH DEBT · MULTILINGUAL SEO**: traducciones reales, metadata por locale, Page Registry localizado, hreflang y canonical AUTO/CUSTOM por idioma.
+
 **Estado:** CANÓNICO · APROBADO PARA IMPLEMENTACIÓN POR FASES  
 **Fecha:** 2026-09-14  
 **Producto de referencia inicial:** Restaurant Experience Engine + Restaurant Studio  
@@ -2023,3 +2036,9 @@ DATAFORSEO INTELLIGENCE (OPTIONAL)
 Todo dentro de la misma plataforma, con defaults útiles, revisión humana, trazabilidad del origen del dato y capacidad de mejora continua.
 
 **Éste es el contrato canónico de Rubik SEO/GEO Core.**
+
+## Plan operativo Release A-D (vigente)
+
+Release A — Search-Ready Core = Foundation + Publisher. Release B — Content & Media = Media SEO + Page Registry + Blog. Release C — Intelligence & GEO = OpenSEO + Search Console + DataForSEO + GEO/AI Search. Release D — Multi-vertical = extracción Core + adapters Rubik. El roadmap anterior queda como trazabilidad.
+
+Release A es España-first: sólo `es`/`es-ES`, `supportedLanguages: ['es']`; English está deshabilitado en Studio y no se emite hreflang bilingüe. **TECH DEBT · MULTILINGUAL SEO:** traducciones reales, metadata por locale, Page Registry localizado, hreflang y canonical AUTO/CUSTOM por idioma.

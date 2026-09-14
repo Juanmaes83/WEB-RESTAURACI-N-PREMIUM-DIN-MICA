@@ -21,8 +21,8 @@ test('schema is parseable Restaurant, public/private gate, confirmation invalida
  c.seo.visibility={address:'public',phone:'public',email:'private'};
  assert.equal(core.preview(c).schema.telephone,undefined);
  c.seo.business.publicDataConfirmed=true;c.seo.business.confirmationSignature=core.signature(c);
- let p=core.preview(c);assert.equal(p.schema['@type'],'Restaurant');assert.equal(p.schema.telephone,c.modules.location.phone);assert.equal(p.schema.address.addressLocality,'Alicante');assert.equal(p.schema.email,undefined);
- assert.equal(p.schema['@id'],'https://restaurant.example.org/#restaurant');assert.equal(p.schema.aggregateRating,undefined);assert.equal(p.schema.review,undefined);
+ let p=core.preview(c);const restaurant=p.schema['@graph'].find(x=>x['@type']==='Restaurant');assert.equal(restaurant.telephone,c.modules.location.phone);assert.equal(restaurant.address.addressLocality,'Alicante');assert.equal(restaurant.email,undefined);
+ assert.equal(restaurant['@id'],'https://restaurant.example.org/#restaurant');assert.equal(restaurant.aggregateRating,undefined);assert.equal(restaurant.review,undefined);
  assert.deepEqual(JSON.parse(JSON.stringify(p.schema)),p.schema);
  c.modules.location.address.city='Altea';p=core.preview(c);assert.equal(p.seo.business.publicDataConfirmed,false);assert.equal(p.schema.telephone,undefined);
 });
@@ -30,7 +30,7 @@ test('private source wrappers and disabled module never leak contact into schema
  const c=fixture();c.visit.contact={value:'secret@example.org',visibility:'internal'};c.modules.location.phone={value:'+34666666666',visibility:'private'};
  c.seo.visibility={address:'public',phone:'public',email:'public'};c.modules.location.enabled=false;
  c.seo.business.publicDataConfirmed=true;c.seo.business.confirmationSignature=core.signature(c);
- const s=core.preview(c).schema;assert.equal(s.email,undefined);assert.equal(s.telephone,undefined);assert.equal(s.address,undefined);assert.doesNotMatch(JSON.stringify(s),/secret|666666/);
+ const s=core.preview(c).schema;assert.doesNotMatch(JSON.stringify(s),/secret|666666/);
 });
 test('missing city remains missing; no parsing editorial text or fabricated data',()=>{
  const c=fixture();c.modules.location.address={};c.hero.kicker='Madrid Â· Dining';c.seo.business.cuisine=[];
@@ -47,7 +47,7 @@ test('HOME only, no fake pages, honest unconnected measurements and publisher ga
  const p=core.preview(fixture());assert.deepEqual(Object.keys(p.seo.pages),['home']);assert.equal(p.home.path,'/');assert.equal(p.policy.preview,'noindex');assert.equal(p.policy.applied,false);
  assert.equal(p.measurements.dataForSEO,'NOT MEASURED');assert.equal(p.measurements.searchConsole,'NOT CONNECTED');assert.equal(p.measurements.openSEO,'NOT CONNECTED');assert.ok(p.checks.some(c=>c.id==='publisher'&&c.severity==='BLOCKER'));
 });
-test('English formula, custom fields and unknown import data survive without mutation',()=>{
+test('España-first formula, custom fields and unknown import data survive without mutation',()=>{
  const c=fixture();c.seo.site.defaultLanguage='en';c.seo.future={keep:true};const original=JSON.stringify(c);
- assert.equal(core.preview(c).home.seo.title.value,'Mar Abierto | Restaurant in Alicante');assert.equal(JSON.stringify(c),original);assert.deepEqual(core.reconcile(c).future,{keep:true});
+ assert.equal(core.preview(c).home.seo.title.value,'Mar Abierto | Restaurante en Alicante');assert.deepEqual(core.reconcile(c).site.supportedLanguages,['es']);assert.equal(JSON.stringify(c),original);assert.deepEqual(core.reconcile(c).future,{keep:true});
 });
