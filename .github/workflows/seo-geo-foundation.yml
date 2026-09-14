@@ -11,7 +11,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node --test tests/seo-geo-core.test.cjs
+      - run: |
+          node --test tests/seo-geo-core.test.cjs tests/seo-geo-publisher.test.cjs tests/seo-geo-source-convergence.test.cjs tests/seo-geo-spain-first-contract.test.cjs tests/seo-geo-encoding-gate.test.cjs tests/seo-geo-media-b1.test.cjs tests/seo-geo-release-b.test.cjs
+          node --check rubik-seo-geo-core.js
+          node --check rubik-seo-geo-publisher.js
+          node --check rubik-seo-geo-media.js
+          node --check rubik-seo-geo-release-b.js
       - run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium webkit
