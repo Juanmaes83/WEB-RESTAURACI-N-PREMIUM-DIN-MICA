@@ -1,24 +1,45 @@
-# Rubik SEO/GEO Core — Release C · Intelligence & GEO
+# Release C — Intelligence & GEO contract
 
-Release C añade medición post publicación sin crear una segunda aplicación: **un Studio, un Project State, una Media Library, un Page Registry, un Core y un Publisher**, más una única capa de Intelligence.
+## Architecture
 
-## Estados y honestidad
+Release C is one post-publish Intelligence Layer inside the existing SEO·GEO Studio. It consumes the public production output, Project State, Page Registry and canonical Publisher. It adds no store, dashboard application or credentials to public state.
 
-Los adapters usan `NOT_CONFIGURED`, `NOT_CONNECTED`, `CONNECTED`, `SYNCING`, `READY`, `ERROR`, `STALE` y `NOT_MEASURED`. La ausencia de autorización nunca se representa como cero. Las métricas externas sólo se guardan con proveedor, propiedad, periodo y fecha de captura.
+## Provider states
 
-## Adapters
+`NOT_CONFIGURED`, `NOT_CONNECTED`, `CONNECTED`, `SYNCING`, `READY`, `ERROR`, `STALE` and `NOT_MEASURED` are the only integration states. Missing data remains `null`/unknown; it is never converted to zero.
 
-OpenSEO recibe una URL productiva y las páginas publicadas, comprueba conectividad, normaliza crawl findings y guarda snapshots inmutables. Search Console normaliza filas reales por query, página, fecha y periodo. DataForSEO es opcional, sólo manual, cacheado y con aviso de coste; sin credenciales permanece `NOT_MEASURED`.
+## OpenSEO provider contract
 
-## Snapshots, diffs e insights
+The adapter performs GET connectivity against the configured endpoint, then POSTs `{action:"crawl",baseUrl,urls:[{pageId,url}]}`. A provider may return a result or `jobId` plus `resultUrl`; the adapter polls that provider result and normalizes findings. Direct page fetch is not called OpenSEO. Unreachable/timeout is `ERROR`.
 
-Cada snapshot conserva proveedor, fechas, URL base, páginas, issues y métricas. El diff clasifica `NEW`, `RESOLVED`, `UNCHANGED` y `REGRESSED`. Un insight exige evidencia visible y sólo recomienda cambios; no aplica automáticamente títulos, rutas ni contenido.
+## Search Console lifecycle
 
-## GEO / AI Search
+OAuth is server side. The adapter exposes `connectivity`, `fetchQueries`, `fetchPages`, `sync` and `normalize`, preserving property, 7d/28d/90d range, provider and fetch time. Without authorization the UI remains `NOT_CONNECTED` and shows no fake metrics.
 
-Entity, citability y crawler access son señales verificables. Citability se etiqueta siempre `HEURISTIC`; no es ranking ni probabilidad de citación. La observación externa de AI Search queda `NOT_MEASURED` hasta disponer de una fuente real. `llms.txt` es experimental y nunca blocker.
+## DataForSEO policy
 
-## Seguridad y resiliencia
+DataForSEO is optional and manual. Refresh is explicit, cached and records `lastFetchedAt`, provider cost when supplied, and a visible cost warning. No render triggers paid calls. Missing volume/difficulty/position are `null`.
 
-Credenciales viven únicamente en backend/serverless y variables de entorno. La web pública no depende de ningún provider: un error o timeout de integración sólo deja el estado correspondiente en el Project State.
+## Snapshots and diffs
 
+Snapshots are immutable and include provider, timestamps, base URL, pages scanned, issues, metrics and provider version. Diffs produce `NEW`, `RESOLVED`, `UNCHANGED`, `IMPROVED` or `REGRESSED` using category-aware metric direction; incompatible providers are never compared.
+
+## Insights and evidence
+
+Insights require evidence and contain type, source, page/query relation, severity, confidence, recommendation, creation time and lifecycle status (`OPEN`, `REVIEWED`, `RESOLVED`). Equivalent insights are deduplicated. External data only recommends; it never auto-applies SEO changes.
+
+## Crawler semantics
+
+robots.txt is parsed per User-agent with wildcard fallback and specific-group precedence. Googlebot, Google-Extended, OAI-SearchBot and GPTBot are reported independently, alongside meta robots, HTTP status and canonical match/mismatch evidence. Allowing a crawler is not a visibility claim.
+
+## GEO heuristic policy
+
+Entity, content, technical and citability readiness are labelled `HEURISTIC` and use verifiable Project State/published output signals. Structured data and public HTML are `MEASURED`, `MISSING` or `NOT_MEASURED` only when output evidence is supplied. AI Search observations remain `NOT_MEASURED` without an external provider. `llms.txt` is experimental and never a blocker.
+
+## Studio UX and persistence
+
+The existing SEO·GEO Studio exposes provider status/actions, OpenSEO endpoint and crawl/snapshots, Search Console periods, DataForSEO manual refresh/cost warning, GEO signals and evidence-backed insights. Actions persist through RestaurantStudioConfig into `seo.integrations`, `seo.intelligence` and `seo.geo`; reload must preserve snapshots.
+
+## Security, tests and DoD
+
+Secrets are backend/serverless environment variables only. CI uses provider-shaped mocks, never paid APIs. Release C is review-ready when adapters, persistence, category-aware diffs, crawler audit, heuristic GEO, Studio E2E and Release A/B regression gates pass; real providers remain honestly disconnected until configured.

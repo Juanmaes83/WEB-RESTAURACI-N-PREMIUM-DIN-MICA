@@ -17,3 +17,6 @@ jobs:
           node --check rubik-seo-geo-media.js
           node --check rubik-seo-geo-release-b.js
           node --check rubik-seo-geo-intelligence.js
+      - run: npm install --no-save playwright@1.55.0
+      - run: npx playwright install --with-deps chromium webkit
+      - run: node tests/seo-geo-release-c-studio-e2e.mjs
