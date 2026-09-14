@@ -21,6 +21,7 @@
   function labeledInput(label,value,onChange,{textarea=false,type='text',readonly=false}={}){const wrap=el('label','seo-field',label),input=el(textarea?'textarea':'input');if(!textarea)input.type=type;if(textarea)input.rows=3;input.value=value??'';input.readOnly=readonly;input.addEventListener('change',()=>onChange(input.value,input));wrap.append(input);return {wrap,input};}
   function button(label,fn,cls='studio-primary'){const x=el('button',cls,label);x.type='button';x.onclick=fn;return x;}
   function stateCopy(){return api().snapshot();}
+  function ensureIntelligenceState(){const i=intel();if(!i||!api())return;const c=stateCopy(),d=i.defaults();if(!c.seo?.integrations)api().set('seo.integrations',d.integrations);if(!c.seo?.intelligence)api().set('seo.intelligence',d.intelligence);if(!c.seo?.geo)api().set('seo.geo',d.geo);}
 
   function build(){
     if(panel){render();return;}
@@ -46,7 +47,7 @@
     const audit=section('Auditoría Release B','Media, páginas, blog, redirects, enlaces y Release A.',{open:true});const list=el('ul','seo-checks');list.dataset.seoChecks='';audit.append(list);
     const context=section('Contexto y medición','Estado de providers y señales post-publicación.');const info=el('p','seo-help');info.dataset.seoContext='';context.append(info);
     const intelligence=section('Intelligence · Medición post-publicación','Consume la web publicada y guarda snapshots e insights en el mismo Project State. No inventa métricas.');const intelBox=el('div','seo-intelligence');intelBox.dataset.seoIntelligence='';intelligence.append(intelBox);
-    document.querySelector('#studio-scroll').append(panel);refreshMediaRecords();render();
+    document.querySelector('#studio-scroll').append(panel);ensureIntelligenceState();refreshMediaRecords();render();
   }
 
   function createPageDraft(){if(!b())return;const c=stateCopy(),stamp=Date.now(),id=`page-${stamp}`;try{b().createPage(c,{id,path:`/pagina-${stamp}/`,pageType:'generic',status:'draft',indexable:false,title:'',description:'',h1:'',primaryQuery:'',topics:[],entities:[],content:''});api().set('seo.pages',c.seo.pages);}catch(err){alert(err.message);}}
