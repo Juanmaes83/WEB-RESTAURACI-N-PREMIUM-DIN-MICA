@@ -28,10 +28,10 @@
     const style=el('link');style.rel='stylesheet';style.href='styles-seo-geo.css';document.head.append(style);
     panel=el('section','studio-panel seo-panel');panel.dataset.panel='seo-geo';panel.hidden=true;
     const intro=el('div','panel-intro');intro.append(el('p','eyebrow','RUBIK / SEO FOUNDATION'),el('h3','','Tu negocio, bien descrito.'),el('p','','Reutiliza tus datos, revisa c贸mo se presenta HOME y personaliza s贸lo lo necesario.'));
-    panel.append(intro,el('p','seo-notice','SEO generado desde Project State. El preview es seguro y noindex; Publisher materializa la producci髇. Define un baseUrl/canonical HTTPS v醠ido para publicar. No es una promesa de ranking.'));
+    panel.append(intro,el('p','seo-notice','SEO generado desde Project State. El preview es seguro y noindex; Publisher materializa la producci贸n. Define un baseUrl/canonical HTTPS v谩lido para publicar. No es una promesa de ranking.'));
     const overview=el('p','seo-overview');overview.dataset.seoOverview='';overview.setAttribute('role','status');panel.append(overview);
     const home=section('HOME 路 Apariencia en buscadores','Una p谩gina real: /. Los anchors del men煤 no se convierten en p谩ginas nuevas.',{open:true});
-    field(home,'Idioma de las f贸rmulas','seo.site.defaultLanguage',{options:[['es','Espa駉l']]});
+    field(home,'Idioma de las f贸rmulas','seo.site.defaultLanguage',{options:[['es','Espa帽ol']]});
     field(home,'URL de producci贸n','seo.site.baseUrl',{type:'url',help:'Tu dominio definitivo. No se toma autom谩ticamente la URL temporal de Vercel.'});
     for(const [key,label] of [['title','SEO title'],['description','Meta description'],['h1','H1 sugerido']]){
       const box=el('div','seo-generated');box.dataset.seoGenerated=key;
@@ -54,7 +54,7 @@
       ['Calle','modules.location.address.street'],['Ciudad','modules.location.address.city'],['Regi贸n','modules.location.address.region'],['C贸digo postal','modules.location.address.postalCode'],['Pa铆s','modules.location.address.country'],
       ['Tel茅fono p煤blico','modules.location.phone','tel','Fuente: Ubicaci贸n'],['Contacto / email visible','visit.contact','text','Fuente: Visit. No introduzcas un email administrativo privado.']
     ])field(grid,label,path,{type:type||'text',help:help||'Fuente: Ubicaci贸n'});
-    const privacy=section('Revisi贸n y privacidad','Los datos de contacto se omiten del schema hasta confirmarlos. Los datos se publican en schema s髄o cuando est醤 estructurados, confirmados y marcados como p鷅licos. La visibilidad del m骴ulo Location/Maps es independiente de la elegibilidad SEO.');
+    const privacy=section('Revisi贸n y privacidad','Los datos de contacto se omiten del schema hasta confirmarlos. Los datos se publican en schema s贸lo cuando est谩n estructurados, confirmados y marcados como p煤blicos. La visibilidad del m贸dulo Location/Maps es independiente de la elegibilidad SEO.');
     for(const [key,label] of [['address','Direcci贸n en schema'],['phone','Tel茅fono en schema'],['email','Email en schema']])field(privacy,label,`seo.visibility.${key}`,{options:[['private','Omitir'],['public','Permitir datos p煤blicos']]});
     const confirm=el('button','studio-primary','Confirmar datos reales revisados');confirm.type='button';confirm.dataset.seoConfirm='';
     confirm.onclick=()=>{const config=api().snapshot();api().set('seo.business',{...config.seo.business,publicDataConfirmed:true,confirmationSignature:core().signature(config)});};privacy.append(confirm);
