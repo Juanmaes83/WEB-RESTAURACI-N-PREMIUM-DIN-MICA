@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#d8dad5">
+  <title>Project 12 — Kinetic Product Selector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles-kinetic-product-selector.css">
+</head>
+<body>
+  <main class="kps-page" id="kps-page">
+    <div class="kps-bg" aria-hidden="true">
+      <i class="kps-shape kps-shape-a"></i><i class="kps-shape kps-shape-b"></i><i class="kps-shape kps-shape-c"></i><i class="kps-linework"></i>
+    </div>
+    <div class="kps-grain" aria-hidden="true"></div>
+
+    <header class="kps-topbar">
+      <strong class="kps-brand" id="kps-brand">STACK°</strong>
+      <nav class="kps-nav" id="kps-nav" aria-label="Brand navigation"></nav>
+      <span class="kps-bag" id="kps-bag">BAG · 00</span>
+    </header>
+
+    <section class="kps-stage" id="kps-stage" tabindex="0" aria-label="Interactive product selector. Use left and right arrow keys to change product.">
+      <div class="kps-copy">
+        <span class="kps-code" id="kps-code">01</span>
+        <h1 class="kps-title" id="kps-title"></h1>
+        <p class="kps-tagline" id="kps-tagline"></p>
+      </div>
+
+      <div class="kps-product-wrap" aria-live="off">
+        <div class="kps-product-shadow" id="kps-product-shadow" aria-hidden="true"></div>
+        <img class="kps-product" id="kps-hero" src="" alt="" draggable="false" fetchpriority="high">
+      </div>
+      <div class="kps-fx" id="kps-fx" aria-hidden="true"></div>
+
+      <button class="kps-cta" id="kps-cta" type="button" aria-hidden="true" tabindex="-1"><span>TASTE THE CHAOS →</span><i aria-hidden="true">↗</i></button>
+
+      <div class="kps-rail-wrap">
+        <div class="kps-rail" id="kps-rail" aria-label="Products"></div>
+        <div class="kps-meta">
+          <span class="kps-progress" id="kps-progress">01 / 06</span>
+          <button class="kps-demo" id="kps-demo" type="button" aria-pressed="false" title="Toggle automatic choreography"><span>AUTO</span></button>
+        </div>
+      </div>
+      <p class="kps-sr" id="kps-live" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="../../kinetic-product-source.js"></script>
+  <script src="../../kinetic-product-selector.js"></script>
+</body>
+</html>
