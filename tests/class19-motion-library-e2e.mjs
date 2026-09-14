@@ -1,7 +1,7 @@
 /* CLASS 19 — MOTION + MODULE STUDIO INTEGRATION contract.
 
-   Motion 16 evolves the truthful catalogue to SIXTEEN elements:
-   twelve selectable product choreographies, one transversal page motion and three
+   Project 12 evolves the truthful catalogue to SEVENTEEN elements:
+   twelve selectable product choreographies, one transversal page motion and four
    complete experiences. This suite proves the library remains only an index — no
    second selection, no persistence and no motion of its own.
 
@@ -34,7 +34,7 @@ async function openLibrary(page){
   await page.evaluate(()=>document.querySelector('#studio [data-panel="motion"]')?.click());
   await page.waitForFunction(()=>document.documentElement.dataset.motionLibrary==='ready',
     null,{timeout:25000});
-  await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().available===16,
+  await page.waitForFunction(()=>window.RestaurantMotionLibrary?.state?.().available===17,
     null,{timeout:25000}).catch(()=>{});
   await page.waitForTimeout(600);
 }
@@ -47,20 +47,23 @@ async function openLibrary(page){
 
   const state=await page.evaluate(()=>window.RestaurantMotionLibrary.state());
   const engines=await page.evaluate(()=>window.RestaurantMotionLibrary.engines());
-  check('the library declares sixteen Motion elements',state.count===16,`${state.count} elements`);
-  check('all sixteen are really reachable, not just listed',state.available===16,`${state.available}/16 available`);
+  check('the library declares seventeen Motion elements',state.count===17,`${state.count} elements`);
+  check('all seventeen are really reachable, not just listed',state.available===17,`${state.available}/17 available`);
   check('the count on screen is the count in the catalogue',
-    await page.evaluate(()=>+document.querySelector('.ml-count').textContent.trim())===16
-    &&await page.evaluate(()=>document.querySelectorAll('.ml-grid [data-ml-kind]').length)===16,
+    await page.evaluate(()=>+document.querySelector('.ml-count').textContent.trim())===17
+    &&await page.evaluate(()=>document.querySelectorAll('.ml-grid [data-ml-kind]').length)===17,
     'header badge and rendered cards agree');
   check('every engine carries a number, a name and its provenance',
     engines.every(e=>/^\d\d$/.test(e.n)&&e.name.length>3&&/(Class|Project)\s\d/.test(e.project)),
     engines.map(e=>e.n).join(' '));
-  check('the catalogue is 12 product presets + 1 page motion + 3 experiences',
+  check('the catalogue is 12 product presets + 1 page motion + 4 experiences',
     engines.filter(e=>e.kind==='preset').length===12
     &&engines.filter(e=>e.kind==='page').length===1
-    &&engines.filter(e=>e.kind==='experience').length===3,
-    '12 presets · 1 page motion · 3 full-screen experiences');
+    &&engines.filter(e=>e.kind==='experience').length===4,
+    '12 presets · 1 page motion · 4 full-screen experiences');
+  check('Kinetic Product Selector is engine 17 and resolves to a real experience',
+    engines.some(e=>e.n==='17'&&e.id==='kinetic-product-selector'&&e.kind==='experience'&&e.status.available),
+    'kinetic-product-selector available');
   check('Half Orbit is engine 12 and resolves to a real preset',
     engines.some(e=>e.n==='12'&&e.id==='half-orbit'&&e.kind==='preset'&&e.status.available),
     'half-orbit available');
@@ -84,7 +87,7 @@ async function openLibrary(page){
     heading:document.querySelector('.ml-modules h4')?.textContent.trim()||''}));
   check('the three optional modules are listed in their own section',
     modules.count===3&&modules.cards===3,`${modules.cards} module cards`);
-  check('the modules are not counted among the engines',!modules.insideGrid&&state.count===16,modules.heading);
+  check('the modules are not counted among the engines',!modules.insideGrid&&state.count===17,modules.heading);
 
   const grouped=await page.evaluate(()=>window.RestaurantMotionGovernance?.state?.());
   check('Motion Studio separates product / transversal / experiences',
@@ -153,29 +156,29 @@ async function openLibrary(page){
   const openers=await page.evaluate(()=>[...document.querySelectorAll('[data-ml-grid] .ml-open')]
     .map(el=>({card:el.closest('[data-ml-card]').dataset.mlCard,tag:el.tagName,
       id:el.dataset.experienceOpen||'',href:el.getAttribute('href'),target:el.getAttribute('target')})));
-  check('the three full-screen experiences open inside the app, not a new tab',
-    openers.length===3&&openers.every(o=>o.tag==='BUTTON'&&o.id===o.card&&!o.href&&!o.target),
+  check('the four full-screen experiences open inside the app, not a new tab',
+    openers.length===4&&openers.every(o=>o.tag==='BUTTON'&&o.id===o.card&&!o.href&&!o.target),
     openers.map(o=>`${o.card}:${o.tag.toLowerCase()}`).join(' '));
   const shellPages=await page.evaluate(()=>
     (window.RestaurantExperienceShell?.experiences?.()||[]).map(e=>({id:e.id,url:e.url})));
   const labsOnDisk=fs.readdirSync(path.join(ROOT,'labs'))
     .filter(d=>fs.existsSync(path.join(ROOT,'labs',d,'index.html'))).length;
   check('the shell opens productive entrypoints and labs remain on disk',
-    shellPages.length===3&&openers.every(o=>shellPages.some(p=>p.id===o.card))
+    shellPages.length===4&&openers.every(o=>shellPages.some(p=>p.id===o.card))
     &&shellPages.every(p=>p.url===`experiences/${p.id}/index.html`&&fs.existsSync(path.join(ROOT,p.url)))
     &&labsOnDisk>=3,`${shellPages.length} product pages · ${labsOnDisk} labs intact`);
   check('no complete experience pretends to be a product preset',
     !(await page.evaluate(()=>[...document.querySelectorAll('#motion-orbital-style option')].map(o=>o.value)))
-      .some(v=>['dish-stage','circular-dish-rotator','cinematic-product-rail'].includes(v)),
+      .some(v=>['dish-stage','circular-dish-rotator','cinematic-product-rail','kinetic-product-selector'].includes(v)),
     'selector contains only product choreographies');
 
-  for(const [f,expect] of [['preset',12],['page',1],['experience',3],['all',16]]){
+  for(const [f,expect] of [['preset',12],['page',1],['experience',4],['all',17]]){
     await page.evaluate(id=>window.RestaurantMotionLibrary.setFilter(id),f);await page.waitForTimeout(180);
     const visible=await page.evaluate(()=>[...document.querySelectorAll('.ml-grid [data-ml-kind]')].filter(c=>!c.hidden).length);
     check(`filter "${f}" shows ${expect}`,visible===expect,`${visible} visible`);
   }
   check('filtering never removes a card from the DOM',
-    await page.evaluate(()=>document.querySelectorAll('.ml-grid [data-ml-kind]').length)===16,'all sixteen still present');
+    await page.evaluate(()=>document.querySelectorAll('.ml-grid [data-ml-kind]').length)===17,'all seventeen still present');
 
   const scrollable=await page.evaluate(()=>{
     const panel=document.querySelector('.studio-panel.motion-panel');
@@ -214,7 +217,7 @@ async function openLibrary(page){
     cards:document.querySelectorAll('.ml-grid [data-ml-kind]').length,
     overflow:document.documentElement.scrollWidth<=innerWidth,
     columns:getComputedStyle(document.querySelector('.ml-grid')).gridTemplateColumns.split(' ').length}));
-  check('mobile · all sixteen Motion elements are listed',mob.count===16&&mob.cards===16,`${mob.cards} cards`);
+  check('mobile · all seventeen Motion elements are listed',mob.count===17&&mob.cards===17,`${mob.cards} cards`);
   check('mobile · one column and no horizontal overflow',mob.columns===1&&mob.overflow,`${mob.columns} column(s)`);
   const tap=await page.evaluate(async()=>{
     const btn=[...document.querySelectorAll('.ml-activate')].find(b=>!b.disabled
