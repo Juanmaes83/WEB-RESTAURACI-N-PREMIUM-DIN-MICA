@@ -17,6 +17,18 @@ test('provider states never fabricate metrics',()=>{
   assert.equal(new c.DataForSEOAdapter().status(),'NOT_MEASURED');
 });
 
+test('provider endpoints reject credentials and insecure URLs',async()=>{
+  assert.equal(c.providerEndpoint('http://openseo.test'),'');
+  assert.equal(c.providerEndpoint('https://user:secret@openseo.test'),'');
+  assert.equal(c.providerEndpoint('https://openseo.test/?token=secret'),'');
+  assert.equal(c.providerEndpoint('https://openseo.test/#secret'),'');
+  assert.equal(c.providerEndpoint('https://openseo.test/'), 'https://openseo.test');
+  const invalid=new c.OpenSEOAdapter({endpoint:'https://user:secret@openseo.test',fetchImpl:providerFetch});
+  const state=await invalid.connectivity();
+  assert.equal(state.status,'ERROR');
+  assert.match(state.error,/without credentials/i);
+});
+
 test('mergeState fills defaults without overwriting persisted Release C state',()=>{
   const merged=c.mergeState({seo:{integrations:{openseo:{status:'READY',endpoint:'https://saved.example'}},intelligence:{snapshots:[{snapshotId:'persisted'}]}}});
   assert.equal(merged.seo.integrations.openseo.status,'READY');
@@ -61,7 +73,7 @@ test('OpenSEO polling timeout is ERROR and never fake READY',async()=>{
 
 test('OpenSEO missing and unreachable are honest',async()=>{
   assert.equal((await new c.OpenSEOAdapter().connectivity()).status,'NOT_CONFIGURED');
-  assert.equal((await new c.OpenSEOAdapter({endpoint:'x',fetchImpl:async()=>{throw new Error('offline')}}).connectivity()).status,'ERROR');
+  assert.equal((await new c.OpenSEOAdapter({endpoint:'https://offline.test',fetchImpl:async()=>{throw new Error('offline')}}).connectivity()).status,'ERROR');
 });
 
 test('snapshots diff new resolved improved and regressed and never compare providers',()=>{
