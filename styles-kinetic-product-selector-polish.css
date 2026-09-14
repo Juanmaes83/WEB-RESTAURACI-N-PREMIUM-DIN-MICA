@@ -1,0 +1,13 @@
+/* Project 12 — final visual normalization for the sixth product only. */
+[data-kps-product="lava-brisket"] .kps-product{
+  scale:1.14;
+}
+.kps-thumb[data-index="5"] .kps-thumb-img img{
+  scale:1.34;
+  transform-origin:50% 78%;
+}
+
+@media(max-width:900px){
+  [data-kps-product="lava-brisket"] .kps-product{scale:1.1}
+  .kps-thumb[data-index="5"] .kps-thumb-img img{scale:1.28}
+}
